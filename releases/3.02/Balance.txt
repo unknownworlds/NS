@@ -205,11 +205,11 @@
 #define kMovementChamberHealth 1000
 #define kMovementChamberThinkInterval 2
 #define kNumInitialAlienPoints 25
-#define kNumInitialMarinePoints 100
+#define kNumInitialMarinePoints 110
 #define kNumSameAlienStructuresAllowedInRadius 8
 #define kNumWebsAllowedInRadius 8
 #define kObservatoryBuildTime 15
-#define kObservatoryCost 20
+#define kObservatoryCost 15
 #define kObservatoryHealth 1700
 #define kObservatoryXYDetectionRadius 900
 #define kOffenseChamberBuildTime 11
@@ -413,7 +413,7 @@
 #define kParasiteEnergyCost 0.30
 #define kParasiteROF 0.50
 #define kPhaseGateDelay 2.00
-#define kPhaseGateDepartureInterval 0.80
+#define kPhaseGateDepartureInterval 0.50
 #define kPrimalScreamDamageModifier 0.30
 #define kPrimalScreamDuration 4.00
 #define kPrimalScreamEnergyCost 0.45

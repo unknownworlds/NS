@@ -243,6 +243,11 @@ BOOL AvHBasePlayerWeapon::DefaultDeploy( char *szViewModel, char *szWeaponModel,
 
 BOOL AvHBasePlayerWeapon::DefaultReload( int iClipSize, int iAnim, float fDelay, int body)
 {
+	// tankefugl: 0000996
+	if (m_fInReload == TRUE)
+		return TRUE;
+	// :tankefugl
+
 	if (m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType] <= 0)
 		return FALSE;
 
@@ -251,7 +256,7 @@ BOOL AvHBasePlayerWeapon::DefaultReload( int iClipSize, int iAnim, float fDelay,
 	{
 		return FALSE;
 	}
-	
+
 	int j = min(iClipSize - m_iClip, m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType]);	
 	
 	if (j == 0)
@@ -704,7 +709,8 @@ bool AvHBasePlayerWeapon::ProcessValidAttack(void)
 	// puzl: 497 call GetEnabledState instead of testing directly
 	int enabledState=this->GetEnabledState();
 
-	if(this->m_pPlayer->pev->viewmodel && ( enabledState == 1))
+	// tankefugl: 0000996 - added check vs m_fInReload
+	if(this->m_pPlayer->pev->viewmodel && ( enabledState == 1) && (m_fInReload == FALSE))
 	{
 		// don't fire underwater
 		if((this->m_pPlayer->pev->waterlevel == 3) && !this->GetFiresUnderwater())

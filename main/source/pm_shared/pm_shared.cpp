@@ -5104,7 +5104,11 @@ void PM_Jump (void)
             float speed = Length(pmove->velocity);
             float projectedSpeed = DotProduct(pmove->velocity, pmove->forward);
 
-            vec3_t forwardVelocity;
+			// tankefugl: 0000522 reverse lerk flight
+			if (projectedSpeed < 0)
+				speed *= -1;
+			// :tankefugl
+			vec3_t forwardVelocity;
             VectorScale(pmove->forward, speed, forwardVelocity);
 
             vec3_t glideVelocity;

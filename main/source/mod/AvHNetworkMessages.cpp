@@ -1966,6 +1966,8 @@ const int		kPositionNetworkConstant = 25;
 	void NetMsg_UpdateEntityHierarchy( entvars_t* const pev, const MapEntityMap& NewItems, const EntityListType& OldItems )
 	{
 		const int kMaxUpdatesPerPacket = 30;
+		if( NewItems.empty() && OldItems.empty() ) { return; } //nothing to send!
+
 		MapEntityMap::const_iterator new_current, new_end = NewItems.end();
 		EntityListType::const_iterator old_current, old_end = OldItems.end();
 		int short_data, long_data, count = 1;

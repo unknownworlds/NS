@@ -1,0 +1,64 @@
+ns_lost
+Greedo386
+mrolek@gmail.com
+http://www.martinrolek.com
+
+
+v2.0 changelog
+
+o New marine start
+o Removed closet weld node
+o Moved node from Los Paranoias to Beta Deck Access
+o Altered Emergency Access Corridor weld setup
+o Added 5 weldable vent covers
+o Added ladder to Coolant Exchange
+o Made window into Equilbrium siege room breakable
+
+
+
+
+-----------------------------------
+
+
+Well, this is it.  Nearly a year's worth of work on this level, and it's all come to this.  It's been a wild ride, but it's been worth it.
+
+Thanks to the following:
+-HanzGruber for the alienhive.mp3 soundfile that I've used in my hive rooms.
+-The EC groupies who helped me playtest this, because without you, I wouldn't have had nearly as long of a hall as I do now.
+-Relic, Merk, and Ken - You showed me how great a level can look, and I can only hope one day to be able to make mine look as good as yours.
+-Flayra, Cory, and the rest of the NS dev team - You've given me the best game I've ever played and asked nothing in return.
+-All you lamers out there - Without you, I'd never have had as much fun as I did this past year.  !b *!*@* ;Þ
+-And lastly, I'd like to thank all the people who end up playing this map, and enjoying it.  If that's even one person out there, all this work will be worth it.
+
+
+Some random, uninteresting to most people statstics follow below:
+
+Compiled on a 2.4 GHz P4, 512MB RAM machine.
+
+150 textures from 5 wads - Texture usage is at 3.16 mb (of 4.00 mb MAX)
+
+HLCSG -chart -estimate -wadconfig NS -hullfile nshulls.txt ns_lost.map
+HLBSP -chart -estimate ns_lost.map
+HLVIS -chart -estimate -full ns_lost.bsp
+HLRAD -chart -estimate -bounce 1 -dscale 1 -smooth 80 -sparse -extra -chop 32 -noskyfix -lights lost.rad ns_lost.bsp
+
+Object names  Objects/Maxobjs  Memory / Maxmem  Fullness
+------------  ---------------  ---------------  --------
+models            116/400         7424/25600    (29.0%)
+planes          14198/32767     283960/655340   (43.3%)
+vertexes        17217/65535     206604/786420   (26.3%)
+nodes            6490/32767     155760/786408   (19.8%)
+texinfos         3535/32767     141400/1310680  (10.8%)
+faces           12268/65535     245360/1310700  (18.7%)
+clipnodes       19093/32767     152744/262136   (58.3%)
+leaves           3488/8192       97664/229376   (42.6%)
+marksurfaces    15663/65535      31326/131070   (23.9%)
+surfedges       58380/512000    233520/2048000  (11.4%)
+edges           29996/256000    119984/1024000  (11.7%)
+texdata          [variable]     144812/4194304  ( 3.5%)
+lightdata        [variable]    1711746/4194304  (40.8%)
+visdata          [variable]      84409/2097152  ( 4.0%)
+entdata          [variable]      48050/524288   ( 9.2%)
+152 textures referenced
+=== Total BSP file data space used: 3664763 bytes ===
+13900.22 seconds elapsed [3h 51m 40s]

@@ -4000,7 +4000,7 @@ void CBasePlayer :: ForceClientDllUpdate( void )
 	// Now force all the necessary messages
 	//  to be sent.
 	UpdateClientData();
-	m_fWeapon = TRUE;          // Force weapon send
+	// m_fWeapon = TRUE;          // Force weapon send
 }
 
 /*
@@ -4739,6 +4739,8 @@ void CBasePlayer :: UpdateClientData( void )
 	// New Weapon?
 	//
 	
+	bool forceCurWeaponUpdate = false;
+
 	if (!m_fKnownItem)
 	{
 
@@ -4759,6 +4761,10 @@ void CBasePlayer :: UpdateClientData( void )
 		
 		// Send ALL the weapon info now
 		this->SendWeaponUpdate();
+
+		// tankefugl: HACK force an full curweapon update after each bunch of weaponlists sent
+		forceCurWeaponUpdate = true;
+		// :tankefugl
 	}
 
 
@@ -4767,9 +4773,13 @@ void CBasePlayer :: UpdateClientData( void )
 	// Update all the items
 	for ( int i = 0; i < MAX_ITEM_TYPES; i++ )
 	{
+		if (forceCurWeaponUpdate == true)
+			m_fWeapon = FALSE;
 		if ( thePlayerToUseForWeaponUpdates->m_rgpPlayerItems[i] )  // each item updates it's successors
 			thePlayerToUseForWeaponUpdates->m_rgpPlayerItems[i]->UpdateClientData( thePlayerToUseForWeaponUpdates );
 	}
+	if (forceCurWeaponUpdate == true)
+		m_fWeapon = TRUE;
 
 	// Cache and client weapon change
 	m_pClientActiveItem = thePlayerToUseForWeaponUpdates->m_pActiveItem;
@@ -4816,6 +4826,7 @@ void CBasePlayer::SendWeaponUpdate()
 		WRITE_BYTE(II.iFlags);					// byte		Flags
 		MESSAGE_END();
 	}
+
 }
 
 //=========================================================

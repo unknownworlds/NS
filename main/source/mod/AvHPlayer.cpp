@@ -4499,7 +4499,7 @@ void AvHPlayer::HandleTopDownInput()
 						AvHObservatory* theObs = dynamic_cast<AvHObservatory*>(theEntity);
 						if ( theObs ) 
 						{
-							if ( theObs->GetIsTechnologyAvailable(BUILD_SCAN) == false ) 
+							if ( (theObs->GetIsTechnologyAvailable(BUILD_SCAN)) == false && (theMessageID == BUILD_SCAN) ) 
 								theCanBuild = false;
 						}
 						if(!theObs && theMessageID == BUILD_SCAN) {

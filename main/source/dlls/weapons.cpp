@@ -1192,7 +1192,7 @@ int CBasePlayerWeapon::UpdateClientData( CBasePlayer *pPlayer )
 	    m_iClientWeaponState = state;
 		// puzl: 497 - remember the old enabled state
 		m_iClientEnableState = m_iEnabled;
-//	    pPlayer->m_fWeapon = TRUE;
+	    pPlayer->m_fWeapon = TRUE;
 
 	}
 

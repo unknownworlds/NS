@@ -212,6 +212,9 @@ const float kSkulkRotationLookAhead = 75;
 
 // Distance around the skulk to look each in direction for wallsticking.
 const vec3_t kWallstickingDistanceCheck = { 5, 5, 5 };
+// tankefugl: 0000972 
+vec3_t gSurfaceNormal = { 0, 0, 0 };
+// :tankefugl
 
 #ifdef AVH_CLIENT
 extern vec3_t gPlayerAngles;
@@ -1412,7 +1415,14 @@ void NS_UpdateWallsticking()
 
     if (pmove->iuser3 == AVH_USER3_ALIEN_PLAYER1)
     {
-        if(!(pmove->cmd.buttons & IN_DUCK)) //&& ((pmove->onground != -1) || (pmove->numtouch > 0)))
+		// tankefugl: 0000972 
+		pmove->waterjumptime -= pmove->cmd.msec;
+		if (pmove->waterjumptime < 0)
+			pmove->waterjumptime = 0;
+		
+		if(!(pmove->cmd.buttons & IN_DUCK) && !(pmove->oldbuttons & IN_JUMP) && (pmove->waterlevel < 2)) //&& ((pmove->onground != -1) || (pmove->numtouch > 0)))
+//		if(!(pmove->cmd.buttons & IN_DUCK)) //&& ((pmove->onground != -1) || (pmove->numtouch > 0)))
+		// :tankefugl
         {
             
             vec3_t theMinPoint;
@@ -1442,9 +1452,29 @@ void NS_UpdateWallsticking()
 
             if (wallsticking)
             {
+				// tankefugl: 0000972 
+				if (theSurfaceNormal[2] < 0.95 && pmove->waterjumptime == 0)
+				{
+					VectorCopy(theSurfaceNormal, gSurfaceNormal);
 
-                // Set wall sticking to true.
-                SetUpgradeMask(&pmove->iuser4, MASK_WALLSTICKING);
+					if (theSurfaceNormal[2] < 0.7) 
+					{
+						vec3_t theDispVect;
+						VectorScale(theSurfaceNormal, -5, theDispVect);
+						VectorAdd(pmove->origin, theDispVect, theDispVect);
+
+						pmtrace_t wallclimbTrace = NS_PlayerTrace(pmove, pmove->origin, theDispVect, PM_NORMAL, -1);
+						
+						if (wallclimbTrace.fraction < 1)
+						{
+							VectorCopy(wallclimbTrace.endpos, pmove->origin);
+						}
+					}
+                
+					// Set wall sticking to true.
+		            SetUpgradeMask(&pmove->iuser4, MASK_WALLSTICKING);
+				}
+				// :tankefugl
 
                 vec3_t angles;
                          
@@ -2679,7 +2709,9 @@ void PM_AddCorrectGravity()
 //      }
 //  }
 
-    if ( pmove->waterjumptime )
+    // tankefugl: 0000972 
+	if (pmove->waterjumptime && !(pmove->waterlevel == 0 && pmove->iuser3 == AVH_USER3_ALIEN_PLAYER1))
+	// :tankefugl
         return;
 
     if (pmove->gravity)
@@ -2706,7 +2738,9 @@ void PM_FixupGravityVelocity ()
 {
     float   ent_gravity;
 
-    if ( pmove->waterjumptime )
+	// tankefugl: 0000972 
+	if (pmove->waterjumptime && !(pmove->waterlevel == 0 && pmove->iuser3 == AVH_USER3_ALIEN_PLAYER1))
+	// :tankefugl
         return;
 
     if (pmove->gravity)
@@ -2948,7 +2982,9 @@ void PM_Accelerate (vec3_t wishdir, float wishspeed, float accel)
         return;
 
     // If waterjumping, don't accelerate
-    if (pmove->waterjumptime)
+	// tankefugl: 0000972 
+	if (pmove->waterjumptime && !(pmove->waterlevel == 0 && pmove->iuser3 == AVH_USER3_ALIEN_PLAYER1))
+	// :tankefugl
         return;
 
     // See if we are changing direction a bit
@@ -3133,7 +3169,10 @@ void PM_WalkMove ()
             return;
     }
     
-    if (pmove->waterjumptime)         // If we are jumping out of water, don't do anything more.
+    // tankefugl: 0000972 
+	if (pmove->waterjumptime && !(pmove->waterlevel == 0 && pmove->iuser3 == AVH_USER3_ALIEN_PLAYER1))
+	// :tankefugl
+		// If we are jumping out of water, don't do anything more.
         return;
 
     // Try sliding forward both on ground and up 16 pixels
@@ -3223,7 +3262,9 @@ void PM_Friction (void)
     vec3_t newvel;
     
     // If we are in water jump cycle, don't apply friction
-    if (pmove->waterjumptime)
+	// tankefugl: 0000972 
+	if (pmove->waterjumptime && !(pmove->waterlevel == 0 && pmove->iuser3 == AVH_USER3_ALIEN_PLAYER1))
+	// :tankefugl
         return;
 
     if (PM_GetIsBlinking())
@@ -3301,7 +3342,9 @@ void PM_AirAccelerate (vec3_t wishdir, float wishspeed, float accel)
         
     if (pmove->dead)
         return;
-    if (pmove->waterjumptime)
+	// tankefugl: 0000972 
+	if (pmove->waterjumptime && !(pmove->waterlevel == 0 && pmove->iuser3 == AVH_USER3_ALIEN_PLAYER1))
+	// :tankefugl
         return;
     if(GetHasUpgrade(pmove->iuser4, MASK_TOPDOWN))
         return;
@@ -4297,6 +4340,10 @@ void PM_AlienAbilities()
 		else
 		{
 			AvHMUGetEnergyCost(AVH_ABILITY_LEAP, theEnergyCost);
+			// tankefugl: 0000972 
+			// Add highjacked "watertime" to release leaping skulk from wall
+			pmove->waterjumptime = 75;
+			// :tankefugl
 		}
 
 		if(AvHMUHasEnoughAlienEnergy(pmove->fuser3, theEnergyCost))
@@ -4553,7 +4600,12 @@ physent_t *PM_Ladder( void )
 
 void PM_WaterJump (void)
 {
-    if ( pmove->waterjumptime > 10000 )
+	// tankefugl: 0000972 
+	if (pmove->iuser3 == AVH_USER3_ALIEN_PLAYER1)
+		return;
+	// :tankefugl
+	
+	if ( pmove->waterjumptime > 10000 )
     {
         pmove->waterjumptime = 10000;
     }
@@ -5123,6 +5175,22 @@ void PM_Jump (void)
 
     
     }
+
+	// tankefugl: 0000972 walljump
+	if (GetHasUpgrade(pmove->iuser4, MASK_WALLSTICKING) && (pmove->cmd.buttons & IN_JUMP) && !(pmove->oldbuttons & IN_JUMP) && (gSurfaceNormal[2] < 0.5))
+	{
+		vec3_t theJumpVect;
+		VectorScale(pmove->forward, pmove->maxspeed, pmove->velocity);
+		pmove->velocity[2] += 100;
+		
+		VectorScale(gSurfaceNormal, 50, theJumpVect);
+		VectorAdd(theJumpVect, pmove->velocity, pmove->velocity);
+
+		PM_PlayStepSound( PM_MapTextureTypeStepType( pmove->chtexturetype ), 1.0 );
+
+		pmove->waterjumptime = 100;
+	}
+	// :tankefugl
 
     // No more effect
     if ( pmove->onground == -1 )

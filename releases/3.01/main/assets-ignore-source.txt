@@ -1,7 +1,0 @@
-*.idb
-*.pcb
-*.pch
-*.pdb
-*.obj
-*.plg
-source/doc/*.*

@@ -1,7 +1,0 @@
-10
-weapon			320 320w	80	80	80	20
-weapon_s		320 320w-s	80	80	80	20
-crosshair		320 xhairpara	0	0	128	128
-weapon			640 640aw3	0	0	170	45
-weapon_s		640 640aw3-s	0	0	170	45
-crosshair		640 xhairpara	0	0	128	128

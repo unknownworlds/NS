@@ -1,9 +1,0 @@
-14
-weapon			320 320w	160	80	80	20
-weapon_s		320 320w-s	160	80	80	20
-ammo			320 640hud7	0	72	24	24
-crosshair		320 xhairsg	0	0	256	256
-weapon			640 640mw2	0	135	170	45
-weapon_s		640 640mw2-s	0	135	170	45
-ammo			640 640hud7	0	72	24	24
-crosshair		640 xhairsg	0	0	256	256

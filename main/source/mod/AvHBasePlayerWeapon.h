@@ -51,7 +51,7 @@
 
 #include "dlls/weapons.h"
 #include "dlls/extdll.h"
-#include "util.h"
+#include "dlls/util.h"
 #include "dlls/cbase.h"
 #include "dlls/monsters.h"
 #include "dlls/weapons.h"
@@ -62,7 +62,6 @@
 #include "util/CString.h"
 #include "mod/AvHBasePlayerWeaponConstants.h"
 #include "mod/AvHConstants.h"
-#include "mod/AvHBalance.h"
 #include "mod/AvHSpecials.h"
 
 const int kIdleAnimationOne = 0;

@@ -143,7 +143,7 @@ char* AvHKnife::GetWorldModel() const
 void AvHKnife::Init()
 {
 	this->mRange = kKNRange;
-	this->mDamage = BALANCE_IVAR(kKNDamage);
+	this->mDamage = BALANCE_VAR(kKNDamage);
 }
 
 void AvHKnife::FireProjectiles(void)
@@ -195,7 +195,7 @@ int	AvHKnife::GetBarrelLength() const
 
 float AvHKnife::GetRateOfFire() const
 {
-	return BALANCE_FVAR(kKNROF);
+	return BALANCE_VAR(kKNROF);
 }
 
 bool AvHKnife::GetFiresUnderwater() const

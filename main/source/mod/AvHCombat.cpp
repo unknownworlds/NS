@@ -1,4 +1,3 @@
-#include "build.h"
 #include "types.h"
 #include "mod/AvHPlayer.h"
 #include "mod/AvHPlayerUpgrade.h"
@@ -185,7 +184,7 @@ void AvHPlayer::AwardExperienceForObjective(float inHealthChange, AvHMessageID i
     {
         int theMaxHealth = GetGameRules()->GetBaseHealthForMessageID(inMessageID);
         float thePercentageOfHealth = inHealthChange/theMaxHealth;
-        int theCombatObjectiveExperienceScalar = BALANCE_IVAR(kCombatObjectiveExperienceScalar);
+        int theCombatObjectiveExperienceScalar = BALANCE_VAR(kCombatObjectiveExperienceScalar);
         float theExperienceGained = thePercentageOfHealth*theCombatObjectiveExperienceScalar;
         this->SetExperience(this->GetExperience() + theExperienceGained);
     }
@@ -222,14 +221,14 @@ void AvHPlayer::SetExperience(float inExperience)
             float theMaxHealth = AvHPlayerUpgrade::GetMaxHealth(this->pev->iuser4, theUser3, theCurrentLevel);
 			float theHealthPercentage = this->pev->health/theMaxHealth;
 			
-            float theLevelUpHealthPercentage = BALANCE_IVAR(kCombatLevelupHealthIncreasePercent)/100.0f;
+            float theLevelUpHealthPercentage = BALANCE_VAR(kCombatLevelupHealthIncreasePercent)/100.0f;
             theHealthPercentage = min(theHealthPercentage + theLevelUpHealthPercentage, 1.0f);
 			this->pev->health = theHealthPercentage*theMaxHealth;
 
             float theMaxArmor = AvHPlayerUpgrade::GetMaxArmorLevel(this->pev->iuser4, theUser3);
             float theArmorPercentage = this->pev->armorvalue/theMaxArmor;
 
-            float theLevelUpArmorPercentage = BALANCE_IVAR(kCombatLevelupArmorIncreasePercent)/100.0f;
+            float theLevelUpArmorPercentage = BALANCE_VAR(kCombatLevelupArmorIncreasePercent)/100.0f;
             theArmorPercentage = min(theArmorPercentage + theLevelUpArmorPercentage, 1.0f);
 			this->pev->armorvalue = theArmorPercentage*theMaxArmor;
 			
@@ -258,7 +257,7 @@ int	AvHPlayer::GetExperienceLevel() const
 	return theLevel;
 }
 
-AvHTechNodes& AvHPlayer::GetCombatNodes()
+AvHTechTree& AvHPlayer::GetCombatNodes()
 {
 	return this->mCombatNodes;
 }
@@ -268,7 +267,7 @@ MessageIDListType& AvHPlayer::GetPurchasedCombatUpgrades()
 	return this->mPurchasedCombatUpgrades;
 }
 
-void AvHPlayer::SetCombatNodes(const AvHTechNodes& inTechNodes)
+void AvHPlayer::SetCombatNodes(const AvHTechTree& inTechNodes)
 {
 	this->mCombatNodes = inTechNodes;
 }
@@ -481,7 +480,7 @@ void AvHPlayer::InternalCombatThink()
 
         // If it's time for an update
         float theCurrentTime = gpGlobals->time;
-        const float theCombatThinkInterval = BALANCE_FVAR(kCombatThinkInterval);
+        const float theCombatThinkInterval = BALANCE_VAR(kCombatThinkInterval);
         
 		// Give support from a fake commander
 		if(this->GetIsMarine() && this->GetIsRelevant() && !this->GetIsBeingDigested())
@@ -499,7 +498,7 @@ void AvHPlayer::InternalCombatThink()
 					// float theAmmoPercentage = this->GetCurrentWeaponAmmoPercentage(); // changed to fix #542
 					bool theAmmoResupply = this->GetShouldResupplyAmmo(); 
 
-					if((theHealthPercentage < BALANCE_FVAR(kCombatResupplyHealthPercentage)) || theAmmoResupply) //(theAmmoPercentage < BALANCE_FVAR(kCombatResupplyAmmoPercentage)))
+					if((theHealthPercentage < BALANCE_VAR(kCombatResupplyHealthPercentage)) || theAmmoResupply) //(theAmmoPercentage < BALANCE_VAR(kCombatResupplyAmmoPercentage)))
 					{
 						// Resupply player
 						this->GiveCombatModeUpgrade(BUILD_RESUPPLY);
@@ -530,7 +529,7 @@ void AvHPlayer::InternalCombatThink()
 
 					// Look in sphere for cloakables
 					CBaseEntity* theSphereEntity = NULL;
-					while ((theSphereEntity = UTIL_FindEntityInSphere(theSphereEntity, this->pev->origin, BALANCE_IVAR(kScanRadius))) != NULL)
+					while ((theSphereEntity = UTIL_FindEntityInSphere(theSphereEntity, this->pev->origin, BALANCE_VAR(kScanRadius))) != NULL)
 					{
 						if(!AvHSUGetIsExternalClassName(STRING(theSphereEntity->pev->classname)))
 						{
@@ -579,7 +578,7 @@ void AvHPlayer::InternalCombatThink()
 //					}
 //
 //					float theDeadPercentage = (float)theNumTeammatesWaitingToSpawn/theNumPlayersOnTeam;
-//					if(theDeadPercentage > BALANCE_FVAR(kCombatDistressBeaconDeadPercentage))
+//					if(theDeadPercentage > BALANCE_VAR(kCombatDistressBeaconDeadPercentage))
 //					{
 //						// Distress!
 //						this->GiveCombatModeUpgrade(RESEARCH_DISTRESSBEACON);
@@ -596,7 +595,7 @@ void AvHPlayer::InternalCombatThink()
             // Give aliens experience slowly over time
             if(this->mTimeOfLastCombatThink == 0 || (theCurrentTime > (this->mTimeOfLastCombatThink + theCombatThinkInterval)))
             {
-                float theExperienceRate = BALANCE_FVAR(kCombatExperienceAlienGrowthRate);
+                float theExperienceRate = BALANCE_VAR(kCombatExperienceAlienGrowthRate);
                 float theExperienceGained = theCombatThinkInterval*theExperienceRate;
                 this->SetExperience(this->GetExperience() + theExperienceGained);
 
@@ -673,7 +672,7 @@ void AvHGamerules::AwardExperience(AvHPlayer* inPlayer, int inTargetLevel, bool 
 	if(inAwardFriendliesInRange)
 	{
 		// Award experience to player, and any other players nearby
-		int theExperienceRadius = BALANCE_IVAR(kCombatFriendlyNearbyRange);
+		int theExperienceRadius = BALANCE_VAR(kCombatFriendlyNearbyRange);
 
 		// Make list of players to split it between.  If a player is at full experience, extra is wasted.
 		CBaseEntity* theEntity = NULL;
@@ -693,11 +692,11 @@ void AvHGamerules::AwardExperience(AvHPlayer* inPlayer, int inTargetLevel, bool 
 	
 	ASSERT(thePlayerList.size() > 0);
 
-	float theExperienceFactor = GetGameRules()->GetIsIronMan() ? BALANCE_FVAR(kCombatIronManExperienceScalar) : 1.0f;
+	float theExperienceFactor = GetGameRules()->GetIsIronMan() ? BALANCE_VAR(kCombatIronManExperienceScalar) : 1.0f;
 
-	int theExperienceToAward = BALANCE_IVAR(kCombatExperienceBaseAward) + inTargetLevel*BALANCE_IVAR(kCombatExperienceLevelAward);
+	int theExperienceToAward = BALANCE_VAR(kCombatExperienceBaseAward) + inTargetLevel*BALANCE_VAR(kCombatExperienceLevelAward);
 
-	float theExperienceForEach = (theExperienceToAward/(float)thePlayerList.size() + BALANCE_IVAR(kCombatExperienceCrowdAward))*theExperienceFactor;
+	float theExperienceForEach = (theExperienceToAward/(float)thePlayerList.size() + BALANCE_VAR(kCombatExperienceCrowdAward))*theExperienceFactor;
 
 	for(PlayerListType::iterator thePlayerIter = thePlayerList.begin(); thePlayerIter != thePlayerList.end(); thePlayerIter++)
 	{

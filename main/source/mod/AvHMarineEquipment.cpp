@@ -175,373 +175,6 @@ extern int						gSiegeHitEventID;
 extern int						gSiegeViewHitEventID;
 extern AvHSoundListManager		gSoundListManager;
 
-//void AvHMine::Holster(int skiplocal)
-//{
-//	this->m_pPlayer->m_flNextAttack = UTIL_WeaponTimeBase() + 0.5;
-//	
-//	if (!this->m_pPlayer->m_rgAmmo[this->m_iPrimaryAmmoType])
-//	{
-//		// out of mines
-//		this->m_pPlayer->pev->weapons &= ~(1<<AVH_WEAPON_MINE);
-//		SetThink( DestroyItem );
-//		this->pev->nextthink = gpGlobals->time + 0.1;
-//	}
-//	
-//	SendWeaponAnim( TRIPMINE_HOLSTER );
-//	EMIT_SOUND(ENT(this->m_pPlayer->pev), CHAN_WEAPON, "common/null.wav", 1.0, ATTN_NORM);
-//}
-//
-//
-//BOOL AvHMine::PlayEmptySound()
-//{
-//	// None
-//	return 0;
-//}
-//
-//void AvHMine::Spawn()
-//{
-//	this->Precache( );
-//	
-//    AvHMarineWeapon::Spawn(); 
-//
-//	m_iDefaultAmmo = kMineMaxClip;
-//	this->pev->classname = MAKE_STRING(kwsMine); 
-//	
-//	//this->m_pPlayer->m_rgAmmo[this->m_iPrimaryAmmoType] += kMineMaxClip;
-//
-//	this->m_iId = AVH_WEAPON_MINE;
-//
-//	this->pev->iuser3 = AVH_USER3_MARINEITEM;
-//}
-
-//char* AvHDeployedTurret::GetActiveSound() const
-//{
-//	return kTurretActive;
-//}
-//
-//char* AvHDeployedTurret::GetAlertSound() const
-//{
-//	return kTurretAlert;
-//}
-//
-//char* AvHDeployedTurret::GetDeploySound() const
-//{
-//	return kTurretDeploy;
-//}
-//
-//char* AvHDeployedTurret::GetPingSound() const
-//{
-//	return kTurretPing;
-//}
-//
-//int AvHDeployedTurret::GetPointValueOfTarget(void) const
-//{
-//	return 2;
-//}
-//
-//
-//int AvHDeployedTurret::IRelationship ( CBaseEntity *pTarget )
-//{
-//	int theRelationship = R_NO;
-//
-//	// Ignore the roaches for heaven's sake
-//	if(!FClassnameIs( pTarget->pev, "monster_cockroach" ))
-//	{
-//		// Don't shoot at cloaked players
-//		AvHPlayer* thePlayer = dynamic_cast<AvHPlayer*>(pTarget);
-//		if(thePlayer && thePlayer->GetIsCloaked())
-//		{
-//			theRelationship = R_NO;
-//		}
-//		else
-//		{
-//			// Shoot all monsters that aren't on our team
-//			CBaseMonster* theMonsterPointer = dynamic_cast<CBaseMonster*>(pTarget);
-//			if(theMonsterPointer && (theMonsterPointer->pev->team != this->pev->team))
-//			{
-//				theRelationship = R_DL;
-//			}
-//			else
-//			{
-//				// Look at own team vs. incoming team
-//				AvHTeamNumber inTeam = (AvHTeamNumber)pTarget->pev->team;
-//				if(inTeam != TEAM_IND)
-//				{
-//					if(inTeam == this->pev->team)
-//					{
-//						theRelationship = R_AL;
-//					}
-//					else
-//					{
-//						// Don't keep switching targets constantly
-//						theRelationship = R_DL;
-//					}
-//				}
-//				else
-//				{
-//					theRelationship = CSentry::IRelationship(pTarget);
-//				}
-//			}
-//		}
-//	}
-//	return theRelationship;
-//}
-//
-//AvHDeployedTurret::AvHDeployedTurret() : kStartAlpha(128), kThinkInterval(.05f), kConstructorRate(0.012f), kAverageSoundLength(.4f)
-//{
-//	this->mDamage = (int)(avh_turretdamage.value);
-//	this->mPercentageBuilt = 0.0f;
-//	this->mLastTimePlayedSound = 0;
-//}
-//
-//void AvHDeployedTurret::ConstructUse( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value )
-//{
-//	// Only allow users from same team as turret deployer
-//	if(pActivator->pev->team == this->pev->team)
-//	{
-//		if(this->mPercentageBuilt < 1.0f)
-//		{
-//			AvHPlayer* thePlayer = dynamic_cast<AvHPlayer*>(pActivator);
-//			ASSERT(thePlayer);
-//			if(thePlayer->HolsterWeaponToUse())
-//			{
-//				bool thePlaySound = false;
-//
-//				if(this->mPercentageBuilt < 1.0f)
-//				{
-//					//thePlayer->TriggerProgressBar(this->entindex(), 1);
-//					
-//					float theConstructionRate = kConstructorRate;
-//					if(GetGameRules()->GetIsTesting() || GetGameRules()->GetIsDemoing())
-//					{
-//						theConstructionRate *= 4.0f;
-//					}
-//					
-//					this->mPercentageBuilt += (kThinkInterval/1.0f)*theConstructionRate;
-//					// TODO: Rework this a bit
-//					//mTimeToConstruct
-//				}
-//				
-//				if(gpGlobals->time > (this->mLastTimePlayedSound + kAverageSoundLength))
-//				{
-//					AvHSUPlayRandomConstructionEffect(thePlayer, this);
-//					this->mLastTimePlayedSound = gpGlobals->time;
-//
-//					//if(this->mPercentageBuilt == 1.0f)
-//					//{
-//					//	thePlayer->SetCarriedResources(thePlayer->GetCarriedResources() + 1);
-//					//}
-//				}
-//				
-//				// Given the number of constructors, what's chance of starting a new sound?
-//				float theChanceForNewSound = (kThinkInterval/(kAverageSoundLength/2.0f));
-//				float theRandomFloat = RANDOM_FLOAT(0.0f, 1.0f);
-//				if(theRandomFloat < theChanceForNewSound)
-//				{
-//					AvHSUPlayRandomConstructionEffect(thePlayer, this);
-//					
-//					//if(this->mPercentageBuilt == 1.0f)
-//					//{
-//					//	thePlayer->SetCarriedResources(thePlayer->GetCarriedResources() + 1);
-//					//}
-//				}
-//				
-//				this->pev->rendermode = kRenderTransTexture;
-//				this->pev->renderamt = kStartAlpha + this->mPercentageBuilt*(255 - kStartAlpha);
-//				if(this->mPercentageBuilt >= 1.0f)
-//				{
-//					this->SetConstructionComplete();
-//				}
-//				
-//				//this->pev->fuser1 = this->mPercentageBuilt*kNormalizationNetworkFactor;
-//				AvHSHUSetBuildResearchState(this->pev->iuser3, this->pev->iuser4, this->pev->fuser1, true, this->mPercentageBuilt);
-//			}
-//		}
-//	}
-//}
-//
-//bool AvHDeployedTurret::GetIsValidTarget(CBaseEntity* inEntity) const
-//{
-//	bool theTargetIsValid = false;
-//	
-//	if((inEntity->pev->team != this->pev->team) && (inEntity->pev->team != 0) && (inEntity->pev->takedamage))
-//	{
-//		float theDistanceToCurrentEnemy = AvHSUEyeToBodyDistance(this->pev, inEntity);
-//		if(theDistanceToCurrentEnemy <= this->GetRange())
-//		{
-//			theTargetIsValid = true;
-//		}
-//	}
-//	return theTargetIsValid;
-//}
-//
-//bool AvHDeployedTurret::GetIsBuilt() const
-//{
-//	return (this->mPercentageBuilt == 1.0f);
-//}
-//
-//int	AvHDeployedTurret::GetRange() const
-//{
-//	return (int)(avh_turretrange.value);
-//}
-//
-//int	AvHDeployedTurret::ObjectCaps(void)
-//{
-//	return FCAP_CONTINUOUS_USE;
-//}
-//
-//void AvHDeployedTurret::Precache()
-//{
-//	CSentry::Precache( );
-//
-//	// Are these needed?
-//	//PRECACHE_SOUND("weapons/hks1.wav");
-//	//PRECACHE_SOUND("weapons/hks2.wav");
-//	//PRECACHE_SOUND("weapons/hks3.wav");
-//
-//	PRECACHE_SOUND(kTurretFire1);
-//	PRECACHE_SOUND(kTurretFire2);
-//	PRECACHE_SOUND(kTurretFire3);
-//	PRECACHE_SOUND(kTurretFire4);
-//
-//	PRECACHE_SOUND(kTurretBuild1);
-//	PRECACHE_SOUND(kTurretBuild2);
-//	PRECACHE_SOUND(kTurretBuild3);
-//	PRECACHE_SOUND(kTurretBuild4);
-//	PRECACHE_SOUND(kTurretBuild5);
-//}
-//
-//
-//void AvHDeployedTurret::SetConstructionComplete()
-//{
-//	// Set think to turret search think
-//	this->mPercentageBuilt = 1.0f;
-//	//this->pev->fuser1 = 1.0f*kNormalizationNetworkFactor;
-//	AvHSHUSetBuildResearchState(this->pev->iuser3, this->pev->iuser4, this->pev->fuser1, true, this->mPercentageBuilt);
-//
-//	this->pev->rendermode = kRenderNormal;
-//	this->pev->renderamt = 255;
-//	m_flLastSight = gpGlobals->time;
-//
-//	//SetThink(AutoSearchThink);		
-//	this->m_flLastSight = gpGlobals->time;
-//	SetThink(Deploy);
-//	this->pev->nextthink = gpGlobals->time + kThinkInterval;
-//	EMIT_SOUND(ENT(this->pev), CHAN_WEAPON, kTurretDeploy, 1, ATTN_NORM);
-//}
-//
-//void AvHDeployedTurret::Shoot(Vector &vecSrc, Vector &vecDirToEnemy)
-//{
-////	CSentry::Shoot(vecSrc, vecDirToEnemy);
-//	// Target checking shouldn't be in this function but it's not easy to override base turret functionality
-//	//if(this->GetIsValidTarget(this->m_hEnemy))
-//	//{
-//		float theDamageModifier;
-//		int theTracerFreq;
-//		int theUpgradeLevel = AvHPlayerUpgrade::GetWeaponUpgrade(this->pev->iuser4, &theDamageModifier, &theTracerFreq);
-//		int theDamage = this->mDamage*theDamageModifier;
-//		
-//		this->FireBullets(1, vecSrc, vecDirToEnemy, VECTOR_CONE_3DEGREES, this->GetRange(), BULLET_MONSTER_MP5, theTracerFreq, theDamage);
-//		
-//		const char* theSoundToPlay = kTurretFire1;
-//		switch(theUpgradeLevel)
-//		{
-//		case 1:
-//			theSoundToPlay = kTurretFire2;
-//			break;
-//		case 2:
-//			theSoundToPlay = kTurretFire3;
-//			break;
-//		case 3:
-//			theSoundToPlay = kTurretFire4;
-//			break;
-//		}
-//		
-//		int thePitch = RANDOM_LONG(50, 150);
-//		EMIT_SOUND_DYN(ENT(this->pev), CHAN_WEAPON, theSoundToPlay, 1.0, ATTN_NORM, 0, thePitch);
-//		
-//		if(theUpgradeLevel > 0)
-//		{
-//			pev->effects = pev->effects | EF_MUZZLEFLASH;
-//		}
-////	}
-////	else
-////	{
-////		this->m_hEnemy = NULL;
-////	}
-//}
-//
-//void AvHDeployedTurret::Spawn()
-//{
-//	//this->m_iAutoStart = true;
-//	this->m_iAutoStart = false;
-//	CSentry::Spawn();
-//	this->Initialize();
-//	
-//	this->pev->rendermode = kRenderTransTexture;
-//	this->pev->renderamt = kStartAlpha + this->mPercentageBuilt*(255 - kStartAlpha);
-//	this->pev->classname = MAKE_STRING(kwsDeployedTurret); 
-//
-////	//this->pev->movetype = MOVETYPE_FLY;
-////	//this->pev->solid = SOLID_BBOX;
-////
-////	this->pev->movetype = MOVETYPE_PUSH;
-////	this->pev->solid = SOLID_BSP;
-////	this->pev->takedamage = DAMAGE_YES;
-//
-//	InitializeBuildable(this->pev->iuser3, this->pev->iuser4, AVH_USER3_TURRET);
-//	this->pev->fuser1 = this->mPercentageBuilt*kNormalizationNetworkFactor;
-//
-//	//AvHSetUser4(this->pev->iuser4, AVH_USER4_TURRET);
-//
-//	this->mTimeToConstruct = GetGameRules()->GetBuildTimeForMessageID(BUILD_TURRET);
-//	this->m_fTurnRate = 50;
-//
-//	SET_MODEL(ENT(pev), kDeployedTurretModel);
-//
-//	//this->pev->solid = SOLID_SLIDEBOX;//SOLID_BBOX;
-//	//this->pev->movetype = MOVETYPE_FLY;
-//
-//	this->pev->solid = SOLID_BBOX;
-//	this->pev->movetype = MOVETYPE_TOSS;
-//	
-//	pev->sequence		= 0;
-//	pev->frame			= 0;
-//
-//	UTIL_SetSize(pev, kTurretMinSize, kTurretMaxSize); 
-//
-//	this->pev->health = (int)(avh_turrethealth.value);
-//	this->pev->armorvalue = (int)(avh_turrethealth.value);
-//
-//	SetUse(ConstructUse);
-//}
-//
-//void AvHDeployedTurret::StopShooting()
-//{
-//	// Used to do this, changed turret back to fire normal wave sound
-//	//STOP_SOUND(ENT(pev), CHAN_WEAPON, "deployedturret.wav");
-//}
-//
-//int AvHDeployedTurret::TakeDamage( entvars_t* pevInflictor, entvars_t* pevAttacker, float flDamage, int bitsDamageType)
-//{
-//	int theReturnValue = 0;
-//
-//	if(flDamage > 0.0f)
-//	{
-//		// If malicious damage, trigger the alert
-//		if((pevInflictor->team != this->pev->team) || (GetGameRules()->GetIsTesting()))
-//		{
-//			GetGameRules()->TriggerAlert((AvHTeamNumber)this->pev->team, ALERT_UNDER_ATTACK, this->pev->origin.x, this->pev->origin.y);
-//		}
-//		
-//		// Account for armor
-//		float theNewDamage = AvHSUCalculateDamageLessArmor(this->pev, flDamage, bitsDamageType, GetGameRules()->IsMultiplayer());
-//		theReturnValue = CSentry::TakeDamage(pevInflictor, pevAttacker, theNewDamage, bitsDamageType);
-//	}
-//
-//	return theReturnValue;
-//}
-
 void AvHDeployedMine::Precache(void)
 {
 	PRECACHE_UNMODIFIED_MODEL(kTripmineWModel);
@@ -627,17 +260,8 @@ void AvHDeployedMine::Explode(TraceResult* inTrace, int inBitsDamageType)
 
 	CSoundEnt::InsertSound ( bits_SOUND_COMBAT, pev->origin, NORMAL_EXPLOSION_VOLUME, 3.0 );
 
-//	entvars_t* thePEVOwner = NULL;
-//	if(this->pev->owner )
-//	{
-//		thePEVOwner = VARS( pev->owner );
-//	}
-
-	// can't traceline attack owner if this is set
-//	this->pev->owner = NULL; 
-
 	//RadiusDamage(this->pev, this->pevOwner, theDamage, CLASS_NONE, inBitsDamageType);
-    int theRadius = BALANCE_IVAR(kMineRadius);
+    int theRadius = BALANCE_VAR(kMineRadius);
 	RadiusDamage(this->pev->origin, this->pev, this->mPlacer, theDamage, theRadius, CLASS_NONE, inBitsDamageType);
 
 	// Play view shake here
@@ -784,28 +408,6 @@ void AvHDeployedMine::PowerupThink()
 		this->DetonateIfOwnerInvalid();
 	}
 
-	// Make sure no one is touching us, then set solid (don't want to trap anything inside the mine, but need to be solid to take damage)
-	// Set solid before powered up so they can take damage before they're enabled
-//	if(!this->mPoweredUp)
-//	{
-//		CBaseEntity* pList[128];
-//		
-//		Vector theMinArea = this->pev->origin + kMineMinSize;
-//		Vector theMaxArea = this->pev->origin + kMineMaxSize;
-//		
-//		int theNumBlockingEntities = UTIL_EntitiesInBox(pList, 128, theMinArea, theMaxArea, FL_CLIENT);
-//		if(theNumBlockingEntities == 0)
-//		{
-//			this->pev->solid = SOLID_BBOX;
-//			UTIL_SetOrigin(this->pev, this->pev->origin);
-//		}
-//		else if(gpGlobals->time > (this->mTimePlaced + kTripmineFailTime))
-//		{
-//			ALERT(at_console, "WARNING:Tripmine at %.0f, %.0f, %.0f removed\n", this->pev->origin.x, this->pev->origin.y, this->pev->origin.z);
-//			UTIL_Remove(this);
-//		}
-//	}
-
 	if(!this->mPoweredUp)
 	{
 		if(gpGlobals->time > (this->mTimePlaced + kTripminePowerUpTime))
@@ -869,8 +471,8 @@ void AvHDeployedMine::Spawn(void)
 
 	// give them hit points
 	this->pev->takedamage = DAMAGE_YES;
-	this->pev->health = BALANCE_IVAR(kMineHealth);
-	this->pev->dmg = BALANCE_IVAR(kMineDamage);
+	this->pev->health = BALANCE_VAR(kMineHealth);
+	this->pev->dmg = BALANCE_VAR(kMineDamage);
 	
 	// play deploy sound
 	EMIT_SOUND( ENT(this->pev), CHAN_VOICE, kTripmineDeploySound, .8f, ATTN_NORM );
@@ -979,7 +581,7 @@ BOOL AvHHealth::GiveHealth(CBaseEntity* inOther)
 {
 	BOOL theSuccess = FALSE;
 
-	float thePointsPerHealth = BALANCE_IVAR(kPointsPerHealth);
+	float thePointsPerHealth = BALANCE_VAR(kPointsPerHealth);
 	
 	AvHPlayer* thePlayer = dynamic_cast<AvHPlayer*>(inOther);
 	if(thePlayer && thePlayer->GetIsRelevant() && thePlayer->GetIsMarine())
@@ -1052,13 +654,13 @@ BOOL AvHCatalyst::GiveCatalyst(CBaseEntity* inOther)
 {
     BOOL theSuccess = FALSE;
     
-    float theCatalystDuration = BALANCE_IVAR(kCatalystDuration);
+    float theCatalystDuration = BALANCE_VAR(kCatalystDuration);
     
     AvHPlayer* thePlayer = dynamic_cast<AvHPlayer*>(inOther);
     if(thePlayer && thePlayer->GetIsRelevant() && thePlayer->GetIsMarine() && !thePlayer->GetIsCatalysted())
     {
         //// The player takes damage too
-        //float theDamagePercent = BALANCE_FVAR(kCatalystDamagePercent);
+        //float theDamagePercent = BALANCE_VAR(kCatalystDamagePercent);
         //float theMaxHealth = AvHPlayerUpgrade::GetMaxHealth(thePlayer->pev->iuser4, (AvHUser3)thePlayer->pev->iuser3);
         //float theDamage = theDamagePercent*theMaxHealth;
         //
@@ -1354,7 +956,7 @@ void AvHScan::ScanThink()
 		{
 			// Check that entity is in range of scan
 			float theDistance = VectorDistance(theEntity->pev->origin, this->pev->origin);
-			if(theDistance < BALANCE_IVAR(kScanRadius))
+			if(theDistance < BALANCE_VAR(kScanRadius))
 			{
 				// Remove cloaking, if player has it
 				theEntity->TriggerUncloak();
@@ -1364,7 +966,7 @@ void AvHScan::ScanThink()
 
 	// Look in sphere for cloakables
 	CBaseEntity* theSphereEntity = NULL;
-	while ((theSphereEntity = UTIL_FindEntityInSphere(theSphereEntity, this->pev->origin, BALANCE_IVAR(kScanRadius))) != NULL)
+	while ((theSphereEntity = UTIL_FindEntityInSphere(theSphereEntity, this->pev->origin, BALANCE_VAR(kScanRadius))) != NULL)
 	{
 		if(!AvHSUGetIsExternalClassName(STRING(theSphereEntity->pev->classname)))
 		{
@@ -1425,17 +1027,6 @@ void AvHPhaseGate::SetHasBeenBuilt()
 	AvHBuildable::SetHasBeenBuilt();
 
 	// Include a "warm-up" time so movement chambers don't teleport the player immediately
-	// puzl - 555 - undoing this change because a) it didn't work, and b) we suspect it is triggering a crash.
-//	FOR_ALL_ENTITIES(kAvHPlayerClassName, AvHPlayer*)
-//		if(theEntity->GetIsRelevant() && (theEntity->pev->team == this->pev->team))
-//		{
-//			float theDistanceToPlayer = VectorDistance(this->pev->origin, theEntity->pev->origin);
-//			if(theDistanceToPlayer < 30.0f)
-//			{
-//				theEntity->SetTimeOfLastTeleport(gpGlobals->time);
-//			}
-//		}
-//	END_FOR_ALL_ENTITIES(kAvHPlayerClassName)
 	this->mTimeOfLastDeparture=gpGlobals->time;
 	SetThink(&AvHPhaseGate::IdleThink);
 
@@ -1593,7 +1184,7 @@ void AvHPhaseGate::SetTimeOfLastDeparture(float timeOfLastDeparture)
 bool AvHPhaseGate::IsReadyToUse()
 {
 	bool theReturn=false;
-	if ( (gpGlobals->time - mTimeOfLastDeparture) > BALANCE_FVAR(kPhaseGateDepartureInterval) ) 
+	if ( (gpGlobals->time - mTimeOfLastDeparture) > BALANCE_VAR(kPhaseGateDepartureInterval) ) 
 	{
 		theReturn=true;
 	}
@@ -1611,7 +1202,7 @@ void AvHPhaseGate::TeleportUse(CBaseEntity *pActivator, CBaseEntity *pCaller, US
 	if(theTeleportAllowed && this->GetIsEnabled())
 	{
 		float theLastTeleportTime = thePlayer->GetTimeOfLastTeleport();
-		theTeleportAllowed = (theLastTeleportTime == -1) || ((gpGlobals->time - theLastTeleportTime) >= BALANCE_FVAR(kPhaseGateDelay));
+		theTeleportAllowed = (theLastTeleportTime == -1) || ((gpGlobals->time - theLastTeleportTime) >= BALANCE_VAR(kPhaseGateDelay));
 		if(theTeleportAllowed)
 		{
 			if(!GetGameRules()->GetIsTesting())
@@ -1913,7 +1504,7 @@ char* AvHMarineBaseBuildable::GetKilledSound() const
 
 int	AvHMarineBaseBuildable::GetPointValue() const
 {
-	return BALANCE_IVAR(kScoringMarineBuildableValue);
+	return BALANCE_VAR(kScoringMarineBuildableValue);
 }
 
 int AvHMarineBaseBuildable::GetTakeDamageAnimation() const
@@ -2116,7 +1707,7 @@ void AvHInfantryPortal::Killed(entvars_t* inAttacker, int inGib)
 
 float AvHInfantryPortal::GetReinforceTime() const
 {
-	float theReinforceTime = BALANCE_IVAR(kMarineRespawnTime);
+	float theReinforceTime = BALANCE_VAR(kMarineRespawnTime);
 
 	if(GetGameRules()->GetCheatsEnabled())
 	{
@@ -2265,17 +1856,13 @@ int	AvHCommandStation::GetIdleAnimation() const
 	{
 		theAnimation = 3;
 	}
-	else
-	{
-		int a = 0;
-	}
 
 	return theAnimation;
 }
 
 int AvHCommandStation::GetPointValue() const
 {
-	return BALANCE_IVAR(kScoringCCValue);
+	return BALANCE_VAR(kScoringCCValue);
 }
 
 void AvHCommandStation::Killed( entvars_t *pevAttacker, int iGib )
@@ -2732,44 +2319,6 @@ void AvHArmory::ResupplyUse(CBaseEntity* inActivator, CBaseEntity* inCaller, USE
 	}
 }
 
-//const float kArmoryThinkTime = 1.0f;
-//const float kArmoryResupplyRadius = 100;
-//
-//void AvHArmory::ResupplyThink()
-//{
-//	bool theIsResearching = false;
-//
-//	// If we're not upgrading and building is fully built
-//	AvHTeam* theTeam = GetGameRules()->GetTeam(this->GetTeamNumber());
-//	if(this->GetIsBuilt() && theTeam && !theTeam->GetResearchManager().GetIsResearching(this->entindex()))
-//	{
-//		// Search in radius for friendly players
-//		CBaseEntity* theEntity = NULL;
-//		while((theEntity = UTIL_FindEntityInSphere(theEntity, this->pev->origin, kArmoryResupplyRadius)) != NULL)
-//		{
-//			AvHPlayer* thePlayer = dynamic_cast<AvHPlayer*>(theEntity);
-//			if(thePlayer)
-//			{
-//				if(thePlayer->GetIsRelevant() && (thePlayer->GetTeam() == this->GetTeamNumber()) && !thePlayer->GetIsInTopDownMode())
-//				{
-//					// If player has an active item
-//					AvHBasePlayerWeapon* theBaseWeapon = dynamic_cast<AvHBasePlayerWeapon*>(thePlayer->m_pActiveItem);
-//					if(theBaseWeapon && theBaseWeapon->UsesAmmo() && !theBaseWeapon->GetIsFiring())
-//					{
-//						if(theBaseWeapon->Resupply())
-//						{
-//							// Play "getting ammo" sound
-//							EMIT_SOUND(thePlayer->edict(), CHAN_WEAPON, kArmoryResupplySound, .3f, ATTN_NORM);
-//						}
-//					}
-//				}
-//			}
-//		}
-//	}
-//
-//	this->pev->nextthink = gpGlobals->time + kArmoryThinkTime;
-//}
-
 void AvHArmory::SetHasBeenBuilt()
 {
 	AvHBuildable::SetHasBeenBuilt();
@@ -2836,7 +2385,7 @@ void AvHObservatory::ObservatoryThink()
 		{
 			// Check that entity is in range of scan
 			float theDistance = VectorDistance2D(theEntity->pev->origin, this->pev->origin);
-			if(theDistance < BALANCE_IVAR(kObservatoryXYDetectionRadius))
+			if(theDistance < BALANCE_VAR(kObservatoryXYDetectionRadius))
 			{
 				// Remove cloaking, if player has it
 				theEntity->TriggerUncloak();
@@ -2905,16 +2454,3 @@ int	AvHObservatory::GetResearchAnimation() const
 {
 	return 4;
 }
-
-//AvHChemLab::AvHChemLab() : AvHMarineBaseBuildable(TECH_CHEMLAB, BUILD_CHEMLAB, kwsChemlab, AVH_USER3_CHEMLAB)
-//{
-//}
-
-//AvHMedLab::AvHMedLab() : AvHMarineBaseBuildable(TECH_MEDLAB, BUILD_MEDLAB, kwsMedlab, AVH_USER3_MEDLAB)
-//{
-//}
-
-//AvHNukePlant::AvHNukePlant() : AvHMarineBaseBuildable(TECH_NUKE_PLANT, BUILD_NUKE_PLANT, kwsNukePlant, AVH_USER3_NUKEPLANT)
-//{
-//}
-

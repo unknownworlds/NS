@@ -62,46 +62,12 @@
 #ifndef BUILD_H
 #define BUILD_H
 
-// Build options
-#define CLIENT_WEAPONS
-#define AVH_PREDICT_SELECT
-
 // Build in code to help playtest.  Choose neither, AVH_PLAYTEST_BUILD, or AVH_PLAYTEST_BUILD _and_ AVH_LAN_PLAYTEST_BUILD
 #ifdef DEBUG
-#define AVH_PLAYTEST_BUILD
-//#define AVH_LAN_PLAYTEST_BUILD
+	#define AVH_PLAYTEST_BUILD
 #endif
 
-// Build in code for security.  This forces the server to uplink and only allows authenticated players to join the server.
-//#ifndef DEBUG
-//#define AVH_SECURE_PRERELEASE_BUILD
-//#endif
-
-// When you're doing a final secure build of your client .dll and you're ready to
-// send the binary to Valve to be processed, you need to change this to 1 and rebuild
-//#define FINAL_VAC_BUILD
-
-// Define this when debugging on a different machine in a "live" environment (ie, trying to catch crashes)
-//#define AVH_EXTERNAL_BUILD
-
-//#define USE_DIRECTX_8
-
-// May not be working completely
-//#define SKULK_VIEW_ROTATION
-
-// Mapper build?
-//#define AVH_MAPPER_BUILD
-
-// Sends profiling info to log
 //#define PROFILE_BUILD
-
-// Use multiple weapons sounds for upgrades
-//#define AVH_UPGRADE_SOUNDS
-
-// Define to track and meter network messages, don't define to use basic HL networking
 //#define USE_NETWORK_METERING
-
-// Define to have server report server and player data to master server
-//#define USE_UPP
 
 #endif

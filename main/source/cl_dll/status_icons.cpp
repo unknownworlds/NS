@@ -17,20 +17,15 @@
 //
 #include "hud.h"
 #include "cl_util.h"
-#include "const.h"
-#include "entity_state.h"
-#include "cl_entity.h"
+#include "common/const.h"
+#include "common/entity_state.h"
+#include "common/cl_entity.h"
 #include <string.h>
 #include <stdio.h>
-#include "parsemsg.h"
-#include "event_api.h"
-
-DECLARE_MESSAGE( m_StatusIcons, StatusIcon );
+#include "common/event_api.h"
 
 int CHudStatusIcons::Init( void )
 {
-	HOOK_MESSAGE( StatusIcon );
-
 	gHUD.AddHudElem( this );
 
 	Reset();
@@ -71,35 +66,6 @@ int CHudStatusIcons::Draw( float flTime )
 		}
 	}
 	
-	return 1;
-}
-
-// Message handler for StatusIcon message
-// accepts five values:
-//		byte   : TRUE = ENABLE icon, FALSE = DISABLE icon
-//		string : the sprite name to display
-//		byte   : red
-//		byte   : green
-//		byte   : blue
-int CHudStatusIcons::MsgFunc_StatusIcon( const char *pszName, int iSize, void *pbuf )
-{
-	BEGIN_READ( pbuf, iSize );
-
-	int ShouldEnable = READ_BYTE();
-	char *pszIconName = READ_STRING();
-	if ( ShouldEnable )
-	{
-		int r = READ_BYTE();
-		int g = READ_BYTE();
-		int b = READ_BYTE();
-		EnableIcon( pszIconName, r, g, b );
-		m_iFlags |= HUD_ACTIVE;
-	}
-	else
-	{
-		DisableIcon( pszIconName );
-	}
-
 	return 1;
 }
 

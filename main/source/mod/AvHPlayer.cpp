@@ -248,80 +248,13 @@
 #include "mod/AvHSiegeTurret.h"
 #include "mod/AvHBlipConstants.h"
 #include "mod/AvHParticleConstants.h"
-#include "mod/UPPUtil.h"
 #include "util/MathUtil.h"
 #include "types.h"
 
-extern int giPrecacheGrunt;
-extern int gmsgShake;
-extern int gmsgFade;
-extern int gmsgSelAmmo;
-//extern int gmsgFlashlight;
-//extern int gmsgFlashBattery;
-extern int gmsgResetHUD;
-extern int gmsgInitHUD;
-extern int gmsgShowGameTitle;
-extern int gmsgCurWeapon;
-extern int gmsgHealth;
-extern int gmsgDamage;
-extern int gmsgBattery;
-extern int gmsgTrain;
-extern int gmsgLogo;
-extern int gmsgWeaponList;
-extern int gmsgAmmoX;
-extern int gmsgTeamNames;
-extern int gmsgStatusText;
-extern int gmsgStatusValue;
-extern int gmsgHudText;
-extern int gmsgHudText2;
-extern int gmsgDeathMsg;
-extern int gmsgScoreInfo;
-extern int gmsgTeamInfo;
-extern int gmsgTeamScore;
-extern int gmsgGameMode;
-extern int gmsgMOTD;
-extern int gmsgServerName;
-extern int gmsgAmmoPickup;
-extern int gmsgWeapPickup;
-extern int gmsgItemPickup;
-extern int gmsgHideWeapon;
-extern int gmsgSetCurWeap;
-extern int gmsgSayText;
-extern int gmsgTextMsg;
-extern int gmsgSetFOV;
-extern int gmsgShowMenu;
-extern int gmsgGeigerRange;
-//extern int gmsgSendCorpse;
+#include "mod/AvHNetworkMessages.h"
+#include "mod/AvHNexusServer.h"
 
-// AvH message ids
-int gmsgUpdateEntityHierarchy;
-int gmsgSetParticleTemplates;
-int gmsgSetSoundNames;
-int gmsgPlayHUDNotification;
-//int gmsgChangeNodeCost;
-int gmsgGameStatus;
-int gmsgUpdateCountdown;
-int gmsgSetSelect;
-int gmsgSetOrder;
-//int gmsgCplteOrder;
-int gmsgSetTechNodes;
-int gmsgSetupMap;
-int gmsgSetTopDown;
-//int gmsgResearch;
-int gmsgEditPS;
-int gmsgListPS;
-int gmsgSetGammaRamp;
-int gmsgBlipList;
-int gmsgAlienInfo;
-int gmsgDebugCSP;
-//int gmsgNetScreenShot;
-int gmsgBuildMiniMap;
-int gmsgProgressBar;
-int gmsgFog;
-int gmsgClientScripts;
-int gmsgSetTechSlots;
-int gmsgBalanceVar;
-int gmsgServerVar;
+std::string GetLogStringForPlayer( edict_t *pEntity );
 
 extern int gJetpackEventID;
 extern int gAlienSightOnEventID;
@@ -341,7 +274,6 @@ extern AvHParticleTemplateListServer    gParticleTemplateList;
 extern AvHSoundListManager              gSoundListManager;
 extern cvar_t                           allow_spectators;
 extern cvar_t                           avh_marinereinforcementcost;
-extern cvar_t                           avh_uplink;
 
 #ifdef DEBUG
 extern cvar_t                           avh_spawninvulnerabletime;
@@ -356,88 +288,11 @@ LINK_ENTITY_TO_CLASS( player, AvHPlayer );
 const float kTransitionFadeTime = .6f;
 const float kSpawnInFadeTime = .9f;
 
-void LinkUserMessages( void )
-{
-    // Already taken care of?
-    if ( gmsgSelAmmo )
-    {
-        return;
-    }
-
-    gmsgSelAmmo = REG_USER_MSG("SelAmmo", sizeof(SelAmmo));
-    gmsgCurWeapon = REG_USER_MSG("CurWeapon", 4);
-    gmsgGeigerRange = REG_USER_MSG("Geiger", 1);
-    //gmsgFlashlight = REG_USER_MSG("Flashlight", 2);
-    //gmsgFlashBattery = REG_USER_MSG("FlashBat", 1);
-    gmsgHealth = REG_USER_MSG( "Health", 2 );
-    gmsgDamage = REG_USER_MSG( "Damage", 12 );
-    gmsgBattery = REG_USER_MSG( "Battery", 2);
-    gmsgTrain = REG_USER_MSG( "Train", 1);
-    gmsgHudText = REG_USER_MSG( "HudText", -1 );
-    gmsgHudText2 = REG_USER_MSG( "HudText2", -1 );
-    gmsgSayText = REG_USER_MSG( "SayText", -1 );
-    gmsgTextMsg = REG_USER_MSG( "TextMsg", -1 );
-    gmsgWeaponList = REG_USER_MSG("WeaponList", -1);
-    gmsgResetHUD = REG_USER_MSG("ResetHUD", 1);     // called every respawn
-    gmsgInitHUD = REG_USER_MSG("InitHUD", 0 );      // called every time a new player joins the server
-    gmsgShowGameTitle = REG_USER_MSG("GameTitle", 1);
-    gmsgDeathMsg = REG_USER_MSG( "DeathMsg", -1 );
-    gmsgScoreInfo = REG_USER_MSG( "ScoreInfo", -1 );
-    gmsgTeamInfo = REG_USER_MSG( "TeamInfo", -1 );  // sets the name of a player's team
-    gmsgTeamScore = REG_USER_MSG( "TeamScore", -1 );  // sets the score of a team on the scoreboard
-    gmsgGameMode = REG_USER_MSG( "GameMode", 1 );
-    gmsgMOTD = REG_USER_MSG( "MOTD", -1 );
-    gmsgServerName = REG_USER_MSG( "ServerName", -1 );
-    gmsgAmmoPickup = REG_USER_MSG( "AmmoPickup", 2 );
-    gmsgWeapPickup = REG_USER_MSG( "WeapPickup", 1 );
-    gmsgItemPickup = REG_USER_MSG( "ItemPickup", -1 );
-    gmsgHideWeapon = REG_USER_MSG( "HideWeapon", 1 );
-    gmsgSetFOV = REG_USER_MSG( "SetFOV", 1 );
-    gmsgShowMenu = REG_USER_MSG( "ShowMenu", -1 );
-    gmsgShake = REG_USER_MSG("ScreenShake", sizeof(ScreenShake));
-    gmsgFade = REG_USER_MSG("ScreenFade", sizeof(ScreenFade));
-    gmsgAmmoX = REG_USER_MSG("AmmoX", 2);
-    gmsgTeamNames = REG_USER_MSG("TeamNames", -1 );
-    gmsgStatusText = REG_USER_MSG("StatusText", -1);
-    gmsgStatusValue = REG_USER_MSG("StatusValue", 3); 
-    //gmsgSendCorpse = REG_USER_MSG("CLCorpse", -1);
-    
-    // New messages
-    gmsgUpdateEntityHierarchy = REG_USER_MSG("EntHier", -1);
-    gmsgSetParticleTemplates = REG_USER_MSG("Particles", -1);
-    gmsgSetSoundNames = REG_USER_MSG("SoundNames", -1);
-    gmsgPlayHUDNotification = REG_USER_MSG("PlayHUDNot", -1);
-    gmsgGameStatus = REG_USER_MSG("GameStatus", -1);
-    gmsgUpdateCountdown = REG_USER_MSG("Countdown", 1);
-    gmsgSetSelect = REG_USER_MSG("SetSelect", -1);
-    gmsgSetOrder = REG_USER_MSG("SetOrder", -1);
-    //gmsgCplteOrder = REG_USER_MSG("CplteOrder", -1);
-    gmsgSetTechNodes = REG_USER_MSG("SetTech", -1);
-    gmsgSetupMap = REG_USER_MSG("SetupMap", -1);
-    gmsgSetTopDown = REG_USER_MSG("SetTopDown", -1);
-    //gmsgResearch = REG_USER_MSG("Research", -1);
-    gmsgEditPS = REG_USER_MSG("EditPS", 2);
-    gmsgListPS = REG_USER_MSG("ListPS", -1);
-    //gmsgReinforcements = REG_USER_MSG("Reinfor", 2);
-    gmsgSetGammaRamp = REG_USER_MSG("SetGmma", 2);
-    gmsgBlipList = REG_USER_MSG("BlipList", -1);
-    gmsgAlienInfo = REG_USER_MSG("AlienInfo", -1);
-    gmsgDebugCSP = REG_USER_MSG("DebugCSP", -1);
-    //gmsgNetScreenShot = REG_USER_MSG("NetSS", 1);
-    gmsgBuildMiniMap = REG_USER_MSG("MiniMap", -1);
-    gmsgProgressBar = REG_USER_MSG("Progress", 3);
-    gmsgFog = REG_USER_MSG("Fog", -1);
-    gmsgClientScripts = REG_USER_MSG("ClScript", -1);
-    gmsgSetTechSlots = REG_USER_MSG("TechSlots", -1);
-    gmsgBalanceVar = REG_USER_MSG("BalanceVar", -1);
-    gmsgServerVar  = REG_USER_MSG("ServerVar", -1);
-
-    // Four more messages allowed
-}
-
 AvHPlayer::AvHPlayer()
 {
     this->Init();
+	//TODO: find out lifecycle of entity vs. lifecycle of client and reset only when we have a new client.
+	this->InitBalanceVariables();
 }
 
 void AvHPlayer::AddDebugEnemyBlip(float inX, float inY, float inZ)
@@ -639,8 +494,8 @@ bool AvHPlayer::AttemptToBuildAlienStructure(AvHMessageID inMessageID)
                 if(AvHSHUGetIsSiteValidForBuild(inMessageID, &theLocation))
                 {
                     // Make sure there aren't too many buildings in this area already
-                    int theNumBuildingsNearby = UTIL_CountEntitiesInSphere(theLocation, BALANCE_IVAR(kBuildingVisibilityRadius), theClassName);
-                    if(theNumBuildingsNearby < BALANCE_IVAR(kNumSameAlienStructuresAllowedInRadius) || FStrEq(theClassName, kwsAlienResourceTower))//voogru: allow the building of rt's regardless of how many may be close by (for maps that have a lot of nodes close to each other)
+                    int theNumBuildingsNearby = UTIL_CountEntitiesInSphere(theLocation, BALANCE_VAR(kBuildingVisibilityRadius), theClassName);
+                    if(theNumBuildingsNearby < BALANCE_VAR(kNumSameAlienStructuresAllowedInRadius) || FStrEq(theClassName, kwsAlienResourceTower))//voogru: allow the building of rt's regardless of how many may be close by (for maps that have a lot of nodes close to each other)
                     {
                         // Create the new building
                         CBaseEntity* theEntity = CBaseEntity::Create(theClassName, theLocation, AvHSUGetRandomBuildingAngles());
@@ -727,7 +582,7 @@ bool AvHPlayer::BuildTech(AvHMessageID inBuildID, const Vector& inPickRay)
                 // Count how many entities on our team we have in area
                 int theNumFriendlyEntitiesInArea = 0;
                 CBaseEntity* theEntity = NULL;
-                while((theEntity = UTIL_FindEntityInSphere(theEntity, theLocation, BALANCE_IVAR(kBuildingVisibilityRadius))) != NULL)
+                while((theEntity = UTIL_FindEntityInSphere(theEntity, theLocation, BALANCE_VAR(kBuildingVisibilityRadius))) != NULL)
                 {
                     // Don't count players
                     if(!theEntity->IsPlayer() && (theEntity->pev->team == this->pev->team))
@@ -736,7 +591,7 @@ bool AvHPlayer::BuildTech(AvHMessageID inBuildID, const Vector& inPickRay)
                     }
                 }
 
-                if(theNumFriendlyEntitiesInArea < BALANCE_IVAR(kMaxMarineEntitiesAllowedInRadius))
+                if(theNumFriendlyEntitiesInArea < BALANCE_VAR(kMaxMarineEntitiesAllowedInRadius))
                 {
                     // Build it!
                     theSuccess = (AvHSUBuildTechForPlayer(inBuildID, theLocation, this) != NULL);
@@ -800,9 +655,7 @@ bool AvHPlayer::GroupMessage(AvHMessageID inGroupMessage)
                 theHudSound = AvHHUDSound(HUD_SOUND_SQUAD1 + theOffset);
             }
 
-            //#ifndef AVH_PREDICT_SELECT
             this->PlayHUDSound(theHudSound);
-            //#endif
 
             // If this is a squad, tell all the players in the squad also.  This also tells them they are in the squad.
             if(theUser3 == AVH_USER3_MARINE_PLAYER)
@@ -967,7 +820,6 @@ void AvHPlayer::SetNetworkID(string& inNetworkID)
     this->mNetworkID = inNetworkID;
 }
 
-#ifdef USE_UPP
 string AvHPlayer::GetNetworkAddress() const
 {
 	return this->mNetworkAddress;
@@ -977,7 +829,6 @@ void AvHPlayer::SetNetworkAddress(string& inNetworkAddress)
 {
 	this->mNetworkAddress = inNetworkAddress;
 }
-#endif
 
 void AvHPlayer::ClearRoleAbilities()
 {
@@ -1534,7 +1385,7 @@ void AvHPlayer::GetAnimationForActivity(int inActivity, char outAnimation[64], b
     bool theIsGestating = (this->GetUser3() == AVH_USER3_ALIEN_EMBRYO);
     bool theIsDeathAnim = false;
     bool theIsReloading = false;
-    int theDebugAnimations = BALANCE_IVAR(kDebugAnimations);
+    int theDebugAnimations = BALANCE_VAR(kDebugAnimations);
 	
     //bool theIsBlinking = this->GetIsBlinking();
 
@@ -1817,30 +1668,6 @@ void AvHPlayer::GetAnimationForActivity(int inActivity, char outAnimation[64], b
             break;
         }
     }
-//  else if(theIsBlinking)
-//  {
-//      switch(inActivity)
-//      {
-//      case ACT_DIESIMPLE:
-//      case ACT_DIEBACKWARD:
-//      case ACT_DIEFORWARD:
-//      case ACT_DIEVIOLENT:
-//          // Already should've chosen death anim
-//          break;
-//
-//      default:
-//          strcpy(outAnimation, "look_idle");
-//          break;
-//      }
-//  }
-
-    // Special case ready room anims, they aren't holding weapons ever
-//  if(this->mPlayMode == PLAYMODE_READYROOM)
-//  {
-//      if(theCanCrouch && FBitSet(this->pev->flags, FL_DUCKING))
-//      {
-//      }
-//  }
 
 #ifdef DEBUG
     if(theDebugAnimations && theIsDeathAnim)
@@ -1864,35 +1691,6 @@ bool AvHPlayer::GetCanGestate(AvHMessageID inMessageID, string& outErrorMessage)
         {
             bool theIsRangeRequirementMet = true;
 
-            // Uncomment to force aliens to gestate near hives
-/*			switch(inMessageID)
-			{
-			case ALIEN_LIFEFORM_ONE:
-			case ALIEN_LIFEFORM_TWO:
-			case ALIEN_LIFEFORM_THREE:
-			case ALIEN_LIFEFORM_FOUR:
-			case ALIEN_LIFEFORM_FIVE:
-				theIsRangeRequirementMet = false;
-				break;
-			}
-
-			// Check distance to hive
-			FOR_ALL_ENTITIES(kesTeamHive, AvHHive*)
-				if(theEntity->GetIsActive())
-				{
-					AvHTeamNumber theTeamNumber = (AvHTeamNumber)(theEntity->pev->team);
-					if(theTeamNumber == this->pev->team)
-					{
-						float theDistance = VectorDistance(theEntity->pev->origin, this->pev->origin);
-						if(theDistance < BALANCE_IVAR(kHiveHealRadius))
-						{
-							theIsRangeRequirementMet = true;
-							break;
-						}
-					}
-				}
-				END_FOR_ALL_ENTITIES(kesTeamHive);
-*/
 				if(theIsRangeRequirementMet)
 				{
 					theCanGestate = true;
@@ -1917,7 +1715,7 @@ bool AvHPlayer::GetCanCommand(string& outErrorMessage)
 
     // Jack up command station use time to avoid huge kick-everyone-off-server bug (I think this is an overflow issue)
     // I think the overflow issue is fixed, but design-wise, this prevents annoying pop-out/pop-back in attacking (Reaver popping)
-    const int theCommandStationReuseTime = BALANCE_IVAR(kCommandStationReuseTime);
+    const int theCommandStationReuseTime = BALANCE_VAR(kCommandStationReuseTime);
     
     // Have we been banned from the command station?
     AvHServerPlayerData* theServerPlayerData = this->GetServerPlayerData();
@@ -2068,133 +1866,6 @@ AvHServerPlayerData* AvHPlayer::GetServerPlayerData()
     return theServerPlayerData;
 }
 
-// Get the player's WON id, and see if this player has any status on the server
-#ifdef USE_UPP
-void AvHPlayer::SetAuthorized(bool inAuthorized)
-{
-	this->mAuthorized = inAuthorized;
-}
-
-bool AvHPlayer::GetAuthorized(void) const
-{
-	return this->mAuthorized;
-}
-
-void AvHPlayer::SetAuthenticationMask(int inAuthMask)
-{
-	this->mAuthMask = inAuthMask;
-}
-
-int AvHPlayer::GetAuthenticationMask() const
-{
-	int theMask = PLAYERAUTH_NONE;
-	
-	if(this->GetAllowAuth())
-	{ theMask = this->mAuthMask; }
-	
-	if(GetGameRules()->GetCheatsEnabled())
-	{ theMask |= this->mAuthCheatMask; }
-
-	return theMask;
-}
-
-bool AvHPlayer::GetAllowAuth() const
-{
-    return this->mAllowAuth;
-}
-
-void AvHPlayer::SetScoreboardIconName(const string& inIconName)
-{
-	this->mScoreboardIconName = inIconName;
-}
-
-string AvHPlayer::GetScoreboardIconName(void)
-{
-	return this->mScoreboardIconName;
-}
-
-int AvHPlayer::GetScoreboardIconColor(void)
-{
-	if(this->mScoreboardIconName.size() != 11 || this->mScoreboardIconName[4] != ':')
-	{ return 0; }
-	unsigned char theColorComponents[3] = {0,0,0};
-	MakeBytesFromHexPairs(this->mScoreboardIconName.substr(5,6),theColorComponents,3);
-
-	//get brightness shift
-	float theMaxComponent = max(theColorComponents[0],max(theColorComponents[1],theColorComponents[2]));
-	char theBrightnessShift = ((int)theMaxComponent%64)/16;
-
-	//compress components
-	theColorComponents[0] = (theColorComponents[0] - theBrightnessShift*16*theColorComponents[0]/theMaxComponent)/64;
-	theColorComponents[1] = (theColorComponents[1] - theBrightnessShift*16*theColorComponents[1]/theMaxComponent)/64;
-	theColorComponents[2] = (theColorComponents[2] - theBrightnessShift*16*theColorComponents[2]/theMaxComponent)/64;
-
-	//combine components and shift into single byte
-	int theColor = (theColorComponents[0] << 6) + (theColorComponents[1] << 4) + (theColorComponents[2] << 2) + theBrightnessShift;
-
-	return theColor;
-}
-
-short AvHPlayer::GetScoreboardIconNumber(void)
-{
-	if(this->mScoreboardIconName.size() != 11 || this->mScoreboardIconName[4] != ':')
-	{ return 0; }
-
-	short theNumber = 0;
-	MakeBytesFromHexPairs(this->mScoreboardIconName.substr(0,4),(unsigned char*)&theNumber,2);
-	return theNumber;
-}
-#else
-int AvHPlayer::GetAuthenticationMask()
-{
-    int theMask = 0;
-    
-    // Get WON id
-    if(this->GetAllowAuth())
-    {
-        // Use cached value if valid
-        theMask = this->mCachedAuthenticationMask;
-
-        // Look it up if uninitialized or Steam isn't ready yet
-        if((theMask == -1) || (theMask == PLAYERAUTH_PENDING))
-        {
-            string theAuthID = AvHSUGetPlayerAuthIDString(this->edict());
-            theMask = GetGameRules()->GetAuthenticationMask(theAuthID);
-
-            // Save cached value
-            this->mCachedAuthenticationMask = theMask;
-        }
-    }
-
-    bool theAllowAuthCheatMask = GetGameRules()->GetCheatsEnabled();
-
-    #ifdef AVH_LAN_PLAYTEST_BUILD
-    theAllowAuthCheatMask = true;
-    #endif
-
-    if(theAllowAuthCheatMask)
-    {
-        theMask |= this->mAuthCheatMask;
-    }
-    return theMask;
-}
-
-bool AvHPlayer::GetAllowAuth() const
-{
-    return (this->mAllowAuth && (avh_uplink.value > 0));
-}
-#endif
-
-void AvHPlayer::SetAllowAuth(bool inAllowAuth)
-{
-    this->mAllowAuth = inAllowAuth;
-}
-
-void AvHPlayer::SetAuthCheatMask(int inAuthCheatMask)
-{
-    this->mAuthCheatMask = inAuthCheatMask;
-}
-
 bool AvHPlayer::GetCurrentWeaponCannotHolster() const
 {
     bool theCannotHolster = false;
@@ -2294,23 +1965,23 @@ bool AvHPlayer::GetIsValidReinforcementFor(AvHTeamNumber inTeam) const
 
 int AvHPlayer::GetPointValue(void) const
 {
-    int thePointValue = BALANCE_IVAR(kScoringKillPlayer);
+    int thePointValue = BALANCE_VAR(kScoringKillPlayer);
 
     if(this->GetIsAlien())
     {   
         switch(this->pev->iuser3)
         {
         case AVH_USER3_ALIEN_PLAYER2:
-            thePointValue = BALANCE_IVAR(kScoringKillPlayerGorge);
+            thePointValue = BALANCE_VAR(kScoringKillPlayerGorge);
             break;
         case AVH_USER3_ALIEN_PLAYER3:
-            thePointValue = BALANCE_IVAR(kScoringKillPlayerLerk);
+            thePointValue = BALANCE_VAR(kScoringKillPlayerLerk);
             break;
         case AVH_USER3_ALIEN_PLAYER4:
-            thePointValue = BALANCE_IVAR(kScoringKillPlayerFade);
+            thePointValue = BALANCE_VAR(kScoringKillPlayerFade);
             break;
         case AVH_USER3_ALIEN_PLAYER5:
-            thePointValue = BALANCE_IVAR(kScoringKillPlayerOnos);
+            thePointValue = BALANCE_VAR(kScoringKillPlayerOnos);
             break;
         }
     }
@@ -2318,11 +1989,11 @@ int AvHPlayer::GetPointValue(void) const
     {
         if(this->GetHasJetpack())
         {
-            thePointValue = BALANCE_IVAR(kScoringKillPlayerJetpack);
+            thePointValue = BALANCE_VAR(kScoringKillPlayerJetpack);
         }
         else if(this->GetHasHeavyArmor())
         {
-            thePointValue = BALANCE_IVAR(kScoringKillPlayerHA);
+            thePointValue = BALANCE_VAR(kScoringKillPlayerHA);
         }
     }
 
@@ -2434,7 +2105,7 @@ void AvHPlayer::PlayerTouch(CBaseEntity* inOther)
         }
 
         // Don't do "touch" damage too quickly
-        float theTouchDamageInterval = BALANCE_FVAR(kTouchDamageInterval);
+        float theTouchDamageInterval = BALANCE_VAR(kTouchDamageInterval);
         if((this->mTimeOfLastTouchDamage == -1) || (gpGlobals->time > (this->mTimeOfLastTouchDamage + theTouchDamageInterval)))
         {
 			entvars_t* theAttacker = this->pev;
@@ -2446,7 +2117,7 @@ void AvHPlayer::PlayerTouch(CBaseEntity* inOther)
                 // Do damage to entity
                 if(GetGameRules()->CanEntityDoDamageTo(this, inOther, &theScalar))
                 {
-                    float theDamage = BALANCE_IVAR(kLeapDamage)*theScalar*theTouchDamageInterval;
+                    float theDamage = BALANCE_VAR(kLeapDamage)*theScalar*theTouchDamageInterval;
                     inOther->TakeDamage(theInflictor, theAttacker, theDamage, NS_DMG_NORMAL);
 
                     this->mTimeOfLastTouchDamage = gpGlobals->time;
@@ -2458,7 +2129,7 @@ void AvHPlayer::PlayerTouch(CBaseEntity* inOther)
             {
                 if(GetGameRules()->CanEntityDoDamageTo(this, inOther, &theScalar))
                 {
-                    float theDamage = BALANCE_IVAR(kChargeDamage)*theScalar*theTouchDamageInterval;
+                    float theDamage = BALANCE_VAR(kChargeDamage)*theScalar*theTouchDamageInterval;
 
                     inOther->TakeDamage(theInflictor, theAttacker, theDamage, NS_DMG_NORMAL);
             
@@ -2486,8 +2157,6 @@ AvHTeamNumber AvHPlayer::GetTeam(bool inIncludeSpectating) const
             theTeamNumber = (AvHTeamNumber)theSpectatingEntity->pev->team;
         }
     }
-
-    ASSERT((theTeamNumber == TEAM_IND) || (theTeamNumber == TEAM_ONE) || (theTeamNumber == TEAM_TWO));
 
     return theTeamNumber;
 }
@@ -2542,7 +2211,7 @@ bool AvHPlayer::GetPurchaseAllowed(AvHMessageID inUpgrade, int& outCost, string*
     string theErrorMessage;
 
     // Check tech tree first
-    const AvHTechNodes* theTechNodes = &this->GetTeamPointer()->GetTechNodes();
+    const AvHTechTree* theTechNodes = &this->GetTeamPointer()->GetTechNodes();
 
     // If combat, use Combat nodes
     if(GetGameRules()->GetIsCombatMode())
@@ -3093,64 +2762,6 @@ bool AvHPlayer::GetSpecialPASOrigin(Vector& outOrigin)
 // Don't check validity.  ASSERT if an error is encountered.
 void AvHPlayer::GiveUpgrade(AvHMessageID inUpgrade)
 {
-    #ifndef AVH_MAPPER_BUILD
-    
-    AvHTeam* theTeam = this->GetTeamPointer();
-
-//  switch(inUpgrade)
-//  {
-//  case BUY_SHOTGUN:
-//      this->CreateAndDrop(kwsShotGun);
-//      break;
-//  case BUY_MINES:
-//      this->GiveNamedItem(kwsMine);
-//      break;
-//
-//  case BUY_GRENADELAUNCHER:
-//      this->CreateAndDrop(kwsGrenadeGun);
-//      break;
-    // TODO: Upgrade from grenade launcher?
-    //case BUY_NUKE:
-    //  this->CreateAndDrop(kwsNukeGun);
-    //  break;
-
-//  case BUY_HEAVYMG:
-//      this->CreateAndDrop(kwsHeavyMachineGun);
-//      break;
-//
-//  case BUY_FLAMETHROWER:
-//      this->CreateAndDrop(kwsFlameGun);
-//      break;
-//      
-//  case BUY_WELDER:
-//      this->CreateAndDrop(kwsWelder);
-//      break;
-        
-        // TODO: Upgrade to siege turret?
-        //case BUY_SIEGE:
-        //  break;
-        
-//  case BUY_AMMO:
-//      this->CreateAndDrop(kwsGenericAmmo);
-//      break;
-        
-//  case BUY_REINFORCEMENTS:
-//      //this->SpawnReinforcements();
-//      if(theTeam && (theTeam->GetTeamType() == AVH_CLASS_TYPE_MARINE))
-//      {
-//          theTeam->SetReinforcements(theTeam->GetReinforcements() + 1);
-//      }
-//      break;
-//
-//  // Tech upgrades
-//  case TECH_TEAM:
-//  case TECH_BUILDINGS:
-//  case TECH_POWERUPS:
-//      this->ProcessTechUpgrade(inUpgrade);
-//      break;
-//  }
-
-    #endif
 }
 
 void AvHPlayer::GiveTeamUpgrade(AvHMessageID inUpgrade, bool inGive)
@@ -3209,8 +2820,8 @@ void AvHPlayer::GetSpeeds(int& outBaseSpeed, int& outUnemcumberedSpeed) const
     // Use marine speed when in ready room (ie, AVH_CLASS_TYPE_UNDEFINED)
     //int theBaseSpeed = 160;
     // Counter-strike speeds are around 260 for knife running, and 215 with the para (according to Adrian's memory)
-    int theBaseSpeed = BALANCE_IVAR(kBasePlayerSpeed);
-    int theUnencumberedSpeed = BALANCE_IVAR(kUnencumberedPlayerSpeed);
+    int theBaseSpeed = BALANCE_VAR(kBasePlayerSpeed);
+    int theUnencumberedSpeed = BALANCE_VAR(kUnencumberedPlayerSpeed);
 
     if(this->IsObserver())
     {
@@ -3223,25 +2834,25 @@ void AvHPlayer::GetSpeeds(int& outBaseSpeed, int& outUnemcumberedSpeed) const
             if(this->mInTopDownMode)
             {
                 // For scrolling
-                theBaseSpeed = theUnencumberedSpeed = BALANCE_IVAR(kCommanderPlayerSpeed);
+                theBaseSpeed = theUnencumberedSpeed = BALANCE_VAR(kCommanderPlayerSpeed);
             }
         }
         else if(this->GetHasHeavyArmor())
         {
-            float theHeavyMultiplier = BALANCE_FVAR(kHeavySpeedMultiplier);
+            float theHeavyMultiplier = BALANCE_VAR(kHeavySpeedMultiplier);
             theBaseSpeed *= theHeavyMultiplier;
             theUnencumberedSpeed *= theHeavyMultiplier;
         }
         else if(this->GetHasJetpack())
         {
-            float theJetpackMultiplier = BALANCE_FVAR(kJetpackSpeedMultiplier);
+            float theJetpackMultiplier = BALANCE_VAR(kJetpackSpeedMultiplier);
             theBaseSpeed *= theJetpackMultiplier;
             theUnencumberedSpeed *= theJetpackMultiplier;
         }
         
         if(GetHasUpgrade(this->pev->iuser4, MASK_BUFFED))
         {
-            const float kStimpackSpeedMultiplier = 1 + BALANCE_FVAR(kCatalystSpeedIncrease);
+            const float kStimpackSpeedMultiplier = 1 + BALANCE_VAR(kCatalystSpeedIncrease);
             theBaseSpeed *= kStimpackSpeedMultiplier;
             theUnencumberedSpeed *= kStimpackSpeedMultiplier;
         }
@@ -3265,34 +2876,34 @@ void AvHPlayer::GetSpeeds(int& outBaseSpeed, int& outUnemcumberedSpeed) const
 
         // When gestating
         float theAlienBaseSpeed = 0;
-        int theSpeedUpgradeAmount = BALANCE_IVAR(kAlienCelerityBonus);
+        int theSpeedUpgradeAmount = BALANCE_VAR(kAlienCelerityBonus);
         const float kChargingFactor = 2.0f;
 
         switch(this->pev->iuser3)
         {
             // Take into account speed upgrade, if this player has it
             case AVH_USER3_ALIEN_PLAYER1:
-                theAlienBaseSpeed = BALANCE_IVAR(kSkulkBaseSpeed);
+                theAlienBaseSpeed = BALANCE_VAR(kSkulkBaseSpeed);
                 break;
 
             case AVH_USER3_ALIEN_PLAYER2:
-                theAlienBaseSpeed = BALANCE_IVAR(kGorgeBaseSpeed);
+                theAlienBaseSpeed = BALANCE_VAR(kGorgeBaseSpeed);
                 break;
 
             case AVH_USER3_ALIEN_PLAYER3:
-                theAlienBaseSpeed = BALANCE_IVAR(kLerkBaseSpeed);
+                theAlienBaseSpeed = BALANCE_VAR(kLerkBaseSpeed);
                 
                 // Compensate for airpseed multiplier, so lerk gets proper speed increase in main mode of locomotion
-                //theSpeedUpgradeAmount /= BALANCE_FVAR(kAirspeedMultiplier);
+                //theSpeedUpgradeAmount /= BALANCE_VAR(kAirspeedMultiplier);
                 break;
 
             case AVH_USER3_ALIEN_PLAYER4:
-                theAlienBaseSpeed = BALANCE_IVAR(kFadeBaseSpeed);
+                theAlienBaseSpeed = BALANCE_VAR(kFadeBaseSpeed);
                 break;
             
             case AVH_USER3_ALIEN_PLAYER5:
                 //theAlienBaseSpeed = this->mMaxGallopSpeed;
-                theAlienBaseSpeed = BALANCE_IVAR(kOnosBaseSpeed);
+                theAlienBaseSpeed = BALANCE_VAR(kOnosBaseSpeed);
 
                 if(GetHasUpgrade(this->pev->iuser4, MASK_ALIEN_MOVEMENT))
                 {
@@ -3319,8 +2930,8 @@ void AvHPlayer::GetSpeeds(int& outBaseSpeed, int& outUnemcumberedSpeed) const
         //ASSERT(thePercentageComplete >= 0.0f);
         //ASSERT(thePercentageComplete <= 1.0f);
         
-        float theSpeedFactor = min(BALANCE_FVAR(kEnsnareMinimumSpeedFactor) + (1.0f - BALANCE_FVAR(kEnsnareMinimumSpeedFactor))*thePercentageComplete, BALANCE_FVAR(kEnsnareMaximumSpeedFactor));
-        ASSERT(theSpeedFactor >= BALANCE_FVAR(kEnsnareMinimumSpeedFactor));
+        float theSpeedFactor = min(BALANCE_VAR(kEnsnareMinimumSpeedFactor) + (1.0f - BALANCE_VAR(kEnsnareMinimumSpeedFactor))*thePercentageComplete, BALANCE_VAR(kEnsnareMaximumSpeedFactor));
+        ASSERT(theSpeedFactor >= BALANCE_VAR(kEnsnareMinimumSpeedFactor));
         ASSERT(theSpeedFactor <= 1.0f);
         
         outBaseSpeed *= theSpeedFactor;
@@ -3331,7 +2942,7 @@ void AvHPlayer::GetSpeeds(int& outBaseSpeed, int& outUnemcumberedSpeed) const
     if(this->GetIsAlien())
     {
         int theCarapaceLevel = AvHPlayerUpgrade::GetArmorUpgrade((AvHUser3)this->pev->iuser3, this->pev->iuser4);
-        float theSpeedFactor = (1.0f - BALANCE_FVAR(kCarapaceSlowFactor)*theCarapaceLevel);
+        float theSpeedFactor = (1.0f - BALANCE_VAR(kCarapaceSlowFactor)*theCarapaceLevel);
 
         outBaseSpeed *= theSpeedFactor;
         outUnemcumberedSpeed *= theSpeedFactor;
@@ -3339,14 +2950,14 @@ void AvHPlayer::GetSpeeds(int& outBaseSpeed, int& outUnemcumberedSpeed) const
 
     if(this->GetIsMetabolizing())
     {
-        float theMetabolizeSpeedFactor = BALANCE_FVAR(kMetabolizeSpeedFactor);
+        float theMetabolizeSpeedFactor = BALANCE_VAR(kMetabolizeSpeedFactor);
         outBaseSpeed *= theMetabolizeSpeedFactor;
         outUnemcumberedSpeed *= theMetabolizeSpeedFactor;
     }
 
     if(this->GetIsDigesting())
     {
-        float theDigestingSpeedFactor = BALANCE_FVAR(kDigestingSpeedFactor);
+        float theDigestingSpeedFactor = BALANCE_VAR(kDigestingSpeedFactor);
         outBaseSpeed *= theDigestingSpeedFactor;
         outUnemcumberedSpeed *= theDigestingSpeedFactor;
     }
@@ -3366,7 +2977,7 @@ void AvHPlayer::GetSpeeds(int& outBaseSpeed, int& outUnemcumberedSpeed) const
 
 //    if(GetGameRules()->GetIsCombatMode())
 //    {
-//        int theSpeedIncrease = (this->GetExperienceLevel() - 1)*BALANCE_IVAR(kCombatLevelSpeedIncrease);
+//        int theSpeedIncrease = (this->GetExperienceLevel() - 1)*BALANCE_VAR(kCombatLevelSpeedIncrease);
 //
 //        outBaseSpeed += theSpeedIncrease;
 //        outUnemcumberedSpeed += theSpeedIncrease;
@@ -3457,7 +3068,7 @@ bool AvHPlayer::GiveOrderToSelection(AvHOrderType inOrder, Vector inNormRay)
 //  vec3_t theValidOrigin;
 //  AvHSHUServerGetFirstNonSolidPoint(theStartPoint, theEndPoint, theValidOrigin);
 //
-//  theValidOrigin.z -= BALANCE_IVAR(kBiteDamage);
+//  theValidOrigin.z -= BALANCE_VAR(kBiteDamage);
 //
 //  CBaseEntity* pEnt = CBaseEntity::Create(kwsDebugEntity, theValidOrigin, Vector(0, 0, 0));
 //  ASSERT(pEnt);
@@ -3547,7 +3158,6 @@ void AvHPlayer::ItemPostFrame(void)
 
 void AvHPlayer::Init()
 {
-
     int i;
     
     // Copy the server variables from the game rules.
@@ -3568,19 +3178,13 @@ void AvHPlayer::Init()
     this->mResources = 0;
     this->mScore = 0;
     this->mSavedCombatFrags = 0;
-#ifdef USE_UPP
-	this->mAuthorized = UPPUtil_GetDefaultAuthorization();
-	this->mAuthMask = UPPUtil_GetDefaultAuthMask();
-	this->mScoreboardIconName = UPPUtil_GetDefaultScoreboardIcon();
-#else
-	this->mCachedAuthenticationMask = -1;
-#endif
     this->mLastModelIndex = -1;
 
     this->mFirstUpdate = true;
     this->mNewMap = true;
 
-    this->mHasSeenTeamOne = this->mHasSeenTeamTwo = false;
+    this->mHasSeenTeamA = false;
+    this->mHasSeenTeamB = false;
 
     this->mPendingCommand = NULL;
     this->mIsSpeaking = false;
@@ -3752,8 +3356,6 @@ void AvHPlayer::Init()
     this->mPreThinkTicks = 0;
 
     this->mDesiredNetName = "";
-    this->mAuthCheatMask = 0;
-    this->mAllowAuth = true;
 
     this->mTimeOfLastClassAndTeamUpdate = -1;
     this->mEffectivePlayerClassChanged = false;
@@ -3825,7 +3427,7 @@ void AvHPlayer::InitializeFromTeam(float inHealthPercentage, float inArmorPercen
             // If we're in combat mode, we use our own tech nodes instead of our team's
             if(GetGameRules()->GetIsCombatMode())
             {
-                AvHTechNodes theInitialTechNodes = theTeam->GetTechNodes();
+                AvHTechTree theInitialTechNodes = theTeam->GetTechNodes();
 
                 // Removed restoration of previous levels and experience due to abuse
                 //// Restore saved/spent nodes if we've already been playing
@@ -4235,17 +3837,17 @@ bool AvHPlayer::GetHasActiveAlienWeaponWithImpulse(AvHMessageID inMessageID) con
     return theHasWeapon;
 }
 
-bool AvHPlayer::GetHasSeenTeam(AvHTeamNumber inNumber)
+bool AvHPlayer::GetHasSeenTeam(AvHTeamNumber inNumber) const
 {
     bool theHasBeenOnTeam = false;
 
-    if(inNumber == TEAM_ONE)
+    if(inNumber == GetGameRules()->GetTeamA()->GetTeamNumber())
     {
-        theHasBeenOnTeam = this->mHasSeenTeamOne;
+        theHasBeenOnTeam = this->mHasSeenTeamA;
     }
-    else if(inNumber == TEAM_TWO)
+    else if(inNumber == GetGameRules()->GetTeamB()->GetTeamNumber())
     {
-        theHasBeenOnTeam = this->mHasSeenTeamTwo;
+        theHasBeenOnTeam = this->mHasSeenTeamB;
     }
 
     return theHasBeenOnTeam;
@@ -4253,13 +3855,13 @@ bool AvHPlayer::GetHasSeenTeam(AvHTeamNumber inNumber)
 
 void AvHPlayer::SetHasSeenTeam(AvHTeamNumber inNumber)
 {
-    if(inNumber == TEAM_ONE)
+    if(inNumber == GetGameRules()->GetTeamA()->GetTeamNumber())
     {
-        this->mHasSeenTeamOne = true;
+        this->mHasSeenTeamA = true;
     }
-    else if(inNumber == TEAM_TWO)
+    else if(inNumber == GetGameRules()->GetTeamB()->GetTeamNumber())
     {
-        this->mHasSeenTeamTwo = true;
+        this->mHasSeenTeamB = true;
     }
 }
 
@@ -4748,11 +4350,6 @@ void AvHPlayer::Killed( entvars_t *pevAttacker, int iGib )
 
         // Fade out already performed when we start being digested
         bool theFadeOut = !this->GetIsBeingDigested();
-        #ifdef DEBUG
-        #ifndef AVH_EXTERNAL_BUILD
-        theFadeOut = false;
-        #endif
-        #endif
 
         if(!this->GetIsBeingDigested())
         {
@@ -4930,7 +4527,6 @@ void AvHPlayer::PackDeadPlayerItems(void)
 
 void AvHPlayer::PlayRandomRoleSound(string inSoundListName, int inChannel, float inVolume)
 {
-    #ifndef AVH_MAPPER_BUILD
     char theListName[256];
     AvHUser3 theUser3 = this->GetUser3();
     if(theUser3 != AVH_USER3_NONE)
@@ -4938,7 +4534,6 @@ void AvHPlayer::PlayRandomRoleSound(string inSoundListName, int inChannel, float
         sprintf(theListName, inSoundListName.c_str(), (int)theUser3);
         gSoundListManager.PlaySoundInList(theListName, this, inChannel, inVolume);
     }
-    #endif
 }
 
 float AvHPlayer::GetTimeOfLastConstructUse() const
@@ -4990,7 +4585,6 @@ bool AvHPlayer::PlaySaying(AvHMessageID inMessageID)
     char theSoundList[256];
     memset(theSoundList, 0, 256*sizeof(char));
 
-    #ifndef AVH_MAPPER_BUILD
     if(this->pev->iuser3 == AVH_USER3_MARINE_PLAYER)
     {
         switch(inMessageID)
@@ -5078,32 +4672,13 @@ bool AvHPlayer::PlaySaying(AvHMessageID inMessageID)
         
         thePlayedSaying = true;
     }
-    #endif
 
     return thePlayedSaying;
 }
 
 bool AvHPlayer::PlayHUDSound(AvHHUDSound inSound) const
-{
-    bool theSuccess = false;
-    
-    if((inSound > HUD_SOUND_INVALID) && (inSound < HUD_SOUND_MAX))
-    {
-        MESSAGE_BEGIN(MSG_ONE, gmsgPlayHUDNotification, NULL, pev);
-        WRITE_BYTE(0);
-        WRITE_BYTE(inSound);
-        // Added by mmcguire.
-        WRITE_COORD(pev->origin[0]);
-        WRITE_COORD(pev->origin[1]);
-        MESSAGE_END();
-        
-		//char* theMessage = UTIL_VarArgs("Playing sound %d to %s on team %d\n", inSound, STRING(pev->netname), pev->team);
-		//UTIL_ClientPrintAll(HUD_PRINTTALK, theMessage);
-		
-		theSuccess = true;
-    }
-    
-    return theSuccess;
+{ 
+	return this->PlayHUDSound( inSound, pev->origin[0], pev->origin[1] ); 
 }
 
 bool AvHPlayer::PlayHUDSound(AvHHUDSound inSound, float x, float y) const
@@ -5112,14 +4687,7 @@ bool AvHPlayer::PlayHUDSound(AvHHUDSound inSound, float x, float y) const
     
     if((inSound > HUD_SOUND_INVALID) && (inSound < HUD_SOUND_MAX))
     {
-        MESSAGE_BEGIN(MSG_ONE, gmsgPlayHUDNotification, NULL, pev);
-        WRITE_BYTE(0);
-        WRITE_BYTE(inSound);
-        // Added by mmcguire.
-        WRITE_COORD(x);
-        WRITE_COORD(y);
-        MESSAGE_END();
-        
+		NetMsg_PlayHUDNotification( this->pev, 0, inSound, x, y );
         theSuccess = true;
     }
     
@@ -5146,31 +4714,9 @@ void AvHPlayer::PlayHUDStructureNotification(AvHMessageID inMessageID, const Vec
                     theShowNotification = true;
                 }
                 
-                // ... or enemies in range with pheromones upgrade 
-//                if(theEntity->GetIsAlien())
-//                {
-//                    int theSensoryLevel = AvHGetAlienUpgradeLevel(theEntity->pev->iuser4, MASK_UPGRADE_8);
-//                    if(theSensoryLevel > 0)
-//                    {
-//                        int theSensoryRange = BALANCE_IVAR(kPheromonesBaseDistance) + (theSensoryLevel - 1)*BALANCE_IVAR(kPheromonesLevelDistance);
-//                        int theCurrentRange = VectorDistance(theEntity->pev->origin, inLocation);
-//
-//                        if(theCurrentRange <= theSensoryRange)
-//                        {
-//                            theShowNotification = true;
-//                        }
-//                    }
-//                }
-    
                 if(theShowNotification)
                 {
-                    MESSAGE_BEGIN(MSG_ONE, gmsgPlayHUDNotification, NULL, theEntity->pev);
-                        WRITE_BYTE(1);
-                        WRITE_BYTE((int)inMessageID);
-                        //WRITE_BYTE(this->entindex());
-                        WRITE_COORD(inLocation.x);
-                        WRITE_COORD(inLocation.y);
-                    MESSAGE_END();
+					NetMsg_PlayHUDNotification( theEntity->pev, 1, inMessageID, inLocation.x, inLocation.y );
                 }
             }
         }
@@ -5358,30 +4904,6 @@ void AvHPlayer::ProcessResourceAdjustment(AvHMessageID inMessageID)
     }
 }
 
-//void AvHPlayer::ProcessTechUpgrade(AvHMessageID inMessageID)
-//{
-//  ASSERT((inMessageID == TECH_TEAM) || (inMessageID == TECH_BUILDINGS) || (inMessageID == TECH_POWERUPS));
-//
-//  int theOldID = inMessageID;
-//  int theNewID = 0;
-//  string theEmptyText;
-//
-//  MESSAGE_BEGIN(MSG_ONE, gmsgChangeNodeCost, NULL, pev);
-//      // send original armor level
-//      WRITE_BYTE(this->mArmorLevel);
-//
-//      // Send old id
-//      WRITE_BYTE(theOldID);
-//
-//      // Send new id
-//      WRITE_BYTE(theNewID);
-//
-//      // Send string
-//      WRITE_STRING(theEmptyText.c_str());
-//
-//  MESSAGE_END();
-//}
-
 void AvHPlayer::Evolve(AvHMessageID inMessageID, bool inInstantaneous)
 {
     // TODO: Put in a waiting time or some other effects?
@@ -5437,36 +4959,19 @@ void AvHPlayer::LogEmitRoleChange()
 	const char* theUser3Name = AvHSHUGetClassNameFromUser3((AvHUser3)this->pev->iuser3);
 	if(theUser3Name != NULL)
 	{
-		edict_t* pEntity = this->edict();
-		UTIL_LogPrintf("\"%s<%i><%s><%s>\" changed role to \"%s\"\n", 
-			STRING( pEntity->v.netname ), 
-			GETPLAYERUSERID( pEntity ), 
-			//voogru: this was using "this->GetNetworkID().c_str();", which didnt have anything
-#ifdef USE_UPP
-			UPPUtil_GetNetworkID( pEntity ).c_str(),
-#else
-			AvHSUGetPlayerAuthIDString(pEntity).c_str(), 
-#endif 
-			AvHSUGetTeamName(pEntity->v.team), 
-			theUser3Name);
+		UTIL_LogPrintf("%s changed role to \"%s\"\n", 
+			GetLogStringForPlayer( this->edict() ).c_str(),
+			theUser3Name
+		);
 	}
 }
 
 void AvHPlayer::LogPlayerAction(const char* inActionDescription, const char* inActionData)
 {
-    edict_t* theActor = this->edict();
     if(inActionDescription && inActionData)
     {
-        UTIL_LogPrintf("\"%s<%i><%s><%s>\" triggered \"%s\" (type \"%s\")\n", 
-			STRING(theActor->v.netname), 
-			GETPLAYERUSERID(theActor), 
-			//voogru: this was using "this->GetNetworkID().c_str();", which didnt have anything
-#ifdef USE_UPP
-			UPPUtil_GetNetworkID( theActor ).c_str(),
-#else
-			AvHSUGetPlayerAuthIDString(theActor).c_str(), 
-#endif 
-			AvHSUGetTeamName(theActor->v.team), 
+        UTIL_LogPrintf("%s triggered \"%s\" (type \"%s\")\n", 
+			GetLogStringForPlayer( this->edict() ).c_str(),
 			inActionDescription, 
 			inActionData);
     }
@@ -5476,28 +4981,10 @@ void AvHPlayer::LogPlayerActionPlayer(CBasePlayer* inActionPlayer, const char* i
 {
     if(inAction)
     {
-        edict_t* theActor = inActionPlayer->edict();
-        edict_t* theReceiver = this->edict();
-        
-        UTIL_LogPrintf(
-			"\"%s<%i><%s><%s>\" triggered \"%s\" against \"%s<%i><%u><%s>\"\n", 
-			STRING(theActor->v.netname), 
-			GETPLAYERUSERID(theActor), 
-#ifdef USE_UPP
-			UPPUtil_GetNetworkID(theActor).c_str(),
-#else
-			AvHSUGetPlayerAuthIDString(theActor).c_str(), 
-#endif
-			AvHSUGetTeamName(theActor->v.team), 
+        UTIL_LogPrintf("%s triggered \"%s\" against %s\n", 
+			GetLogStringForPlayer( inActionPlayer->edict() ).c_str(),
 			inAction, 
-			STRING(theReceiver->v.netname), 
-			GETPLAYERUSERID(theReceiver), 
-#ifdef USE_UPP
-			UPPUtil_GetNetworkID(theReceiver).c_str(),
-#else
-			AvHSUGetPlayerAuthIDString(theReceiver).c_str(), 
-#endif
-			AvHSUGetTeamName(theReceiver->v.team)
+			GetLogStringForPlayer( this->edict() ).c_str()
 		);
     }
 }
@@ -5532,24 +5019,9 @@ void AvHPlayer::LogPlayerAttackedPlayer(CBasePlayer* inAttackingPlayer, const ch
             AvHSHUMakeViewFriendlyKillerName(theKillerName);
             int theDamage = (int)inDamage;
             
-            UTIL_LogPrintf(
-				"\"%s<%i><%u><%s>\" attacked \"%s<%i><%u><%s>\" with \"%s\" (damage \"%d\")\n", 
-				STRING(theAttacker->v.netname), 
-				GETPLAYERUSERID(theAttacker), 
-#ifdef USE_UPP
-				UPPUtil_GetNetworkID(theAttacker).c_str(),
-#else
-				AvHSUGetPlayerAuthIDString(theAttacker).c_str(), 
-#endif
-				AvHSUGetTeamName(theAttacker->v.team), 
-				STRING(theReceiver->v.netname), 
-				GETPLAYERUSERID(theReceiver), 
-#ifdef USE_UPP
-				UPPUtil_GetNetworkID(theReceiver).c_str(),
-#else
-				AvHSUGetPlayerAuthIDString(theReceiver).c_str(), 
-#endif
-				AvHSUGetTeamName(theReceiver->v.team), 
+            UTIL_LogPrintf("%s attacked %s with \"%s\" (damage \"%d\")\n", 
+				GetLogStringForPlayer( theAttacker ).c_str(),
+				GetLogStringForPlayer( theReceiver ).c_str(),
 				theKillerName.c_str(), 
 				theDamage
 			);
@@ -5586,25 +5058,11 @@ void AvHPlayer::LogPlayerKilledPlayer(CBasePlayer* inAttackingPlayer, const char
             string theKillerName(inWeaponName);
             AvHSHUMakeViewFriendlyKillerName(theKillerName);
             
-            UTIL_LogPrintf(
-				"\"%s<%i><%u><%s>\" killed \"%s<%i><%u><%s>\" with \"%s\"\n", 
-				STRING(theAttacker->v.netname), 
-				GETPLAYERUSERID(theAttacker), 
-#ifdef USE_UPP
-				UPPUtil_GetNetworkID(theAttacker).c_str(),
-#else
-				AvHSUGetPlayerAuthIDString(theAttacker).c_str(), 
-#endif
-				AvHSUGetTeamName(theAttacker->v.team), 
-				STRING(theReceiver->v.netname), 
-				GETPLAYERUSERID(theReceiver), 
-#ifdef USE_UPP
-				UPPUtil_GetNetworkID(theReceiver).c_str(),
-#else
-				AvHSUGetPlayerAuthIDString(theReceiver).c_str(), 
-#endif
-				AvHSUGetTeamName(theReceiver->v.team), 
-				theKillerName.c_str());
+            UTIL_LogPrintf("%s killed %s with \"%s\"\n", 
+				GetLogStringForPlayer( theAttacker ).c_str(),
+				GetLogStringForPlayer( theReceiver ).c_str(),
+				theKillerName.c_str()
+			);
         }
     }
 }
@@ -5760,9 +5218,9 @@ void AvHPlayer::InternalDigestionThink()
                     theInflictor = theDevourWeapon->pev;
                 }
 
-				const float theCombatModeScalar = GetGameRules()->GetIsCombatMode() ? BALANCE_FVAR(kCombatModeTimeScalar) : 1.0f;
+				const float theCombatModeScalar = GetGameRules()->GetIsCombatMode() ? BALANCE_VAR(kCombatModeTimeScalar) : 1.0f;
                 theDigestee->pev->takedamage = DAMAGE_YES;
-                float theDamage = theTimePassed*BALANCE_IVAR(kDevourDamage)*(1.0f/theCombatModeScalar);
+                float theDamage = theTimePassed*BALANCE_VAR(kDevourDamage)*(1.0f/theCombatModeScalar);
                 theDigestee->TakeDamage(theInflictor, this->pev, theDamage, DMG_DROWN);
                 theDigestee->pev->takedamage = DAMAGE_NO;
 
@@ -5950,8 +5408,6 @@ char* AvHPlayer::GetPlayerModelKeyName()
 
 void AvHPlayer::HandleOverwatch(void)
 {
-    #ifndef AVH_MAPPER_BUILD
-
     AvHTeam* theTeam = this->GetTeamPointer();
     if(theTeam && (theTeam->GetTeamType() == AVH_CLASS_TYPE_MARINE))
     {
@@ -6058,7 +5514,6 @@ void AvHPlayer::HandleOverwatch(void)
             }
         }
     }
-#endif
 }
 
 void AvHPlayer::InternalAlienUpgradesThink()
@@ -6268,7 +5723,7 @@ float AvHPlayer::GetCloakTime() const
         int theCloakingLevel = AvHGetAlienUpgradeLevel(this->pev->iuser4, MASK_UPGRADE_7);
         if(theCloakingLevel > 0)
         {
-            theCloakTime = BALANCE_FVAR(kCloakTime)/theCloakingLevel;
+            theCloakTime = BALANCE_VAR(kCloakTime)/theCloakingLevel;
         }
     }
 
@@ -6375,18 +5830,18 @@ void AvHPlayer::InternalAlienUpgradesRegenerationThink()
 	// the innate regeneration rather than adding to it.
 
 	// If enough time has elapsed to heal
-	if((this->mTimeOfLastRegeneration == -1) || (gpGlobals->time - this->mTimeOfLastRegeneration > BALANCE_FVAR(kAlienRegenerationTime)))
+	if((this->mTimeOfLastRegeneration == -1) || (gpGlobals->time - this->mTimeOfLastRegeneration > BALANCE_VAR(kAlienRegenerationTime)))
 	{
 		int theRegenLevel = AvHGetAlienUpgradeLevel(this->pev->iuser4, MASK_UPGRADE_2);
 		int theMaxHealth = AvHPlayerUpgrade::GetMaxHealth(this->pev->iuser4, (AvHUser3)this->pev->iuser3, this->GetExperienceLevel());
 
 		float theRegenAmount = 0.0f;
-		float theRegenPercentage = BALANCE_FVAR(kAlienInnateRegenerationPercentage);
+		float theRegenPercentage = BALANCE_VAR(kAlienInnateRegenerationPercentage);
 
 		//  If we have regeneration upgrade, multiply the amount by the regen level
 		if(theRegenLevel > 0)
 		{
-			theRegenPercentage = BALANCE_FVAR(kAlienRegenerationPercentage);
+			theRegenPercentage = BALANCE_VAR(kAlienRegenerationPercentage);
 			theRegenAmount = (theRegenPercentage*theMaxHealth)*theRegenLevel;
 		}
 
@@ -6408,13 +5863,13 @@ void AvHPlayer::InternalAlienUpgradesRegenerationThink()
         // Is the player really hurting?
         int theMaxHealth = AvHPlayerUpgrade::GetMaxHealth(this->pev->iuser4, (AvHUser3)this->pev->iuser3, this->GetExperienceLevel());
 
-        if((this->pev->health < theMaxHealth*BALANCE_FVAR(kRedemptionThreshold)) && this->IsAlive())
+        if((this->pev->health < theMaxHealth*BALANCE_VAR(kRedemptionThreshold)) && this->IsAlive())
         {
             const float kPullBackTime = 20.0f;
             if((this->mLastTimeRedemptionTriggered == -1) || (gpGlobals->time > (this->mLastTimeRedemptionTriggered + kPullBackTime)))
             {
                 // Chance per second
-                float theRedemptionChance = theRedemptionLevel*BALANCE_FVAR(kRedemptionChance);
+                float theRedemptionChance = theRedemptionLevel*BALANCE_VAR(kRedemptionChance);
 
                 // How many times is this being called per second?
                 float theThinkInterval = 1.0f;
@@ -6529,7 +5984,7 @@ void AvHPlayer::ProcessEntityBlip(CBaseEntity* inEntity)
                     // If we have scent of fear upgrade - don't render if being eaten. changed by elven.
 					if( (theEntityIsNearSensory || GetHasUpgrade(this->pev->iuser4, MASK_UPGRADE_9)) && !theEntityIsParasited && !GetHasUpgrade(inEntity->pev->iuser4, MASK_DIGESTING))
                     {
-                        int theRange = BALANCE_IVAR(kScentOfFearRadiusPerLevel);
+                        int theRange = BALANCE_VAR(kScentOfFearRadiusPerLevel);
                         if(GetHasUpgrade(this->pev->iuser4, MASK_UPGRADE_14))
                         {
                             theRange *= 2;
@@ -6658,16 +6113,9 @@ void AvHPlayer::ClearBlips()
 
 void AvHPlayer::ClientDisconnected()
 {
+	this->InitBalanceVariables();
     this->ResetGameNewMap();
-
-    this->ResetBehavior(true);
-
     this->ResetEntity();
-    
-    #ifdef AVH_PLAYTEST_BUILD
-    this->mClientBalanceInts.clear();
-    this->mClientBalanceFloats.clear();
-    #endif
 }
 
 void AvHPlayer::ResetGameNewMap()
@@ -6799,7 +6247,7 @@ void AvHPlayer::InternalAlienThink()
         // Has enough time passed since we started screaming?
         if(this->mIsScreaming)
         {
-            if(gpGlobals->time > (this->mTimeStartedScream + BALANCE_FVAR(kPrimalScreamDuration)))
+            if(gpGlobals->time > (this->mTimeStartedScream + BALANCE_VAR(kPrimalScreamDuration)))
             {
                 this->mIsScreaming = false;
             }
@@ -6969,31 +6417,17 @@ void AvHPlayer::InternalCommonThink()
 
 void AvHPlayer::PropagateServerVariables()
 {
-
     for (int i = 0; i < (signed)mServerVariableList.size(); ++i)
     {
-
         std::string theValue = CVAR_GET_STRING( mServerVariableList[i].mName.c_str() );
-        std::string lastValue = mServerVariableList[i].mLastValueSent;
         
         if ( mServerVariableList[i].mLastValueSent != theValue)
         {
-
+			NetMsg_ServerVar( this->pev, mServerVariableList[i].mName, theValue );
             mServerVariableList[i].mLastValueSent = theValue;
-           
-            MESSAGE_BEGIN(MSG_ONE, gmsgServerVar, NULL, this->pev);
-
-            WRITE_STRING( mServerVariableList[i].mName.c_str() );
-            WRITE_STRING( mServerVariableList[i].mLastValueSent.c_str() );
-
-            MESSAGE_END();
-
             break; // Only send one message per tick to avoid overflow.
-
         }
-
     }
-
 }
 
 void AvHPlayer::InternalMarineThink()
@@ -7301,36 +6735,6 @@ void AvHPlayer::RecalculateSpeed(void)
     
     int theMaxWeight = GetGameRules()->GetMaxWeight();
 
-//  // The level 5 has a dynamic max speed, depending on how long he's been galloping and his change in facing
-//  if(this->pev->iuser3 == AVH_USER3_ALIEN_PLAYER5)
-//  {
-//      // Ever-increasing
-//      const int kBaseLevel5Speed = 200;
-//      this->mMaxGallopSpeed = max(kBaseLevel5Speed, this->mMaxGallopSpeed);
-//
-//      const int kMaxGallopSpeed = 350;
-//
-//      // Only add gallop if we're trying to move forward (no other keys allowed), while on the ground
-//      if((this->pev->button == IN_FORWARD) && FBitSet(this->pev->flags, FL_ONGROUND) && (this->pev->velocity.Length() > 0))
-//      {
-//          const int kSpeedIncrementPerTick = 5;
-//          this->mMaxGallopSpeed += kSpeedIncrementPerTick;
-//      }
-//      else
-//      {
-//          this->mMaxGallopSpeed = kBaseLevel5Speed;
-//      }
-//
-//      this->mMaxGallopSpeed = min(this->mMaxGallopSpeed, kMaxGallopSpeed);
-//
-//      // But we slow-down when we turn, this should encourage galloping in large smooth circles, like a bull!
-//      float theDotProduct = DotProduct(gpGlobals->v_forward, this->mLastGallopViewDirection);
-//      this->mMaxGallopSpeed *= theDotProduct;
-//
-//      // Save our view angle for level 5 galloping (see GetSpeeds())
-//      VectorCopy(gpGlobals->v_forward, this->mLastGallopViewDirection);
-//  }
-
     int theBaseSpeed, theUnencumberedSpeed;
     this->GetSpeeds(theBaseSpeed, theUnencumberedSpeed);
     this->mMaxWalkSpeed = theUnencumberedSpeed*.75f;
@@ -7370,36 +6774,23 @@ void AvHPlayer::ResetEntity(void)
 {
     CBasePlayer::ResetEntity();
 
-    this->mHasSeenTeamOne = this->mHasSeenTeamTwo = false;
+    this->mHasSeenTeamA = false;
+	this->mHasSeenTeamB = false;
 
     this->ResetBehavior(true);
 
     this->UpdateTopDownMode();
 
-    // Save new map status, as Init() resets the player completely, but we want to preserve this one field
+    // Preserve items we want to survive init
     bool theSavedNewMap = this->mNewMap;
     string theSavedDesiredNetName = this->mDesiredNetName;
-#ifdef USE_UPP
-	bool theAuthorized = this->mAuthorized;
-	int theAuthMask = this->mAuthMask;
-	string theIconName = this->mScoreboardIconName;
-#else
-    bool theAllowAuth = this->mAllowAuth;
-#endif
-    AvHBaseInfoLocationListType theClientInfoLocations = this->mClientInfoLocations;
+    AvHBaseInfoLocationListType theSavedClientInfoLocations = this->mClientInfoLocations;
         
     this->Init();
         
     this->mNewMap = theSavedNewMap;
     this->mDesiredNetName = theSavedDesiredNetName;
-#ifdef USE_UPP
-	this->mAuthorized = theAuthorized;
-	this->mAuthMask = theAuthMask;
-	this->mScoreboardIconName = theIconName;
-#else
-    this->mAllowAuth = theAllowAuth;
-#endif
-    this->mClientInfoLocations = theClientInfoLocations;
+    this->mClientInfoLocations = theSavedClientInfoLocations;
 }
 
 void AvHPlayer::ResetOverwatch()
@@ -7428,7 +6819,7 @@ void AvHPlayer::SetModelFromState()
 	{
 	case AVH_USER3_MARINE_PLAYER:
 	    theModelName = kMarineSoldierModel;
-	    if(GetHasUpgrade(this->pev->iuser4, MASK_UPGRADE_13))
+	    if(this->GetHasHeavyArmor())
 	    {
 	        theModelName = kHeavySoldierModel;
 	    }
@@ -7865,20 +7256,6 @@ void AvHPlayer::SetPlayMode(AvHPlayMode inPlayMode, bool inForceSpawn)
     if(this->pev->playerclass != inPlayMode || inForceSpawn)
     {
         bool theGoingToReadyRoom = (inPlayMode == PLAYMODE_READYROOM);
-
-#ifdef USE_UPP
-		//send signal before any state changes that occur in ResetBehavior below
-		switch(inPlayMode)
-		{
-		case PLAYMODE_OBSERVER:
-			UPP::reportPlayerChangingTeams(UPPUtil_GetPlayerInfo(this),TEAM_SPECT);
-			break;
-		case PLAYMODE_READYROOM:
-			UPP::reportPlayerChangingTeams(UPPUtil_GetPlayerInfo(this),TEAM_IND);
-			break;
-		}
-#endif
-
         this->ResetBehavior(theGoingToReadyRoom);
         
         if(!theGoingToReadyRoom)
@@ -8080,8 +7457,8 @@ void AvHPlayer::SetPlayMode(AvHPlayMode inPlayMode, bool inForceSpawn)
             theTeamName = kSpectatorTeam;
             this->mHasLeftReadyRoom = true;
 
-            this->SetHasSeenTeam(TEAM_ONE);
-            this->SetHasSeenTeam(TEAM_TWO);
+            this->SetHasSeenTeam(GetGameRules()->GetTeamA()->GetTeamNumber());
+            this->SetHasSeenTeam(GetGameRules()->GetTeamB()->GetTeamNumber());
             break;
 
 		case PLAYMODE_REINFORCINGCOMPLETE:
@@ -8746,10 +8123,10 @@ bool AvHPlayer::SetEnsnareState(bool inState)
             this->mTimeToBeUnensnared = gpGlobals->time;
         }
 
-        if(!this->GetIsEnsnared() || ((this->mTimeToBeUnensnared + BALANCE_IVAR(kEnsnareTime) - gpGlobals->time) < BALANCE_IVAR(kMaxEnsnareTime)))
+        if(!this->GetIsEnsnared() || ((this->mTimeToBeUnensnared + BALANCE_VAR(kEnsnareTime) - gpGlobals->time) < BALANCE_VAR(kMaxEnsnareTime)))
         {
             this->mLastTimeEnsnared = gpGlobals->time;
-            this->mTimeToBeUnensnared += BALANCE_IVAR(kEnsnareTime);
+            this->mTimeToBeUnensnared += BALANCE_VAR(kEnsnareTime);
         
             // Player is defenseless
             this->HolsterCurrent();
@@ -8895,7 +8272,7 @@ bool AvHPlayer::GetCanBeResupplied() const
 {
     bool theCanBeResupplied = false;
 
-    const float theResupplyTime = BALANCE_FVAR(kResupplyTime);
+    const float theResupplyTime = BALANCE_VAR(kResupplyTime);
 
     if((this->mTimeOfLastResupply == 0) || (gpGlobals->time > (this->mTimeOfLastResupply + theResupplyTime)))
     {
@@ -9248,7 +8625,7 @@ int AvHPlayer::TakeDamage( entvars_t* pevInflictor, entvars_t* pevAttacker, floa
         // If we're metabolizing, convert the damage to energy
 //      if(this->GetIsMetabolizing())
 //      {
-//          const float theFactor = BALANCE_FVAR(kMetabolizeDamageEnergyFactor);
+//          const float theFactor = BALANCE_VAR(kMetabolizeDamageEnergyFactor);
 //          float theEnergy = (flDamage/100.f)*theFactor;
 //          AvHMUGiveAlienEnergy(this->pev->fuser3, theEnergy);
 //
@@ -9301,12 +8678,6 @@ int AvHPlayer::TakeDamage( entvars_t* pevInflictor, entvars_t* pevAttacker, floa
                 }
             
                 bool theDrawDamage = (CVAR_GET_FLOAT(kvDrawDamage) > 0);
-                
-                #ifdef DEBUG
-                #ifndef AVH_EXTERNAL_BUILD
-                theDrawDamage = true;
-                #endif
-                #endif
                 
                 if(theDrawDamage)
                 {
@@ -9611,98 +8982,15 @@ void AvHPlayer::UpdateAlienUI()
             
             if(theUpgrades != this->mClientUpgrades)
             {
-                MESSAGE_BEGIN(MSG_ONE, gmsgAlienInfo, NULL, this->pev);
-            
-                // 0 means upgrades, 1 means hive info
-                WRITE_BYTE(0);
-
-                int theNumUpgrades = theUpgrades.size();
-
-                //char theMessage[512];
-                //sprintf(theMessage, "AvHPlayer::UpdateAlienUI: Pre upgrades: %d, Post upgrades: %d\n", thePreSize, theNumUpgrades);
-                //UTIL_LogPrintf(theMessage);
-
-                // Write the upgrades
-                ASSERT(theNumUpgrades <= kNumAlienUpgrades);
-            
-                WRITE_BYTE(theNumUpgrades);
-            
-                int i;
-                for(i = 0; i < theNumUpgrades; i++)
-                {
-                    int theCurrentUpgrade = theUpgrades[i];
-                    WRITE_BYTE(theCurrentUpgrade);
-                }
-            
-                MESSAGE_END();
-                
+				NetMsg_AlienInfo_Upgrades( this->pev, theUpgrades );
                 this->mClientUpgrades = theUpgrades;
             }
 
             HiveInfoListType theTeamHiveInfo = theTeamPointer->GetHiveInfoList();
             if(this->mClientHiveInfo != theTeamHiveInfo)
             {
-                MESSAGE_BEGIN(MSG_ONE, gmsgAlienInfo, NULL, this->pev);
-                
-                // 0 means upgrades, 1 means hive info
-                WRITE_BYTE(1);
-            
-                // Write hive info
-                int theNumHives = theTeamHiveInfo.size();
-                WRITE_BYTE(theNumHives);
-            
-                HiveInfoListType::iterator theIterator;
-                int theIndex = 0;
-                for(theIterator = theTeamHiveInfo.begin(); theIterator != theTeamHiveInfo.end(); theIterator++, theIndex++)
-                {
-                    bool theHasChanged = true;
-                    if((signed)this->mClientHiveInfo.size() > theIndex)
-                    {
-                        if(this->mClientHiveInfo[theIndex] == theTeamHiveInfo[theIndex])
-                        {
-                            theHasChanged = false;
-                        }
-                    }
-            
-                    if(!theHasChanged)
-                    {
-                        WRITE_BYTE(0);
-                    }
-                    else
-                    {
-                        WRITE_BYTE(1);
-
-                        // Only write hive coords if client hasn't received them yet
-                        bool theSendHiveCoords = true;
-                        if((signed)this->mClientHiveInfo.size() > theIndex)
-                        {
-                            AvHHiveInfo& theClientHiveInfo = this->mClientHiveInfo[theIndex];
-                            if((theIterator->mPosX == theClientHiveInfo.mPosX) && (theIterator->mPosY == theClientHiveInfo.mPosY) || (theIterator->mPosZ == theClientHiveInfo.mPosZ))
-                            {
-                                theSendHiveCoords = false;
-                            }
-                        }
-                        WRITE_BYTE(theSendHiveCoords);
-
-                        if(theSendHiveCoords)
-                        {
-                            WRITE_COORD(theIterator->mPosX);
-                            WRITE_COORD(theIterator->mPosY);
-                            WRITE_COORD(theIterator->mPosZ);
-                        }
-            
-                        // Write hive info
-                        WRITE_BYTE(theIterator->mStatus);
-                        WRITE_BYTE(theIterator->mUnderAttack);
-                        WRITE_SHORT(theIterator->mTechnology);
-						
-						WRITE_BYTE(theIterator->mHealthPercentage);
-                    }
-                }
-            
+				NetMsg_AlienInfo_Hives( this->pev, theTeamHiveInfo, this->mClientHiveInfo );
                 this->mClientHiveInfo = theTeamHiveInfo;
-            
-                MESSAGE_END();
             }
         }
     }
@@ -9713,187 +9001,15 @@ void AvHPlayer::UpdateBlips()
 {
     if(this->mEnemyBlips != this->mClientEnemyBlips)
     {
-        // Send new blip update
-        MESSAGE_BEGIN(MSG_ONE_UNRELIABLE, gmsgBlipList, NULL, this->pev);
-
-        // Send byte indicating if enemy or friendly blips
-        WRITE_BYTE(0);
-
-        // Never send more then the size of a packet.  This could cause missing blips very large numbers of enemy blips, but I don't think this ever happens.
-        const int kMaxBlips = 25;
-
-        // Send number of enemy blips
-        int theNumBlips = min(this->mEnemyBlips.mNumBlips, kMaxBlips);
-        WRITE_BYTE(theNumBlips);
-        
-        // Send position and angle of each enemy blip
-        for(int i = 0; i < theNumBlips; i++)
-        {
-            WRITE_COORD(this->mEnemyBlips.mBlipPositions[i][0]);
-            WRITE_COORD(this->mEnemyBlips.mBlipPositions[i][1]);
-            WRITE_COORD(this->mEnemyBlips.mBlipPositions[i][2]);
-            int8 theStatus = this->mEnemyBlips.mBlipStatus[i];
-            WRITE_BYTE(theStatus);
-        }
-
-        MESSAGE_END();
-        
+		NetMsg_BlipList( this->pev, false, this->mEnemyBlips );
         this->mClientEnemyBlips = this->mEnemyBlips;
     }
     
     if(this->mFriendlyBlips != this->mClientFriendlyBlips)
     {
-        MESSAGE_BEGIN(MSG_ONE_UNRELIABLE, gmsgBlipList, NULL, this->pev);
-
-        // Send byte indicating if enemy or friendly blips. 
-        WRITE_BYTE(1);
-        
-        // Send number of friendly blips (shouldn't ever be more then 16, but be safe)
-        const int kMaxBlips = 20;
-
-        int theNumBlips = min(this->mFriendlyBlips.mNumBlips, kMaxBlips);
-        WRITE_BYTE(theNumBlips);
-        
-        // Send position and angle of each friendly blip
-        for(int i = 0; i < theNumBlips; i++)
-        {
-            WRITE_COORD(this->mFriendlyBlips.mBlipPositions[i][0]);
-            WRITE_COORD(this->mFriendlyBlips.mBlipPositions[i][1]);
-            WRITE_COORD(this->mFriendlyBlips.mBlipPositions[i][2]);
-            
-            int8 theStatus = this->mFriendlyBlips.mBlipStatus[i];
-            WRITE_BYTE(theStatus);
-            
-            int8 theInfo = this->mFriendlyBlips.mBlipInfo[i];
-            WRITE_BYTE(theInfo);
-        }
-        
-        MESSAGE_END();
-
+		NetMsg_BlipList( this->pev, true, this->mFriendlyBlips );
         this->mClientFriendlyBlips = this->mFriendlyBlips;
     }
-}
-
-bool AvHPlayer::GetSendBalanceData()
-{
-    bool theSendData = false;
-
-    #ifdef AVH_PLAYTEST_BUILD
-    theSendData = (this->GetAuthenticationMask() & PLAYERAUTH_DEVELOPER);
-    
-    #ifdef DEBUG
-    #ifndef AVH_EXTERNAL_BUILD
-    // Don't send data to bots for sanity while testing
-    if(!(this->pev->flags & FL_FAKECLIENT))
-    {
-        theSendData = true;
-    }
-    #endif
-    #endif
-    
-    #endif
-  
-    return theSendData;
-}
-
-void AvHPlayer::UpdateBalanceVariables()
-{
-    #ifdef AVH_PLAYTEST_BUILD
-    bool theSendData = this->GetSendBalanceData();
-    if(theSendData && mNextBalanceVarUpdate < gpGlobals->time)
-    {
-        bool theSentUpdate = false;
-
-        const BalanceIntListType& theBalanceInts = GetGameRules()->GetBalanceInts();
-        if(this->mClientBalanceInts != theBalanceInts)
-        {
-            // Send the first diff
-            for(BalanceIntListType::const_iterator theSourceIter = theBalanceInts.begin(); theSourceIter != theBalanceInts.end(); theSourceIter++)
-            {
-                const string& theString = theSourceIter->first;
-                int theValue = theSourceIter->second;
-        
-                // Look up value client has
-                bool theClientIsSame = false;
-        
-                for(BalanceIntListType::const_iterator theDestIter = this->mClientBalanceInts.begin(); theDestIter != this->mClientBalanceInts.end(); theDestIter++)
-                {
-                    if(theDestIter->first == theString)
-                    {
-                        if(theValue == theDestIter->second)
-                        {
-                            theClientIsSame = true;
-                        }
-                    }
-                }
-        
-                if(!theClientIsSame)
-                {
-                    MESSAGE_BEGIN(MSG_ONE, gmsgBalanceVar, NULL, this->edict());
-                        WRITE_STRING(theString.c_str());
-                        WRITE_BYTE(0);
-                        WRITE_LONG(theValue);
-                    MESSAGE_END();
-
-                    theSentUpdate = true;
-        
-                    this->mClientBalanceInts[theString] = theValue;
-                    
-                    // Only send one per iteration to avoid overflowing
-                    break;
-                }
-            }
-        }
-
-        if(!theSentUpdate)
-        {
-            const BalanceFloatListType& theBalanceFloats = GetGameRules()->GetBalanceFloats();
-            if(this->mClientBalanceFloats != theBalanceFloats)
-            {
-                // Send the first diff
-                for(BalanceFloatListType::const_iterator theSourceIter = theBalanceFloats.begin(); theSourceIter != theBalanceFloats.end(); theSourceIter++)
-                {
-                    const string& theString = theSourceIter->first;
-                    float theValue = theSourceIter->second;
-                    
-                    // Look up value client has
-                    bool theClientIsSame = false;
-                    
-                    for(BalanceFloatListType::const_iterator theDestIter = this->mClientBalanceFloats.begin(); theDestIter != this->mClientBalanceFloats.end(); theDestIter++)
-                    {
-                        if(theDestIter->first == theString)
-                        {
-                            if(theValue == theDestIter->second)
-                            {
-                                theClientIsSame = true;
-                            }
-                        }
-                    }
-                    
-                    if(!theClientIsSame)
-                    {
-                        MESSAGE_BEGIN(MSG_ONE, gmsgBalanceVar, NULL, this->edict());
-                            WRITE_STRING(theString.c_str());
-                            WRITE_BYTE(1);
-                            WRITE_LONG((int)(theValue*kNormalizationNetworkFactor));
-                        MESSAGE_END();
-                        
-                        theSentUpdate = true;
-                        
-                        this->mClientBalanceFloats[theString] = theValue;
-                        
-                        // Only send one per iteration to avoid overflowing
-                        break;
-                    }
-                }
-            }
-		}
-
-		//Prevent the damn overflows, only send 10 updates per second.
-		if(theSentUpdate)
-			mNextBalanceVarUpdate = gpGlobals->time + 0.1;
-	}
-    #endif
 }
 
 void AvHPlayer::UpdateClientData( void )
@@ -9947,25 +9063,14 @@ void AvHPlayer::UpdateEffectiveClassAndTeam()
                 theTotalScore += max((theCurrentLevel - 1), 0);
             }
 
-            MESSAGE_BEGIN(MSG_ALL, gmsgScoreInfo);
-            WRITE_BYTE(ENTINDEX(edict()) );
-            WRITE_SHORT(theTotalScore);
-            WRITE_SHORT(this->pev->frags);
-            WRITE_SHORT(this->m_iDeaths);
-            WRITE_BYTE(this->GetEffectivePlayerClass());
-#ifdef USE_UPP
-			WRITE_SHORT(this->GetScoreboardIconNumber() | PLAYERAUTH_UPP_MODE);
-#else
-            WRITE_SHORT(theAuthMask);
-#endif
-            WRITE_SHORT(GetGameRules()->GetTeamIndex(this->TeamID()));
-#ifdef USE_UPP
-			WRITE_BYTE(this->GetScoreboardIconColor());
-#else
-			WRITE_STRING("0"); //Send a string so its easier for serverside mods to hook. (Otherwise they need to send it after the team ID is sent.)
-#endif
-            MESSAGE_END();
-            
+			ScoreInfo info;
+			info.player_index = ENTINDEX(this->edict());
+			info.score = theTotalScore;
+			info.frags = this->pev->frags;
+			info.deaths = this->m_iDeaths;
+			info.player_class = this->GetEffectivePlayerClass();
+			info.team = GetGameRules()->GetTeamIndex(this->TeamID());
+			NetMsg_ScoreInfo( info );
             this->mEffectivePlayerClassChanged = false;
         }
         
@@ -9976,25 +9081,16 @@ void AvHPlayer::UpdateEffectiveClassAndTeam()
                 CBasePlayer *plr = (CBasePlayer*)UTIL_PlayerByIndex( i );
                 if ( plr && GetGameRules()->IsValidTeam( plr->TeamID() ) )
                 {
-                    MESSAGE_BEGIN( MSG_ONE, gmsgTeamInfo, NULL, this->edict() );
-                        WRITE_BYTE( plr->entindex() );
-                        WRITE_STRING( plr->TeamID() );
-                    MESSAGE_END();
+					NetMsg_TeamInfo( this->pev, plr->entindex(), plr->TeamID() );
                 }
             }
-        
             this->mNeedsTeamUpdate = false;
         }
         
         if(this->mSendTeamUpdate)
         {
             // notify everyone's HUD of the team change
-            MESSAGE_BEGIN(MSG_ALL, gmsgTeamInfo);
-                WRITE_BYTE(this->entindex());
-                //WRITE_STRING( pPlayer->m_szTeamName );
-                WRITE_STRING(this->TeamID());
-            MESSAGE_END();
-        
+			NetMsg_TeamInfo( this->entindex(), this->TeamID() );
             this->mSendTeamUpdate = false;
         }
 
@@ -10002,96 +9098,30 @@ void AvHPlayer::UpdateEffectiveClassAndTeam()
     }
 }
 
-
-//void AvHPlayer::UpgradeArmorLevel(void)
-//{
-//  if(this->mRole != AVH_USER3_COMMANDER_PLAYER)
-//  {
-//      if(this->mArmorLevel & ARMOR_MOTIONTRACK)
-//      {
-//          // We're fully upgraded, disable the node
-//          this->mNextArmorUpgradeLevel = MESSAGE_NULL;
-//      }
-//      else if(this->mArmorLevel & ARMOR_JETPACK)
-//      {
-//          this->mArmorLevel |= ARMOR_MOTIONTRACK;
-//          // We're fully upgraded, disable the node
-//          this->mOldArmorUpgradeLevel = BUY_ARMORMOTIONTRACKING;
-//          this->mNextArmorUpgradeLevel = MESSAGE_NULL;
-//          this->mNextArmorUpgradeName = kMenuArmorUpgradeFull;
-//          this->SendMessage(kReceiveMotionArmor);
-//      } 
-//      else if(this->mArmorLevel & ARMOR_LIFESUPPORT)
-//      {
-//          this->mArmorLevel |= ARMOR_JETPACK;
-//          this->mOldArmorUpgradeLevel = BUY_ARMORJETPACKS;
-//          this->mNextArmorUpgradeLevel = BUY_ARMORMOTIONTRACKING;
-//          this->mNextArmorUpgradeName = kMenuArmorUpgradeMotionTrack;
-//          this->pev->iuser3 = AVH_USER3_JETPACK;
-//          this->SendMessage(kReceiveJetpackArmor);
-//      }
-//      else if(this->mArmorLevel & ARMOR_HEAVY)
-//      {
-//          this->mArmorLevel |= ARMOR_LIFESUPPORT;
-//          this->mOldArmorUpgradeLevel = BUY_ARMORLIFESUPPORT;
-//          this->mNextArmorUpgradeLevel = BUY_ARMORJETPACKS;
-//          this->mNextArmorUpgradeName = kMenuArmorUpgradeJetpack;
-//          this->SendMessage(kReceiveLifeSupportArmor);
-//      }
-//      else if(this->mArmorLevel & ARMOR_BASE)
-//      {
-//          this->mArmorLevel |= ARMOR_HEAVY;
-//          this->mOldArmorUpgradeLevel = BUY_ARMORHEAVY;
-//          this->mNextArmorUpgradeLevel = BUY_ARMORLIFESUPPORT;
-//          this->mNextArmorUpgradeName = kMenuArmorUpgradeLifeSupport;
-//          this->SendMessage(kReceiveHeavyArmor);
-//      }
-//  }
-//}
-
 void AvHPlayer::UpdateFirst()
 {
     if(this->mFirstUpdate)
     {
-        //UTIL_LogPrintf("UpdateFirst\n");
-            
         // Tell this player to reset
-        MESSAGE_BEGIN(MSG_ONE, gmsgGameStatus, NULL, this->pev);
-            int theStatus = (this->mNewMap ? kGameStatusResetNewMap : kGameStatusReset);
-            WRITE_BYTE(theStatus);
-            WRITE_BYTE(GetGameRules()->GetMapMode());
-        MESSAGE_END();
+		int theState = (this->mNewMap ? kGameStatusResetNewMap : kGameStatusReset);
+		NetMsg_GameStatus_State( this->pev, theState, GetGameRules()->GetMapMode() );
         
-        //UTIL_LogPrintf("UpdateFirst-SoundNames\n");
         if(this->mNewMap)
         {
-            MESSAGE_BEGIN(MSG_ONE, gmsgSetSoundNames, NULL, this->pev);
-                // Write byte indicating to clear sound list or not
-                WRITE_BYTE(1);
-            MESSAGE_END();
-            
+			NetMsg_SetSoundNames( this->pev, true, string() );
             this->mClientSoundNames.clear();
-            
-            //UTIL_LogPrintf("UpdateFirst-MapExtents\n");
             
             // Send down map extents so players can start computing it
             // Cache this so it isn't computed every round, only the when a player connects or a new map starts?
-            MESSAGE_BEGIN(MSG_ONE, gmsgSetupMap, NULL, this->pev);
-                const char* theCStrLevelName = STRING(gpGlobals->mapname);
-                ASSERT(theCStrLevelName);
-                ASSERT(!FStrEq(theCStrLevelName, ""));
-            
-                // Indicates we're sending map extents (1 for sending location)
-                WRITE_BYTE(0);
-            
-                // Write map name
-                WRITE_STRING(theCStrLevelName);
-            
-                const AvHMapExtents& theMapExtents = GetGameRules()->GetMapExtents();
-            
-                theMapExtents.SendToNetworkStream();
-            
-            MESSAGE_END();
+			const char* theCStrLevelName = STRING(gpGlobals->mapname);
+			const AvHMapExtents& theMapExtents = GetGameRules()->GetMapExtents();
+			ASSERT(theCStrLevelName);
+			ASSERT(!FStrEq(theCStrLevelName, ""));
+
+			float mins[3] = { theMapExtents.GetMinMapX(), theMapExtents.GetMinMapY(), theMapExtents.GetMinViewHeight() };
+			float maxs[3] = { theMapExtents.GetMaxMapX(), theMapExtents.GetMaxMapY(), theMapExtents.GetMaxViewHeight() };
+
+			NetMsg_SetupMap_Extents( this->pev, string( theCStrLevelName ), mins, maxs, theMapExtents.GetDrawMapBG() );
         }
         
         this->mFirstUpdate = false;
@@ -10104,31 +9134,21 @@ void AvHPlayer::UpdateFog()
     if(this->mClientCurrentFogEntity != this->mCurrentFogEntity)
     {
         bool theFogEnabled = this->mCurrentFogEntity > -1;
+        int theR, theG, theB;
+		float theStart, theEnd;
 
-        MESSAGE_BEGIN(MSG_ONE, gmsgFog, NULL, this->pev);
+        if(theFogEnabled)
+        {
+            AvHFog* theFogEntity = dynamic_cast<AvHFog*>(CBaseEntity::Instance(g_engfuncs.pfnPEntityOfEntIndex(this->mCurrentFogEntity)));
+            ASSERT(theFogEntity);
 
-            // Enable or disable fog
-            WRITE_BYTE(theFogEnabled);
-            
-            // Look up fog entity, send values
-            if(theFogEnabled)
-            {
-                AvHFog* theFogEntity = dynamic_cast<AvHFog*>(CBaseEntity::Instance(g_engfuncs.pfnPEntityOfEntIndex(this->mCurrentFogEntity)));
-                ASSERT(theFogEntity);
+			theFogEntity->GetFogColor(theR, theG, theB);
+			theStart = theFogEntity->GetFogStart();
+			theEnd = theFogEntity->GetFogEnd();
+        }
 
-                int theR, theG, theB;
-                theFogEntity->GetFogColor(theR, theG, theB);
-                WRITE_BYTE(theR);
-                WRITE_BYTE(theG);
-                WRITE_BYTE(theB);
-
-                WRITE_COORD(theFogEntity->GetFogStart());
-                WRITE_COORD(theFogEntity->GetFogEnd());
-            }
-
-            MESSAGE_END();
-            
-            this->mClientCurrentFogEntity = this->mCurrentFogEntity;
+		NetMsg_Fog( this->pev, theFogEnabled, theR, theG, theB, theStart, theEnd );
+		this->mClientCurrentFogEntity = this->mCurrentFogEntity;
     }
 }
 
@@ -10139,10 +9159,7 @@ void AvHPlayer::UpdateGamma()
     {
         if(!GetGameRules()->GetIsTesting())
         {
-            MESSAGE_BEGIN(MSG_ONE, gmsgSetGammaRamp, NULL, this->pev);
-            WRITE_COORD(theMapGamma*kNormalizationNetworkFactor);
-            MESSAGE_END();
-            
+			NetMsg_SetGammaRamp( this->pev, theMapGamma );
             this->mClientGamma = theMapGamma;
         }
     }
@@ -10153,8 +9170,6 @@ void AvHPlayer::UpdateOrders()
     AvHTeam* theTeam = this->GetTeamPointer();
     if(theTeam)
     {
-        //UTIL_LogPrintf("UpdateOrders\n");
-        
         OrderListType theTeamOrders;
         theTeam->GetOrders(theTeamOrders);
         
@@ -10168,62 +9183,18 @@ void AvHPlayer::UpdateOrders()
             {
                 if(theIter->GetOrderID() == theClientIter->GetOrderID())
                 {
-					//ALERT(at_console, "The client has order\n");
                     theClientHasOrder = true;
                     theClientOrder = *theClientIter;
                     break;
                 }
             }
             
-            if(theClientHasOrder)
-            {
-                // Is it the same?
-                if(theClientOrder != *theIter)
-                {
-                    // Issue an "order changed"
-                    MESSAGE_BEGIN(MSG_ONE, gmsgSetOrder, NULL, this->pev);
-                        //int theStatus = 0;
-                        //WRITE_BYTE(theStatus);
-                        theIter->SendToNetworkStream();
-                    MESSAGE_END();
-                }
-                else
-                {
-                    int a = 0;
-                }
-            }
-            else
-            {
-                // Issue a "new order"
-                MESSAGE_BEGIN(MSG_ONE, gmsgSetOrder, NULL, this->pev);
-                    //int theStatus = 1;
-                    //WRITE_BYTE(theStatus);
-                    theIter->SendToNetworkStream();
-                MESSAGE_END();
-            }
-                
-            // Assumes that completed orders expire on client
+            if(!theClientHasOrder || theClientOrder != *theIter)
+			{
+				NetMsg_SetOrder( this->pev, *theIter );
+			}
         }
         
-        //      EntityListType thePlayersCompletingOrders;
-        //      theTeam->GetPlayersCompletingOrders(thePlayersCompletingOrders);
-        //
-        //      int theNumPlayersCompletingOrders = thePlayersCompletingOrders.size();
-        //      if(theNumPlayersCompletingOrders > 0)
-        //      {
-        //          MESSAGE_BEGIN(MSG_ONE, gmsgCplteOrder, NULL, this->pev);
-        //
-        //              WRITE_BYTE(theNumPlayersCompletingOrders);
-        //
-        //              for(int i = 0; i < theNumPlayersCompletingOrders; i++)
-        //              {
-        //                  WRITE_BYTE(thePlayersCompletingOrders[i]);
-        //              }
-        //
-        //          MESSAGE_END();
-        //      }
-
-        // Client is now updated
         this->mClientOrders = theTeamOrders;
     }
 }
@@ -10237,47 +9208,14 @@ void AvHPlayer::UpdateParticleTemplates()
         int theNumberTemplates = gParticleTemplateList.GetNumberTemplates();
         if(theNumberTemplates > this->mNumParticleTemplatesSent)
         {
-            int theMarkerOne = (int)(theNumberTemplates*.25f);
-            int theMarkerTwo = (int)(theNumberTemplates*.5f);
-            int theMarkerThree = (int)(theNumberTemplates*.75f);
-            int theMarkerFour = (theNumberTemplates-1);
-
-//          if(this->mNumParticleTemplatesSent == 0)
-//          {
-//              this->SendMessage(kReceivingLevelData, true);
-//          }
-//          else if(this->mNumParticleTemplatesSent == theMarkerOne)
-//          {
-//              this->SendMessage(kReceivingLevelData1, true);
-//          }
-//          else if(this->mNumParticleTemplatesSent == theMarkerTwo)
-//          {
-//              this->SendMessage(kReceivingLevelData2, true);
-//          }
-//          else if(this->mNumParticleTemplatesSent == theMarkerThree)
-//          {
-//              this->SendMessage(kReceivingLevelData3, true);
-//          }
-//          else if(this->mNumParticleTemplatesSent == theMarkerFour)
-//          {
-//              this->SendMessage(kReceivingLevelData4, true);
-//          }
-            
             if((this->mTimeOfLastParticleTemplateSending == -1) || (gpGlobals->time > this->mTimeOfLastParticleTemplateSending + kParticleTemplateRate))
             {
-                MESSAGE_BEGIN(MSG_ONE, gmsgSetParticleTemplates, NULL, pev);
-                    AvHParticleTemplate* theTemplate = gParticleTemplateList.GetTemplateAtIndex(this->mNumParticleTemplatesSent);
-                    ASSERT(theTemplate);
-                    gParticleTemplateList.SendTemplateToNetworkStream(theTemplate);
-                MESSAGE_END();
-                
+				AvHParticleTemplate* theTemplate = gParticleTemplateList.GetTemplateAtIndex(this->mNumParticleTemplatesSent);
+				ASSERT(theTemplate);
+				NetMsg_SetParticleTemplate( this->pev, *theTemplate );
                 this->mNumParticleTemplatesSent++;
                 this->mTimeOfLastParticleTemplateSending = gpGlobals->time;
             }
-        }
-        else
-        {
-            int a = 0;
         }
     }
 }
@@ -10294,29 +9232,12 @@ void AvHPlayer::UpdateInfoLocations()
         // Only send one at a time
         AvHBaseInfoLocation theInfoLocation = theInfoLocations[theNumClientInfoLocations];
 
-        MESSAGE_BEGIN(MSG_ONE, gmsgSetupMap, NULL, this->pev);
+        vec3_t theMaxExtents = theInfoLocation.GetMaxExtent();
+        vec3_t theMinExtents = theInfoLocation.GetMinExtent();
+		float mins[3] = { theMinExtents.x, theMinExtents.y, theMinExtents.z };
+		float maxs[3] = { theMaxExtents.x, theMaxExtents.y, theMinExtents.z };
 
-            // Indicates we're sending map extents (1 for sending location)
-            WRITE_BYTE(1);
-        
-            // Send map location name
-            WRITE_STRING(theInfoLocation.GetLocationName().c_str());
-
-            // Send max extents
-            vec3_t theMaxExtents = theInfoLocation.GetMaxExtent();
-            WRITE_COORD(theMaxExtents.x);
-            WRITE_COORD(theMaxExtents.y);
-            //WRITE_COORD(theMaxExtents.z);
-
-            // Send min extents
-            vec3_t theMinExtents = theInfoLocation.GetMinExtent();
-            WRITE_COORD(theMinExtents.x);
-            WRITE_COORD(theMinExtents.y);
-            //WRITE_COORD(theMinExtents.z);
-        
-        MESSAGE_END();
-
-        // Save it
+		NetMsg_SetupMap_Location( this->pev, theInfoLocation.GetLocationName(), mins, maxs );
         this->mClientInfoLocations.push_back(theInfoLocation);
     }
 
@@ -10326,24 +9247,7 @@ void AvHPlayer::UpdatePendingClientScripts()
 {
     if(this->mPendingClientScripts.size() > 0)
     {
-        // Start message
-        MESSAGE_BEGIN(MSG_ONE, gmsgClientScripts, NULL, this->pev);
-        
-        // Send number of scripts
-        int theNumScripts = this->mPendingClientScripts.size();
-        ASSERT(theNumScripts < 128);
-        WRITE_BYTE(theNumScripts);
-
-        // Send each script name
-        for(StringList::iterator theIter = this->mPendingClientScripts.begin(); theIter != this->mPendingClientScripts.end(); theIter++)
-        {
-            WRITE_STRING(theIter->c_str());
-        }
-        
-        // End message
-        MESSAGE_END();
-
-        // Clear pending list because they've been sent
+		NetMsg_ClientScripts( this->pev, this->mPendingClientScripts );
         this->mPendingClientScripts.clear();
     }
 }
@@ -10355,12 +9259,7 @@ void AvHPlayer::UpdateProgressBar()
     // Assumes that progress is normalized and stored in one of the fuser variables of the entity index sent down
     if(this->mClientProgressBarEntityIndex != this->mProgressBarEntityIndex)
     {
-        //MESSAGE_BEGIN(MSG_ONE, gmsgProgressBar, NULL, this->pev);
-        MESSAGE_BEGIN(MSG_ONE_UNRELIABLE, gmsgProgressBar, NULL, this->pev);
-        WRITE_SHORT(this->mProgressBarEntityIndex);
-        WRITE_BYTE(this->mProgressBarParam);
-        MESSAGE_END();
-        
+		NetMsg_ProgressBar( this->pev, this->mProgressBarEntityIndex, this->mProgressBarParam );
         this->mClientProgressBarEntityIndex = this->mProgressBarEntityIndex;
     }
 }
@@ -10394,37 +9293,13 @@ void AvHPlayer::UpdateSetSelect()
     {
         if((this->mSelected != this->mClientSelected) || (this->mTrackingEntity != this->mClientTrackingEntity))
         {
-            //UTIL_LogPrintf("UpdateSelection\n");
-            
-            // Fire selection message, sending this list to the player that fired it
-            MESSAGE_BEGIN(MSG_ONE, gmsgSetSelect, NULL, this->pev);
-        
-            // We're not sending a group
-            WRITE_BYTE(0);
-        
-            // Send number of units in selection
-            int theNumSelection = this->mSelected.size();
-            WRITE_BYTE(theNumSelection);
-            
-            // Send each each entindex
-            for(int i = 0; i < theNumSelection; i++)
-            {
-                int theEntIndex = this->mSelected[i];
-                WRITE_SHORT(theEntIndex);
-            }
+			Selection selection;
+			selection.group_number = 0;
+			selection.selected_entities = this->mSelected;
+			selection.tracking_entity = max( this->mTrackingEntity, 0 );
 
-            // Write byte indicating if we're tracking or not
-            bool theIsTracking = (this->mTrackingEntity > 0);
-            WRITE_BYTE(theIsTracking);
+			NetMsg_SetSelect( this->pev, selection );
 
-            if(theIsTracking)
-            {
-                // If so, write short indicating entity we're tracking
-                WRITE_SHORT(this->mTrackingEntity);
-            }
-
-            MESSAGE_END();
-            
             // Synch up
             this->mClientSelected = this->mSelected;
             this->mClientTrackingEntity = this->mTrackingEntity;
@@ -10452,28 +9327,13 @@ void AvHPlayer::UpdateSetSelect()
         
             if((theClientGroup != theGroup) || (theClientGroupAlert != theGroupAlert))
             {
-                // Fire selection message, sending this list to the player that fired it
-                MESSAGE_BEGIN(MSG_ONE, gmsgSetSelect, NULL, this->pev);
-        
-                int theHotGroupNumber = j+1;
-                WRITE_BYTE(theHotGroupNumber);
-        
-                // Send number of units in selection
-                int theNumInGroup = theGroup.size();
-                WRITE_BYTE(theNumInGroup);
-                
-                // Send each each entindex
-                for(int i = 0; i < theNumInGroup; i++)
-                {
-                    int theEntIndex = theGroup[i];
-                    WRITE_SHORT(theEntIndex);
-                }
+				Selection selection;
+				selection.group_number = j+1;
+				selection.selected_entities = theGroup;
+				selection.group_type = theGroupType;
+				selection.group_alert = theGroupAlert;
 
-                WRITE_BYTE((int)theGroupType);
-
-                WRITE_BYTE((int)theGroupAlert);
-
-                MESSAGE_END();
+				NetMsg_SetSelect( this->pev, selection );
         
                 theClientGroup = theGroup;
                 theClientGroupAlert = theGroupAlert;
@@ -10484,25 +9344,11 @@ void AvHPlayer::UpdateSetSelect()
         EntityListType theSelectAllGroup = theTeam->GetSelectAllGroup();
         if(theSelectAllGroup != this->mClientSelectAllGroup)
         {
-            // Fire selection message, sending this list to the player that fired it
-            MESSAGE_BEGIN(MSG_ONE, gmsgSetSelect, NULL, this->pev);
-            
-            WRITE_BYTE(kSelectAllHotGroup);
-            
-            // Send number of units in selection
-            int theNumInGroup = theSelectAllGroup.size();
-            WRITE_BYTE(theNumInGroup);
-            
-            // Send each each entindex
-            for(int i = 0; i < theNumInGroup; i++)
-            {
-                int theEntIndex = theSelectAllGroup[i];
-                WRITE_SHORT(theEntIndex);
-            }
+			Selection selection;
+			selection.group_number = kSelectAllHotGroup;
+			selection.selected_entities = theSelectAllGroup;
 
-            // Don't write group type or alerts
-
-            MESSAGE_END();
+			NetMsg_SetSelect( this->pev, selection );
 
             this->mClientSelectAllGroup = theSelectAllGroup;
         }
@@ -10516,12 +9362,7 @@ void AvHPlayer::UpdateSetSelect()
             int theNumTeamRequests = theTeam->GetAlerts(theCurrentRequestType).size();
             if(theNumClientRequests != theNumTeamRequests)
             {
-                MESSAGE_BEGIN(MSG_ONE, gmsgSetSelect, NULL, this->pev);
-                    WRITE_BYTE(kSelectAllHotGroup + (i + 1));
-                    WRITE_BYTE(theCurrentRequestType);
-                    WRITE_BYTE(theNumTeamRequests);
-                MESSAGE_END();
-                
+				NetMsg_SetRequest( this->pev, theCurrentRequestType, theNumTeamRequests );
                 this->mClientRequests[i] = theNumTeamRequests;
             }
         }
@@ -10547,35 +9388,38 @@ void AvHPlayer::UpdateSoundNames()
             {
                 this->SendMessage(theSoundNameToSend);
             }
-
-            //UTIL_LogPrintf("UpdateSoundNames\n");
-            
-            MESSAGE_BEGIN(MSG_ONE, gmsgSetSoundNames, NULL, this->pev);
-            WRITE_BYTE(0);
-            int theStrLen = strlen(theSoundNameToSend);
-            ASSERT(theStrLen < 50);
-            WRITE_STRING(theSoundNameToSend);
-            MESSAGE_END();
+            ASSERT( strlen(theSoundNameToSend) < 50);
+			NetMsg_SetSoundNames( this->pev, false, theSoundNameToSend);
             
             this->mClientSoundNames.push_back(theSoundNameToSend);
         }
     }
 }
 
+//TODO: (KGP) there are a lot of expensive per-frame operations here that can be eliminated through careful refactoring.
+// 1) make AvHTechTree an abstract interface
+// 2) create base case using current AvHTechTree code
+// 3) create filter around AvHTechTree that uses override of IsResearchable by MessageID and returns AvHTechNode objects
+//    that reflect the filter.
+// 4) create AvHTechChangeListener class and use it as basis for decision to send tech nodes
+// 5) create NetMsg_SetTechNodeDelta function that bundles state changes for multiple nodes into a single call
+// 6) always use a personal copy of AvHTechNodes interface for each player to eliminate the per-frame copy of the team nodes
+// 7) use filter class for NS mode aliens and update state of the filter when alien lifeform changes instead of using per-frame update
+// Combined, these changes should reduce CPU overhead for tech node update by at least 90%.
 void AvHPlayer::UpdateTechNodes()
 {
-    //UTIL_LogPrintf("UpdateTechNodes\n");
     bool theIsCombatMode = GetGameRules()->GetIsCombatMode();
-    if((this->GetUser3() == AVH_USER3_COMMANDER_PLAYER) || theIsCombatMode || this->GetIsAlien() || this->GetSendBalanceData())
+	bool theIsNSMode = GetGameRules()->GetIsNSMode();
+    if((this->GetUser3() == AVH_USER3_COMMANDER_PLAYER) || theIsCombatMode || this->GetIsAlien())
     {
         AvHTeam* theTeam = this->GetTeamPointer();
         if(theTeam)
         {
-            // Propagate and use local tech nodes in combat mode, else use team nodes in NS mode
-            AvHTechNodes theTechNodes = theIsCombatMode ? this->mCombatNodes : theTeam->GetTechNodes();
+			// Propagate and use local tech nodes in combat mode, else use team nodes in NS mode
+            AvHTechTree theTechNodes = theIsCombatMode ? this->mCombatNodes : theTeam->GetTechNodes();
  
             // Now customize nodes for aliens in NS
-            if(GetGameRules()->GetIsNSMode() && this->GetIsAlien())
+            if(theIsNSMode && this->GetIsAlien())
             {
                 // Set current lifeform to be unavailable
                 AvHMessageID theLifeform = MESSAGE_NULL;
@@ -10652,63 +9496,49 @@ void AvHPlayer::UpdateTechNodes()
                 if(theTeamPointer)
                 {
                     AvHAlienUpgradeListType theUpgrades = theTeamPointer->GetAlienUpgrades();
-                    
-                    for(int i = ALIEN_UPGRADE_CATEGORY_INVALID + 1; i < ALIEN_UPGRADE_CATEGORY_MAX_PLUS_ONE; i++)
-                    {
-                        AvHAlienUpgradeCategory theCurrentCategory = AvHAlienUpgradeCategory(i);
-                        
-                        // Now make sure we have an unspent upgrade available
-                        if(!AvHGetHasFreeUpgradeCategory(theCurrentCategory, theUpgrades, this->pev->iuser4))
-                        {
-                            bool theEnabledState = false;
-
-                            switch(theCurrentCategory)
-                            {
-                            case ALIEN_UPGRADE_CATEGORY_DEFENSE:
-                                theTechNodes.SetIsResearchable(ALIEN_EVOLUTION_ONE, theEnabledState);
-                                theTechNodes.SetIsResearchable(ALIEN_EVOLUTION_TWO, theEnabledState);
-                                theTechNodes.SetIsResearchable(ALIEN_EVOLUTION_THREE, theEnabledState);
-                                break;
-                            case ALIEN_UPGRADE_CATEGORY_MOVEMENT:
-                                theTechNodes.SetIsResearchable(ALIEN_EVOLUTION_SEVEN, theEnabledState);
-                                theTechNodes.SetIsResearchable(ALIEN_EVOLUTION_EIGHT, theEnabledState);
-                                theTechNodes.SetIsResearchable(ALIEN_EVOLUTION_NINE, theEnabledState);
-                                break;
-                            case ALIEN_UPGRADE_CATEGORY_SENSORY:
-                                theTechNodes.SetIsResearchable(ALIEN_EVOLUTION_TEN, theEnabledState);
-                                theTechNodes.SetIsResearchable(ALIEN_EVOLUTION_ELEVEN, theEnabledState);
-                                theTechNodes.SetIsResearchable(ALIEN_EVOLUTION_TWELVE, theEnabledState);
-                                break;
-                            }
-                        }
-                    }
+					if(!AvHGetHasFreeUpgradeCategory(ALIEN_UPGRADE_CATEGORY_DEFENSE, theUpgrades, this->pev->iuser4))
+					{
+                        theTechNodes.SetIsResearchable(ALIEN_EVOLUTION_ONE, false);
+                        theTechNodes.SetIsResearchable(ALIEN_EVOLUTION_TWO, false);
+                        theTechNodes.SetIsResearchable(ALIEN_EVOLUTION_THREE, false);
+					}
+					if(!AvHGetHasFreeUpgradeCategory(ALIEN_UPGRADE_CATEGORY_MOVEMENT, theUpgrades, this->pev->iuser4))
+					{
+						theTechNodes.SetIsResearchable(ALIEN_EVOLUTION_SEVEN, false);
+						theTechNodes.SetIsResearchable(ALIEN_EVOLUTION_EIGHT, false);
+						theTechNodes.SetIsResearchable(ALIEN_EVOLUTION_NINE, false);
+					}
+					if(!AvHGetHasFreeUpgradeCategory(ALIEN_UPGRADE_CATEGORY_SENSORY, theUpgrades, this->pev->iuser4))
+					{
+                        theTechNodes.SetIsResearchable(ALIEN_EVOLUTION_TEN, false);
+                        theTechNodes.SetIsResearchable(ALIEN_EVOLUTION_ELEVEN, false);
+                        theTechNodes.SetIsResearchable(ALIEN_EVOLUTION_TWELVE, false);
+					}
                 }
             }
             
-            if(this->mClientTechNodes != theTechNodes)
-            {
-                int theNumTechNodes = theTechNodes.GetNumTechNodes();
-                for(int i = 0; i < theNumTechNodes; i++)
-                {
-                    AvHTechNode theCurrentClientTechNode;
-                    bool theHasClientTechNode = this->mClientTechNodes.GetTechNode(i, theCurrentClientTechNode);
-
-                    AvHTechNode theCurrentServerTechNode;
-                    bool theHasServerTechNode = theTechNodes.GetTechNode(i, theCurrentServerTechNode);
-
-                    ASSERT(theHasServerTechNode);
-
-                    if(!theHasClientTechNode || (theCurrentClientTechNode != theCurrentServerTechNode))
-                    {
-                        MESSAGE_BEGIN(MSG_ONE, gmsgSetTechNodes, NULL, this->pev);
-                            WRITE_SHORT(i);
-                            theCurrentServerTechNode.SendToNetworkStream();
-                        MESSAGE_END();
-
-                        this->mClientTechNodes.SetTechNode(i, theCurrentServerTechNode);
-                    }
-                }
-            }
+			theTechNodes.GetDelta( this->mClientTechNodes,this->mClientTechDelta );
+			if( !mClientTechDelta.empty() )
+			{
+				const AvHTechNode* Node = NULL;
+				MessageIDListType::iterator current, end = mClientTechDelta.end();
+				for( current = mClientTechDelta.begin(); current != end; ++current )
+				{
+					Node = theTechNodes.GetNode(*current);
+					if( Node != NULL )
+					{
+						NetMsg_SetTechNode( this->pev, Node );
+						this->mClientTechNodes.InsertNode( Node );
+					}
+					else
+					{
+						//send signal to remove the tech node from the client here...
+						this->mClientTechNodes.RemoveNode( Node->getMessageID() );
+					}
+				}
+				mClientTechDelta.clear();
+				mClientTechNodes = theTechNodes;
+			}
 
             // Propagate any tech slots that have changed
             const AvHTechSlotListType& theTeamTechSlotList = theTeam->GetTechSlotManager().GetTechSlotList();
@@ -10730,32 +9560,12 @@ void AvHPlayer::UpdateTechNodes()
 
                     if(!theHasClientTechSlot || (theClientTechSlot != theServerTechSlot))
                     {
-                        MESSAGE_BEGIN(MSG_ONE, gmsgSetTechSlots, NULL, this->pev);
-                            //WRITE_SHORT(theCurrentSlot);
-                            theServerTechSlot.SendToNetworkStream();
-                        MESSAGE_END();
+						NetMsg_SetTechSlots( this->pev, theServerTechSlot );
                     }
                 }
 
                 this->mClientTechSlotList = theTeamTechSlotList;
             }
-//          AvHMessageID theResearchingTech = theTeam->GetResearching();
-//          if(this->mClientResearchingTech != theResearchingTech)
-//          {
-//              // Send to everyone so they know what upgrade is coming
-//              MESSAGE_BEGIN(MSG_ONE, gmsgResearch, NULL, this->pev);
-//
-//                  WRITE_SHORT(theResearchingTech);
-//              
-//                  if(theResearchingTech != MESSAGE_NULL)
-//                  {
-//                      float theTimeResearchDone = theTeam->GetTimeResearchDone();
-//                      WRITE_COORD(theTimeResearchDone);
-//                  }
-//
-//              MESSAGE_END();
-//              this->mClientResearchingTech = theResearchingTech;
-//          }
         }
     }
 }
@@ -10764,24 +9574,9 @@ void AvHPlayer::UpdateTopDownMode()
 {
     if((this->mClientInTopDownMode != this->mInTopDownMode) || (this->mSpecialPASOrigin != this->mClientSpecialPASOrigin))
     {
-        MESSAGE_BEGIN(MSG_ONE, gmsgSetTopDown, NULL, pev);
-            // Write 0 indicating we're sending top down data
-            WRITE_BYTE(0);
-            WRITE_BYTE(this->mInTopDownMode);
-
-            if(!this->mInTopDownMode)
-            {
-                WRITE_COORD(this->mAnglesBeforeTopDown.x);
-                WRITE_COORD(this->mAnglesBeforeTopDown.y);
-                WRITE_COORD(this->mAnglesBeforeTopDown.z);
-            }
-            else
-            {
-                WRITE_COORD(this->mSpecialPASOrigin.x);
-                WRITE_COORD(this->mSpecialPASOrigin.y);
-                WRITE_COORD(this->mSpecialPASOrigin.z);
-            }
-        MESSAGE_END();
+		vec3_t& angles = this->mInTopDownMode ? this->mSpecialPASOrigin : this->mAnglesBeforeTopDown;
+		float position[3] = { angles.x, angles.y, angles.z };
+		NetMsg_SetTopDown_Position( this->pev, this->mInTopDownMode, position );
 
         this->mClientInTopDownMode = this->mInTopDownMode;
         this->mClientSpecialPASOrigin = this->mSpecialPASOrigin;
@@ -10794,12 +9589,7 @@ void AvHPlayer::UpdateTopDownMode()
         int theMenuTechSlots = theTeam->GetMenuTechSlots();
         if(theMenuTechSlots != this->mClientMenuTechSlots)
         {
-            MESSAGE_BEGIN(MSG_ONE, gmsgSetTopDown, NULL, this->pev);
-                // Write 1 indicating we're sending tech slot data
-                WRITE_BYTE(1);
-                WRITE_LONG(theMenuTechSlots);
-            MESSAGE_END();
-
+			NetMsg_SetTopDown_TechSlots( this->pev, theMenuTechSlots );
             this->mClientMenuTechSlots = theMenuTechSlots;
         }
     }
@@ -10810,13 +9600,7 @@ void AvHPlayer::UpdateExperienceLevelsSpent()
     // If our spent level is different then our client's
     if(this->mClientExperienceLevelsSpent != this->mExperienceLevelsSpent)
     {
-        MESSAGE_BEGIN(MSG_ONE, gmsgGameStatus, NULL, this->edict());
-            WRITE_BYTE(kGameStatusUnspentLevels);
-            WRITE_BYTE(GetGameRules()->GetMapMode());
-            WRITE_BYTE(this->mExperienceLevelsSpent);
-        MESSAGE_END();
-
-        // Set equal
+		NetMsg_GameStatus_UnspentLevels( this->pev, kGameStatusUnspentLevels, GetGameRules()->GetMapMode(), this->mExperienceLevelsSpent );
         this->mClientExperienceLevelsSpent = this->mExperienceLevelsSpent;
     }
 }
@@ -10858,16 +9642,11 @@ void AvHPlayer::UpdateSpawnScreenFade()
 {
     if(this->mSendSpawnScreenFade)
     {
-        // Don't fade in when going back to ready room, to prevent overflows in big games on game reset
-        //if(this->mPlayMode != PLAYMODE_READYROOM)
-        //{
         Vector theFadeColor;
         theFadeColor.x = 0;
         theFadeColor.y = 0;
         theFadeColor.z = 0;
         UTIL_ScreenFade(this, theFadeColor, kSpawnInFadeTime, 0.0f, 255, FFADE_IN);
-        //}
-
         this->mSendSpawnScreenFade = false;
     }
 }
@@ -10878,55 +9657,14 @@ void AvHPlayer::UpdateDebugCSP()
     bool theCSPChanged = memcmp(&this->mClientDebugCSPInfo, &this->mDebugCSPInfo, sizeof(weapon_data_t));
     if(theCSPChanged || (this->mClientNextAttack != this->m_flNextAttack))
     {
-        MESSAGE_BEGIN(MSG_ONE, gmsgDebugCSP, NULL, this->pev);
-
-        // Write each field
-        WRITE_LONG(this->mDebugCSPInfo.m_iId);
-        WRITE_LONG(this->mDebugCSPInfo.m_iClip);
-
-        WRITE_COORD(this->mDebugCSPInfo.m_flNextPrimaryAttack);
-        WRITE_COORD(this->mDebugCSPInfo.m_flTimeWeaponIdle);
-        WRITE_COORD(this->m_flNextAttack);
-
-        MESSAGE_END();
-
+		NetMsg_DebugCSP( this->pev, this->mDebugCSPInfo, this->m_flNextAttack );
         memcpy(&this->mClientDebugCSPInfo, &this->mDebugCSPInfo, sizeof(weapon_data_t));
         this->mClientNextAttack = this->m_flNextAttack;
     }
 }
 
-//void AvHPlayer::UpdateArmor()
-//{
-//  // Update armor upgrade menu
-//  if(this->GetClassType() == AVH_CLASS_TYPE_MARINE)
-//  {
-//      if(this->mClientNextArmorUpgradeLevel != this->mNextArmorUpgradeLevel)
-//      {
-//          // TODO: if next armor upgrade level is MESSAGE_NULL, it's disabled
-//
-//          MESSAGE_BEGIN(MSG_ONE, gmsgChangeNodeCost, NULL, pev);
-//              // send new armor level
-//              WRITE_BYTE(this->mArmorLevel);
-//
-//              // Send old id
-//              WRITE_BYTE(this->mOldArmorUpgradeLevel);
-//
-//              // Send new id
-//              WRITE_BYTE(this->mNextArmorUpgradeLevel);
-//
-//              // Send string
-//              WRITE_STRING(this->mNextArmorUpgradeName.c_str());
-//
-//          MESSAGE_END();
-//
-//          this->mClientNextArmorUpgradeLevel = this->mNextArmorUpgradeLevel;
-//      }
-//  }
-//}
-
 void AvHPlayer::UpdateOverwatch()
 {
-    #ifndef AVH_MAPPER_BUILD
     // Update overwatch indicator
     if(this->mClientInOverwatch != this->mInOverwatch)
     {
@@ -10942,7 +9680,6 @@ void AvHPlayer::UpdateOverwatch()
         }
         this->mClientInOverwatch = this->mInOverwatch;
     }
-    #endif
 }
 
 bool AvHPlayer::GetCanUseWeapon() const
@@ -10963,3 +9700,232 @@ bool AvHPlayer::JoinTeamCooledDown(float inCoolDownTime) {
 		return false;
 }
 // :tankefugl
+
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// Nexus interface
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+//TODO: flesh this out with admin privileges, etc. once the UPP authorization interface has been expanded
+bool AvHPlayer::GetIsAuthorized(AvHAuthAction inAction, int inParameter) const
+{
+	switch( inAction )
+	{
+		case AUTH_ACTION_JOIN_TEAM:
+		{
+			AvHTeamNumber theTeam = (AvHTeamNumber)inParameter;
+			switch( theTeam )
+			{
+			case TEAM_IND:			// ready room & spectator - game allows in all cases
+			case TEAM_SPECT:
+				return true;
+			default: 
+				// check it's an active team - game theTeam if haven't seen other team information
+				if( theTeam >= TEAM_ACTIVE_BEGIN && inParameter < TEAM_ACTIVE_END ) 
+				{
+					if( CVAR_GET_FLOAT("sv_cheats") != 0 ) { return true; }	//cheaters can switch
+					if( this->GetHasBeenSpectator() ) { return false; }		// spectators have seen everybody
+					for(int counter = TEAM_ACTIVE_BEGIN; counter < TEAM_ACTIVE_END; counter++)
+					{
+						if( theTeam != counter && this->GetHasSeenTeam( (AvHTeamNumber)counter ) )
+						{ return false; }  // we've seen another active team
+					}
+					return true;	// haven't seen another team, authorized to join
+				}
+				return false;		// unknown team - never grant an unknown permission!
+			}
+		}
+		case AUTH_ACTION_ADJUST_BALANCE:
+		{
+#ifndef BALANCE_ENABLED
+			return false;
+#else
+			return this->GetIsMember(PLAYERAUTH_DEVELOPER);
+#endif
+		}
+		default:
+			return false;			// never grant an unknown permission!
+	}
+}
+
+bool AvHPlayer::GetIsMember(const string& inAuthGroup) const
+{
+	return false;
+}
+
+
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// BalanceChangeListener implementation and balance network code
+//
+// Balance is checked for changes at a set rate determined by the
+// BALANCE_UPDATE_MAX_FREQUENCY const below. This prevents the
+// balance system logic from bogging down the server if there are 32
+// players and the entire system is reloaded.  A maximum of one
+// message will be sent with each check.  Note that this system is
+// much, much more efficient than the old check of the entire balance
+// state every frame!
+//
+// Due to the setup of the balance system, the BalanceChanageListener
+// functions will never be called for non-playtest compiles, so
+// there is no need to gaurd with a playtest build #define. The 
+// call to UpdateBalanceVariables may benefit from an being #define'd 
+// out, but that function has very low overhead anyway.
+//
+// TODO: move this block (variables and logic) into a discrete class
+// and associate that class with the player using an auto_ptr instead 
+// of embedding the information into the player class
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+const float BALANCE_UPDATE_MAX_FREQUENCY = 0.05;	//maximum frequency at which checks occur
+
+bool AvHPlayer::shouldNotify(const string& name, const BalanceValueType type) const
+{
+	return true;
+}
+
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+void AvHPlayer::balanceCleared(void) const
+{
+	this->mBalanceRemovalList.clear();
+	this->mBalanceMapInts.clear();
+	this->mBalanceMapFloats.clear();
+	this->mBalanceMapStrings.clear();
+	NetMsg_BalanceVarClear( this->pev );
+}
+
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// INTEGER
+void AvHPlayer::balanceValueInserted(const string& name, const int value) const
+{
+	this->mBalanceRemovalList.erase(name); //in case we had previous signal for deletion
+	this->mBalanceMapInts.insert(BalanceIntCollection::value_type(name,value)); 
+}
+
+void AvHPlayer::balanceValueChanged(const string& name, const int old_value, const int new_value) const
+{
+	this->mBalanceRemovalList.erase(name); //in case we had previous signal for deletion
+	this->mBalanceMapInts.insert(BalanceIntCollection::value_type(name,new_value)); 
+}
+
+void AvHPlayer::balanceValueRemoved(const string& name, const int old_value) const
+{ 
+	this->mBalanceMapInts.erase(name); //in case we didn't send it yet
+	this->mBalanceRemovalList.insert(name);
+}
+
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// FLOAT
+void AvHPlayer::balanceValueInserted(const string& name, const float value) const
+{ 
+	this->mBalanceRemovalList.erase(name); //in case we had previous signal for deletion
+	this->mBalanceMapFloats.insert(BalanceFloatCollection::value_type(name,value)); 
+}
+
+void AvHPlayer::balanceValueChanged(const string& name, const float old_value, const float new_value) const
+{ 
+	this->mBalanceRemovalList.erase(name); //in case we had previous signal for deletion
+	this->mBalanceMapFloats.insert(BalanceFloatCollection::value_type(name,new_value)); 
+}
+
+void AvHPlayer::balanceValueRemoved(const string& name, const float old_value) const
+{ 
+	this->mBalanceMapFloats.erase(name); //in case we didn't send it yet
+	this->mBalanceRemovalList.insert(name);
+}
+
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// STRING
+void AvHPlayer::balanceValueInserted(const string& name, const string& value) const
+{ 
+	this->mBalanceRemovalList.erase(name); //in case we had previous signal for deletion
+	this->mBalanceMapStrings.insert(BalanceStringCollection::value_type(name,value)); 
+}
+
+void AvHPlayer::balanceValueChanged(const string& name, const string& old_value, const string& new_value) const
+{
+	this->mBalanceRemovalList.erase(name); //in case we had previous signal for deletion
+	this->mBalanceMapStrings.insert(BalanceStringCollection::value_type(name,new_value)); 
+}
+
+void AvHPlayer::balanceValueRemoved(const string& name, const string& old_value) const
+{ 
+	this->mBalanceMapStrings.erase(name); //in case we didn't send it yet
+	this->mBalanceRemovalList.insert(name);
+}
+
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+void AvHPlayer::InitBalanceVariables(void)
+{
+	//grab the entire current balance
+	BalanceValueContainer* container = BalanceValueContainerFactory::get(BalanceValueContainerFactory::getDefaultFilename());
+	this->mBalanceMapStrings = *container->getStringMap();
+	this->mBalanceMapInts = *container->getIntMap();
+	this->mBalanceMapFloats = *container->getFloatMap();
+
+	//clear the client in preparation to send everything again
+	//pev will be null if this is called during construction
+	if( this->pev ) { NetMsg_BalanceVarClear( this->pev ); }
+}
+
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+void AvHPlayer::UpdateBalanceVariables(void)
+{
+    if(mNextBalanceVarUpdate < gpGlobals->time)
+    {
+		//only send it if it can be used...
+		//CONSIDER: second security setting for read-only transfer
+		if(this->GetIsAuthorized(AUTH_ACTION_ADJUST_BALANCE,0))
+		{
+			//check number of changes we have to send
+			int total_changes = this->mBalanceRemovalList.size();
+			total_changes += this->mBalanceMapInts.size();
+			total_changes += this->mBalanceMapFloats.size();
+			total_changes += this->mBalanceMapStrings.size();
+
+			//if we have multiple changes and need to tell client they are a set
+			if( total_changes > 1 && !this->mBalanceMessagePending ) //flag multiple changes incoming
+			{
+				NetMsg_BalanceVarChangesPending( this->pev, true );
+				this->mBalanceMessagePending = true;
+			}
+			//else if we have no more changes -- check to see if we need to send end set signal
+			else if( total_changes == 0 )
+			{
+				if( this->mBalanceMessagePending )
+				{
+				NetMsg_BalanceVarChangesPending( this->pev, false );
+					this->mBalanceMessagePending = false;
+				}
+			}
+			// we have at least one change to make, possibly in a set
+			else if(!this->mBalanceRemovalList.empty())
+			{
+				set<string>::iterator item = this->mBalanceRemovalList.begin();
+				NetMsg_BalanceVarRemove( this->pev, *item );
+				this->mBalanceRemovalList.erase(item);
+			}
+			else if(!this->mBalanceMapInts.empty())
+			{
+				BalanceIntCollection::iterator item = this->mBalanceMapInts.begin();
+				NetMsg_BalanceVarInsertInt( this->pev, item->first, item->second );
+				this->mBalanceMapInts.erase(item);
+			}
+			else if(!this->mBalanceMapFloats.empty())
+			{
+				BalanceFloatCollection::iterator item = this->mBalanceMapFloats.begin();
+				NetMsg_BalanceVarInsertFloat( this->pev, item->first, item->second );
+				this->mBalanceMapFloats.erase(item);
+			}
+			else if(!this->mBalanceMapStrings.empty())
+			{
+				BalanceStringCollection::iterator item = this->mBalanceMapStrings.begin();
+				NetMsg_BalanceVarInsertString( this->pev, item->first, item->second );
+				this->mBalanceMapStrings.erase(item);
+			}
+		}
+		//update next check of balance message queue
+		mNextBalanceVarUpdate = gpGlobals->time + BALANCE_UPDATE_MAX_FREQUENCY;
+	}
+}

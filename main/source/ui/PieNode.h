@@ -134,7 +134,7 @@ public:
 
     virtual void Update(float theCurrentTime);
 
-	void UpdateMenuFromTech(const AvHTechNodes& inMenuCosts, int inPurchaseLevel);
+	void UpdateMenuFromTech(const AvHTechTree& inMenuCosts, int inPurchaseLevel);
 
 	virtual void VidInit(void);
 
@@ -239,7 +239,7 @@ public:
 
     void Update(float inTime);
 
-	void UpdateMenuFromTech(const AvHTechNodes& inMenuCosts, int inPurchaseLevel);
+	void UpdateMenuFromTech(const AvHTechTree& inMenuCosts, int inPurchaseLevel);
 
 	void VidInit();
 

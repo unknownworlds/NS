@@ -15,7 +15,7 @@
 #include "hud.h"
 #include "cl_util.h"
 #include "demo.h"
-#include "demo_api.h"
+#include "common/demo_api.h"
 #include <memory.h>
 
 #include "engine/APIProxy.h"
@@ -204,7 +204,7 @@ int GetDataSize(const string& inString)
 	int theSize = sizeof(int);
 
 	// String data
-	theSize += inString.length();
+	theSize += (int)inString.length();
 
 	return theSize;
 }
@@ -253,7 +253,7 @@ void SaveData(unsigned char* inBuffer, const void* inData, int inSizeToCopy, int
 // Save out string, works for empty strings
 void SaveStringData(unsigned char* inBuffer, const string& inString, int& inSizeVariable)
 {
-	int theStringLength = inString.length();
+	int theStringLength = (int)inString.length();
 
 	// Write out string length
 	memcpy(inBuffer + inSizeVariable, &theStringLength, sizeof(int));

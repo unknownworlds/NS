@@ -161,18 +161,18 @@
 #define AVHPLAYER_H
 
 #include "dlls/extdll.h"
-#include "util.h"
+#include "dlls/util.h"
 
-#include "cbase.h"
-#include "player.h"
-#include "trains.h"
-#include "nodes.h"
-#include "weapons.h"
-#include "soundent.h"
-#include "monsters.h"
-#include "../engine/shake.h"
-#include "decals.h"
-#include "gamerules.h"
+#include "dlls/cbase.h"
+#include "dlls/player.h"
+#include "dlls/trains.h"
+#include "dlls/nodes.h"
+#include "dlls/weapons.h"
+#include "dlls/soundent.h"
+#include "dlls/monsters.h"
+#include "engine/shake.h"
+#include "dlls/decals.h"
+#include "dlls/gamerules.h"
 #include "mod/AvHConstants.h"
 #include "mod/AvHTeam.h"
 #include "mod/AvHMessage.h"
@@ -183,17 +183,17 @@
 #include "mod/AvHSpecials.h"
 #include "common/usercmd.h"
 #include "types.h"
-#include "mod/AvHTechNodes.h"
+#include "mod/AvHTechTree.h"
 #include "common/weaponinfo.h"
 #include "mod/AvHVisibleBlipList.h"
 #include "mod/AvHBaseInfoLocation.h"
 #include "mod/AvHCloakable.h"
 #include "mod/AvHMessageList.h"
+#include "util/Balance.h"
 
-void LinkUserMessages( void );
-typedef vector<AvHMessageID> MessageIDListType;
+#include <set> //for balance information below...
 
-class AvHPlayer : public CBasePlayer, public AvHCloakable
+class AvHPlayer : public CBasePlayer, public AvHCloakable, public BalanceChangeListener
 {
 public:
 	// AvHPlayer stuff
@@ -344,21 +344,14 @@ public:
 	bool			GetIsPartiallyCloaked() const;
 	void			TriggerUncloak();
 
-#ifdef USE_UPP
-	void			SetAuthorized(bool inAuthorized);
-	bool			GetAuthorized(void) const;
-	void			SetAuthenticationMask(int inAuthMask);
-	int				GetAuthenticationMask() const;
-	void			SetScoreboardIconName(const string& inIconName);
-	string			GetScoreboardIconName(void);
-	short			GetScoreboardIconNumber(void);
-	int				GetScoreboardIconColor(void);
-#else
-	int				GetAuthenticationMask();
-#endif
+	//Nexus interface - replaces all old auth information
+	bool			GetIsAuthorized(AvHAuthAction inAction, int inParameter) const;
+	bool			GetIsMember(const string& inAuthGroup) const;
+	//END Nexus interface
+
 	float			GetTimeLastPlaying() const;
 
-	bool			GetHasSeenTeam(AvHTeamNumber inNumber);
+	bool			GetHasSeenTeam(AvHTeamNumber inNumber) const;
 	void			SetHasSeenTeam(AvHTeamNumber inNumber);
 
 	float			GetTimeOfLastSporeDamage() const;
@@ -410,13 +403,12 @@ public:
 
     virtual string  GetNetworkID() const;
     virtual void    SetNetworkID(string& inNetworkID);
-#ifdef USE_UPP
+
 	virtual string	GetNetworkAddress() const;
-	virtual void	SetNetworkAddress(string& inNetworkID);
-#endif
+	virtual void	SetNetworkAddress(string& inNetworkAddress);
 
 	virtual bool	GetIsTemporarilyInvulnerable() const;
-	AvHTechNodes&	GetCombatNodes();
+	AvHTechTree&	GetCombatNodes();
 	MessageIDListType& GetPurchasedCombatUpgrades();
 	bool			Redeem();
     
@@ -442,9 +434,6 @@ public:
 
 	void			BecomePod();
 	void			SetModelFromState();
-	bool			GetAllowAuth() const;
-	void			SetAllowAuth(bool inAllowAuth);
-	void			SetAuthCheatMask(int inAuthCheatMask);
 
 	int				GetDigestee() const;
 	void			SetDigestee(int inPlayerID);
@@ -495,7 +484,6 @@ private:
 	bool				QueryEnemySighted(CBaseEntity* inEntity);
 	bool				GetHasActiveAlienWeaponWithImpulse(AvHMessageID inMessageID) const;
 	bool				GetRandomGameStartedTick(float inApproximateFrameRate);
-	bool				GetSendBalanceData();
 	bool				GetPurchaseAllowed(AvHMessageID inUpgrade, int& outCost, string* outErrorMessage = NULL) const;
 	int					GetRelevantWeight(void) const;
 	int					GetRelevantWeightForWeapon(AvHBasePlayerWeapon* inWeapon) const;
@@ -515,7 +503,7 @@ private:
 	void				ResetBehavior(bool inRemoveFromTeam);
 	void				ResetGameNewMap();
 	void				ResetPlayerPVS();
-	void				SetCombatNodes(const AvHTechNodes& inTechNodes);
+	void				SetCombatNodes(const AvHTechTree& inTechNodes);
 	void				SetLifeformCombatNodesAvailable(bool inAvailable);
 	void				ValidateClientMoveEvents();
 	
@@ -561,7 +549,6 @@ private:
 
 	//void				UpdateArmor();
 	void				UpdateAlienUI();
-	void				UpdateBalanceVariables();
 	void				UpdateBlips();
 	void				UpdateDebugCSP();
 	void				UpdateEffectiveClassAndTeam();
@@ -585,13 +572,28 @@ private:
 
 	void				Init();
 
+	//BalanceChangeListener implementation
+	void				InitBalanceVariables(void);
+	void				UpdateBalanceVariables(void);
+	bool				shouldNotify(const string& name, const BalanceValueType type) const;
+	void				balanceCleared(void) const;
+	void				balanceValueInserted(const string& name, const float value) const;
+	void				balanceValueInserted(const string& name, const int value) const;
+	void				balanceValueInserted(const string& name, const string& value) const;
+	void				balanceValueChanged(const string& name, const float old_value, const float new_value) const;
+	void				balanceValueChanged(const string& name, const int old_value, const int new_value) const;
+	void				balanceValueChanged(const string& name, const string& old_value, const string& default_value) const;
+	void				balanceValueRemoved(const string& name, const float old_value) const;
+	void				balanceValueRemoved(const string& name, const int old_value) const;
+	void				balanceValueRemoved(const string& name, const string& old_value) const;
+
     float				mResources;
 
 	bool				mFirstUpdate;
 	bool				mNewMap;
 
-	bool				mHasSeenTeamOne;
-	bool				mHasSeenTeamTwo;
+	bool				mHasSeenTeamA;
+	bool				mHasSeenTeamB;
 
 	string				mQueuedThinkMessage;
 
@@ -663,7 +665,8 @@ private:
     AvHEntityHierarchy	mClientEntityHierarchy;
 
 	// Research nodes for commander
-	AvHTechNodes		mClientTechNodes;
+	AvHTechTree			mClientTechNodes;
+	MessageIDListType	mClientTechDelta;
 	AvHTechSlotListType	mClientTechSlotList;
 
 	AvHMessageID		mClientResearchingTech;
@@ -768,8 +771,6 @@ private:
 
 	string				mDesiredNetName;
 
-	bool				mAllowAuth;
-	int					mAuthCheatMask;
 	int					mClientMenuTechSlots;
 
 	float				mTimeOfLastClassAndTeamUpdate;
@@ -808,29 +809,16 @@ private:
 	MessageIDListType	mPurchasedCombatUpgrades;
     MessageIDListType	mGiveCombatUpgrades;
 
-	AvHTechNodes		mCombatNodes;
+	AvHTechTree			mCombatNodes;
 
     int                 mScore;
     int                 mSavedCombatFrags;
 
-#ifdef USE_UPP
-	bool				mAuthorized;
-	int					mAuthMask;
-	string				mScoreboardIconName;
 	string				mNetworkAddress;
-#else
-	int                 mCachedAuthenticationMask;
-#endif
     int                 mLastModelIndex;
     
     string              mNetworkID;
 	
-
-#ifdef AVH_PLAYTEST_BUILD
-	BalanceIntListType		mClientBalanceInts;
-	BalanceFloatListType	mClientBalanceFloats;
-#endif
-
     struct ServerVariable
     {
         std::string mName;
@@ -840,7 +828,20 @@ private:
     std::vector<ServerVariable> mServerVariableList;
 
 	bool				mUsedKilled;
-	float				mNextBalanceVarUpdate;
+
+	//TODO: remove this system from AvHPlayer and create an 
+	// explicit balance forwarding class registered to each
+	// client instead.  This functionality is tangential to
+	// AvHPlayer's role as a game entity and AvHPlayer has
+	// far too much responsibility (included in over 60 source
+	// files?!?).  Other functionality should also be examined
+	// and refactored if appropriate.
+	mutable bool					mBalanceMessagePending; //are we in the middle of a set of changes?
+	mutable std::set<string>		mBalanceRemovalList;
+	mutable BalanceFloatCollection	mBalanceMapFloats;
+	mutable BalanceIntCollection	mBalanceMapInts;
+	mutable BalanceStringCollection	mBalanceMapStrings;
+	float							mNextBalanceVarUpdate;
 };
 
 typedef vector<AvHPlayer*>	PlayerListType;

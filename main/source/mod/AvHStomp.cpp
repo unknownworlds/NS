@@ -132,7 +132,6 @@ void AvHStompProjectile::StompTouch(CBaseEntity* inOther)
 						else
 						{
 							CBaseEntity* theEntityHit = CBaseEntity::Instance(ENT(theTraceResult.pHit));
-							int a = 0;
 						}
 					}
 				}
@@ -152,7 +151,7 @@ BOOL AvHStomp::CanHolster(void)
 
 void AvHStomp::Init()
 {
-	this->mRange = BALANCE_IVAR(kStompRadius);
+	this->mRange = BALANCE_VAR(kStompRadius);
 }
 
 // Only allow it to be triggered when on the ground
@@ -178,7 +177,7 @@ int	AvHStomp::GetBarrelLength() const
 
 float AvHStomp::GetRateOfFire() const
 {
-    return BALANCE_FVAR(kStompROF);
+    return BALANCE_VAR(kStompROF);
 }
 
 int	AvHStomp::GetDeployAnimation() const
@@ -253,7 +252,7 @@ void AvHStomp::FireProjectiles(void)
 //					// Don't stun flying jetpackers
 //					if(!(GetHasUpgrade(thePlayer->pev->iuser4, MASK_UPGRADE_7) && !(thePlayer->pev->flags & FL_ONGROUND)))
 //					{
-//						thePlayer->SetIsStunned(true, BALANCE_FVAR(kStompTime));
+//						thePlayer->SetIsStunned(true, BALANCE_VAR(kStompTime));
 //					}
 //				}
 //			}
@@ -282,7 +281,7 @@ void AvHStomp::FireProjectiles(void)
 	theStomp->pev->team = this->m_pPlayer->pev->team;
 
 	// Set stun time
-	float theStunTime = BALANCE_FVAR(kStompTime);
+	float theStunTime = BALANCE_VAR(kStompTime);
 
     if(AvHSHUGetIsWeaponFocusable(AvHWeaponID(this->m_iId)))
     {

@@ -53,13 +53,14 @@
 extern int g_runfuncs;
 #include "cl_dll/com_weapons.h"
 
-#include "pm_defs.h"
-#include "pm_shared.h"
-#include "pm_movevars.h"
+#include "pm_shared/pm_defs.h"
+#include "pm_shared/pm_shared.h"
+#include "pm_shared/pm_movevars.h"
 extern playermove_t *pmove;
 #endif
 
 #include "mod/AvHSharedUtil.h"
+#include "util/Balance.h"
 
 AvHAlienWeapon::AvHAlienWeapon()
 {
@@ -98,7 +99,6 @@ void AvHAlienWeapon::DeductCostForShot(void)
 // Cannot ever drop alien weapons
 void AvHAlienWeapon::Drop(void) 
 {
-	int a = 0;
 }
 
 bool AvHAlienWeapon::GetAllowedForUser3(AvHUser3 inUser3)
@@ -221,7 +221,7 @@ float AvHAlienWeapon::ComputeAttackInterval() const
 	// Speed attack if in range of primal scream
 	if(GetHasUpgrade(theUser4, MASK_BUFFED))
 	{
-		float thePrimalScreamROFFactor = 1.0f + BALANCE_FVAR(kPrimalScreamROFFactor);
+		float thePrimalScreamROFFactor = 1.0f + BALANCE_VAR(kPrimalScreamROFFactor);
 		theROF /= thePrimalScreamROFFactor;
 	}
 
@@ -232,7 +232,7 @@ float AvHAlienWeapon::ComputeAttackInterval() const
 	    if(theFocusLevel > 0)
 	    {
 		    // Slow down ROF by x% for each level
-		    const float theFocusROFPercentSlowdownPerLevel = BALANCE_FVAR(kFocusROFPercentSlowdownPerLevel);
+		    const float theFocusROFPercentSlowdownPerLevel = BALANCE_VAR(kFocusROFPercentSlowdownPerLevel);
 		    float theSlowDownPercentage = 1.0f + theFocusLevel*theFocusROFPercentSlowdownPerLevel;
 		    
 		    theROF *= theSlowDownPercentage;

@@ -28,7 +28,6 @@
 //#include <crtdbg.h>
 //#define ASSERT _ASSERT
 #include "localassert.h"
-#include "build.h"
 
 #include <string>
 #include <vector>
@@ -48,15 +47,7 @@ typedef unsigned char		uint8;
 typedef unsigned short		uint16;
 typedef unsigned long		uint32;
 
-#ifndef max
-#define max(a, b)  (((a) > (b)) ? (a) : (b))
-#endif
-
-#ifndef min
-#define min(a, b)  (((a) < (b)) ? (a) : (b))
-#endif
-
 typedef vector<string>					StringList;
-//typedef vector<pair<string, string>>	StringPairList;
+//typedef vector<pair<string, string> >	StringPairList;
 
 #endif

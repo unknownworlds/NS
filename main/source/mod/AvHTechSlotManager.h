@@ -18,7 +18,6 @@
 
 #include "util/nowarnings.h"
 #include "types.h"
-#include "build.h"
 #include "mod/AvHMessage.h"
 #include "mod/AvHSpecials.h"
 
@@ -26,12 +25,11 @@
 #include "cl_dll/util_vector.h"
 #include "common/const.h"
 #include "engine/progdefs.h"
-#include "cl_dll/parsemsg.h"
 #endif
 
 #ifdef AVH_SERVER
-#include "extdll.h"
-#include "util.h"
+#include "dlls/extdll.h"
+#include "dlls/util.h"
 #endif
 
 const int kNumTechSlots = 8;
@@ -44,14 +42,6 @@ public:
 	bool			operator==(const AvHTechSlots& inTechSlot) const;
 	bool			operator!=(const AvHTechSlots& inTechSlot) const;
 	void			operator=(const AvHTechSlots& inTechSlot);
-
-#ifdef AVH_CLIENT
-	int32			ReceiveFromNetworkStream();
-#endif
-	
-#ifdef AVH_SERVER
-    void			SendToNetworkStream();
-#endif
 
 	AvHUser3		mUser3;
 	AvHMessageID	mTechSlots[kNumTechSlots];

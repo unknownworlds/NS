@@ -30,9 +30,8 @@
 #define NETWORK_METER_H
 
 #include "dlls/extdll.h"
-#include "util.h"
+#include "dlls/util.h"
 #include "types.h"
-#include "build.h"
 
 //	NetworkMeter: Main manager, creates and updates NetworkMeterPlayers
 //		list of NetworkMeterPlayers: manages network messages for a player

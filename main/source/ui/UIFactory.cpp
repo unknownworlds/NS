@@ -53,13 +53,11 @@ UIComponent* UIFactory::BuildComponent(const TRDescription& inTextRep, CSchemeMa
     {
         theNewComp = new UIButton();
     } 
-	#ifndef AVH_MAPPER_BUILD
-    else if(theCompType == "PieMenu")
+	else if(theCompType == "PieMenu")
 	{
 		theNewComp = new UIPieMenu();
 	}
-	#endif
-    else if(theCompType == "ColoredPanel")
+	else if(theCompType == "ColoredPanel")
 	{
 		theNewComp = new UIColoredPanel();
 	}

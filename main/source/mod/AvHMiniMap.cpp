@@ -1,10 +1,18 @@
 #include "mod/AvHMiniMap.h"
 #include "mod/AvHSharedUtil.h"
 #include "mod/AvHSpecials.h"
+#include "mod/AvHNetworkMessages.h"
 
 #ifdef AVH_CLIENT
-#include "cl_dll/parsemsg.h"
+	#include "util/hl/spritegn.h"
 #endif
+
+#ifdef AVH_SERVER
+	#include "mod/AvHPlayer.h"
+#endif
+
+const int kMaxScreenWidth = 1600;
+const int kMaxScreenHeight = 1200;
 
 const int kHitWorldPaletteIndex = 0;
 const int kBorderPaletteIndexStart = 1;
@@ -13,13 +21,10 @@ const int kGroundStartPaletteIndex = 3;
 const int kGroundEndPaletteIndex = 254;
 const int kHitNothingPaletteIndex = 255;
 
-#ifdef AVH_SERVER
 // Network message: 
 //	0: means start processing, pass map name then num samples to process, map width, map height
 //	1: means update, pass num pixels, then data
 //	2: means end processing
-extern int								gmsgBuildMiniMap;
-#endif
 
 void SafeWrite (FILE *f, void *buffer, int count)
 {
@@ -80,7 +85,7 @@ void AvHMiniMap::BuildMiniMap(const char* inMapName, AvHPlayer* inPlayer, const 
 	this->mMapName = inMapName;
 	this->mPlayer = inPlayer;
 
-	// In base BuildMiniMap is called multiple times
+	// In case BuildMiniMap is called multiple times
 	delete [] this->mMap;
 
 	// New a hi-res version of the map (enough for the 1600 version)
@@ -103,13 +108,7 @@ void AvHMiniMap::BuildMiniMap(const char* inMapName, AvHPlayer* inPlayer, const 
 	this->mIsProcessing = true;
 
 	// Tell player to rebuild minimap
-	MESSAGE_BEGIN(MSG_ONE, gmsgBuildMiniMap, NULL, this->mPlayer->pev);
-		WRITE_BYTE(0);
-		WRITE_STRING(this->mMapName.c_str());
-		WRITE_LONG(this->mNumSamplesToProcess);
-		WRITE_LONG(this->mMapWidth);
-		WRITE_LONG(this->mMapHeight);
-	MESSAGE_END();
+	NetMsg_BuildMiniMap_Initialize( this->mPlayer->pev, this->mMapName, this->mNumSamplesToProcess, this->mMapWidth, this->mMapHeight );
 }
 
 bool AvHMiniMap::Process()
@@ -146,7 +145,7 @@ bool AvHMiniMap::Process()
 		float theMapCenterY = (this->mMinY + this->mMaxY)/2.0f;
 
 		const int kNumPixelsPerCall = 50;
-		char theSampleArray[kNumPixelsPerCall];
+		uint8 theSampleArray[kNumPixelsPerCall];
 		memset(theSampleArray, 0, kNumPixelsPerCall);
 		
 		for(int i = 0; (i < kNumPixelsPerCall) && (this->mNumSamplesProcessed < this->mNumSamplesToProcess); i++)
@@ -200,23 +199,14 @@ bool AvHMiniMap::Process()
 		int theNumSamples = i;
 
 		// Tell player to rebuild minimap
-		MESSAGE_BEGIN(MSG_ONE, gmsgBuildMiniMap, NULL, this->mPlayer->pev);
-			WRITE_BYTE(1);
-			WRITE_BYTE(theNumSamples);
-			for(int j = 0; j < theNumSamples; j++)
-			{
-				WRITE_BYTE(theSampleArray[j]);
-			}
-		MESSAGE_END();
+		NetMsg_BuildMiniMap_Update( this->mPlayer->pev, theNumSamples, theSampleArray );
 		
 		if(this->mNumSamplesProcessed == this->mNumSamplesToProcess)
 		{
 			theProcessingComplete = true;
 			this->mIsProcessing = false;
 
-			MESSAGE_BEGIN(MSG_ONE, gmsgBuildMiniMap, NULL, this->mPlayer->pev);
-				WRITE_BYTE(2);
-			MESSAGE_END();
+			NetMsg_BuildMiniMap_Complete( this->mPlayer->pev );
 		}
 	}
 	
@@ -303,80 +293,28 @@ void AvHMiniMap::InitializePalette()
 				theColor[2] = kHitWorldB;
 				break;
 
-				/*
-			case kBorderPaletteIndex:
-				theColor[0] = 144;
-				theColor[1] = 159;
-				theColor[2] = 189;
-				break;
-				*/
-				
 			}
-
 		}
-
 	}
-
 }
 
-int AvHMiniMap::ReceiveFromNetworkStream()
+int AvHMiniMap::ReceiveFromNetworkStream(void* const buffer, const int size)
 {
-	int theBytesRead = 0;
+	bool finished;
 
-	// Read status code
-	int theCode = READ_BYTE();
-	theBytesRead++;
+	NetMsg_BuildMiniMap( buffer, size, 
+		this->mMapName, 
+		this->mNumSamplesToProcess, 
+		this->mNumSamplesProcessed, 
+		this->mMapWidth, 
+		this->mMapHeight,
+		&this->mMap,
+		finished
+	);
 
-	if(theCode == 0)
-	{
-		// Starting to create a new minimap
-		char* theMapName = READ_STRING();
-		theBytesRead += strlen(theMapName);
+	this->mIsProcessing = !finished;
 
-		// Receive num bytes needed for map
-		this->mNumSamplesToProcess = READ_LONG();
-		theBytesRead += 4;
-
-		// Read map with and height
-		this->mMapWidth = READ_LONG();
-		theBytesRead += 4;
-
-		this->mMapHeight = READ_LONG();
-		theBytesRead += 4;
-		
-		this->mMap = new uint8[this->mNumSamplesToProcess];
-		memset(this->mMap, 0, this->mNumSamplesToProcess);
-
-		this->mMapName = theMapName;
-		this->mNumSamplesProcessed = 0;
-		this->mIsProcessing = true;
-	}
-	else if(theCode == 1)
-	{
-		// Read num samples
-		int theNumSamples = READ_BYTE();
-		theBytesRead++;
-
-		// Read sample
-		for(int i = 0; i < theNumSamples; i++)
-		{
-			// Read the sample and store in the map
-			uint8 theSample = READ_BYTE();
-
-			ASSERT(this->mNumSamplesProcessed < this->mNumSamplesToProcess);
-
-			this->mMap[this->mNumSamplesProcessed++] = theSample;
-
-			theBytesRead++;
-		}
-	}
-	else if(theCode == 2)
-	{
-		// TODO: Verify that we are done
-		//ASSERT(this->mNumSamplesProcessed == this->mNumSamplesToProcess);
-	}
-
-	return theBytesRead;
+	return 1;
 }
 
 bool AvHMiniMap::WriteMapToSprite()

@@ -43,9 +43,9 @@
 ****/
 #include "../hud.h"
 #include "../cl_util.h"
-#include "const.h"
-#include "entity_state.h"
-#include "cl_entity.h"
+#include "common/const.h"
+#include "common/entity_state.h"
+#include "common/cl_entity.h"
 #include "../demo.h"
 #include "common/usercmd.h"
 #include "common/event_flags.h"
@@ -53,29 +53,21 @@
 #include "cl_dll/com_weapons.h"
 #include "cl_dll/ammo.h"
 #include "cl_dll/ammohistory.h"
-#include "extdll.h"
-#include "util.h"
-#include "cbase.h"
-#include "monsters.h"
-#include "weapons.h"
-#include "nodes.h"
-#include "player.h"
+#include "dlls/extdll.h"
+#include "dlls/util.h"
+#include "dlls/cbase.h"
+#include "dlls/monsters.h"
+#include "dlls/weapons.h"
+#include "dlls/nodes.h"
+#include "dlls/player.h"
 #include "mod/AvHEvents.h"
 
-#include "extdll.h"
-#include "util.h"
-#include "cbase.h"
-#include "monsters.h"
-#include "weapons.h"
-#include "nodes.h"
-#include "player.h"
-
-#include "usercmd.h"
-#include "entity_state.h"
-#include "demo_api.h"
-#include "pm_defs.h"
-#include "event_api.h"
-#include "r_efx.h"
+#include "common/usercmd.h"
+#include "common/entity_state.h"
+#include "common/demo_api.h"
+#include "pm_shared/pm_defs.h"
+#include "common/event_api.h"
+#include "common/r_efx.h"
 
 #include "../hud_iface.h"
 #include "../com_weapons.h"
@@ -185,7 +177,12 @@ void AlertMessage( ALERT_TYPE atype, char *szFmt, ... )
 	static char	string[1024];
 	
 	va_start (argptr, szFmt);
+#ifdef WIN32
+   //overflow protection in MS version of function...
+   _vsnprintf( string, 1023, szFmt, argptr );
+#else
 	vsprintf (string, szFmt,argptr);
+#endif
 	va_end (argptr);
 
 	gEngfuncs.Con_Printf( "cl:  " );
@@ -842,25 +839,6 @@ void HUD_InitClientWeapons( void )
 
 /*
 =====================
-=======
-	HUD_PrepEntity( &g_Glock	, &player );
-	HUD_PrepEntity( &g_Crowbar	, &player );
-	HUD_PrepEntity( &g_Python	, &player );
-	HUD_PrepEntity( &g_Mp5	, &player );
-	HUD_PrepEntity( &g_Crossbow	, &player );
-	HUD_PrepEntity( &g_Shotgun	, &player );
-	HUD_PrepEntity( &g_Rpg	, &player );
-	HUD_PrepEntity( &g_Gauss	, &player );
-	HUD_PrepEntity( &g_Egon	, &player );
-	HUD_PrepEntity( &g_HGun	, &player );
-	HUD_PrepEntity( &g_HandGren	, &player );
-	HUD_PrepEntity( &g_Satchel	, &player );
-	HUD_PrepEntity( &g_Tripmine	, &player );
-	HUD_PrepEntity( &g_Snark	, &player );
-}
-
-/*
-=====================
 HUD_GetLastOrg
 
 Retruns the last position that we stored for egon beam endpoint.
@@ -1396,19 +1374,11 @@ void CL_DLLEXPORT HUD_PostRunCmd( struct local_state_s *from, struct local_state
 
 	g_runfuncs = runfuncs;
 
-#if defined( CLIENT_WEAPONS )
-
-//	if(from->client.m_iId != WEAPON_GLOCK)
-//	{
-//		int a = 0;
-//	}
-
 	if ( cl_lw && cl_lw->value )
 	{
 		HUD_WeaponsPostThink( from, to, cmd, time, random_seed );
 	}
 	else
-#endif
 	{
 		to->client.fov = g_lastFOV;
 	}

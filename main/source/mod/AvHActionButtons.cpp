@@ -109,14 +109,11 @@ bool ActionButton::GetLabelForMessage(AvHMessageID inMessage, string& outLabel)
 		//std::remove(outLabel.begin(), outLabel.end(), kAcceleratorCharacter);
 		theSuccess = true;
 	}
-	else
-	{
-		int a = 0;
-	}
+
 	return theSuccess;
 }
 
-void ActionButton::UpdateEnabledAndResearchState(const AvHTechNodes& inTechNodes)
+void ActionButton::UpdateEnabledAndResearchState(const AvHTechTree& inTechNodes)
 {
 	// Get cost
 	bool theResearchable;
@@ -133,7 +130,7 @@ void ActionButton::UpdateEnabledAndResearchState(const AvHTechNodes& inTechNodes
 }
 
 // Run through the tech nodes and look up their label and help text, storing them for drawing
-void ActionButton::Localize(const AvHTechNodes& inTechNodes)
+void ActionButton::Localize(const AvHTechTree& inTechNodes)
 {
 	if(this->mMessageID == MESSAGE_NULL)
 	{
@@ -181,7 +178,7 @@ void ActionButton::Localize(const AvHTechNodes& inTechNodes)
 			// If there is a prerequisite that isn't researched, add this to help message
 			AvHTechID thePrereqID1;
 			AvHTechID thePrereqID2;
-			if(inTechNodes.GetPrequisiteForMessage(this->mMessageID, thePrereqID1, thePrereqID2))
+			if(inTechNodes.GetPrequisitesForMessage(this->mMessageID, thePrereqID1, thePrereqID2))
 			{
 				for(int i = 0; i < 2; i++)
 				{
@@ -219,10 +216,6 @@ void ActionButton::Localize(const AvHTechNodes& inTechNodes)
 										this->mHelpText += thePrereqTech;
 										this->mHelpText += "\n";
 									}
-								}
-								else
-								{
-									int a = 0;
 								}
 							}
 						}
@@ -486,7 +479,7 @@ bool AvHActionButtons::SetButton(int inButtonOffset, AvHMessageID inMessageID)
 //	return theSuccess;
 //}
 
-void AvHActionButtons::SetTechNodes(const AvHTechNodes& inTechNodes)
+void AvHActionButtons::SetTechNodes(const AvHTechTree& inTechNodes)
 {
 	if(this->mTechNodes != inTechNodes)
 	{

@@ -66,9 +66,9 @@
 
 #include "hud.h"
 #include "cl_util.h"
-#include "const.h"
-#include "entity_state.h"
-#include "cl_entity.h"
+#include "common/const.h"
+#include "common/entity_state.h"
+#include "common/cl_entity.h"
 #include "vgui_TeamFortressViewport.h"
 #include "vgui_ScorePanel.h"
 #include "..\game_shared\vgui_helpers.h"
@@ -79,8 +79,9 @@
 #include "cl_dll/demo.h"
 #include "mod/AvHServerVariables.h"
 #include "util\STLUtil.h"
+#include "ui/ScoreboardIcon.h"
 
-#include "ITrackerUser.h"
+#include "common/ITrackerUser.h"
 extern ITrackerUser *g_pTrackerUser;
 
 hud_player_info_t	 g_PlayerInfoList[MAX_PLAYERS+1];	   // player info from the engine
@@ -159,13 +160,6 @@ SBColumnInfo g_ColumnInfo[NUM_COLUMNS] =
 #define TEAM_SPECTATORS		2
 #define TEAM_BLANK			3
 
-Color BuildColor(int inR, int inG, int inB, float inScalar)
-{
-	Color theColor = Color((int)(inR/inScalar), (int)(inG/inScalar), (int)(inB/inScalar), 0);
-	return theColor;
-}
-
-
 //-----------------------------------------------------------------------------
 // ScorePanel::HitTestPanel.
 //-----------------------------------------------------------------------------
@@ -178,7 +172,13 @@ void ScorePanel::HitTestPanel::internalMousePressed(MouseCode code)
 	}
 }
 
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+vgui::Color BuildColor( int R, int G, int B, float gamma )
+{
+	ASSERT( gamma != 0 );
+	return vgui::Color( R/gamma, G/gamma, B/gamma, 0 );
+}
 
 //-----------------------------------------------------------------------------
 // Purpose: Create the ScoreBoard panel
@@ -196,24 +196,8 @@ ScorePanel::ScorePanel(int x,int y,int wide,int tall) : Panel(x,y,wide,tall)
 	setBgColor(0, 0, 0, 96);
 	m_pCurrentHighlightLabel = NULL;
 	m_iHighlightRow = -1;
-
-	m_pTrackerIcon = NULL;
-	m_pDevIcon = NULL;
-	m_pPTIcon = NULL;
-	m_pGuideIcon = NULL;
-	m_pServerOpIcon = NULL;
-	m_pContribIcon = NULL;
-	m_pCheatingDeathIcon = NULL;
-	m_pVeteranIcon = NULL;
-	
-	m_pTrackerIcon = vgui_LoadTGANoInvertAlpha("gfx/vgui/640_scoreboardtracker.tga");
-	m_pDevIcon = vgui_LoadTGANoInvertAlpha("gfx/vgui/640_scoreboarddev.tga");
-	m_pPTIcon = vgui_LoadTGANoInvertAlpha("gfx/vgui/640_scoreboardpt.tga");
-	m_pGuideIcon = vgui_LoadTGANoInvertAlpha("gfx/vgui/640_scoreboardguide.tga");
-	m_pServerOpIcon = vgui_LoadTGANoInvertAlpha("gfx/vgui/640_scoreboardserverop.tga");
-	m_pContribIcon = vgui_LoadTGANoInvertAlpha("gfx/vgui/640_scoreboardcontrib.tga");
-	m_pCheatingDeathIcon = vgui_LoadTGANoInvertAlpha("gfx/vgui/640_scoreboardcd.tga");
-	m_pVeteranIcon = vgui_LoadTGANoInvertAlpha("gfx/vgui/640_scoreboardveteran.tga");
+	m_iIconFrame = 0;
+	m_iLastFrameIncrementTime = gHUD.GetTimeOfLastUpdate();
 	
 	// Initialize the top title.
 	m_TitleLabel.setFont(tfont);
@@ -362,6 +346,10 @@ void ScorePanel::Initialize( void )
 	m_fLastKillTime = 0;
 	m_iPlayerNum = 0;
 	m_iNumTeams = 0;
+	for( int counter = 0; counter < MAX_PLAYERS+1; counter++ )
+	{
+		delete g_PlayerExtraInfo[counter].icon;
+	}
 	memset( g_PlayerExtraInfo, 0, sizeof g_PlayerExtraInfo );
 	memset( g_TeamInfo, 0, sizeof g_TeamInfo );
 }
@@ -380,18 +368,13 @@ void ScorePanel::Update()
 
 	if (gViewPort->m_szServerName)
 	{
-		char sz[MAX_SERVERNAME_LENGTH + MAX_MAPNAME_LENGTH + 256];
-		sprintf(sz, "%s", gViewPort->m_szServerName );
-		string theServerName = string(sz);
-		if(theServerName.length() > MAX_SERVERNAME_LENGTH) //string wasn't terminated
-		{ theServerName.resize(MAX_SERVERNAME_LENGTH); }
-		theTitleName += theServerName;
+		int iServerNameLength = max((int)strlen(gViewPort->m_szServerName),MAX_SERVERNAME_LENGTH);
+		theTitleName += string(gViewPort->m_szServerName,iServerNameLength);
 	}
 
 	string theMapName = gHUD.GetMapName();
 	if(theMapName != "")
 	{
-		//sprintf(sz, "%s : %s", gViewPort->m_szServerName, theMapName.c_str());
 		if(theTitleName != "")
 		{
 			theTitleName += " ";
@@ -431,11 +414,7 @@ void ScorePanel::Update()
 		m_bHasBeenSorted[i] = false;
 	}
 
-	// If it's not teamplay, sort all the players. Otherwise, sort the teams.
-	if ( !gHUD.m_Teamplay )
-		SortPlayers( 0, NULL );
-	else
-		SortTeams();
+	SortTeams();
 
 	// set scrollbar range
 	m_PlayerList.SetScrollRange(m_iRows);
@@ -505,7 +484,6 @@ void ScorePanel::SortTeams()
 
 	// find team ping/packetloss averages
 	for ( i = 1; i <= m_iNumTeams; i++ )
-	//for ( i = 0; i <= m_iNumTeams; i++ )
 	{
 		g_TeamInfo[i].already_drawn = FALSE;
 
@@ -516,61 +494,12 @@ void ScorePanel::SortTeams()
 		}
 	}
 	
-	// Draw the teams
-	//	while ( 1 )
-	//	{
-	//		int highest_frags = -99999; int lowest_deaths = 99999;
-	//		int best_team = 0;
-	//
-	//		for ( i = 1; i <= m_iNumTeams; i++ )
-	//		{
-	//			if ( g_TeamInfo[i].players < 1 )
-	//				continue;
-	//
-	//			// Spectator team can't be the best team if there are others
-	//			if ( !g_TeamInfo[i].already_drawn && g_TeamInfo[i].frags >= highest_frags )
-	//			{
-	//				if ( g_TeamInfo[i].frags > highest_frags || g_TeamInfo[i].deaths < lowest_deaths )
-	//				{
-	//					best_team = i;
-	//					lowest_deaths = g_TeamInfo[i].deaths;
-	//					highest_frags = g_TeamInfo[i].frags;
-	//				}
-	//			}
-	//		}
-	//
-	//		// draw the best team on the scoreboard
-	//		if ( !best_team )
-	//			break;
-//	for(i = 1 ; i <= m_iNumTeams; i++)
-//	{
-//		int best_team = i;
-//		
-//		// Put this team in the sorted list
-//		m_iSortedRows[ m_iRows ] = best_team;
-//		m_iIsATeam[ m_iRows ] = TEAM_YES;
-//		g_TeamInfo[best_team].already_drawn = TRUE;  // set the already_drawn to be TRUE, so this team won't get sorted again
-//		m_iRows++;
-//		
-//		// Now sort all the players on this team
-//		SortPlayers( 0, g_TeamInfo[best_team].name );
-//	}
-	
-	// Sort the teams by numerical order, skipping spectators
-	//	for(i = 1; i < m_iNumTeams; i++)
-	//	{
-	//		SortPlayers(0, g_TeamInfo[i].name);
-	//	}
-	
 	SortActivePlayers(kMarine1Team);
 	SortActivePlayers(kAlien1Team);
 	SortActivePlayers(kMarine2Team);
 	SortActivePlayers(kAlien2Team);
 	SortActivePlayers(kSpectatorTeam);
 	SortActivePlayers(kUndefinedTeam);
-	
-	// Add all the players who aren't in a team yet into spectators
-	//SortPlayers( TEAM_SPECTATORS, NULL );
 }
 
 void ScorePanel::SortActivePlayers(char* inTeam, bool inSortByEntityIndex)
@@ -610,7 +539,7 @@ void ScorePanel::SortPlayers( int iTeam, char *team, bool inSortByEntityIndex)
 
 		for ( int i = 1; i <= MAX_PLAYERS; i++ )
 		{
-			if ( m_bHasBeenSorted[i] == false && g_PlayerInfoList[i].name /*&& g_PlayerExtraInfo[i].frags >= theBestTotalScore*/ )
+			if ( m_bHasBeenSorted[i] == false && g_PlayerInfoList[i].name )
 			{
 				cl_entity_t *ent = gEngfuncs.GetEntityByIndex( i );
 
@@ -629,7 +558,7 @@ void ScorePanel::SortPlayers( int iTeam, char *team, bool inSortByEntityIndex)
 					else
                     {
                         // overall rank = score + kills (with least deaths breaking ties)
-                        int thePlayerScore = pl_info->score;// + pl_info->frags - pl_info->deaths;
+                        int thePlayerScore = pl_info->score;
                         int thePlayerDeaths = pl_info->deaths;
                         if((thePlayerScore > theBestTotalScore) || ((thePlayerScore == theBestTotalScore) && (pl_info->deaths < theBestDeaths)))
                         {
@@ -726,6 +655,26 @@ void ScorePanel::RebuildTeams()
 	Update();
 }
 
+//-----------------------------------------------------------------------------
+
+int ScorePanel::GetIconFrame(void)
+{
+	const static int kIconFrameDuration = 0.25;
+
+	int current_time = gHUD.GetTimeOfLastUpdate();
+	if( (m_iLastFrameIncrementTime - current_time) > kIconFrameDuration )
+	{
+		m_iLastFrameIncrementTime = current_time;
+		m_iIconFrame++;
+		if( m_iIconFrame >= 1000 )
+		{
+			m_iIconFrame = 0;
+		}
+	}
+	return m_iIconFrame;
+}
+
+//-----------------------------------------------------------------------------
 
 void ScorePanel::FillGrid()
 {
@@ -778,11 +727,16 @@ void ScorePanel::FillGrid()
 		hud_player_info_t* pl_info = &g_PlayerInfoList[theSortedRow];
 		extra_player_info_t* theExtraPlayerInfo = &g_PlayerExtraInfo[theSortedRow];
 		int thePlayerClass = theExtraPlayerInfo->playerclass;
-		short thePlayerAuthentication = theExtraPlayerInfo->auth;
-		int theIconColor = theExtraPlayerInfo->color;
-		bool thePlayerIsDead = (thePlayerClass == (int)(PLAYERCLASS_DEAD_MARINE)) || (thePlayerClass == (int)(PLAYERCLASS_DEAD_ALIEN)) || (thePlayerClass == (int)(PLAYERCLASS_REINFORCING));
 		short theTeamNumber = theExtraPlayerInfo->teamnumber;
-		string theCustomIcon = (string)theExtraPlayerInfo->customicon;
+		bool thePlayerIsDead = false;
+		switch( thePlayerClass )
+		{
+		case PLAYERCLASS_DEAD_MARINE:
+		case PLAYERCLASS_DEAD_ALIEN:
+		case PLAYERCLASS_REINFORCING:
+			thePlayerIsDead = true;
+			break;
+		}
 
 		// Code to test DEBUG
 #if 0
@@ -826,21 +780,6 @@ void ScorePanel::FillGrid()
 			pLabel->setBgColor(0, 0, 0, 255);
 			
 			char sz[128];
-
-			// This could be zero if the player hits tab before getting the first message from the server
-			//ASSERT(this->m_iNumTeams > 0);
-
-			// Get the team's data
-//			team_info_t* team_info = &g_TeamInfo[0];
-//			for(int i = 0; i < this->m_iNumTeams; i++)
-//			{
-//				team_info_t* theCurrentTeam = &g_TeamInfo[i+1];
-//				if(theCurrentTeam->teamnumber == theTeamNumber)
-//				{
-//					team_info = theCurrentTeam;
-//					break;
-//				}
-//			}
 
 			Color gammaAdjustedTeamColor = BuildColor(kTeamColors[theColorIndex][0], kTeamColors[theColorIndex][1], kTeamColors[theColorIndex][2], gHUD.GetGammaSlope());
             pLabel->setFgColor(gammaAdjustedTeamColor[0], gammaAdjustedTeamColor[1], gammaAdjustedTeamColor[2], 0);
@@ -1104,169 +1043,10 @@ void ScorePanel::FillGrid()
 					break;
 						
 				case COLUMN_RANK_ICON:
-					if(thePlayerAuthentication & PLAYERAUTH_UPP_MODE)
+					if( theExtraPlayerInfo->icon )
 					{
-						if(g_pTrackerUser)
-						{
-							int playerSlot = theSortedRow;
-							int trackerID = gEngfuncs.GetTrackerIDForPlayer(playerSlot);
-
-							if (g_pTrackerUser->IsFriend(trackerID) && trackerID != g_pTrackerUser->GetTrackerID())
-							{
-								pLabel->setImage(m_pTrackerIcon);
-								pLabel->setFgColorAsImageColor(false);
-								m_pTrackerIcon->setColor(Color(255, 255, 255, 0));
-							}
-						}
-						else
-						{
-							//find the filename
-							short theIconNameBytes = (thePlayerAuthentication & ~PLAYERAUTH_UPP_MODE);
-							string theIconName;
-							MakeHexPairsFromBytes((unsigned char*)&theIconNameBytes,theIconName,2);
-							theIconName = string("gfx/vgui/icons/") + theIconName + string(".tga");
-
-							//find the color - 2 bits apiece for R,G,B
-							int theColor[3] = {0,0,0};
-							theColor[0] = ((theIconColor >> 6) & 0x03) * 64; //Red
-							theColor[1] = ((theIconColor >> 4) & 0x03) * 64; //Green
-							theColor[2] = ((theIconColor >> 2) & 0x03) * 64; //Blue
-		
-							//remaining two bits are fine granularity brightness shift for all three colors
-							int brightness_shift = (theIconColor & 0x03) * 16;
-							float max = max(theColor[0],max(theColor[1],theColor[2]));
-							theColor[0] += ((int)(theColor[0]/max))*brightness_shift;
-							theColor[1] += ((int)(theColor[1]/max))*brightness_shift;
-							theColor[2] += ((int)(theColor[2]/max))*brightness_shift;
-
-							vgui::BitmapTGA *pIcon = GetIconPointer(theIconName);
-
-							//Icon hasnt been loaded, load it now and add it to list of icons.
-							if(pIcon == NULL)
-							{
-								pIcon = vgui_LoadTGANoInvertAlpha(theIconName.c_str());
-
-								if(pIcon)
-									m_CustomIconList.push_back( make_pair(pIcon, theIconName) );
-							}
-				
-							//set the icon + color
-							if(pIcon)
-							{ 
-								pLabel->setImage(pIcon);
-								pLabel->setFgColorAsImageColor(false);
-								pIcon->setColor(BuildColor(theColor[0],theColor[1],theColor[2], gHUD.GetGammaSlope())); 
-							}
-						}
-					}
-					else //NOT UPP
-					{
-						// Check if we have authority.  Right now these override the tracker icons.  Listed in increasing order of "importance".
-						if(thePlayerAuthentication & PLAYERAUTH_CHEATINGDEATH)
-						{
-							// Red
-							pLabel->setImage(m_pCheatingDeathIcon);
-							pLabel->setFgColorAsImageColor(false);
-							m_pCheatingDeathIcon->setColor(BuildColor(255, 69, 9, gHUD.GetGammaSlope()));
-						}
-						if(thePlayerAuthentication & PLAYERAUTH_VETERAN)
-						{
-							// Yellow
-							pLabel->setImage(m_pVeteranIcon);
-							pLabel->setFgColorAsImageColor(false);
-							m_pVeteranIcon->setColor(BuildColor(248, 252, 0, gHUD.GetGammaSlope()));
-						}
-						if(thePlayerAuthentication & PLAYERAUTH_BETASERVEROP)
-						{
-							// Whitish
-							pLabel->setImage(m_pServerOpIcon);
-							pLabel->setFgColorAsImageColor(false);
-							m_pServerOpIcon->setColor(BuildColor(220, 220, 220, gHUD.GetGammaSlope()));
-						}
-						if(thePlayerAuthentication & PLAYERAUTH_CONTRIBUTOR)
-						{
-							// Light blue
-							pLabel->setImage(m_pContribIcon);
-							pLabel->setFgColorAsImageColor(false);
-							m_pContribIcon->setColor(BuildColor(117, 214, 241, gHUD.GetGammaSlope()));
-						}
-						if(thePlayerAuthentication & PLAYERAUTH_GUIDE)
-						{
-							// Magenta
-							pLabel->setImage(m_pGuideIcon);
-							pLabel->setFgColorAsImageColor(false);
-							m_pGuideIcon->setColor(BuildColor(208, 16, 190, gHUD.GetGammaSlope()));
-						}
-						if(thePlayerAuthentication & PLAYERAUTH_PLAYTESTER)
-						{
-							// Orange
-							pLabel->setImage(m_pPTIcon);
-							pLabel->setFgColorAsImageColor(false);
-							m_pPTIcon->setColor(BuildColor(255, 167, 54, gHUD.GetGammaSlope()));
-						}
-						if(thePlayerAuthentication & PLAYERAUTH_DEVELOPER)
-						{
-							// TSA blue
-							pLabel->setImage(m_pDevIcon);
-							pLabel->setFgColorAsImageColor(false);
-							m_pDevIcon->setColor(BuildColor(100, 215, 255, gHUD.GetGammaSlope()));
-						}
-
-						if(thePlayerAuthentication & PLAYERAUTH_SERVEROP)
-						{
-							// Bright green
-							pLabel->setImage(m_pServerOpIcon);
-							pLabel->setFgColorAsImageColor(false);
-							m_pServerOpIcon->setColor(BuildColor(0, 255, 0, gHUD.GetGammaSlope()));
-						}
-
-						// Allow custom icons to override other general icons
-						if(thePlayerAuthentication & PLAYERAUTH_CUSTOM)
-						{
-							if(theCustomIcon != "")
-							{
-								string theIconName = theCustomIcon.substr(0, strlen(theCustomIcon.c_str()) - 3);
-								string theFullCustomIconString = string("gfx/vgui/640_") + theIconName + string(".tga");
-
-								vgui::BitmapTGA *pIcon = GetIconPointer(theCustomIcon);
-
-								//Icon hasnt been loaded, load it now and add it to list of icons.
-								if(pIcon == NULL)
-								{
-									pIcon = vgui_LoadTGANoInvertAlpha(theFullCustomIconString.c_str());
-
-									if(pIcon)
-										m_CustomIconList.push_back( make_pair(pIcon, theCustomIcon) );
-								}
-								
-								if(pIcon)
-								{
-									pLabel->setImage(pIcon);
-									pLabel->setFgColorAsImageColor(false);
-
-									// Parse color (last 3 bytes are the RGB values 1-9)
-									string theColor = theCustomIcon.substr( strlen(theCustomIcon.c_str())-3, 3);
-									int theRed = (MakeIntFromString(theColor.substr(0, 1))/9.0f)*255;
-									int theGreen = (MakeIntFromString(theColor.substr(1, 1))/9.0f)*255;
-									int theBlue = (MakeIntFromString(theColor.substr(2, 1))/9.0f)*255;
-
-									pIcon->setColor(BuildColor(theRed, theGreen, theBlue, gHUD.GetGammaSlope()));
-								}
-							}
-						}
-					
-						if(g_pTrackerUser)
-						{
-							int playerSlot = theSortedRow;
-							int trackerID = gEngfuncs.GetTrackerIDForPlayer(playerSlot);
-
-							if (g_pTrackerUser->IsFriend(trackerID) && trackerID != g_pTrackerUser->GetTrackerID())
-							{
-								pLabel->setImage(m_pTrackerIcon);
-								pLabel->setFgColorAsImageColor(false);
-								m_pTrackerIcon->setColor(Color(255, 255, 255, 0));
-							}
-						}
+						vgui::Bitmap* image = theExtraPlayerInfo->icon->getImage( this->GetIconFrame() );
+						if( image ) { pLabel->setImage( image ); }
 					}
 					break;
                 case COLUMN_SCORE:
@@ -1401,7 +1181,7 @@ void ScorePanel::mousePressed(MouseCode code, Panel* panel)
 					sprintf( string1, CHudTextMessage::BufferedLocaliseTextString( "#Unmuted" ), pl_info->name );
 					sprintf( string, "%c** %s\n", HUD_PRINTTALK, string1 );
 
-					gHUD.m_TextMessage.MsgFunc_TextMsg(NULL, strlen(string)+1, string );
+					gHUD.m_TextMessage.MsgFunc_TextMsg(NULL, (int)strlen(string)+1, string );
 				}
 				else
 				{
@@ -1415,7 +1195,7 @@ void ScorePanel::mousePressed(MouseCode code, Panel* panel)
 					sprintf( string2, CHudTextMessage::BufferedLocaliseTextString( "#No_longer_hear_that_player" ) );
 					sprintf( string, "%c** %s %s\n", HUD_PRINTTALK, string1, string2 );
 
-					gHUD.m_TextMessage.MsgFunc_TextMsg(NULL, strlen(string)+1, string );
+					gHUD.m_TextMessage.MsgFunc_TextMsg(NULL, (int)strlen(string)+1, string );
 				}
 			}
 		}

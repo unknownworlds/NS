@@ -39,12 +39,12 @@ void AvHServerPlayerData::SetExperience(float inExperience)
 	this->mExperience = inExperience;
 }
 
-const AvHTechNodes& AvHServerPlayerData::GetCombatNodes()
+const AvHTechTree& AvHServerPlayerData::GetCombatNodes()
 {
 	return this->mCombatNodes;
 }
 
-void AvHServerPlayerData::SetCombatNodes(const AvHTechNodes& inTechNodes)
+void AvHServerPlayerData::SetCombatNodes(const AvHTechTree& inTechNodes)
 {
 	this->mCombatNodes = inTechNodes;
 }

@@ -179,6 +179,7 @@
 #define kVoteCancelled					"VoteCancelled"
 #define kBannedFromCommand				"BannedFromCommand"
 
+#define kTeamNotAvailable				"TeamNotAvailable"
 #define kAlreadyOnTeam					"AlreadyOnTeam"
 #define kGameBegun						"GameBegun"
 #define kJoinSoon						"YouCanJoinSoon"

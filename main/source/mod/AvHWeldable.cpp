@@ -168,29 +168,12 @@ void AvHWeldable::Killed( entvars_t *pevAttacker, int iGib )
 
 void AvHWeldable::NotifyUpgrade(AvHUpgradeMask inUpgradeMask)
 {
-	if(this->mMaxHealth != -1)
-	{
-		if((this->mWelded && !this->mWeldOpens && !this->mDestroyed))
-		{
-//			if((inUpgradeMask == MARINE_UPGRADE_6) || (inUpgradeMask == MARINE_UPGRADE_5) || (inUpgradeMask == MARINE_UPGRADE_4))
-//			{
-//				float theArmorMultiplier;
-//				AvHPlayerUpgrade::GetArmorUpgrade(this->pev->iuser4, &theArmorMultiplier);
-//				
-//				// Upgrade max health, making welds stronger (always apply to base value)
-//				this->mMaxHealth = this->mNonUpgradedMaxHealth*theArmorMultiplier;
-//			}
-		}
-	}
+
 }
 
 void AvHWeldable::EndTrace(void)
 {
-//	//if(!this->mWelded)
-//	//{
-//	if(!this->mWelded && !this->mWeldOpens)
-//		this->pev->solid = SOLID_NOT;
-//	//}
+
 }
 
 void AvHWeldable::ResetEntity()
@@ -211,14 +194,7 @@ void AvHWeldable::ResetEntity()
 
 void AvHWeldable::StartTrace(void)
 {
-	//	//if(!this->mWelded)
-	//	//{
-	//	if(!this->mWelded && !this->mWeldOpens)
-	//	{
-	//		this->pev->solid = SOLID_BSP;
-	//		this->pev->movetype = MOVETYPE_PUSHSTEP;
-	//	}
-	//	//}
+
 }
 
 void AvHWeldable::Precache(void)
@@ -293,48 +269,10 @@ void AvHWeldable::Spawn()
 
 	this->SetPEVFlagsFromState();
 
-	//this->pev->solid = (this->mWeldOpens ? SOLID_BSP : SOLID_NOT);
-	////this->pev->movetype = MOVETYPE_PUSH;
-	//this->pev->movetype = MOVETYPE_FLY;
-	
-	//this->pev->rendermode = kRenderTransTexture;
-	//	if(this->mWeldOpens)
-	//	{
-	//		this->pev->rendermode = kRenderNormal;
-	//		this->pev->renderamt = 255;
-	//	}
-	//	else
-	//	{
-	//		this->pev->rendermode = kRenderTransTexture;
-	//		this->pev->renderamt = this->mStartAlpha;
-	//	}
-	
-//	UTIL_SetOrigin(pev, pev->origin);
-//	SET_MODEL(ENT(pev), STRING(pev->model));
-	
 	// Set use so it can be toggled on and off like a switch, not used by the player 
 	SetUse(&AvHWeldable::WeldableUse);
 	SetTouch(&AvHWeldable::WeldableTouch);
-	
-	// Set think so it can be destroyed
-	//SetThink(WeldableThink);
-	//pev->nextthink = gpGlobals->time + this->mThinkInterval;
 }
-
-//int	AvHWeldable::TakeDamage( entvars_t* pevInflictor, entvars_t* pevAttacker, float flDamage, int bitsDamageType )
-//{
-//	if(flDamage >= this->pev->health)
-//	{
-//		this->mWelded = false;
-//		this->mDestroyed = false;
-//		//SetThink(NULL);
-//		
-//		// Trigger sound and destruction effects
-//		this->Explode();
-//	}
-//
-//	return AvHBaseEntity::TakeDamage(pevInflictor, pevAttacker, flDamage, bitsDamageType);
-//}
 
 void AvHWeldable::TriggerBroken()
 {
@@ -362,32 +300,10 @@ void AvHWeldable::TriggerUse()
 
 void AvHWeldable::UpdateEntityState()
 {
-//    if(this->mAlwaysDrawNoFade)
-//	{
-//		this->pev->renderamt = 255;
-//	}
-//	else
-//	{
-//		float thePercentageBuilt = this->GetNormalizedBuiltPercentage();
-//		if(this->mWeldOpens)
-//		{
-//			this->pev->renderamt = this->mStartAlpha - thePercentageBuilt*this->mStartAlpha;
-//		}
-//		else
-//		{
-//			this->pev->renderamt = this->mStartAlpha + thePercentageBuilt*(255 - this->mStartAlpha);
-//		}
-//	}
-
 	float theBuiltPercentage = this->mTimeBuilt/this->mBuildTime;
 	//this->pev->fuser1 = thePercentageBuilt*kNormalizationNetworkFactor;
 	AvHSHUSetBuildResearchState(this->pev->iuser3, this->pev->iuser4, this->pev->fuser1, true, theBuiltPercentage);
 	this->pev->health = this->mMaxHealth*kBaseHealthPercentage + theBuiltPercentage*(1.0f - kBaseHealthPercentage);
-	
-//	if(thePercentageBuilt > 0.0f)
-//	{
-//		UTIL_ClientPrintAll( HUD_PRINTNOTIFY, UTIL_VarArgs( "Setting build percentage to %f...\n", this->pev->fuser1));
-//	}
 	
 	if(this->mWelded)
 	{
@@ -411,9 +327,6 @@ void AvHWeldable::UpdateEntityState()
 		//this->pev->iuser3 = AVH_USER3_NONE;
 		this->pev->fuser1 = -1;
 
-		//this->pev->solid = (!this->mWeldOpens ? SOLID_BSP : SOLID_NOT);
-		//this->pev->movetype = MOVETYPE_PUSH;
-		
 		// Closeable welds can take damage
 		this->SetHealth();
 	}
@@ -425,23 +338,6 @@ void AvHWeldable::UpdateEntityState()
 		AvHSHUSetBuildResearchState(this->pev->iuser3, this->pev->iuser4, this->pev->fuser1, true, -1);
 	}
 }
-
-//void AvHWeldable::WeldableThink(void)
-//{
-//	if(pev->health <= 0 && this->mWelded)
-//	{
-//		this->mWelded = false;
-//		this->mDestroyed = false;
-//		SetThink(NULL);
-//
-//		// Trigger sound and destruction effects
-//		this->Explode();
-//	}
-//	else
-//	{
-//		pev->nextthink = gpGlobals->time + this->mThinkInterval;
-//	}
-//}
 
 void AvHWeldable::WeldableTouch(CBaseEntity *pOther)
 {

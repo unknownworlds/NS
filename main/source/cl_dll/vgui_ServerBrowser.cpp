@@ -9,7 +9,7 @@
 #include "hud.h"
 #include "cl_util.h"
 #include "hud_servers.h"
-#include "net_api.h"
+#include "common/net_api.h"
 
 #include "vgui_TeamFortressViewport.h"
 #include "vgui_ServerBrowser.h"

@@ -560,7 +560,7 @@ void AvHOverviewMap::AddAlert(float x, float y)
     MapAlert alert;
 
     alert.mStartTime  = mLastUpdateTime;
-    alert.mExpireTime = mLastUpdateTime + BALANCE_FVAR(kAlertExpireTime) / 5;
+    alert.mExpireTime = mLastUpdateTime + BALANCE_VAR(kAlertExpireTime) / 5;
     
     alert.mX = x;
     alert.mY = y;
@@ -723,6 +723,7 @@ void AvHOverviewMap::Update(float inCurrentTime)
 	this->KillOldAlerts(inCurrentTime);
 }
 
+const float kPositionNetworkConstant = 0.25;
 
 void AvHOverviewMap::UpdateDrawData(float inCurrentTime)
 {

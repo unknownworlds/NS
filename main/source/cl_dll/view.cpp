@@ -9,25 +9,25 @@
 
 #include "hud.h"
 #include "cl_util.h"
-#include "cvardef.h"
-#include "usercmd.h"
-#include "const.h"
+#include "common/cvardef.h"
+#include "common/usercmd.h"
+#include "common/const.h"
 
-#include "entity_state.h"
-#include "cl_entity.h"
-#include "ref_params.h"
+#include "common/entity_state.h"
+#include "common/cl_entity.h"
+#include "common/ref_params.h"
 #include "in_defs.h" // PITCH YAW ROLL
-#include "pm_movevars.h"
-#include "pm_shared.h"
-#include "pm_defs.h"
-#include "event_api.h"
-#include "pmtrace.h"
-#include "screenfade.h"
-#include "shake.h"
+#include "pm_shared/pm_movevars.h"
+#include "pm_shared/pm_shared.h"
+#include "pm_shared/pm_defs.h"
+#include "common/event_api.h"
+#include "common/pmtrace.h"
+#include "common/screenfade.h"
+#include "engine/shake.h"
 #include "mod/AvHClientUtil.h"
-#include "APIProxy.h"
+#include "engine/APIProxy.h"
 #include "Exports.h"
-#include "hltv.h"
+#include "common/hltv.h"
 #include "util/MathUtil.h"
 #include "util/STLUtil.h"
 #include "mod/AvHMarineEquipmentConstants.h"
@@ -57,7 +57,7 @@ extern float	vJumpOrigin[3];
 extern float	vJumpAngles[3];
 
 #include "r_studioint.h"
-#include "com_model.h"
+#include "common/com_model.h"
 
 extern engine_studio_api_t IEngineStudio;
 
@@ -1441,7 +1441,7 @@ float MaxAngleBetweenAngles(  float * a1, float * a2 )
 	return maxd;
 }
 
-void V_GetDoubleTargetsCam(cl_entity_t	 * ent1, cl_entity_t * ent2,float * angle, float * origin)
+void V_GetDoubleTargetsCam(cl_entity_t	 * ent1, const cl_entity_t * ent2,float * angle, float * origin)
 {
 	float newAngle[3]; float newOrigin[3]; float tempVec[3];
 
@@ -1525,8 +1525,13 @@ void V_GetDoubleTargetsCam(cl_entity_t	 * ent1, cl_entity_t * ent2,float * angle
 	InterpolateAngles( newAngle, tempVec, newAngle, 0.5f); */
 }
 
+#pragma warning(push)
+#pragma warning(disable: 312)
+const static cl_entity_t* NO_ENTITY = (cl_entity_t*)0xFFFFFFFF;
+#pragma warning(pop)
 
-void V_GetDirectedChasePosition(cl_entity_t	 * ent1, cl_entity_t * ent2,float * angle, float * origin)
+
+void V_GetDirectedChasePosition(cl_entity_t	 * ent1, const cl_entity_t * ent2,float * angle, float * origin)
 {
 
 	if ( v_resetCamera )
@@ -1534,8 +1539,8 @@ void V_GetDirectedChasePosition(cl_entity_t	 * ent1, cl_entity_t * ent2,float * 
 		v_lastDistance = 4096.0f;
 		// v_cameraMode = CAM_MODE_FOCUS;
 	}
-	
-	if ( ( ent2 == (cl_entity_t*)0xFFFFFFFF ) || ( ent1->player && (ent1->curstate.solid == SOLID_NOT) ) )
+
+	if ( ent2 == NO_ENTITY || ( ent1->player && (ent1->curstate.solid == SOLID_NOT) ) )
 	{
 		// we have no second target or player just died
 		V_GetSingleTargetCam(ent1, angle, origin);
@@ -1606,7 +1611,7 @@ void V_GetChasePos(int target, float * cl_angles, float * origin, float * angles
 			V_GetDirectedChasePosition( ent, gEngfuncs.GetEntityByIndex( g_iUser3 ),
 			angles, origin );
 		else
-			V_GetDirectedChasePosition( ent, ( cl_entity_t*)0xFFFFFFFF,
+			V_GetDirectedChasePosition( ent, NO_ENTITY,
 			angles, origin );
 	}
 	else

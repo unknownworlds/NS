@@ -88,7 +88,7 @@ bool AvHClaws::GetIsGunPositionValid() const
 
 float AvHClaws::GetRateOfFire() const
 {
-	return BALANCE_FVAR(kClawsROF);
+	return BALANCE_VAR(kClawsROF);
 }
 
 int	AvHClaws::GetDeployAnimation() const
@@ -143,7 +143,7 @@ bool AvHClaws::GetIsDroppable() const
 void AvHClaws::Init()
 {
 	this->mRange = kClawsRange;
-	this->mDamage = BALANCE_IVAR(kClawsDamage);
+	this->mDamage = BALANCE_VAR(kClawsDamage);
 }
 
 int AvHClaws::GetDamageType() const

@@ -8,10 +8,10 @@
 #include "voice_gamemgr.h"
 #include <string.h>
 #include <assert.h>
-#include "extdll.h"
-#include "util.h"
-#include "cbase.h"
-#include "player.h"
+#include "dlls/extdll.h"
+#include "dlls/util.h"
+#include "dlls/cbase.h"
+#include "dlls/player.h"
 
 
 

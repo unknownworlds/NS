@@ -73,8 +73,7 @@ void Game_HookEvents( void )
 //	gEngfuncs.pfnHookEvent( "events/gaussspin.sc",				EV_SpinGauss );
 //	gEngfuncs.pfnHookEvent( "events/train.sc",					EV_TrainPitchAdjust );
 
-    // Hook marine weapons
-    AVH_HOOK_EVENT(kMGEventName);
+//    AVH_HOOK_EVENT(kMGEventName);
 
 //	gEngfuncs.pfnHookEvent("events/train.sc",					EV_TrainPitchAdjust);
 //	gEngfuncs.pfnHookEvent( "events/glock1.sc",					EV_FireGlock1 );

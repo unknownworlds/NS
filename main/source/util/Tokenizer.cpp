@@ -3,9 +3,9 @@
 
 int Tokenizer::split(const string& input, const string& delimiters, StringVector& result, char quoteChar)
 {
-    int subStart = 0;
-    int subEnd = 0;
-    int length = 0;
+    size_t subStart = 0;
+    size_t subEnd = 0;
+    size_t length = 0;
     
     result.clear();   // erase result before we start
     
@@ -42,5 +42,5 @@ int Tokenizer::split(const string& input, const string& delimiters, StringVector
         }
         result.push_back(input.substr(subStart, length));
     }
-    return result.size();
+    return (int)result.size();
 }

@@ -55,15 +55,15 @@
 #define AVH_BASE_BUILDABLE_H
 
 #include "util/nowarnings.h"
-#include "extdll.h"
-#include "util.h"
+#include "dlls/extdll.h"
+#include "dlls/util.h"
 #include "mod/AvHConstants.h"
-#include "mod/AvHBuildable.h"
 #include "dlls/cbase.h"
 #include "mod/AvHMessage.h"
 #include "mod/AvHSpecials.h"
 #include "mod/AvHPlayer.h"
 #include "mod/AvHCloakable.h"
+#include "mod/AvHBuildable.h"
 
 class AvHBaseBuildable : public CBaseAnimating, public AvHBuildable, public AvHCloakable
 {

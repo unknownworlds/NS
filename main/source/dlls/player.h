@@ -16,7 +16,7 @@
 #define PLAYER_H
 
 
-#include "pm_materials.h"
+#include "pm_shared/pm_materials.h"
 
 
 #define PLAYER_FATAL_FALL_SPEED		1024// approx 60 feet

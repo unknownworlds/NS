@@ -16,7 +16,7 @@
 #include "vgui_panel.h"
 #include "vgui_scrollbar.h"
 #include "vgui_slider.h"
-#include "ivoicetweak.h"
+#include "common/ivoicetweak.h"
 #include "vgui_button.h"
 #include "vgui_checkbutton2.h"
 #include "vgui_helpers.h"

@@ -22,7 +22,7 @@
 #include "cl_util.h"
 #include <string.h>
 #include <stdio.h>
-#include "parsemsg.h"
+#include "mod/AvHNetworkMessages.h"
 
 DECLARE_MESSAGE(m_Train, Train )
 
@@ -71,12 +71,10 @@ int CHudTrain::Draw(float fTime)
 
 int CHudTrain::MsgFunc_Train(const char *pszName,  int iSize, void *pbuf)
 {
-	BEGIN_READ( pbuf, iSize );
+	int state;
+	NetMsg_Train( pbuf, iSize, state );
 
-	// update Train data
-	m_iPos = READ_BYTE();
-
-	if (m_iPos)
+	if (state)
 		m_iFlags |= HUD_ACTIVE;
 	else
 		m_iFlags &= ~HUD_ACTIVE;

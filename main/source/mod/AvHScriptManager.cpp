@@ -28,11 +28,11 @@
 #include "util/STLUtil.h"
 #include "mod/AvHConstants.h"
 
-extern "C"
-{
-	#include "lua/include/lauxlib.h"
+extern "C" {
+	#include <lua.h>
+	#include <lualib.h>
+	#include <lauxlib.h>
 }
-
 
 AvHScriptInstance* gRunningScript = NULL;
 

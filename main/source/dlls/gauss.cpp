@@ -22,8 +22,9 @@
 #include "nodes.h"
 #include "player.h"
 #include "soundent.h"
-#include "shake.h"
+#include "engine/shake.h"
 #include "gamerules.h"
+#include "mod/AvHNetworkMessages.h"
 
 
 #define	GAUSS_PRIMARY_CHARGE_VOLUME	256// how loud gauss is while charging
@@ -95,9 +96,7 @@ int CGauss::AddToPlayer( CBasePlayer *pPlayer )
 {
 	if ( CBasePlayerWeapon::AddToPlayer( pPlayer ) )
 	{
-		MESSAGE_BEGIN( MSG_ONE, gmsgWeapPickup, NULL, pPlayer->pev );
-			WRITE_BYTE( m_iId );
-		MESSAGE_END();
+		NetMsg_WeapPickup( pPlayer->pev, m_iId );
 		return TRUE;
 	}
 	return FALSE;

@@ -23,15 +23,19 @@
 //
 //===============================================================================
 #include "util/nowarnings.h"
-#include "extdll.h"
+#include "dlls/extdll.h"
 #include "dlls/util.h"
-#include "cbase.h"
-#include "player.h"
-#include "weapons.h"
+#include "dlls/cbase.h"
+#include "dlls/player.h"
+#include "dlls/weapons.h"
 #include "mod/AvHScriptManager.h"
 #include "mod/AvHGamerules.h"
 #include "util/Checksum.h"
 #include "util/STLUtil.h"
+
+extern "C" {
+	#include <lua.h>
+}
 
 static int errormessage(lua_State* inState)
 {

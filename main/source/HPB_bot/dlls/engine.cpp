@@ -6,8 +6,8 @@
 // engine.cpp
 //
 
-#include "extdll.h"
-#include "util.h"
+#include "dlls/extdll.h"
+#include "dlls/util.h"
 
 #include "bot.h"
 #include "bot_client.h"

@@ -21,6 +21,8 @@
 #define kcReadyRoom					"readyroom"
 #define kcJoinTeamOne				"jointeamone"
 #define kcJoinTeamTwo				"jointeamtwo"
+#define kcJoinTeamThree				"jointeamthree"
+#define kcJoinTeamFour				"jointeamfour"
 #define kcSpectate					"spectate"
 #define kcAutoAssign				"autoassign"
 #define kcPlayHUDSound				"playhudsound"
@@ -91,7 +93,6 @@
 #define kcEndGame2					"endgame2"
 #define kcDeathMessage				"deathmessage"
 #define kcSetSkin					"setskin"
-#define kcAuth						"auth"
 #define kcSetAuth					"setauth"
 #define kcNumEnts					"numents"
 #define kcRedeem					"redeem"
@@ -100,13 +101,9 @@
 #define kcHighSpeed					"highspeed"
 #define kcRoomType					"roomtype"
 #define kcDigest					"digest"
-#ifdef USE_UPP
-#  define kcUPPPing					"upp_ping"
-#  define kcUPPToggle				"upp_toggle"
-#  define kcUPPToggleProfiling		"upp_toggle_profiling"
-#else
-#  define kcForceUplink				"forceuplink"
-#endif
+#define kcUPPPing					"upp_ping"
+#define kcUPPToggle					"upp_toggle"
+#define kcUPPToggleProfiling		"upp_toggle_profiling"
 #define kcSetBalanceVar				"setbalancevar"
 #define kcNSChangeLevel				"nschangelevel"
 #define kcTournyMode				"tournymode"

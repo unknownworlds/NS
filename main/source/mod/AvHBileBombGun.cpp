@@ -126,53 +126,11 @@ void AvHBileBomb::BileBombTouch(CBaseEntity* pOther)
 	CBaseEntity* theHitEntity = CBaseEntity::Instance(ENT(this->pev->owner));
 	if(pOther != theHitEntity)
 	{
-//		// Play view shake here
-//		float theShakeAmplitude = 30;
-//		float theShakeFrequency = 40;
-//		float theShakeDuration = .5f;
-//		float theShakeRadius = kBileBombRadius*1.5;
-//		UTIL_ScreenShake(this->pev->origin, theShakeAmplitude, theShakeFrequency, theShakeDuration, theShakeRadius);
-	
 		//EMIT_SOUND(this->edict(), CHAN_WEAPON, kBileBombHitSound, 1.0f, ATTN_IDLE);
 	
 		// Explode with splash damage (also change in GetDamageType() above)
-		int theRadius = BALANCE_IVAR(kBileBombRadius);
+		int theRadius = BALANCE_VAR(kBileBombRadius);
 		RadiusDamage(this->pev->origin, this->pev, VARS(this->pev->owner), this->mDamage, theRadius, CLASS_NONE, NS_DMG_STRUCTURAL);
-	
-	//	MESSAGE_BEGIN(MSG_PAS, SVC_TEMPENTITY, this->pev->origin);
-	//		WRITE_BYTE(TE_LAVASPLASH);
-	//		WRITE_COORD(this->pev->origin.x);
-	//		WRITE_COORD(this->pev->origin.y);
-	//		WRITE_COORD(this->pev->origin.z + 16);
-	//
-	////		WRITE_BYTE( TE_BEAMTORUS);
-	////		WRITE_COORD(pev->origin.x);
-	////		WRITE_COORD(pev->origin.y);
-	////		WRITE_COORD(pev->origin.z + 32);
-	////		WRITE_COORD(pev->origin.x);
-	////		WRITE_COORD(pev->origin.y);
-	////		WRITE_COORD(pev->origin.z + 32 + pev->dmg * 2 / .2); // reach damage radius over .3 seconds
-	////		WRITE_SHORT(this->mExplodeSprite );
-	////		WRITE_BYTE( 0 ); // startframe
-	////		WRITE_BYTE( 0 ); // framerate
-	////		WRITE_BYTE( 2 ); // life
-	////		WRITE_BYTE( 12 );  // width
-	////		WRITE_BYTE( 0 );   // noise
-	////		WRITE_BYTE( 255 );   // r, g, b
-	////		WRITE_BYTE( 160 );   // r, g, b
-	////		WRITE_BYTE( 100 );   // r, g, b
-	////		WRITE_BYTE( 255 );	// brightness
-	////		WRITE_BYTE( 0 );		// speed
-	//
-	////		WRITE_BYTE(TE_IMPLOSION);
-	////		WRITE_COORD(this->pev->origin.x);
-	////		WRITE_COORD(this->pev->origin.y);
-	////		WRITE_COORD(this->pev->origin.z + 16);
-	////		WRITE_BYTE(255);
-	////		WRITE_BYTE(10);
-	////		WRITE_BYTE(8);
-	//
-	//	MESSAGE_END();
 
 		SetTouch(NULL);
 
@@ -186,7 +144,7 @@ void AvHBileBomb::BileBombTouch(CBaseEntity* pOther)
 void AvHBileBombGun::Init()
 {
 	this->mRange = kBileBombRange;
-	this->mDamage = BALANCE_IVAR(kBileBombDamage);
+	this->mDamage = BALANCE_VAR(kBileBombDamage);
 	//this->mFramesSinceMoreAmmo = 0;
 }
 
@@ -233,7 +191,7 @@ int	AvHBileBombGun::GetBarrelLength() const
 
 float AvHBileBombGun::GetRateOfFire() const
 {
-	return BALANCE_FVAR(kBileBombROF);
+	return BALANCE_VAR(kBileBombROF);
 }
 
 int	AvHBileBombGun::GetDeployAnimation() const

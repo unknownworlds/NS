@@ -6,7 +6,7 @@
 
 #include "common/const.h"
 #include "common/com_model.h"
-#include "pm_defs.h"
+#include "pm_shared/pm_defs.h"
 #include "common/vector_util.h"
 #include "mod/AvHHulls.h"
 #include "types.h"

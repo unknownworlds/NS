@@ -30,9 +30,9 @@
 #define M_PI		3.14159265358979323846	// matches value in gcc v2 math.h
 #endif
 
-#include "pm_defs.h"
-#include "pm_shared.h"
-#include "pm_movevars.h"
+#include "pm_shared/pm_defs.h"
+#include "pm_shared/pm_shared.h"
+#include "pm_shared/pm_movevars.h"
 extern playermove_t *pmove;
 
 extern float HUD_GetFOV( void );

@@ -65,81 +65,14 @@
 #define AVHMARINEEQUIPMENT_H
 
 #include "util/nowarnings.h"
-#include "weapons.h"
+#include "dlls/weapons.h"
 #include "mod/AvHBasePlayerWeapon.h"
 #include "mod/AvHConstants.h"
 #include "mod/AvHMarineWeapons.h"
-#include "weapons.h"
 #include "dlls/turret.h"
 #include "mod/AvHEntities.h"
 #include "dlls/ctripmine.h"
 #include "mod/AvHReinforceable.h"
-
-//class AvHMine : public CTripmine
-//{
-//public:
-//	int				GetItemInfo(ItemInfo *p);
-//	void			Holster( int skiplocal = 0 );
-//	virtual int		iItemSlot(void);
-//	virtual BOOL	PlayEmptySound(void);
-//	virtual void	Spawn();
-//
-//};
-
-//class AvHDeployedTurret : public CSentry
-//{
-//public:
-//					AvHDeployedTurret();
-//
-//	virtual char*	GetActiveSound() const;
-//	virtual char*	GetAlertSound() const;
-//	virtual char*	GetDeploySound() const;
-//	virtual char*	GetPingSound() const;
-//
-//	virtual bool	GetIsValidTarget(CBaseEntity* inEntity) const;
-//	virtual bool	GetIsBuilt() const;
-//	virtual int		GetPointValueOfTarget(void) const;
-//	virtual int		GetRange() const;
-//	
-//	virtual int		IRelationship ( CBaseEntity *pTarget );
-//	virtual int		ObjectCaps(void);
-//	virtual void	Precache(void);
-//	void EXPORT		ConstructUse( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value );
-//	virtual void	SetConstructionComplete();
-//	virtual void	Shoot(Vector &vecSrc, Vector &vecDirToEnemy);
-//	virtual void	Spawn();
-//	virtual void	StopShooting();
-//	virtual int		TakeDamage( entvars_t* pevInflictor, entvars_t* pevAttacker, float flDamage, int bitsDamageType);
-//
-//protected:
-//	float			mTimeToConstruct;
-//
-//private:
-//	int				mDamage;
-//	float			mPercentageBuilt;
-//	float			mLastTimePlayedSound;
-//	const int		kStartAlpha;
-//	const float		kThinkInterval;
-//	const float		kConstructorRate;
-//	const float		kAverageSoundLength;
-//
-//};
-
-
-
-//class AvHTurret : public CBasePlayerWeapon
-//{
-//public:
-//	virtual int		iItemSlot(void);
-//	void			Spawn( void );
-//	void			Precache( void );
-//	int				GetItemInfo(ItemInfo *p);
-//
-//	void			PrimaryAttack( void );
-//	BOOL			Deploy( void );
-//	void			Holster( int skiplocal = 0 );
-//	void			WeaponIdle( void );
-//};
 
 class AvHDeployedMine : public CBasePlayerItem
 {
@@ -267,36 +200,6 @@ private:
 	float			mTimeCreated;
 
 };
-
-
-//class AvHSiegeTurret : public AvHDeployedTurret
-//{
-//public:
-//							AvHSiegeTurret();
-//
-//	virtual CBaseEntity*	BestVisibleEnemy (void);
-//
-//	virtual char*			GetActiveSound() const;
-//	virtual char*			GetAlertSound() const;
-//	virtual char*			GetDeploySound() const;
-//	virtual char*			GetPingSound() const;
-//
-//	virtual bool			GetIsValidTarget(CBaseEntity* inEntity) const;
-//	virtual int				GetPointValueOfTarget(void) const;
-//	
-//	virtual int				GetMinimumRange() const;
-//
-//	virtual bool			NeedsLineOfSight() const;
-//
-//	virtual void			Precache(void);
-//
-//	virtual void			Shoot(Vector &vecSrc, Vector &vecDirToEnemy);
-//
-//	virtual void			Spawn();
-//
-//private:
-//	float					mTimeLastFired;
-//};
 
 class AvHMarineBaseBuildable : public AvHBaseBuildable
 {

@@ -60,7 +60,7 @@ void V_PunchAxis( int axis, float punch );
 void AvHSpikeGun::Init()
 {
 	this->mRange = kSpikeRange;
-	this->mDamage = BALANCE_IVAR(kSpikeDamage);
+	this->mDamage = BALANCE_VAR(kSpikeDamage);
 
 	//this->mFramesSinceMoreAmmo = 0;
 }
@@ -86,7 +86,7 @@ int	AvHSpikeGun::GetBarrelLength() const
 
 float AvHSpikeGun::GetRateOfFire() const
 {
-	return BALANCE_FVAR(kSpikeROF);
+	return BALANCE_VAR(kSpikeROF);
 }
 
 int	AvHSpikeGun::GetDamageType() const

@@ -19,7 +19,7 @@
 #include "util.h"
 #include "cbase.h"
 #include "player.h"
-#include "pm_shared.h"
+#include "pm_shared/pm_shared.h"
 #include "mod/AvHPlayer.h"
 #include "mod/AvHGamerules.h"
 

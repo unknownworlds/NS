@@ -7,7 +7,7 @@
 #include "common/mathlib.h"
 #include "common/const.h"
 #include "common/com_model.h"
-#include "pm_defs.h"
+#include "pm_shared/pm_defs.h"
 #include "common/vector_util.h"
 #include "mod/AvHHulls.h"
 #include "types.h"
@@ -626,10 +626,6 @@ int CollisionChecker::GetSingleEntityContents(const CollisionTest* test, int ent
 				auto_ptr<CollisionTest> shifted_test = test->Shift(ent->origin);
 				total_contents = GetHullContent(hull,hull->firstclipnode,shifted_test.get());
 			}
-		}
-		else
-		{
-			int a = 0;	//breakpoint to be used as catch-all
 		}
 	}
 	return total_contents;

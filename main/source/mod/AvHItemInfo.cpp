@@ -78,7 +78,6 @@
 #include "mod/AvHMarineEquipment.h"
 #include "mod/AvHAlienAbilities.h"
 #include "mod/AvHAlienAbilityConstants.h"
-#include "mod/AvHBalance.h"
 #include "util/MathUtil.h"
 
 typedef enum
@@ -160,7 +159,7 @@ int AvHKnife::GetItemInfo(ItemInfo *p) const
 	p->pszAmmo1 = NULL;
 	p->iMaxAmmo1 = -1;
 	p->pszAmmo2 = NULL;
-	p->iMaxAmmo2 = BALANCE_IVAR(kKNDamage);
+	p->iMaxAmmo2 = BALANCE_VAR(kKNDamage);
 	p->iMaxClip = WEAPON_NOCLIP;
 	//p->iFlags = ITEM_FLAG_NOAUTOSWITCHEMPTY | ITEM_FLAG_NOAUTORELOAD | ITEM_FLAG_SELECTONEMPTY;
 	p->iFlags = ITEM_FLAG_NOAUTOSWITCHEMPTY | ITEM_FLAG_NOAUTORELOAD;
@@ -183,10 +182,10 @@ int AvHMine::GetItemInfo(ItemInfo *p) const
 
 	p->pszName = STRING(pev->classname);
 	p->pszAmmo1 = "MineAmmo";
-	p->iMaxAmmo1 = 0;//BALANCE_IVAR(kMineMaxAmmo);
+	p->iMaxAmmo1 = 0;//BALANCE_VAR(kMineMaxAmmo);
 	p->pszAmmo2 = NULL;
-	p->iMaxAmmo2 = BALANCE_IVAR(kMineDamage);
-	p->iMaxClip = BALANCE_IVAR(kMineMaxAmmo);
+	p->iMaxAmmo2 = BALANCE_VAR(kMineDamage);
+	p->iMaxClip = BALANCE_VAR(kMineMaxAmmo);
 	p->iFlags = ITEM_FLAG_NOAUTOSWITCHEMPTY;//ITEM_FLAG_LIMITINWORLD | ITEM_FLAG_EXHAUSTIBLE;
 	p->iId = AVH_WEAPON_MINE;
 	p->iWeight = kDefaultTertiaryWeaponWeight;
@@ -219,7 +218,7 @@ int AvHWelder::GetItemInfo(ItemInfo *p) const
 	p->pszAmmo1 = NULL;
 	p->iMaxAmmo1 = -1;
 	p->pszAmmo2 = NULL;
-	p->iMaxAmmo2 = BALANCE_IVAR(kWelderDamage);
+	p->iMaxAmmo2 = BALANCE_VAR(kWelderDamage);
 	p->iMaxClip = WEAPON_NOCLIP;
 	//p->iFlags = ITEM_FLAG_NOAUTOSWITCHEMPTY | ITEM_FLAG_NOAUTORELOAD | ITEM_FLAG_SELECTONEMPTY;
 	p->iFlags = ITEM_FLAG_NOAUTOSWITCHEMPTY | ITEM_FLAG_NOAUTORELOAD;
@@ -243,10 +242,10 @@ int AvHMachineGun::GetItemInfo(ItemInfo *p) const
 
 	p->pszName = STRING(pev->classname);
 	p->pszAmmo1 = "MGAmmo";
-	p->iMaxAmmo1 = BALANCE_IVAR(kMGMaxAmmo);
+	p->iMaxAmmo1 = BALANCE_VAR(kMGMaxAmmo);
 	p->pszAmmo2 = NULL;
-	p->iMaxAmmo2 = BALANCE_IVAR(kMGDamage);
-	p->iMaxClip = BALANCE_IVAR(kMGMaxClip);
+	p->iMaxAmmo2 = BALANCE_VAR(kMGDamage);
+	p->iMaxClip = BALANCE_VAR(kMGMaxClip);
 	p->iFlags = ITEM_FLAG_NOAUTOSWITCHEMPTY | PRIMARY_WEAPON;
 	p->iId = AVH_WEAPON_MG;
 	p->iWeight = kDefaultPrimaryWeaponWeight;
@@ -266,10 +265,10 @@ int AvHPistol::GetItemInfo(ItemInfo *p) const
 	
 	p->pszName = STRING(pev->classname);
 	p->pszAmmo1 = "HGAmmo";
-	p->iMaxAmmo1 = BALANCE_IVAR(kHGMaxAmmo);
+	p->iMaxAmmo1 = BALANCE_VAR(kHGMaxAmmo);
 	p->pszAmmo2 = NULL;
-	p->iMaxAmmo2 = BALANCE_IVAR(kHGDamage);
-	p->iMaxClip = BALANCE_IVAR(kHGMaxClip);
+	p->iMaxAmmo2 = BALANCE_VAR(kHGDamage);
+	p->iMaxClip = BALANCE_VAR(kHGMaxClip);
 	p->iFlags = ITEM_FLAG_NOAUTOSWITCHEMPTY | SECONDARY_WEAPON;
 	p->iId = AVH_WEAPON_PISTOL;
 	p->iWeight = kDefaultSecondaryWeaponWeight;
@@ -289,10 +288,10 @@ int AvHSonicGun::GetItemInfo(ItemInfo *p) const
 	
 	p->pszName = STRING(pev->classname);
 	p->pszAmmo1 = "SonicAmmo";
-	p->iMaxAmmo1 = BALANCE_IVAR(kSGMaxAmmo);
+	p->iMaxAmmo1 = BALANCE_VAR(kSGMaxAmmo);
 	p->pszAmmo2 = NULL;
-	p->iMaxAmmo2 = BALANCE_IVAR(kSGDamage);
-	p->iMaxClip = BALANCE_IVAR(kSGMaxClip);
+	p->iMaxAmmo2 = BALANCE_VAR(kSGDamage);
+	p->iMaxClip = BALANCE_VAR(kSGMaxClip);
 	p->iFlags = ITEM_FLAG_NOAUTOSWITCHEMPTY | PRIMARY_WEAPON;
 	p->iId = AVH_WEAPON_SONIC;
 	p->iWeight = kSpecialPrimaryWeaponWeight;
@@ -313,10 +312,10 @@ int AvHHeavyMachineGun::GetItemInfo(ItemInfo *p) const
 	
 	p->pszName = STRING(pev->classname);
 	p->pszAmmo1 = "HMGAmmo";
-	p->iMaxAmmo1 = BALANCE_IVAR(kHMGMaxAmmo);
+	p->iMaxAmmo1 = BALANCE_VAR(kHMGMaxAmmo);
 	p->pszAmmo2 = NULL;
-	p->iMaxAmmo2 = BALANCE_IVAR(kHMGDamage);
-	p->iMaxClip = BALANCE_IVAR(kHMGMaxClip);
+	p->iMaxAmmo2 = BALANCE_VAR(kHMGDamage);
+	p->iMaxClip = BALANCE_VAR(kHMGMaxClip);
 	p->iFlags = ITEM_FLAG_NOAUTOSWITCHEMPTY | PRIMARY_WEAPON;
 	p->iId = AVH_WEAPON_HMG;
 	p->iWeight = kSpecialPrimaryWeaponWeight;
@@ -337,10 +336,10 @@ int AvHGrenadeGun::GetItemInfo(ItemInfo *p) const
 	
 	p->pszName = STRING(pev->classname);
 	p->pszAmmo1 = "GrenadeAmmo";
-	p->iMaxAmmo1 = BALANCE_IVAR(kGGMaxAmmo);
+	p->iMaxAmmo1 = BALANCE_VAR(kGGMaxAmmo);
 	p->pszAmmo2 = NULL;
-	p->iMaxAmmo2 = BALANCE_IVAR(kGrenadeDamage);
- 	p->iMaxClip = BALANCE_IVAR(kGGMaxClip);
+	p->iMaxAmmo2 = BALANCE_VAR(kGrenadeDamage);
+ 	p->iMaxClip = BALANCE_VAR(kGGMaxClip);
 	p->iFlags = ITEM_FLAG_NOAUTOSWITCHEMPTY | PRIMARY_WEAPON;
 	p->iId = AVH_WEAPON_GRENADE_GUN;
 	p->iWeight = kSpecialPrimaryWeaponWeight;
@@ -363,7 +362,7 @@ int AvHHealingSpray::GetItemInfo(ItemInfo *p) const
 	p->pszAmmo1 = NULL;
 	p->iMaxAmmo1 = -1;
 	p->pszAmmo2 = NULL;
-	p->iMaxAmmo2 = BALANCE_IVAR(kHealingSprayDamage);
+	p->iMaxAmmo2 = BALANCE_VAR(kHealingSprayDamage);
 	p->iMaxClip = WEAPON_NOCLIP;
 	p->iFlags = ITEM_FLAG_NOAUTOSWITCHEMPTY | ITEM_FLAG_NOAUTORELOAD | ITEM_FLAG_SELECTONEMPTY | ONE_HIVE_REQUIRED;
 	p->iId = AVH_WEAPON_HEALINGSPRAY;
@@ -394,7 +393,7 @@ int AvHSpikeGun::GetItemInfo(ItemInfo *p) const
 	p->pszAmmo1 = NULL;//"SpikeAmmo";
 	p->iMaxAmmo1 = -1;//kSpikeMaxClip;
 	p->pszAmmo2 = NULL;
-	p->iMaxAmmo2 = BALANCE_IVAR(kSpikeDamage);
+	p->iMaxAmmo2 = BALANCE_VAR(kSpikeDamage);
 	p->iMaxClip = WEAPON_NOCLIP;//kSpikeMaxClip;
 	p->iFlags = ITEM_FLAG_NOAUTOSWITCHEMPTY | ITEM_FLAG_NOAUTORELOAD | ITEM_FLAG_SELECTONEMPTY;
 	p->iId = AVH_WEAPON_SPIKE;
@@ -418,7 +417,7 @@ int AvHUmbraGun::GetItemInfo(ItemInfo *p) const
 	p->pszAmmo1 = NULL;
 	p->iMaxAmmo1 = -1;//kSpikeMaxClip;
 	p->pszAmmo2 = NULL;
-	p->iMaxAmmo2 = BALANCE_IVAR(kUmbraCloudDuration);
+	p->iMaxAmmo2 = BALANCE_VAR(kUmbraCloudDuration);
 	p->iMaxClip = WEAPON_NOCLIP;
 	p->iFlags = ITEM_FLAG_NOAUTOSWITCHEMPTY | ITEM_FLAG_NOAUTORELOAD | ONE_HIVE_REQUIRED | TWO_HIVES_REQUIRED;
 	p->iId = AVH_WEAPON_UMBRA;
@@ -467,7 +466,7 @@ int AvHBileBombGun::GetItemInfo(ItemInfo *p) const
 	p->pszAmmo1 = NULL;
 	p->iMaxAmmo1 = -1;//kSpikeMaxClip;
 	p->pszAmmo2 = NULL;
-	p->iMaxAmmo2 = BALANCE_IVAR(kBileBombDamage);
+	p->iMaxAmmo2 = BALANCE_VAR(kBileBombDamage);
 	p->iMaxClip = WEAPON_NOCLIP;
 	p->iFlags = ITEM_FLAG_NOAUTOSWITCHEMPTY | ITEM_FLAG_NOAUTORELOAD | ONE_HIVE_REQUIRED | TWO_HIVES_REQUIRED;
 	p->iId = AVH_WEAPON_BILEBOMB;
@@ -492,7 +491,7 @@ int	AvHSwipe::GetItemInfo(ItemInfo *p) const
 	p->pszAmmo1 = NULL;
 	p->iMaxAmmo1 = -1;
 	p->pszAmmo2 = NULL;
-	p->iMaxAmmo2 = BALANCE_IVAR(kSwipeDamage);
+	p->iMaxAmmo2 = BALANCE_VAR(kSwipeDamage);
 	p->iMaxClip = WEAPON_NOCLIP;
 	p->iFlags = ITEM_FLAG_NOAUTOSWITCHEMPTY | ITEM_FLAG_NOAUTORELOAD | ITEM_FLAG_SELECTONEMPTY;
 	p->iId = AVH_WEAPON_SWIPE;
@@ -518,7 +517,7 @@ int	AvHClaws::GetItemInfo(ItemInfo *p) const
 	p->pszAmmo1 = NULL;
 	p->iMaxAmmo1 = -1;
 	p->pszAmmo2 = NULL;
-	p->iMaxAmmo2 = BALANCE_IVAR(kClawsDamage);
+	p->iMaxAmmo2 = BALANCE_VAR(kClawsDamage);
 	p->iMaxClip = WEAPON_NOCLIP;
 	p->iFlags = ITEM_FLAG_NOAUTOSWITCHEMPTY | ITEM_FLAG_NOAUTORELOAD | ITEM_FLAG_SELECTONEMPTY;
 	p->iId = AVH_WEAPON_CLAWS;
@@ -543,7 +542,7 @@ int AvHBite::GetItemInfo(ItemInfo *p) const
 	p->pszAmmo1 = NULL;
 	p->iMaxAmmo1 = -1;
 	p->pszAmmo2 = NULL;
-	p->iMaxAmmo2 = BALANCE_IVAR(kBiteDamage);
+	p->iMaxAmmo2 = BALANCE_VAR(kBiteDamage);
 	p->iMaxClip = WEAPON_NOCLIP;
 	p->iFlags = ITEM_FLAG_NOAUTOSWITCHEMPTY | ITEM_FLAG_NOAUTORELOAD | ITEM_FLAG_SELECTONEMPTY;
 	p->iId = AVH_WEAPON_BITE;
@@ -567,7 +566,7 @@ int AvHBite2::GetItemInfo(ItemInfo *p) const
 	p->pszAmmo1 = NULL;
 	p->iMaxAmmo1 = -1;
 	p->pszAmmo2 = NULL;
-	p->iMaxAmmo2 = BALANCE_IVAR(kBite2Damage);
+	p->iMaxAmmo2 = BALANCE_VAR(kBite2Damage);
 	p->iMaxClip = WEAPON_NOCLIP;
 	p->iFlags = ITEM_FLAG_NOAUTOSWITCHEMPTY | ITEM_FLAG_NOAUTORELOAD | ITEM_FLAG_SELECTONEMPTY;
 	p->iId = AVH_WEAPON_BITE2;
@@ -616,7 +615,7 @@ int AvHSpitGun::GetItemInfo(ItemInfo *p) const
 	p->pszAmmo1 = NULL;
 	p->iMaxAmmo1 = -1;
 	p->pszAmmo2 = NULL;
-	p->iMaxAmmo2 = BALANCE_IVAR(kSpitGDamage);
+	p->iMaxAmmo2 = BALANCE_VAR(kSpitGDamage);
 	p->iMaxClip = WEAPON_NOCLIP;
 	p->iFlags = ITEM_FLAG_NOAUTOSWITCHEMPTY | ITEM_FLAG_NOAUTORELOAD | ITEM_FLAG_SELECTONEMPTY;
 	p->iId = AVH_WEAPON_SPIT;
@@ -642,7 +641,7 @@ int	AvHSpore::GetItemInfo(ItemInfo *p) const
 	p->pszAmmo1 = NULL;
 	p->iMaxAmmo1 = -1;
 	p->pszAmmo2 = NULL;
-	p->iMaxAmmo2 = (int)(BALANCE_IVAR(kSporeDamage)/BALANCE_FVAR(kSporeCloudThinkInterval));
+	p->iMaxAmmo2 = (int)(BALANCE_VAR(kSporeDamage)/BALANCE_VAR(kSporeCloudThinkInterval));
 	p->iMaxClip = WEAPON_NOCLIP;
 	p->iFlags = ITEM_FLAG_NOAUTOSWITCHEMPTY | ITEM_FLAG_NOAUTORELOAD | ITEM_FLAG_SELECTONEMPTY | ONE_HIVE_REQUIRED;
 	p->iId = AVH_WEAPON_SPORES;
@@ -666,7 +665,7 @@ int	AvHParasiteGun::GetItemInfo(ItemInfo *p) const
 	p->pszAmmo1 = NULL;
 	p->iMaxAmmo1 = -1;
 	p->pszAmmo2 = NULL;
-	p->iMaxAmmo2 = BALANCE_IVAR(kParasiteDamage);
+	p->iMaxAmmo2 = BALANCE_VAR(kParasiteDamage);
 	p->iMaxClip = WEAPON_NOCLIP;
 	p->iFlags = ITEM_FLAG_NOAUTOSWITCHEMPTY | ITEM_FLAG_NOAUTORELOAD | ITEM_FLAG_SELECTONEMPTY | ONE_HIVE_REQUIRED;
 	p->iId = AVH_WEAPON_PARASITE;
@@ -689,9 +688,9 @@ int	AvHGrenade::GetItemInfo(ItemInfo *p) const
 
     p->pszName = STRING(pev->classname);
     p->pszAmmo1 = "HandGrenadeAmmo";
-    p->iMaxAmmo1 = BALANCE_IVAR(kHandGrenadeMaxAmmo);
+    p->iMaxAmmo1 = BALANCE_VAR(kHandGrenadeMaxAmmo);
     p->pszAmmo2 = NULL;
-    p->iMaxAmmo2 = BALANCE_IVAR(kHandGrenadeDamage);
+    p->iMaxAmmo2 = BALANCE_VAR(kHandGrenadeDamage);
     p->iMaxClip = 1;
     p->iFlags = ITEM_FLAG_EXHAUSTIBLE;
     p->iId = AVH_WEAPON_GRENADE;
@@ -738,7 +737,7 @@ int AvHLeap::GetItemInfo(ItemInfo *p) const
 	p->pszAmmo1 = NULL;
 	p->iMaxAmmo1 = -1;
 	p->pszAmmo2 = NULL;
-	p->iMaxAmmo2 = BALANCE_IVAR(kLeapDamage);
+	p->iMaxAmmo2 = BALANCE_VAR(kLeapDamage);
 	p->iMaxClip = WEAPON_NOCLIP;
 	p->iFlags = ITEM_FLAG_NOAUTOSWITCHEMPTY | ITEM_FLAG_NOAUTORELOAD | ONE_HIVE_REQUIRED | TWO_HIVES_REQUIRED;
 	p->iId = AVH_ABILITY_LEAP;
@@ -762,7 +761,7 @@ int AvHPrimalScream::GetItemInfo(ItemInfo *p) const
 	p->pszAmmo1 = "";
 	p->iMaxAmmo1 = -1;
 	p->pszAmmo2 = NULL;
-	p->iMaxAmmo2 = BALANCE_IVAR(kPrimalScreamRange);
+	p->iMaxAmmo2 = BALANCE_VAR(kPrimalScreamRange);
 	p->iMaxClip = WEAPON_NOCLIP;
 	p->iFlags = ITEM_FLAG_NOAUTOSWITCHEMPTY | ITEM_FLAG_NOAUTORELOAD | ONE_HIVE_REQUIRED | TWO_HIVES_REQUIRED | THREE_HIVES_REQUIRED;
 	p->iId = AVH_WEAPON_PRIMALSCREAM;
@@ -833,7 +832,7 @@ int	AvHAcidRocketGun::GetItemInfo(ItemInfo *p) const
 	p->pszAmmo1 = NULL;
 	p->iMaxAmmo1 = -1;
 	p->pszAmmo2 = NULL;
-	p->iMaxAmmo2 = BALANCE_IVAR(kAcidRocketDamage);
+	p->iMaxAmmo2 = BALANCE_VAR(kAcidRocketDamage);
 	p->iMaxClip = WEAPON_NOCLIP;
 	p->iFlags = ITEM_FLAG_NOAUTOSWITCHEMPTY | ITEM_FLAG_NOAUTORELOAD | ITEM_FLAG_SELECTONEMPTY | ONE_HIVE_REQUIRED | TWO_HIVES_REQUIRED | THREE_HIVES_REQUIRED;
 	p->iId = AVH_WEAPON_ACIDROCKET;
@@ -882,7 +881,7 @@ int	AvHDivineWind::GetItemInfo(ItemInfo *p) const
 	p->pszAmmo1 = NULL;
 	p->iMaxAmmo1 = -1;
 	p->pszAmmo2 = NULL;
-	p->iMaxAmmo2 = BALANCE_IVAR(kDivineWindDamage);
+	p->iMaxAmmo2 = BALANCE_VAR(kDivineWindDamage);
 	p->iMaxClip = WEAPON_NOCLIP;
 	p->iFlags = ITEM_FLAG_NOAUTOSWITCHEMPTY | ITEM_FLAG_NOAUTORELOAD | ITEM_FLAG_SELECTONEMPTY | ONE_HIVE_REQUIRED | TWO_HIVES_REQUIRED | THREE_HIVES_REQUIRED;
 	p->iId = AVH_WEAPON_DIVINEWIND;
@@ -907,7 +906,7 @@ int AvHCharge::GetItemInfo(ItemInfo *p) const
 	p->pszAmmo1 = NULL;
 	p->iMaxAmmo1 = -1;
 	p->pszAmmo2 = NULL;
-	p->iMaxAmmo2 = BALANCE_IVAR(kChargeDamage);
+	p->iMaxAmmo2 = BALANCE_VAR(kChargeDamage);
 	p->iMaxClip = WEAPON_NOCLIP;
 	p->iFlags = ITEM_FLAG_NOAUTOSWITCHEMPTY | ITEM_FLAG_NOAUTORELOAD | ONE_HIVE_REQUIRED | TWO_HIVES_REQUIRED | THREE_HIVES_REQUIRED;
 	p->iId = AVH_ABILITY_CHARGE;
@@ -930,7 +929,7 @@ int AvHStomp::GetItemInfo(ItemInfo *p) const
 	p->pszAmmo1 = NULL;
 	p->iMaxAmmo1 = -1;
 	p->pszAmmo2 = NULL;
-	p->iMaxAmmo2 = (int)BALANCE_FVAR(kStompTime);
+	p->iMaxAmmo2 = (int)BALANCE_VAR(kStompTime);
 	p->iMaxClip = WEAPON_NOCLIP;
 	p->iFlags = ITEM_FLAG_NOAUTOSWITCHEMPTY | ITEM_FLAG_NOAUTORELOAD | ONE_HIVE_REQUIRED | TWO_HIVES_REQUIRED;
 	p->iId = AVH_WEAPON_STOMP;
@@ -954,7 +953,7 @@ int AvHDevour::GetItemInfo(ItemInfo *p) const
 	p->pszAmmo1 = NULL;
 	p->iMaxAmmo1 = -1;
 	p->pszAmmo2 = NULL;
-	p->iMaxAmmo2 = BALANCE_IVAR(kDevourDamage);
+	p->iMaxAmmo2 = BALANCE_VAR(kDevourDamage);
 	p->iMaxClip = WEAPON_NOCLIP;
 	p->iFlags = ITEM_FLAG_NOAUTOSWITCHEMPTY | ITEM_FLAG_NOAUTORELOAD | ONE_HIVE_REQUIRED;
 	p->iId = AVH_WEAPON_DEVOUR;

@@ -127,7 +127,7 @@ bool UILabel::SetClassProperties(const TRDescription& inDesc, Panel* inPanel, CS
 			string theDefaultText("");
 			LocalizeString(theTitle.c_str(), theDefaultText);
 			
-			theLabel->setText(theDefaultText.length(), theDefaultText.c_str());
+			theLabel->setText((int)theDefaultText.length(), theDefaultText.c_str());
         }
 		
 		// Get font to use

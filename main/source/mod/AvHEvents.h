@@ -26,7 +26,7 @@
 #define AVHEVENTS_H
 
 #include "mod/AvHConstants.h"
-#include "particles/p_vector.h"
+#include <p_vector.h>
 
 void DrawBlips(const pVector& inView);
 void DrawDebugEffects();

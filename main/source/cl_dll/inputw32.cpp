@@ -5,17 +5,16 @@
 #include "cl_util.h"
 #include "camera.h"
 #include "kbutton.h"
-#include "cvardef.h"
-#include "usercmd.h"
-#include "const.h"
+#include "common/cvardef.h"
+#include "common/usercmd.h"
+#include "common/const.h"
 #include "camera.h"
 #include "in_defs.h"
 #include "../engine/keydefs.h"
 #include "view.h"
 #include "windows.h"
-#include "mod/ChatPanel.h"
 
-#include "APIProxy.h"
+#include "engine/APIProxy.h"
 #include "Exports.h"
 
 #define MOUSE_BUTTON_COUNT 5

@@ -22,8 +22,8 @@
 #include "cl_util.h"
 #include <string.h>
 #include <stdio.h>
-#include "parsemsg.h"
 #include "mod/AvHClientVariables.h"
+#include "mod/AvHNetworkMessages.h"
 
 DECLARE_MESSAGE( m_Message, HudText )
 DECLARE_MESSAGE( m_Message, HudText2 )
@@ -231,14 +231,24 @@ void CHudMessage::MessageScanNextChar( void )
 		}
 		break;
 	}
-	if ( blend > 255 )
-		blend = 255;
-	else if ( blend < 0 )
-		blend = 0;
-
-	m_parms.r = ((srcRed * (255-blend)) + (destRed * blend)) >> 8;
-	m_parms.g = ((srcGreen * (255-blend)) + (destGreen * blend)) >> 8;
-	m_parms.b = ((srcBlue * (255-blend)) + (destBlue * blend)) >> 8;
+	if ( blend >= 255 )
+	{
+		m_parms.r = destRed;
+		m_parms.g = destGreen;
+		m_parms.b = destBlue;
+	}
+	else if ( blend <= 0 )
+	{
+		m_parms.r = srcRed;
+		m_parms.g = srcGreen;
+		m_parms.b = srcBlue;
+	}
+	else
+	{
+		m_parms.r = ((srcRed * (255-blend)) + (destRed * blend)) >> 8;
+		m_parms.g = ((srcGreen * (255-blend)) + (destGreen * blend)) >> 8;
+		m_parms.b = ((srcBlue * (255-blend)) + (destBlue * blend)) >> 8;
+	}
 
 	if ( m_parms.pMessage->effect == 1 && m_parms.charTime != 0 )
 	{
@@ -656,11 +666,10 @@ bool CHudMessage::MessageRemove(const char *pName)
 
 int CHudMessage::MsgFunc_HudText( const char *pszName,  int iSize, void *pbuf )
 {
-	BEGIN_READ( pbuf, iSize );
+	string content;
 
-	char *pString = READ_STRING();
-
-	MessageAdd( pString, gHUD.m_flTime );
+	NetMsg_HudText( pbuf, iSize, content );
+	MessageAdd( content.c_str(), gHUD.m_flTime );
 
 	// Remember the time -- to fix up level transitions
 	m_parms.time = gHUD.m_flTime;
@@ -674,12 +683,12 @@ int CHudMessage::MsgFunc_HudText( const char *pszName,  int iSize, void *pbuf )
 
 int CHudMessage::MsgFunc_HudText2( const char *pszName,  int iSize, void *pbuf )
 {
-	BEGIN_READ( pbuf, iSize );
+	string content;
+	int flags;
+	NetMsg_HudText2( pbuf, iSize, content, flags );
+	bool theIsAutoHelp = (flags & 1) != 0;
 	
-	char *pString = READ_STRING();
-	bool theIsAutoHelp = READ_BYTE();
-	
-	gHUD.AddTooltip(pString, theIsAutoHelp);
+	gHUD.AddTooltip(content.c_str(), theIsAutoHelp);
 	
 	return 2;
 }

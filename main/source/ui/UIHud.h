@@ -13,13 +13,11 @@
 #include "vgui_Scheme.h"
 #include "vgui_BitmapTGA.h"
 #include "cl_dll/vgui_SchemeManager.h"
-#include "fmoddyn.h"
-#include "fmod_errors.h"
-
-// From windows.h in fmoddyn.h
-#undef SERVER_EXECUTE
 
 class UIFactory;
+struct fmod_instance_struct;
+typedef fmod_instance_struct FMOD_INSTANCE;
+typedef struct FSOUND_STREAM FSOUND_STREAM;
 
 // Initializes self from text file
 class UIHud : public CHud

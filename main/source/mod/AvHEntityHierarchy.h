@@ -25,18 +25,11 @@
 
 #ifdef AVH_SERVER
 #include "util/nowarnings.h"
-#include "extdll.h"
+#include "dlls/extdll.h"
 #include "dlls/util.h"
-#include "cbase.h"
+#include "dlls/cbase.h"
 #include "mod/AvHTeam.h"
 #endif
-
-// Store flags in lower flag bits, big enough for 16 blip states (used for deciding color or sprite)
-const int		kNumStatusBits = 6;
-const int		kStatusMask = 0x3F;
-
-const int       kNumTeamBits = 2;
-const int       kTeamMask = 0x03;
 
 // Assume flags will fire once, then die out after half a second or a second.
 // Only need to send them if they weren't on last update and they are now
@@ -57,19 +50,6 @@ const int		kFriendlyBase = 13;
 const int		kUnseenEnemyBase = 14;
 const int		kVisibleEnemyBase = 15;
 const int		kNumStatusTypes = 15;
-
-// Entity is 9 bits, big enough for 512 entities (this probably doesn't need to be sent, remove?)
-//const int		kNumEntityBits = 9;
-//const int		kEntityMask = 0x3FE0;
-
-// Position bits
-// Need 512x512 resolution, so at least 9 bits for x, 9 bits for y, but the more the better (use top 18 bits)
-// Position is encoded between min and max map extents
-const int		kNumPositionCoordinateBits = 12;
-const int		kNumPositionBits = kNumPositionCoordinateBits*2;
-const int		kPositionCoordinateMask  = 0xFFF;
-
-const int		kPositionNetworkConstant = 25;
 
 struct MapEntity
 {
@@ -111,18 +91,15 @@ public:
 	void		Clear();
 				
 	#ifdef AVH_SERVER
-	void		BuildFromTeam(const AvHTeam* inTeam, BaseEntityListType& inBaseEntityList);
 	bool		SendToNetworkStream(AvHEntityHierarchy& inClientHierarchy, entvars_t* inPlayer);
-    void        WriteEntity(int theEntityIndex, const MapEntity& theEntityInfo, bool deleteFlag);
+	void		BuildFromTeam(const AvHTeam* inTeam, BaseEntityListType& inBaseEntityList);
 	#endif
-
-	#ifdef AVH_CLIENT
-	int			ReceiveFromNetworkStream(int iSize, void *pbuf);
-    void ReadEntity(int& outEntityIndex, MapEntity& outEntity, bool& outDeleteFlag);	
-    #endif
 
 	bool		GetHasBaseLineBeenSent() const;
 	void		SetBaseLineSent();
+
+	bool		InsertEntity( const int inIndex, const MapEntity& inEntity );
+	bool		DeleteEntity( const int inIndex );
 
 	void		GetEntityInfoList(MapEntityMap& outList) const;
 	

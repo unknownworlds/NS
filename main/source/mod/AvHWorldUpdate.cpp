@@ -13,13 +13,12 @@
 //-------------------------------------------------------------------------------
 // $Log: $
 //===============================================================================
-#include "build.h"
 #include "util/nowarnings.h"
-#include "extdll.h"
+#include "dlls/extdll.h"
 #include "dlls/util.h"
-#include "cbase.h"
-#include "player.h"
-#include "weapons.h"
+#include "dlls/cbase.h"
+#include "dlls/player.h"
+#include "dlls/weapons.h"
 #include "mod/AvHGamerules.h"
 #include "mod/AvHMarineEquipment.h"
 #include "mod/AvHMarineEquipmentConstants.h"
@@ -68,115 +67,67 @@ bool AvHSUGetInViewOfEnemy(CBaseEntity* inEntity, int& outSightedStatus)
 		}
 		else
 		{
-			// Make all hives always visible
-			//AvHHive* theHive = dynamic_cast<AvHHive*>(inEntity);
-			//if(theHive)
-			//{
-			//	int a = 0;
-			//}
-			//if(theHive && (theHive->GetIsActive() || theHive->GetIsSpawning()))
-			//{
-			//	outSightedStatus = MASK_VIS_SIGHTED;
-			//	theInViewOfEnemy = true;
-			//}
-			//else
-			//{
-				AvHPlayer* theInPlayer = dynamic_cast<AvHPlayer*>(inEntity);
-                AvHCloakable* theCloakable = dynamic_cast<AvHCloakable*>(inEntity);
-				if(!theInPlayer || !theInPlayer->GetIsCloaked())
+			AvHPlayer* theInPlayer = dynamic_cast<AvHPlayer*>(inEntity);
+			AvHCloakable* theCloakable = dynamic_cast<AvHCloakable*>(inEntity);
+			if(!theInPlayer || !theInPlayer->GetIsCloaked())
+			{
+				if(!theCloakable || (theCloakable->GetOpacity() > 0.0f))
 				{
-					if(!theCloakable || (theCloakable->GetOpacity() > 0.0f))
+					// Loop through enemy players, check if we are in view of any of them
+					for(AvHPlayerListType::iterator thePlayerIter = gPlayerList.begin(); thePlayerIter != gPlayerList.end(); thePlayerIter++)
 					{
-						// Loop through enemy players, check if we are in view of any of them
-						//FOR_ALL_ENTITIES(kAvHPlayerClassName, AvHPlayer*)
-						for(AvHPlayerListType::iterator thePlayerIter = gPlayerList.begin(); thePlayerIter != gPlayerList.end(); thePlayerIter++)
+						if((*thePlayerIter)->GetTeam() != inEntity->pev->team)
 						{
-							if((*thePlayerIter)->GetTeam() != inEntity->pev->team)
+							// Commanders can't "see" enemies
+							if(((*thePlayerIter)->GetUser3() != AVH_USER3_COMMANDER_PLAYER) && ((*thePlayerIter)->GetIsRelevant()))
 							{
-								// Commanders can't "see" enemies
-								if(((*thePlayerIter)->GetUser3() != AVH_USER3_COMMANDER_PLAYER) && ((*thePlayerIter)->GetIsRelevant()))
+								if((*thePlayerIter)->GetIsEntityInSight(inEntity))
 								{
-									if((*thePlayerIter)->GetIsEntityInSight(inEntity))
-									{
-										outSightedStatus |= MASK_VIS_SIGHTED;
-										theInViewOfEnemy = true;
-										//char theErrorString[256];
-										//sprintf(theErrorString, "Entity %s is in sight of player %d.\n", STRING(inEntity->pev->classname), (*thePlayerIter)->entindex());
-										//ALERT(at_logged, theErrorString);
-										break;
-									}
+									outSightedStatus |= MASK_VIS_SIGHTED;
+									theInViewOfEnemy = true;
+									break;
 								}
-    						}
-						}
-					}
-					//END_FOR_ALL_ENTITIES(kAvHPlayerClassName)
-
-					// Loop through observatories, uncloaking and detecting all enemy players in range
-					//FOR_ALL_ENTITIES(kwsObservatory, AvHObservatory*)
-					for(AvHObservatoryListType::iterator theObservatoryIter = gObservatoryList.begin(); theObservatoryIter != gObservatoryList.end(); theObservatoryIter++)
-					{
-						if((*theObservatoryIter)->pev->team != inEntity->pev->team && !(*theObservatoryIter)->GetIsRecycling() )
-						{
-							// Check that entity is in range of scan (only check XY distance, for commander's purposes)
-							float theDistance = VectorDistance2D((*theObservatoryIter)->pev->origin, inEntity->pev->origin);
-							if(theDistance < BALANCE_IVAR(kObservatoryXYDetectionRadius))
-							{
-								outSightedStatus |= MASK_VIS_DETECTED;
-								theInViewOfEnemy = true;
-
-                                if(theCloakable)
-                                {
-                                    theCloakable->Uncloak();
-                                }
-								break;
 							}
-						}
+    					}
 					}
-					//END_FOR_ALL_ENTITIES(kwsObservatory)
-				
-					// Loop through all active scans on our team
-					//FOR_ALL_ENTITIES(kwsScan, AvHScan*)
-					for(AvHScanListType::iterator theScanIter = gScanList.begin(); theScanIter != gScanList.end(); theScanIter++)
+				}
+
+				// Loop through observatories, uncloaking and detecting all enemy players in range
+				for(AvHObservatoryListType::iterator theObservatoryIter = gObservatoryList.begin(); theObservatoryIter != gObservatoryList.end(); theObservatoryIter++)
+				{
+					if((*theObservatoryIter)->pev->team != inEntity->pev->team && !(*theObservatoryIter)->GetIsRecycling() )
 					{
-						if((*theScanIter)->pev->team != inEntity->pev->team)
+						// Check that entity is in range of scan (only check XY distance, for commander's purposes)
+						float theDistance = VectorDistance2D((*theObservatoryIter)->pev->origin, inEntity->pev->origin);
+						if(theDistance < BALANCE_VAR(kObservatoryXYDetectionRadius))
 						{
-							// Check that entity is in range of scan
-							float theDistance = VectorDistance((*theScanIter)->pev->origin, inEntity->pev->origin);
-							if(theDistance < BALANCE_IVAR(kScanRadius))
+							outSightedStatus |= MASK_VIS_DETECTED;
+							theInViewOfEnemy = true;
+
+							if(theCloakable)
 							{
-								outSightedStatus |= MASK_VIS_SIGHTED;
-								theInViewOfEnemy = true;
-								break;
+								theCloakable->Uncloak();
 							}
+							break;
 						}
 					}
-					//END_FOR_ALL_ENTITIES(kwsScan)
-					
-					// Loop through active sensory chambers
-					//FOR_ALL_ENTITIES(kwsSensoryChamber, AvHSensoryChamber*)
-//					for(AvHSensoryChamberListType::iterator theSensoryChamberIter = gSensoryChamberList.begin(); theSensoryChamberIter != gSensoryChamberList.end(); theSensoryChamberIter++)
-//					{
-//						if(((*theSensoryChamberIter)->pev->team != inEntity->pev->team) && (inEntity->pev->team != 0))
-//						{
-//							// Make sure it's built
-//							if((*theSensoryChamberIter)->GetIsBuilt())
-//							{
-//								//if((*theSensoryChamberIter)->GetIsEntityInSight(inEntity))
-//								float theDistance = VectorDistance2D((*theSensoryChamberIter)->pev->origin, inEntity->pev->origin);
-//								if(theDistance < kSensoryChamber2DSightRange)
-//								{
-//									// Trigger alert
-//									GetGameRules()->TriggerAlert(AvHTeamNumber((*theSensoryChamberIter)->pev->team), ALERT_ENEMY_APPROACHES, inEntity->entindex());
-//									
-//									outSightedStatus = MASK_VIS_SIGHTED;
-//									theInViewOfEnemy = true;
-//									break;
-//								}
-//							}
-//						}
-//					}
-					//END_FOR_ALL_ENTITIES(kwsSensoryChamber)
-					//				}
+				}
+			
+				// Loop through all active scans on our team
+				for(AvHScanListType::iterator theScanIter = gScanList.begin(); theScanIter != gScanList.end(); theScanIter++)
+				{
+					if((*theScanIter)->pev->team != inEntity->pev->team)
+					{
+						// Check that entity is in range of scan
+						float theDistance = VectorDistance((*theScanIter)->pev->origin, inEntity->pev->origin);
+						if(theDistance < BALANCE_VAR(kScanRadius))
+						{
+							outSightedStatus |= MASK_VIS_SIGHTED;
+							theInViewOfEnemy = true;
+							break;
+						}
+					}
+				}
 			}
 		}
 		
@@ -184,26 +135,16 @@ bool AvHSUGetInViewOfEnemy(CBaseEntity* inEntity, int& outSightedStatus)
 		if(!theInViewOfEnemy)
 		{
 			bool theEnemyTeamHasMotionTracking = false;
-			if((inEntity->pev->team == TEAM_ONE) || (inEntity->pev->team == TEAM_TWO))
+			AvHTeamNumber teamA = GetGameRules()->GetTeamA()->GetTeamNumber();
+			AvHTeamNumber teamB = GetGameRules()->GetTeamB()->GetTeamNumber();
+			if((inEntity->pev->team == teamA) || (inEntity->pev->team == teamB))
 			{
-				AvHTeamNumber theEnemyTeamNumber = (inEntity->pev->team == TEAM_ONE) ? TEAM_TWO : TEAM_ONE;
+				AvHTeamNumber theEnemyTeamNumber = (inEntity->pev->team == teamA) ? teamB : teamA;
 				AvHTeam* theEnemyTeam = GetGameRules()->GetTeam(theEnemyTeamNumber);
 				if(theEnemyTeam)
 				{
 					if(theEnemyTeam->GetResearchManager().GetTechNodes().GetIsTechResearched(TECH_RESEARCH_MOTIONTRACK) || GetGameRules()->GetIsCombatMode())
 					{
-						//char theErrorString[256];
-						//const char* theEntityName = "unknown";
-						//if(inEntity && inEntity->pev)
-						//{
-						//	const char* theTentativeEntityName = NULL;
-						//	theTentativeEntityName = STRING(inEntity->pev->classname);
-						//	if(theTentativeEntityName)
-						//	{
-						//		theEntityName = theTentativeEntityName;
-						//	}
-						//}
-
 						// Motion-tracking doesn't pick up cloaked entities (players)
 						bool theIsCloaked = false;
 						AvHCloakable* theCloakable = dynamic_cast<AvHCloakable*>(inEntity);
@@ -213,8 +154,6 @@ bool AvHSUGetInViewOfEnemy(CBaseEntity* inEntity, int& outSightedStatus)
 						}
 
 						float theVelocity = inEntity->pev->velocity.Length();
-						//sprintf(theErrorString, "Entity %s has velocity %f.\n", theEntityName, theVelocity);
-						//ALERT(at_logged, theErrorString);
 						
 						//ELVEN - WE HAVE TO CHECK FOR EXISTANT OBSERVATORIES BEFORE WE CAN FLAG THIS.
 						//voogru: Fixed combat mode problems & slight perfoamance issue (no need to loop thru every obs).
@@ -270,7 +209,7 @@ bool AvHSUGetInRangeOfFriendlyPrimalScream(CBaseEntity* inEntity)
 				{
 					// Are they in range of us?
 					float theDistance = VectorDistance(inEntity->pev->origin, thePlayer->pev->origin);
-					if(theDistance < BALANCE_IVAR(kPrimalScreamRange))
+					if(theDistance < BALANCE_VAR(kPrimalScreamRange))
 					{
 						inRangeOfPrimalScream = true;
 						break;
@@ -302,7 +241,7 @@ bool AvHSUGetInRangeOfFriendlySensoryChamber(CBaseEntity* inEntity)
 				{
 					// Are we in range?
 					float theDistance = VectorDistance(inEntity->pev->origin, theChamber->pev->origin);
-					if(theDistance < BALANCE_IVAR(kSensoryChamberRange))
+					if(theDistance < BALANCE_VAR(kSensoryChamberRange))
 					{
 						AvHBaseBuildable* theBuildable = dynamic_cast<AvHBaseBuildable*>(theChamber);
 						if(theBuildable && theBuildable->GetIsBuilt())
@@ -337,7 +276,7 @@ bool AvHSUGetInRangeOfEnemySensoryChamber(CBaseEntity* inEntity)
 				{
 					// Are we in range?
 					float theDistance = VectorDistance(inEntity->pev->origin, theChamber->pev->origin);
-					if(theDistance < BALANCE_IVAR(kSensoryChamberRange))
+					if(theDistance < BALANCE_VAR(kSensoryChamberRange))
 					{
 						AvHBaseBuildable* theBuildable = dynamic_cast<AvHBaseBuildable*>(theChamber);
 						if(theBuildable && theBuildable->GetIsBuilt())
@@ -372,7 +311,7 @@ bool AvHSUGetInRangeOfFriendlyUmbra(CBaseEntity* inEntity)
 				{
 					// Are we in range?
 					float theDistance = VectorDistance(inEntity->pev->origin, theUmbraCloud->pev->origin);
-					if(theDistance < BALANCE_IVAR(kUmbraCloudRadius))
+					if(theDistance < BALANCE_VAR(kUmbraCloudRadius))
 					{
 						inRangeOfUmbra = true;
 						break;
@@ -531,10 +470,10 @@ void AvHGamerules::UpdateWorldEntities()
         PROFILE_END(kUpdateWorldEntitiesUpdateWorldEntities)
     }
 
-	// Rebuild this->mTeamOneEntityHierarchy and this->mTeamTwoEntityHierarchy if changed
+	// Rebuild this->mTeamAEntityHierarchy and this->mTeamBEntityHierarchy if changed
     PROFILE_START()
-	this->mTeamOneEntityHierarchy.BuildFromTeam(this->GetTeam(TEAM_ONE), gBaseEntityList);
-	this->mTeamTwoEntityHierarchy.BuildFromTeam(this->GetTeam(TEAM_TWO), gBaseEntityList);
+	this->mTeamAEntityHierarchy.BuildFromTeam(&this->mTeamA, gBaseEntityList);
+	this->mTeamBEntityHierarchy.BuildFromTeam(&this->mTeamB, gBaseEntityList);
     PROFILE_END(kUpdateWorldEntitiesBuildEntityHierarchies)
 
 	// Update blips

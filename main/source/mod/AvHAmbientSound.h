@@ -22,6 +22,7 @@
 #include "types.h"
 #include "fmod.h"
 #include "ui/UIHud.h"
+#include "mod/AvHSpecials.h"
 #include "mod/AvHSharedTypes.h"
 #include "mod/AvHConstants.h"
 #include "mod/AvHParticleSystem.h"

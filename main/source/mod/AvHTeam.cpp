@@ -137,9 +137,9 @@
 // - Post-crash checkin.  Restored @Backup from around 4/16.  Contains changes for last four weeks of development.
 //
 //===============================================================================
-#include "extdll.h"
-#include "util.h"
-#include "cbase.h"
+#include "dlls/extdll.h"
+#include "dlls/util.h"
+#include "dlls/cbase.h"
 #include "mod/AvHTeam.h"
 #include "mod/AvHPlayer.h"
 #include "mod/AvHGamerules.h"
@@ -155,10 +155,10 @@
 #include "mod/AvHTitles.h"
 #include "mod/AvHPlayerUpgrade.h"
 #include "util/MathUtil.h"
-#include "mod/UPPUtil.h"
+#include "mod/AvHNetworkMessages.h"
+#include "mod/AvHNexusServer.h"
 
 extern int gPhaseInEventID;
-extern int gmsgTeamScore;
 extern cvar_t avh_votecasttime;
 extern cvar_t avh_votedowntime;
 extern cvar_t avh_votepercentneeded;
@@ -517,19 +517,8 @@ void AvHTeam::AddTechNode(AvHMessageID inMessageID, AvHTechID inTechID, AvHTechI
 	int theCost = GetGameRules()->GetCostForMessageID(inMessageID);
 	int theBuildTime = GetGameRules()->GetBuildTimeForMessageID(inMessageID);
 
-	bool theCheatsEnabled = false;//GetGameRules()->GetCheatsEnabled();
-	AvHTechID thePrereq1 = theCheatsEnabled ? TECH_NULL : inPrereq1;
-	AvHTechID thePrereq2 = theCheatsEnabled ? TECH_NULL : inPrereq2;
-
-	this->mResearchManager.AddTechNode(inMessageID, inTechID, thePrereq1, thePrereq2, theCost, theBuildTime, inResearched, inAllowMultiples);
+	this->mResearchManager.AddTechNode(inMessageID, inTechID, inPrereq1, inPrereq2, theCost, theBuildTime, inResearched, inAllowMultiples);
 }
-
-#ifdef AVH_PLAYTEST_BUILD
-void AvHTeam::BalanceChanged()
-{
-	this->mResearchManager.BalanceChanged();
-}
-#endif
 
 void AvHTeam::InitializeTechNodes()
 {
@@ -682,12 +671,12 @@ void AvHTeam::InitializeTechNodes()
 	}
 }
 
-const AvHTechNodes& AvHTeam::GetTechNodes() const
+const AvHTechTree& AvHTeam::GetTechNodes() const
 {
 	return this->mResearchManager.GetTechNodes();
 }
 
-AvHTechNodes& AvHTeam::GetTechNodes()
+AvHTechTree& AvHTeam::GetTechNodes()
 {
 	return this->mResearchManager.GetTechNodes();
 }
@@ -1276,11 +1265,17 @@ void AvHTeam::SetTeamType(AvHClassType inType)
 	switch(inType)
 	{
 	case AVH_CLASS_TYPE_MARINE:
-		this->mTeamName = kMarine1Team;
+		if( this->GetTeamNumber() == TEAM_ONE )
+		{ this->mTeamName = kMarine1Team; }
+		else
+		{ this->mTeamName = kMarine2Team; }
 		this->mTeamPrettyName = kMarinePrettyName;
 		break;
 	case AVH_CLASS_TYPE_ALIEN:
-		this->mTeamName = kAlien1Team;
+		if( this->GetTeamNumber() == TEAM_TWO )
+		{ this->mTeamName = kAlien1Team; }
+		else
+		{ this->mTeamName = kAlien2Team; }
 		this->mTeamPrettyName = kAlienPrettyName;
 		break;
 	default:
@@ -1439,16 +1434,15 @@ void AvHTeam::TriggerAddTech(AvHTechID inTechID)
 		this->mResearchManager.TriggerAddTech(inTechID);
 
 		// Get list of completed research that depended on this tech
-		TechNodeListType theDependentTechNodes = this->mResearchManager.GetResearchNodesDependentOn(inTechID);
+		TechNodeMap nodes = this->mResearchManager.GetResearchNodesDependentOn(inTechID);
 		
 		// For all researched nodes
-		for(TechNodeListType::iterator theIter = theDependentTechNodes.begin(); theIter != theDependentTechNodes.end(); theIter++)
+		TechNodeMap::const_iterator current, end = nodes.end();
+		for( current = nodes.begin(); current != end; ++current )
 		{
-			if(theIter->GetIsResearched())
+			if( current->second->getIsResearched() )
 			{
-				// Enable because of gain of this tech
-				AvHMessageID theMessage = theIter->GetMessageID();
-				GetGameRules()->ProcessTeamUpgrade(theMessage, this->mTeamNumber, 0, true);
+				GetGameRules()->ProcessTeamUpgrade( current->first, this->mTeamNumber, 0, true );
 			}
 		}
 	}
@@ -1482,58 +1476,24 @@ void AvHTeam::TriggerRemoveTech(AvHTechID inTechID)
 			this->mResearchManager.TriggerRemoveTech(inTechID);
 
 			// Get list of completed research that depended on this tech
-			TechNodeListType theDependentTechNodes = this->mResearchManager.GetResearchNodesDependentOn(inTechID);
+			TechNodeMap nodes = this->mResearchManager.GetResearchNodesDependentOn(inTechID);
 
 			// For all researched nodes
-			for(TechNodeListType::iterator theIter = theDependentTechNodes.begin(); theIter != theDependentTechNodes.end(); theIter++)
+			TechNodeMap::iterator current, end = nodes.end();
+			for( current = nodes.begin(); current != end; ++current )
 			{
-				if(theIter->GetIsResearched())
+				if( current->second->getIsResearched() )
 				{
 					// Disable because of loss of this tech and remove them
-					AvHMessageID theMessage = theIter->GetMessageID();
-					GetGameRules()->ProcessTeamUpgrade(theMessage, this->mTeamNumber, 0, false);
+					GetGameRules()->ProcessTeamUpgrade( current->first, this->mTeamNumber, 0, false );
 				}
 			}
 		}
 	}
 }
 
-//void AvHTeam::RespawnLongestWaitingPlayer()
-//{
-//	// Find the player that's been dead the longest
-//	AvHGamerules* theGameRules = GetGameRules();
-//	AvHPlayer* theLongestDeadPlayer = NULL;
-//	float theEarliestTime = gpGlobals->time;
-//
-//	FOR_ALL_ENTITIES(kAvHPlayerClassName, AvHPlayer*)
-//	if((AvHTeamNumber)theEntity->pev->team == this->mTeamNumber)
-//	{
-//		if(!theEntity->GetIsRelevant())
-//		{
-//			float theTime = theEntity->GetTimeWantedToPlay();
-//			if((theTime != -1) && (theTime < theEarliestTime))
-//			{
-//				theLongestDeadPlayer = theEntity;
-//				theEarliestTime = theLongestDeadPlayer->GetTimeWantedToPlay();
-//			}
-//		}
-//	}
-//	END_FOR_ALL_ENTITIES(kAvHPlayerClassName)
-//		
-//		// Respawn that player in if possible
-//		if(theLongestDeadPlayer)
-//		{
-//			if(theGameRules->FPlayerCanRespawn(theLongestDeadPlayer))
-//			{
-//				theGameRules->RespawnPlayer(theLongestDeadPlayer);
-//			}
-//		}
-//}
-
 void AvHTeam::Update()
 {
-	//this->RespawnLongestWaitingPlayer();
-	//this->UpdateCommanderScore();
     PROFILE_START()
 	this->UpdateHints();
     PROFILE_END(kAvHTeamUpdateHints)
@@ -1754,35 +1714,13 @@ bool AvHTeam::SendResourcesGatheredScore(bool inThisTeamOnly)
 					AvHPlayer* thePlayer = dynamic_cast<AvHPlayer*>(CBaseEntity::Instance(g_engfuncs.pfnPEntityOfEntIndex(*thePlayerIter)));
 					if(thePlayer)
 					{
-						MESSAGE_BEGIN(MSG_ONE, gmsgTeamScore, NULL, thePlayer->edict());
-						
-						// Team name string
-						WRITE_STRING(this->GetTeamName());
-						
-						// Score ("frags")
-						WRITE_SHORT(theTeamScore);
-						
-						// Deaths
-						WRITE_SHORT(0);
-						
-						MESSAGE_END();
+						NetMsg_TeamScore( thePlayer->pev, this->GetTeamName(), theTeamScore, 0 );
 					}
 				}
 			}
 			else
 			{
-				MESSAGE_BEGIN(MSG_ALL, gmsgTeamScore);
-				
-				// Team name string
-				WRITE_STRING(this->GetTeamName());
-				
-				// Score ("frags")
-				WRITE_SHORT(theTeamScore);
-				
-				// Deaths
-				WRITE_SHORT(0);
-				
-				MESSAGE_END();
+				NetMsg_TeamScore( this->GetTeamName(), theTeamScore, 0 );
 			}
 						
 			this->mClientTotalResourcesGathered = theTeamScore;
@@ -2545,20 +2483,8 @@ void AvHTeam::UpdateResources()
 
 AvHServerPlayerData* AvHTeam::GetServerPlayerData(edict_t* inEdict)
 {
-	AvHServerPlayerData* theReturnData = NULL;
-#ifdef USE_UPP
-	string theNetworkID = UPPUtil_GetNetworkID(inEdict);
-	theReturnData = &this->mServerPlayerData[theNetworkID];
-#else
-	string theAuthID = AvHSUGetPlayerAuthIDString(inEdict);
-	if(theAuthID != "-1" && theAuthID != "STEAM_ID_LAN")
-	{
-		// Return existing record, create one if it doesn't exist
-		theReturnData = &this->mServerPlayerData[theAuthID];
-	}
-#endif
-	
-	return theReturnData;
+	string theNetworkID = AvHNexus::getNetworkID(inEdict);
+	return &this->mServerPlayerData[theNetworkID];
 }
 
 void AvHTeam::UpdateServerPlayerData()
@@ -2714,7 +2640,7 @@ bool AvHTeam::GetLastAlert(AvHAlert& outAlert, bool inClearAlert, bool inAnyMess
 
 float AvHTeam::GetAudioAlertInterval() const
 {
-	float theAudioAlertInterval = BALANCE_FVAR(kAudioAlertInterval);
+	float theAudioAlertInterval = BALANCE_VAR(kAudioAlertInterval);
 	return theAudioAlertInterval;
 }
 
@@ -2755,7 +2681,7 @@ AlertListType AvHTeam::GetAlerts(AvHMessageID inMessageID)
 
 void AvHTeam::UpdateAlerts()
 {
-	const float theAlertExpireTime = BALANCE_FVAR(kAlertExpireTime);
+	const float theAlertDuration = BALANCE_VAR(kAlertExpireTime);
 
 	#ifdef AVH_PLAYTEST_BUILD
 	// Run through our team, and alert everyone if there is a player that's no longer playing or on the server
@@ -2799,21 +2725,15 @@ void AvHTeam::UpdateAlerts()
 	#endif
 	
 	// Run through alerts, and expire any past a certain age
-	for(MessageAlertListType::iterator theIter = this->mAlertList.begin(); theIter != this->mAlertList.end(); theIter++)
+	for(MessageAlertListType::iterator theIter = this->mAlertList.begin(); theIter != this->mAlertList.end(); ++theIter)
 	{
 		AlertListType& theAlertList = theIter->second;
 		for(AlertListType::iterator theAlertIter = theAlertList.begin(); theAlertIter != theAlertList.end(); /* no inc */)
 		{
-			float theCurrentTime = theAlertIter->GetTime();
-			if(gpGlobals->time > (theCurrentTime + theAlertExpireTime))
+			float theAlertTime = theAlertIter->GetTime();
+			if(gpGlobals->time > (theAlertTime + theAlertDuration))
 			{
-				int theAlertListSize = theAlertList.size();
 				theAlertIter = theAlertList.erase(theAlertIter);
-				
-				//				AlertListType::iterator theTempIter = theAlertIter;
-				//				theAlertIter++;
-				//				
-				//				this->mAlertList.erase(theTempIter);
 			}
 			else
 			{

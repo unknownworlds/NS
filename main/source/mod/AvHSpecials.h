@@ -69,8 +69,8 @@ typedef enum
 	AVH_USER3_ALIEN_PLAYER4,
 	AVH_USER3_ALIEN_PLAYER5,
 	AVH_USER3_ALIEN_EMBRYO,
-	AVH_USER3_SPAWN_TEAMONE,
-	AVH_USER3_SPAWN_TEAMTWO,
+	AVH_USER3_SPAWN_TEAMA,
+	AVH_USER3_SPAWN_TEAMB,
 	AVH_USER3_PARTICLE_ON,				// only valid for AvHParticleEntity: entindex as int in fuser1, template index stored in fuser2
 	AVH_USER3_PARTICLE_OFF,				// only valid for AvHParticleEntity: particle system handle in fuser1
 	AVH_USER3_WELD,						// float progress (0 - 100) stored in fuser1
@@ -122,72 +122,62 @@ typedef enum
 	AVH_USER3_MAX
 } AvHUser3;
 
-//typedef enum
-//{
-//	AVH_USER4_PARTICLE_VISIBLE,			// only valid for AvHParticleEntity: particle system handle in fuser1
-//	AVH_USER4_PARTICLE_NOTVISIBLE,		// only valid for AvHParticleEntity: particle system handle in fuser1
-//}
-//AvHParticleUser4;
+typedef enum
+{
+	WEAPON_ON_TARGET	= 0x01,
+	WEAPON_IS_CURRENT	= 0x02,
+	WEAPON_IS_ENABLED	= 0x04
+} CurWeaponStateFlags;
 
-//typedef enum
-//{
-//	AVH_USER4_NONE = 0,
-//	AVH_USER4_COMMANDER_STATION = 1,
-//	AVH_USER4_TURRET_FACTORY = 2, 
-//	AVH_USER4_WEAPON_FACTORY = 3, 
-//	AVH_USER4_ADVANCED_WEAPON_FACTORY = 4, 
-//	AVH_USER4_ARMORY = 5, 
-//	AVH_USER4_PROTOTYPE_LAB = 6, 
-//	AVH_USER4_OBSERVATORY = 7,
-//	AVH_USER4_CHEMLAB = 8,
-//	AVH_USER4_MEDLAB = 9,
-//	AVH_USER4_NUKEPLANT = 10,
-//	AVH_USER4_TURRET = 11,
-//	AVH_USER4_RESTOWER = 12,
-//	AVH_USER4_CAMTOWER = 13,
-//	AVH_USER4_INFANTRYPORTAL = 14
-//}
-//AvHSelectableUser4;
+typedef enum
+{
+	BALANCE_ACTION_INSERT_INT = 0,
+	BALANCE_ACTION_INSERT_FLOAT = 1,
+	BALANCE_ACTION_INSERT_STRING = 2,
+	BALANCE_ACTION_REMOVE = 3,
+	BALANCE_ACTION_CLEAR = 4,
+	BALANCE_ACTION_NOTIFY_PENDING = 5,
+	BALANCE_ACTION_NOTIFY_FINISHED = 6
+} BalanceMessageAction;
 
 // AvHSpecials, only one per entity, stored in pev->iuser4.  
-
 // Stored in iuser4.  Some entities don't use these values, but most do.  The ones that don't include:
 // AVH_USER3_AUDIO_OFF
 // AVH_USER3_AUDIO_ON
 typedef enum
 {
-	MASK_NONE = 0,
-	MASK_VIS_SIGHTED = 1,					// This means this is an entity that can be seen by at least one member of the opposing team.  Assumes commanders can never be seen.
-	MASK_VIS_DETECTED = 2,					// This entity has been detected by the other team but isn't currently seen
-	MASK_BUILDABLE = 4,						// This entity is buildable
-	MASK_UPGRADE_1 = 8,						// Marine weapons 1, armor, marine basebuildable slot #0
-	MASK_UPGRADE_2 = 16,					// Marine weapons 2, regen, marine basebuildable slot #1
-	MASK_UPGRADE_3 = 32,					// Marine weapons 3, redemption, marine basebuildable slot #2
-	MASK_UPGRADE_4 = 64,					// Marine armor 1, speed, marine basebuildable slot #3
-	MASK_UPGRADE_5 = 128,					// Marine armor 2, adrenaline, marine basebuildable slot #4
-	MASK_UPGRADE_6 = 256,					// Marine armor 3, silence, marine basebuildable slot #5
-	MASK_UPGRADE_7 = 512,					// Marine jetpacks, Cloaking, marine basebuildable slot #6
-	MASK_UPGRADE_8 = 1024,					// Pheromone, motion-tracking, marine basebuildable slot #7
-	MASK_UPGRADE_9 = 2048,					// Scent of fear, exoskeleton
-	MASK_UPGRADE_10 = 4096,					// Defensive level 2, power armor
-	MASK_UPGRADE_11 = 8192,					// Defensive level 3, electrical defense
-	MASK_UPGRADE_12 = 16384,				// Movement level 2, 
-	MASK_UPGRADE_13 = 32768,				// Movement level 3, marine heavy armor
-	MASK_UPGRADE_14 = 65536,				// Sensory level 2
-	MASK_UPGRADE_15 = 131072,				// Sensory level 3
-	MASK_ALIEN_MOVEMENT = 262144,			// Onos is charging
-	MASK_WALLSTICKING = 524288,				// Flag for wall-sticking
-	MASK_BUFFED = 1048576,                  // Alien is in range of active primal scream, or marine is under effects of catalyst
-	MASK_UMBRA = 2097152,
-	MASK_DIGESTING = 4194304,				// When set on a visible player, player is digesting.  When set on invisible player, player is being digested
-	MASK_RECYCLING = 8388608,
-	MASK_TOPDOWN = 16777216,
-	MASK_PLAYER_STUNNED = 33554432,			// Player has been stunned by stomp
-	MASK_ENSNARED = 67108864,
-	MASK_ALIEN_EMBRYO = 268435456,
-	MASK_SELECTABLE = 536870912,
-	MASK_PARASITED = 1073741824,
-	MASK_SENSORY_NEARBY = 2147483648
+	MASK_NONE			= 0x00000000,
+	MASK_VIS_SIGHTED	= 0x00000001,	// This means this is an entity that can be seen by at least one member of the opposing team.  Assumes commanders can never be seen.
+	MASK_VIS_DETECTED 	= 0x00000002,	// This entity has been detected by the other team but isn't currently seen
+	MASK_BUILDABLE		= 0x00000004,	// This entity is buildable
+	MASK_UPGRADE_1		= 0x00000008,	// Marine weapons 1, armor, marine basebuildable slot #0
+	MASK_UPGRADE_2		= 0x00000010,	// Marine weapons 2, regen, marine basebuildable slot #1
+	MASK_UPGRADE_3		= 0x00000020,	// Marine weapons 3, redemption, marine basebuildable slot #2
+	MASK_UPGRADE_4		= 0x00000040,	// Marine armor 1, speed, marine basebuildable slot #3
+	MASK_UPGRADE_5		= 0x00000080,	// Marine armor 2, adrenaline, marine basebuildable slot #4
+	MASK_UPGRADE_6		= 0x00000100,	// Marine armor 3, silence, marine basebuildable slot #5
+	MASK_UPGRADE_7		= 0x00000200,	// Marine jetpacks, Cloaking, marine basebuildable slot #6
+	MASK_UPGRADE_8		= 0x00000400,	// Pheromone, motion-tracking, marine basebuildable slot #7
+	MASK_UPGRADE_9		= 0x00000800,	// Scent of fear, exoskeleton
+	MASK_UPGRADE_10		= 0x00001000,	// Defensive level 2, power armor
+	MASK_UPGRADE_11		= 0x00002000,	// Defensive level 3, electrical defense
+	MASK_UPGRADE_12		= 0x00004000,	// Movement level 2, 
+	MASK_UPGRADE_13		= 0x00008000,	// Movement level 3, marine heavy armor
+	MASK_UPGRADE_14		= 0x00010000,	// Sensory level 2
+	MASK_UPGRADE_15		= 0x00020000,	// Sensory level 3
+	MASK_ALIEN_MOVEMENT	= 0x00040000,	// Onos is charging
+	MASK_WALLSTICKING	= 0x00080000,	// Flag for wall-sticking
+	MASK_BUFFED			= 0x00100000,	// Alien is in range of active primal scream, or marine is under effects of catalyst
+	MASK_UMBRA			= 0x00200000,
+	MASK_DIGESTING		= 0x00400000,	// When set on a visible player, player is digesting.  When set on invisible player, player is being digested
+	MASK_RECYCLING		= 0x00800000,
+	MASK_TOPDOWN		= 0x01000000,
+	MASK_PLAYER_STUNNED	= 0x02000000,	// Player has been stunned by stomp
+	MASK_ENSNARED		= 0x04000000,
+	MASK_ALIEN_EMBRYO	= 0x08000000,
+	MASK_SELECTABLE		= 0x10000000,
+	MASK_PARASITED		= 0x20000000,
+	MASK_SENSORY_NEARBY	= 0x40000000
 } AvHUpgradeMask;
 
 // IMPORTANT: Keep this mask up to date as upgrades change and move around
@@ -207,37 +197,10 @@ typedef enum
 
 typedef vector<AvHAlienUpgradeCategory>		AvHAlienUpgradeListType;
 
-//// Server ways to get/set upgrade masks
-//#ifdef AVH_SERVER
-//class AvHPlayer;
-//bool GetHasUpgrade(AvHPlayer* inPlayer, AvHUpgradeMask inUpgrade);
-//void SetUpgradeMask(AvHPlayer* inPlayer, AvHUpgradeMask inUpgrade);
-//#endif
-//
-//// Client ways to get/set upgrade masks
-//#ifdef AVH_CLIENT
-//#include <assert.h>
-//#include "mathlib.h"
-//#include "const.h"
-//#include "usercmd.h"
-//#include "pm_defs.h"
-//#include "pm_shared.h"
-//#include "pm_movevars.h"
-//#include "pm_debug.h"
-//bool GetHasUpgrade(playermove_t* inPlayerMove, AvHUpgradeMask inUpgrade);
-//void SetUpgradeMask(playermove_t* inPlayerMove, AvHUpgradeMask inUpgrade);
-//#endif
-
 void InitializeBuildable(int& inUser3, int& inUser4, float& inFuser1, int inUser3ID);
 bool GetHasUpgrade(int inUpgrade, AvHUpgradeMask inUpgradeMask);
 void SetUpgradeMask(int* inPointer, AvHUpgradeMask inUpgradeMask, bool inSet = true);
 AvHUpgradeMask ProcessGenericUpgrade(int& inUpgradeVariable, AvHMessageID inUpgrade, bool inGive = true);
-
-//int AvHGetUser3Base(int inUser3);
-//
-//int AvHGetUser4Base(int inUser4);
-//int AvHGetUser4Extra(int inUser4);
-//void AvHSetUser4(int& inUser4, int inBase, int inExtra);
 
 bool AvHGetAlienUpgradeCategory(AvHMessageID inUpgrade, AvHAlienUpgradeCategory& outCategory);
 bool AvHGetAlienUpgradeCategoryFromMask(AvHUpgradeMask inUpgradeMask, AvHAlienUpgradeCategory& outCategory);
@@ -257,7 +220,6 @@ void AvHAddUpgradeInCategory(AvHAlienUpgradeCategory inUpgradeCategory, int& inU
 void AvHRemoveUpgradeInCategory(AvHAlienUpgradeCategory inUpgradeCategory, int& inUser4);
 bool AvHRemoveUpgradeCategory(AvHAlienUpgradeCategory inUpgradeCategory, AvHAlienUpgradeListType& inList);
 
-//bool AvHGetTechSlotList(const string& inClassName, TechSlotList& outTechSlotList);
 bool AvHGetTechSlotEnabled(int inSlot, int inUser4);
 void AvHSetTechSlotEnabledState(int inSlot, int* inUser4, bool inEnabled);
 #endif

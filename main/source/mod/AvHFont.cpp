@@ -151,7 +151,7 @@ int AvHFont::DrawString(int inX, int inY, const char* inString, int r, int g, in
 int AvHFont::DrawStringReverse(int inX, int inY, const char* inString, int r, int g, int b, int inRenderMode) const
 {
 
-    int length = strlen(inString) - 1;
+    int length = (int)strlen(inString) - 1;
 
     int theX = inX;
     int theY = inY;

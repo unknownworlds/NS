@@ -213,26 +213,13 @@ bool TRFactory::charIsWhiteSpace(char inChar)
 bool TRFactory::lineIsAComment(const string& inString)
 {
     bool theLineIsAComment = false;
-	int theLength = inString.length();
 
-	if(theLength > 0)
-	{
-		// Loop through inString until a non-whitespace character is found
-		for(int i = 0; i < theLength; i++)
-		{
-			char theFirstChar = inString[i];
-			if(!charIsWhiteSpace(theFirstChar))
-			{
-				if((theFirstChar == '\'') || (theFirstChar == ';'))
-				{
-					theLineIsAComment = true;
-				}
-				break;
-			}
-		}
-	}
+	//replaced loop with actual string functions... KGP
+	size_t index = inString.find_first_not_of(" \t");
+	if( index != string::npos && (inString.at(index) == '\'' || inString.at(index) == ';') )
+	{ theLineIsAComment = true; }
 
-    return theLineIsAComment;
+	return theLineIsAComment;
 }
 
 // Read start block

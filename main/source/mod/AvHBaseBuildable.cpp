@@ -501,7 +501,7 @@ void AvHBaseBuildable::StartRecycle()
 {
 	if(!GetHasUpgrade(this->pev->iuser4, MASK_RECYCLING))
 	{
-        int theRecycleTime = (GetGameRules()->GetCheatsEnabled() && !GetGameRules()->GetIsCheatEnabled(kcSlowResearch)) ? 2 : BALANCE_IVAR(kRecycleTime);
+        int theRecycleTime = (GetGameRules()->GetCheatsEnabled() && !GetGameRules()->GetIsCheatEnabled(kcSlowResearch)) ? 2 : BALANCE_VAR(kRecycleTime);
 
         // Play recycle animation in reverse (would like to play them slower according to recycle time, but it doesn't work for all structures, seems dependent on # of keyframes)
         int theAnimation = this->GetRecycleAnimation();
@@ -746,7 +746,7 @@ void AvHBaseBuildable::Precache(void)
 void AvHBaseBuildable::RecycleComplete()
 {
 	// Look at whether it has been built and health to determine how many points to give back
-	float thePercentage = BALANCE_FVAR(kRecycleResourcePercentage);
+	float thePercentage = BALANCE_VAR(kRecycleResourcePercentage);
 
 	if(!this->GetIsBuilt())
 	{
@@ -980,9 +980,6 @@ void AvHBaseBuildable::Materialize()
 
 int	AvHBaseBuildable::TakeDamage(entvars_t* inInflictor, entvars_t* inAttacker, float inDamage, int inBitsDamageType)
 {
-	//Even out the damage
-	//inDamage = ceil(inDamage);
-
 	if(GetGameRules()->GetIsCheatEnabled(kcHighDamage))
 	{
 		inDamage *= 50;
@@ -1055,12 +1052,6 @@ int	AvHBaseBuildable::TakeDamage(entvars_t* inInflictor, entvars_t* inAttacker, 
 
 		bool theDrawDamage = (CVAR_GET_FLOAT(kvDrawDamage) > 0);
 
-		#ifdef DEBUG
-		#ifndef	AVH_EXTERNAL_BUILD
-		theDrawDamage = true;
-		#endif
-		#endif
-
 		if(theDrawDamage)
 		{
 			Vector theMinSize;
@@ -1118,7 +1109,7 @@ void AvHBaseBuildable::WorldUpdate()
 		CBaseEntity* theBaseEntity = NULL;
 		int theNumEntsDamaged = 0;
 		
-		while(((theBaseEntity = UTIL_FindEntityInSphere(theBaseEntity, this->pev->origin, BALANCE_IVAR(kElectricalRange))) != NULL) && (theNumEntsDamaged < BALANCE_IVAR(kElectricalMaxTargets)))
+		while(((theBaseEntity = UTIL_FindEntityInSphere(theBaseEntity, this->pev->origin, BALANCE_VAR(kElectricalRange))) != NULL) && (theNumEntsDamaged < BALANCE_VAR(kElectricalMaxTargets)))
 		{
 			// When "electric" cheat is enabled, shock all non-self entities, else shock enemies
 			if((GetGameRules()->GetIsCheatEnabled(kcElectric) && (theBaseEntity != this)) || ((theBaseEntity->pev->team != this->pev->team) && theBaseEntity->IsAlive()))
@@ -1131,16 +1122,8 @@ void AvHBaseBuildable::WorldUpdate()
 					CBaseEntity* theAttacker = this->GetAttacker();
 					ASSERT(theAttacker);
 
-					if(theBaseEntity->TakeDamage(this->pev, theAttacker->pev, BALANCE_IVAR(kElectricalDamage), DMG_GENERIC) > 0)
-					//if(theBaseEntity->IsPlayer())
+					if(theBaseEntity->TakeDamage(this->pev, theAttacker->pev, BALANCE_VAR(kElectricalDamage), DMG_GENERIC) > 0)
 					{
-					//	AvHPlayer* theBasePlayer = dynamic_cast<AvHPlayer*>(theBaseEntity);
-					//	if(theBasePlayer && theBasePlayer->GetIsAlien())
-					//	{
-					//		// Deduct energy
-					//		float theEnergyLoss = BALANCE_FVAR(kElectricalEnergyLoss);
-					//		AvHMUDeductAlienEnergy(theBasePlayer->pev->fuser3, theEnergyLoss, true);
-
 							MESSAGE_BEGIN( MSG_BROADCAST, SVC_TEMPENTITY );
 								WRITE_BYTE(TE_BEAMENTPOINT);
 								WRITE_SHORT(theBaseEntity->entindex());
@@ -1166,15 +1149,8 @@ void AvHBaseBuildable::WorldUpdate()
 							UTIL_Sparks(theBaseEntity->pev->origin);
 						
 							theNumEntsDamaged++;
-					//	}
 					}
 				}
-//				else
-//				{
-//					char theString[512];
-//					sprintf(theString, "Entity %s blocked from zap by %s.\r\n", STRING(theBaseEntity->pev->classname), STRING(ENT(theTraceResult.pHit)->v.classname));
-//					ALERT(at_logged, theString);
-//				}
 			}
 		}
 	}
@@ -1371,7 +1347,7 @@ void AvHBaseBuildable::UpdateAutoHeal()
 			if(this->pev->health < theMaxHealth)
 			{
 				float theTimePassed = (gpGlobals->time - this->mTimeOfLastAutoHeal);
-				float theHitPointsToGain = theTimePassed*BALANCE_IVAR(kOrganicStructureHealRate);
+				float theHitPointsToGain = theTimePassed*BALANCE_VAR(kOrganicStructureHealRate);
 			
 				this->pev->health += theHitPointsToGain;
 				this->pev->health = min(this->pev->health, theMaxHealth);

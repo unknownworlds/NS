@@ -8,9 +8,7 @@ class AvHParticleTemplateListClient : public AvHParticleTemplateList
 public:
 	int						InitializeDemoPlayback(int inSize, unsigned char* inBuffer);
 	void					InitializeDemoRecording() const;
-	
-	// Clears out the templates and receives all new ones
-	int32					ReceiveFromNetworkStream();
+	void					Insert(const AvHParticleTemplate& inTemplate);
 
 private:
 

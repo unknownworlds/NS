@@ -39,6 +39,7 @@
 //===============================================================================
 #include "mod/AvHParticleSystem.h"
 #include "mod/AvHParticleTemplate.h"
+#include <papi.h>
 
 #ifdef AVH_CLIENT
   #include "cl_dll/cl_util.h"
@@ -51,14 +52,12 @@
   #include "engine/cdll_int.h"
   #include "common/event_api.h"
   #include "common/cl_entity.h"
-  #include "particles/particledefs.h"
-  #include "particles/p_vector.h"
-  #include "particles/papi.h"
-  #include "usercmd.h"
-  #include "pm_defs.h"
-  #include "pm_shared.h"
-  #include "pm_movevars.h"
-  #include "pm_debug.h"
+  #include <particledefs.h>
+  #include <p_vector.h>
+  #include "common/usercmd.h"
+  #include "pm_shared/pm_shared.h"
+  #include "pm_shared/pm_movevars.h"
+  #include "pm_shared/pm_debug.h"
   #include "mod/AvHParticleSystemManager.h"
   #include "cl_dll/ev_hldm.h"
   #include "mod/AvHParticleTemplateClient.h"
@@ -67,9 +66,8 @@
   void DrawScaledHUDSprite(int inSpriteHandle, int inMode, int inRowsInSprite, int inX, int inY, int inWidth, int inHeight, int inForceSpriteFrame, float inStartU = 0.0f, float inStartV = 0.0f, float inEndU = 1.0f, float inEndV = 1.0f, float inRotateUVRadians = 0.0f, bool inUVWrapsOverFrames = false);
   #include "mod/AvHClientUtil.h"
 #else
-  #include "extdll.h"
-  #include "util.h"
-  #include "particles/papi.h"
+  #include "dlls/extdll.h"
+  #include "dlls/util.h"
 
   #ifdef WIN32
   #include "common/cl_entity.h"
@@ -618,7 +616,6 @@ AvHParticleSystem::SetIsVisible(bool inVisibilityState, float inTimeSet)
 		if(theTemplate)
 		{
 			string theParticleSystemName = theTemplate->GetName();
-			int a = 0;
 		}
 	}
 }

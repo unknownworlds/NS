@@ -62,13 +62,13 @@ bool ChecksumEntry::SetFromFormattedString(const string& inFormattedString)
 {
 	bool theSuccess = false;
 
-	int theEOL = inFormattedString.find(kFormattedStringEOL);
+	size_t theEOL = inFormattedString.find(kFormattedStringEOL);
 	if(theEOL != std::string::npos)
 	{
 		string theNonDelimitedString = inFormattedString.substr(0, theEOL);
 		
 		// Parse out delimiter
-		int theSplit = theNonDelimitedString.find(kFormattedStringDelimiter);
+		size_t theSplit = theNonDelimitedString.find(kFormattedStringDelimiter);
 		if(theSplit != std::string::npos)
 		{
 			// Everything before it is description
@@ -280,7 +280,7 @@ bool Checksum::SaveToFile(const char* inFilename) const
 		string theStartString("CHECKSUM-REPORT:\r\n");
 		theStream << theStartString;
 
-		int theNumChecksums = this->mChecksumList.size();
+		int theNumChecksums = (int)this->mChecksumList.size();
 		theStream << theNumChecksums;
 
 		// dump everything to it

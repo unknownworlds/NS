@@ -121,7 +121,7 @@ void AvHSporeProjectile::SporeCloudThink()
 {
 	// Apply damage to all enemy players in radius
 	CBaseEntity* theEntity = NULL;
-	while ( (theEntity = UTIL_FindEntityInSphere( theEntity, this->pev->origin, BALANCE_IVAR(kSporeCloudRadius))) != NULL )
+	while ( (theEntity = UTIL_FindEntityInSphere( theEntity, this->pev->origin, BALANCE_VAR(kSporeCloudRadius))) != NULL )
 	{
 		// Only hurt players
 		AvHPlayer* thePlayer = dynamic_cast<AvHPlayer*>(theEntity);
@@ -136,7 +136,7 @@ void AvHSporeProjectile::SporeCloudThink()
 					// Spores don't stack, so don't do damage too often
 					float theTimeOfLastSporeDamage = thePlayer->GetTimeOfLastSporeDamage();
 					float kTolerance = .05f;
-					if((theTimeOfLastSporeDamage == -1) || (gpGlobals->time > (theTimeOfLastSporeDamage + BALANCE_FVAR(kSporeCloudThinkInterval) - kTolerance)))
+					if((theTimeOfLastSporeDamage == -1) || (gpGlobals->time > (theTimeOfLastSporeDamage + BALANCE_VAR(kSporeCloudThinkInterval) - kTolerance)))
 					{
 						// Make sure a direct line can be traced from spores to target
 						TraceResult theTraceResult;
@@ -152,7 +152,6 @@ void AvHSporeProjectile::SporeCloudThink()
 						{
 							// What did we hit?
 							CBaseEntity* theEntity = CBaseEntity::Instance(theTraceResult.pHit);
-							int a = 0;
 						}
 					}
 				}
@@ -163,7 +162,7 @@ void AvHSporeProjectile::SporeCloudThink()
 	}
 
 	// Is it time to expire?
-	if(gpGlobals->time > (this->mTimeHit + BALANCE_IVAR(kSporeCloudTime)))
+	if(gpGlobals->time > (this->mTimeHit + BALANCE_VAR(kSporeCloudTime)))
 	{
 		// if so, remove entity
 		SetThink(&AvHSporeProjectile::SUB_Remove);
@@ -172,7 +171,7 @@ void AvHSporeProjectile::SporeCloudThink()
 	else
 	{
 		// if not, set next think
-		this->pev->nextthink = gpGlobals->time + BALANCE_FVAR(kSporeCloudThinkInterval);
+		this->pev->nextthink = gpGlobals->time + BALANCE_VAR(kSporeCloudThinkInterval);
 	}
 }
 
@@ -189,7 +188,7 @@ void AvHSporeProjectile::SporeTouch(CBaseEntity *pOther)
 
 			this->mTimeHit = gpGlobals->time;
 			SetThink(&AvHSporeProjectile::SporeCloudThink);
-			this->pev->nextthink = gpGlobals->time + BALANCE_FVAR(kSporeCloudThinkInterval);
+			this->pev->nextthink = gpGlobals->time + BALANCE_VAR(kSporeCloudThinkInterval);
 
 			SetTouch(NULL);
 			
@@ -209,7 +208,7 @@ int	AvHSpore::GetBarrelLength() const
 
 float AvHSpore::GetRateOfFire() const
 {
-    return BALANCE_FVAR(kSporeROF);
+    return BALANCE_VAR(kSporeROF);
 }
 
 bool AvHSpore::GetFiresUnderwater() const
@@ -225,7 +224,7 @@ bool AvHSpore::GetIsDroppable() const
 void AvHSpore::Init()
 {
 	this->mRange = kSporeRange;
-	this->mDamage = BALANCE_IVAR(kSporeDamage);
+	this->mDamage = BALANCE_VAR(kSporeDamage);
 }
 
 int	AvHSpore::GetDamageType() const

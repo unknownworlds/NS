@@ -74,7 +74,7 @@
 #include "dlls/extdll.h"
 #include "dlls/weapons.h"
 #include "mod/AvHMessage.h"
-#include "util.h"
+#include "dlls/util.h"
 #include "mod/AvHEntities.h"
 #include "mod/AvHHive.h"
 #include "util/STLUtil.h"
@@ -93,29 +93,29 @@ static unsigned long kProfileStartTime[kMaxNestLevel];
 
 #ifdef PROFILE_BUILD
 #define PROFILE_START() \
-//	kProfileStartTime[kIndentLevel++] = AvHSUTimeGetTime(); \
-//    ASSERT(kIndentLevel > 0); \
-//    ASSERT(kIndentLevel < kMaxNestLevel);
+	kProfileStartTime[kIndentLevel++] = AvHSUTimeGetTime(); \
+    ASSERT(kIndentLevel > 0); \
+    ASSERT(kIndentLevel < kMaxNestLevel);
 #else
 #define PROFILE_START()
 #endif
 
 #ifdef PROFILE_BUILD
-//#define PROFILE_END(theNonStringProfileName) \
-//{ \
-//    ASSERT(kIndentLevel > 0); \
-//    ASSERT(kIndentLevel <= kMaxNestLevel); \
-//    int theTime = AvHSUTimeGetTime() - kProfileStartTime[--kIndentLevel]; \
-//    if(theTime > 0) \
-//    { \
-//        char theIndentLevel[kMaxNestLevel+1]; \
-//        memset(theIndentLevel, '\t', kMaxNestLevel); \
-//        theIndentLevel[kIndentLevel + 1] = '\0'; \
-//        char theMessage[kMaxNestLevel + 256]; \
-//	    sprintf(theMessage, "%s Profile result (%s): %d (ms)\n", theIndentLevel, #theNonStringProfileName, theTime); \
-//	    ALERT(at_logged, "%s", theMessage); \
-//    } \
-//}
+#define PROFILE_END(theNonStringProfileName) \
+{ \
+    ASSERT(kIndentLevel > 0); \
+	ASSERT(kIndentLevel <= kMaxNestLevel); \
+    int theTime = AvHSUTimeGetTime() - kProfileStartTime[--kIndentLevel]; \
+    if(theTime > 0) \
+    { \
+        char theIndentLevel[kMaxNestLevel+1]; \
+        memset(theIndentLevel, '\t', kMaxNestLevel); \
+        theIndentLevel[kIndentLevel + 1] = '\0'; \
+        char theMessage[kMaxNestLevel + 256]; \
+	    sprintf(theMessage, "%s Profile result (%s): %d (ms)\n", theIndentLevel, #theNonStringProfileName, theTime); \
+	    ALERT(at_logged, "%s", theMessage); \
+    } \
+}
 #else
 #define PROFILE_END(s)
 #endif
@@ -131,10 +131,6 @@ Vector AvHSUGetRandomBuildingAngles();
 char* AvHSUGetGameVersionString();
 bool AvHSUGetIsRelevantForTopDownPlayer(const vec3_t& inTopDownPosition, const vec3_t& inEntityPosition, float inScalar = 1.0f);
 const char* AvHSUGetTeamName(int inTeamNumber);
-#ifndef USE_UPP
-bool AvHSUGetIsValidAuthID(const string& inAuthID);
-string AvHSUGetPlayerAuthIDString(edict_t* inPlayer);
-#endif
 void AvHSUKillPlayersTouchingPlayer(AvHPlayer* inPlayer, entvars_t* inInflictor);
 void AvHSUKillBuildablesTouchingPlayer(AvHPlayer* inPlayer, entvars_t* inInflictor);
 void AvHSUBuildingJustCreated(AvHMessageID inBuildID, CBaseEntity* theBuilding, AvHPlayer* inPlayer);

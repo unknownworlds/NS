@@ -1,8 +1,8 @@
 #include <memory.h>
 #include "hud.h"
 #include "cl_util.h"
-#include "const.h"
-#include "com_model.h"
+#include "common/const.h"
+#include "common/com_model.h"
 #include "studio_util.h"
 
 /*

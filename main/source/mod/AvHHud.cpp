@@ -130,9 +130,9 @@
 // - Post-crash checkin.  Restored @Backup from around 4/16.  Contains changes for last four weeks of development.
 //
 //===============================================================================
+#include "mod/AvHConstants.h"
 #include "mod/AvHHud.h"
 #include "cl_dll/hud.h"
-#include "cl_dll/parsemsg.h"
 #include "cl_dll/cl_util.h"
 #include "vgui_label.h"
 #include "ui/PieMenu.h"
@@ -140,7 +140,6 @@
 #include "mod/AvHPieMenuHandler.h"
 #include "mod/AvHParticleTemplateClient.h"
 #include "mod/AvHParticleSystemManager.h"
-#include "mod/AvHConstants.h"
 #include "mod/AvHClientVariables.h"
 #include "mod/AvHSpecials.h"
 #include "ui/FadingImageLabel.h"
@@ -150,7 +149,7 @@
 #include "common/cl_entity.h"
 #include "mod/AvHCommanderModeHandler.h"
 #include "mod/AvHParticleEditorHandler.h"
-#include "mod/AvHTechNodes.h"
+#include "mod/AvHTechTree.h"
 #include "mod/AvHMovementUtil.h"
 #include "mod/AvHTitles.h"
 #include "mod/AvHSelectionHelper.h"
@@ -185,10 +184,11 @@
 #include "mod/AvHCommandConstants.h"
 #include "mod/AvHDebugUtil.h" 
 #include "engine/keydefs.h"
-#include "mod/ChatPanel.h"
+#include "ui/ChatPanel.h"
 #include "cl_dll/r_studioint.h"
 #include "util/Tokenizer.h"
 #include <sstream>
+#include "mod/AvHNetworkMessages.h"
 
 //#include "cl_dll/studio_util.h"
 //#include "cl_dll/r_studioint.h"
@@ -234,9 +234,7 @@ AvHMiniMap	gMiniMap;
 //vec3_t				gPlayerOrigin;
 //vec3_t				gPlayerAngles;
 
-#ifdef AVH_PREDICT_SELECT
-extern AvHSelectionHelper				gSelectionHelper;
-#endif
+extern AvHSelectionHelper	gSelectionHelper;
 
 //#if defined( AVH_CLIENT )
 //extern "C"	float gOverwatchTargetRange;
@@ -510,21 +508,7 @@ bool AvHHud::GetIsShowingMap() const
 
 void AvHHud::ClearSelection()
 {
-	// Clear our selection, make sure the server knows.
-//	this->mSelectionJustChanged = true;
-//	this->mSelected.clear();
-//
-//	// Create effects
-//	this->SetSelectionEffects(this->mSelected);
-//
-//	this->PlayHUDSound(HUD_SOUND_SELECT);
-//
-//	gCommanderHandler.SetSelectedUnits(this->mSelected);
-
-	#ifdef AVH_PREDICT_SELECT
 	gSelectionHelper.ClearSelection();
-	#endif
-	
 	this->mGroupEvent = COMMANDER_REMOVESELECTION;
 }
 
@@ -604,9 +588,7 @@ bool AvHHud::AddTooltipOnce(const char* inMessageText, bool inIsToolTip)
 void AvHHud::Cancel(void)
 {
 	ASSERT(this->mInTopDownMode);
-
 	gCommanderHandler.CancelHit();
-	//this->m_Ammo.UserCmd_Close();
 }
 
 void AvHHud::ClearData()
@@ -664,13 +646,6 @@ void AvHHud::ClearData()
 	this->mCurrentGhostIsValid = false;
 
 	this->mAmbientSounds.clear();
-
-	if(gViewPort)
-	{
-		ScorePanel* theScoreBoard = gViewPort->GetScoreBoard();
-		if(theScoreBoard)
-			theScoreBoard->DeleteCustomIcons();
-	}
 }
 
 
@@ -1818,70 +1793,6 @@ int AvHHud::GetMaxAlienResources() const
 	return theMaxAlienResources;
 }
 
-//void AvHHud::InitializeGammaTable()
-//{
-//	for(int j = 0; j < 3; j++)
-//	{
-//		for(int i = 0; i < 256; i++)
-//		{
-//			int theBaseOffset = j*256 + i;
-//			uint8 theNewColor = (uint8)i;
-//			uint16 theNewWord = theNewColor << 8;
-//			((uint16*)sOriginalGammaTable)[theBaseOffset] = theNewWord;
-//		}
-//	}
-//}
-//
-//void AvHHud::ProcessGammaTable(float inSlope)
-//{
-//	// Steepen and saturate, ala Q3
-//	uint8 kMaxValue = uint8(-1);
-//	for(int j = 0; j < 3; j++)
-//	{
-//		for(int i = 0; i < 256; i++)
-//		{
-//			int theBaseOffset = j*256 + i;
-//			uint16 theWord = ((uint16*)sGammaTable)[theBaseOffset];
-//			uint8 theBaseColor = (theWord & 0xFF00) >> 8;
-//			uint8 theNewColor = min(theBaseColor*inSlope, kMaxValue);
-//			uint16 theNewWord = theNewColor << 8;
-//			((uint16*)sGammaTable)[theBaseOffset] = theNewWord;
-//		}
-//	}
-//}
-
-//void AvHHud::ToggleGamma(void)
-//{
-//	AvHHud::ResetGamma();
-//
-//	if(!sGammaAltered)
-//	{
-//        float theGammaToTry = 2.05f;
-//        bool theSuccess = false;
-//        while(!theSuccess && (theGammaToTry > 1.0f))
-//        {
-//            theGammaToTry -= .05f;
-//            theSuccess = AvHHud::SetGamma(theGammaToTry);
-//        }
-//
-//        char theMessage[256];
-//        if(theSuccess)
-//        {
-//            sprintf(theMessage, "Gamma set to %f.", theGammaToTry);
-//			gNewGammaSlope = theGammaToTry;
-//        }
-//        else
-//        {
-//            sprintf(theMessage, "This display device doesn't appear to support downloadable gamma ramps.");
-//        }
-//        CenterPrint(theMessage);
-//	}
-//	else
-//	{
-//		sGammaAltered = false;
-//	}
-//}
-
 bool AvHHud::SetGamma(float inSlope)
 {
     bool theSuccess = false;
@@ -1903,18 +1814,6 @@ bool AvHHud::SetGamma(float inSlope)
 			{
 				// Tell UI components so they can change shading to look the same
 				this->GetManager().NotifyGammaChange(theGammaToTry);
-				
-				//float theColorBias = 1/this->mGammaSlope;
-				//
-				//if(this->mSoldierMenu)
-				//{
-				//	this->mSoldierMenu->SetColorBias(theColorBias);
-				//}
-				//
-				//if(this->mAlienMenu)
-				//{
-				//	this->mAlienMenu->SetColorBias(theColorBias);
-				//}
 				
 				// aww yeah
 				theSuccess = true;
@@ -1962,10 +1861,6 @@ bool AvHHud::SlotInput(int inSlot)
 			if(theButtonBits & IN_DUCK)
 			{
 				theCreateGroup = true;
-			
-				//#ifdef AVH_PREDICT_SELECT
-				//this->PlayHUDSound(AvHHUDSound(HUD_SOUND_SQUAD1 + inSlot));
-				//#endif
 			}
 			
 			int theBaseOffset = theCreateGroup ? GROUP_CREATE_1 : GROUP_SELECT_1;
@@ -1975,22 +1870,6 @@ bool AvHHud::SlotInput(int inSlot)
 			theHandled = true;
 		}
 	}
-//	else if(this->mDrawCombatUpgradeMenu)
-//	{
-//		if((inSlot >= 0) && (inSlot < kNumUpgradeLines))
-//		{
-//			AvHMessageID theImpulse = this->mMenuImpulses[inSlot];
-//			if(theImpulse > 0)
-//			{
-//				// Make menu go away
-//				char szbuf[32];
-//				sprintf(szbuf, "impulse %d\n", theImpulse);
-//				ClientCmd(szbuf);
-//				
-//				theHandled = true;
-//			}
-//		}
-//	}
 
 	return theHandled;
 }
@@ -2072,40 +1951,12 @@ void AvHHud::SetTechHelpText(const string& inTechHelpText)
 BIND_MESSAGE(Countdown);
 int AvHHud::Countdown(const char* pszName, int iSize, void* pbuf)
 {
-	BEGIN_READ(pbuf, iSize);
-	byte theNumSecondsUntilStart = READ_BYTE();
-
-	this->mNumTicksToPlay = theNumSecondsUntilStart;
+	NetMsg_UpdateCountdown( pbuf, iSize, this->mNumTicksToPlay );
 	this->mLastTickPlayed = 1;
 	this->mCountDownClock = this->m_flTime;
 
 	return 1;
 }
-
-//BIND_MESSAGE(ChangeNode);
-//int	AvHHud::ChangeNode(const char* pszName, int iSize, void* pbuf)
-//{
-//	BEGIN_READ(pbuf, iSize);
-//    int theBytesRead = 1;
-//
-//	// Read new armor level
-//	this->mArmorLevel = READ_BYTE();
-//
-//	// Read old message id
-//	int theOldMessageID = READ_BYTE();
-//
-//	// Read new message id
-//	int theNewMessageID = READ_BYTE();
-//
-//	// Read string
-//	const char* theString = READ_STRING();
-//
-//	// Make the change
-//	this->ChangeUpgradeCosts(theOldMessageID, theNewMessageID, theString);
-//	
-//	// TODO: Is it ok to return this here?  2 bytes for the ids, one for the string?
-//	return 3;
-//}
 
 bool AvHHud::GetAmbientSoundNameFromIndex(string& outSoundName, int inSoundIndex) const
 {
@@ -2115,10 +1966,6 @@ bool AvHHud::GetAmbientSoundNameFromIndex(string& outSoundName, int inSoundIndex
 	{
 		outSoundName = this->mSoundNameList[inSoundIndex];
 		theFoundName = true;
-	}
-	else
-	{
-		int a = 0;
 	}
 
 	return theFoundName;
@@ -2367,165 +2214,97 @@ void AvHHud::ResetComponentsForUser3()
 	}
 }
 
-#ifdef AVH_PLAYTEST_BUILD
 BIND_MESSAGE(BalanceVar);
 int AvHHud::BalanceVar(const char* pszName, int iSize, void* pbuf)
 {
-	int theBytesRead = 0;
-	BEGIN_READ(pbuf, iSize);
+	string name;
+	BalanceMessageAction action;
+	int ivalue;
+	float fvalue;
+	string svalue;
+	NetMsg_BalanceVar( pbuf, iSize, name, action, ivalue, fvalue, svalue );
+	BalanceValueContainer* container = BalanceValueContainerFactory::get();
 
-	// Read string
-	char* theCString = READ_STRING();
-	theBytesRead += strlen(theCString);
-	string theString(theCString);
-
-	// Read byte indicating whether to be stored as a long or float
-	int theFloatData = READ_BYTE();
-	
-	// Read data
-    int theIntValue = READ_LONG();
-    theBytesRead += 4;
-
-	if(theFloatData)
+	switch( action )
 	{
-		float theFloatValue = theIntValue/kNormalizationNetworkFactor;
-		this->mBalanceFloats[theString] = theFloatValue;
+	case BALANCE_ACTION_INSERT_INT:
+		container->insert(name,ivalue);
+		break;
+	case BALANCE_ACTION_INSERT_FLOAT:
+		container->insert(name,fvalue);
+		break;
+	case BALANCE_ACTION_INSERT_STRING:
+		container->insert(name,svalue);
+		break;
+	case BALANCE_ACTION_REMOVE:
+		container->remove(name);
+		break;
+	case BALANCE_ACTION_CLEAR:
+		container->clear();
+		break;
 	}
-	else
-	{
-		this->mBalanceInts[theString] = theIntValue;
-	}
-
-	if(gViewPort)
-	{
-		gViewPort->mBalanceChanged = true;
-	}
-
-	return theBytesRead;
+	return 1;
 }
-
-const BalanceIntListType& AvHHud::GetBalanceInts() const
-{
-	return this->mBalanceInts;
-}
-
-const BalanceFloatListType&	AvHHud::GetBalanceFloats() const
-{
-	return this->mBalanceFloats;
-}
-
-#endif
 
 BIND_MESSAGE(GameStatus);
 int AvHHud::GameStatus(const char* pszName, int iSize, void* pbuf)
 {
-	int theBytesRead = 0;
-	BEGIN_READ(pbuf, iSize);
-	
-	BYTE theStatusByte = READ_BYTE();
-	theBytesRead++;
+	int status, game_time, timelimit, misc_data;
+	AvHMapMode map_mode;
+	NetMsg_GameStatus( pbuf, iSize, status, map_mode, game_time, timelimit, misc_data );
 
-	this->mMapMode = (AvHMapMode)READ_BYTE();
-	theBytesRead++;
+	this->mMapMode = map_mode;
 
-	if((theStatusByte == kGameStatusReset) || (theStatusByte == kGameStatusResetNewMap))
+	switch( status )
 	{
+	case kGameStatusReset:
+	case kGameStatusResetNewMap:
 		if(this->mInTopDownMode)
 		{
 			this->ToggleMouse();
-
-			// Reset angles?
-//			gViewAngles[0] = READ_COORD();
-//			gViewAngles[1] = READ_COORD();
-//			gViewAngles[2] = READ_COORD();
-//			gResetViewAngles = true;
-		}
-		
-		bool theMapChange = false;
-		if(theStatusByte == kGameStatusResetNewMap)
-		{
-			theMapChange = true;
 		}
 
-		this->ResetGame(theMapChange);
-	}
-	// Victor determined, but we are still in the cooldown time
-	else if(theStatusByte == kGameStatusEnded)
-	{
-		// Stop research
-		this->mGameEnded = true;
-	}
-	else if(theStatusByte == kGameStatusGameTime)
-	{
-		// Authoritative game time from server (which we then increment every tick)
-		this->mGameTime = READ_SHORT();
-		this->mTimeLimit = READ_SHORT();
-		this->mCombatAttackingTeamNumber = READ_BYTE();
-		theBytesRead += 5;
-	}
-	else if(theStatusByte == kGameStatusUnspentLevels)
-	{
-		this->mExperienceLevelSpent = READ_BYTE();
-		theBytesRead++;
+		this->ResetGame( status == kGameStatusResetNewMap ? true : false );
+		break;
+	case kGameStatusEnded: // Victor determined, but we are still in the cooldown time
+		this->mGameEnded = true; // Stop research
+		break;
+	case kGameStatusGameTime:
+		this->mGameTime = game_time;
+		this->mTimeLimit = timelimit;
+		this->mCombatAttackingTeamNumber = misc_data;
+		break;
+	case kGameStatusUnspentLevels:
+		this->mExperienceLevelSpent = misc_data;
+		break;
 	}
 	
-	return theBytesRead;
+	return 1;
 }
 
 BIND_MESSAGE(MiniMap);
 int AvHHud::MiniMap(const char* pszName, int iSize, void* pbuf)
 {
-	int theBytesRead = 0;
-	BEGIN_READ(pbuf, iSize);
-
-	theBytesRead += gMiniMap.ReceiveFromNetworkStream();
-	
-	return theBytesRead;
+	gMiniMap.ReceiveFromNetworkStream( pbuf, iSize );
+	return 1;
 }
 
 
 BIND_MESSAGE(ServerVar);
 int AvHHud::ServerVar(const char* pszName, int iSize, void* pbuf)
 {
-    BEGIN_READ(pbuf, iSize);
-
-    std::string theVariableName  = READ_STRING();
-    std::string theVariableValue = READ_STRING();
-
-    mServerVariableMap[theVariableName] = theVariableValue;
-	
+	string name, value;
+	NetMsg_ServerVar( pbuf, iSize, name, value );
+    
+    mServerVariableMap[name] = value;
 	return 1;
-
 }
-
-
-//BIND_MESSAGE(NetSS);
-//int	AvHHud::NetSS(const char* pszName, int iSize, void* pbuf)
-//{
-//	int theBytesRead = 0;
-//	BEGIN_READ(pbuf, iSize);
-//	
-//	BYTE theStatusByte = READ_BYTE();
-//	theBytesRead++;
-//
-//	ClientCmd("snapshot");
-//
-//	return theBytesRead;
-//}
 
 BIND_MESSAGE(Progress);
 int AvHHud::Progress(const char* pszName, int iSize, void* pbuf)
 {
-	int theBytesRead = 0;
-	BEGIN_READ(pbuf, iSize);
-
-	this->mProgressBarEntityIndex = READ_SHORT();
-	theBytesRead += 2;
-
-	this->mProgressBarParam = READ_BYTE();
-	theBytesRead++;
-	
-	return theBytesRead;
+	NetMsg_ProgressBar( pbuf, iSize, this->mProgressBarEntityIndex, this->mProgressBarParam );
+	return 1;
 }
 
 // Start the game over.  Called after the game ends and also after a map change
@@ -2552,15 +2331,7 @@ void AvHHud::ResetGame(bool inMapChanged)
 	{
 		gParticleTemplateList.Clear();
 		this->mTimeOfLastUpdate = 0.0f;
-
 		this->mInfoLocationList.clear();
-
-		if(gViewPort)
-		{
-			ScorePanel* theScoreBoard = gViewPort->GetScoreBoard();
-			if(theScoreBoard)
-				theScoreBoard->DeleteCustomIcons();
-		}
 	}
 
 	AvHParticleSystemManager::Instance()->Reset();
@@ -2695,257 +2466,126 @@ void AvHHud::ResetGame(bool inMapChanged)
 BIND_MESSAGE(SetGmma);
 int	AvHHud::SetGmma(const char* pszName, int iSize, void* pbuf)
 {
-	int theNumBytesRead = 0;
-	
-	BEGIN_READ( pbuf, iSize);
-	this->mDesiredGammaSlope = READ_COORD()/kNormalizationNetworkFactor;
-	theNumBytesRead += 2;
-	
-	// Set gamma here
+	NetMsg_SetGammaRamp( pbuf, iSize, this->mDesiredGammaSlope );
     if (!mSteamUIActive)
     {
 	    this->SetGamma(this->mDesiredGammaSlope);
     }
 	
-	return theNumBytesRead;
+	return 1;
 }
 
 BIND_MESSAGE(BlipList);
 int	AvHHud::BlipList(const char* pszName, int iSize, void* pbuf)
 {
+	bool friendly_blips;
+	AvHVisibleBlipList list;
+	NetMsg_BlipList( pbuf, iSize, friendly_blips, list );
+
 	float theCurrentTime = gEngfuncs.GetClientTime();
 	
-    // Fetch new chain of command from network message
-    BEGIN_READ(pbuf, iSize);
-	int theBytesRead = 0;
-	
-	bool theReadingFriendlyBlips = READ_BYTE();
-	theBytesRead++;
-	
-	if(!theReadingFriendlyBlips)
+	if( friendly_blips )
 	{
-		this->mEnemyBlips.Clear();
-		
-		// Read number enemy blips
-		int theNumBlips = READ_BYTE();
-		
-		// For each enemy blip
-		for(int i = 0; i < theNumBlips; i++)
-		{
-			// Read angle/distance
-			float theX = READ_COORD();
-			float theY = READ_COORD();
-			float theZ = READ_COORD();
-			int8 theStatus = READ_BYTE();
-			this->mEnemyBlips.AddBlip(theX, theY, theZ, theStatus);
-			
-			// Increment bytes read
-			theBytesRead += 7;
-		}
-
-		this->mEnemyBlips.SetTimeBlipsReceived(theCurrentTime);
+		this->mFriendlyBlips.AddBlipList(list);
+		this->mFriendlyBlips.SetTimeBlipsReceived(theCurrentTime);
 	}
 	else
 	{
-		this->mFriendlyBlips.Clear();
-
-		// Read number friendly blips
-		int theNumBlips = READ_BYTE();
-		
-		// For each friendly blip
-		for(int i = 0; i < theNumBlips; i++)
-		{
-			// Read angle/distance
-			float theX = READ_COORD();
-			float theY = READ_COORD();
-			float theZ = READ_COORD();
-			int8 theStatus = READ_BYTE();
-			int8 theInfo = READ_BYTE();
-			this->mFriendlyBlips.AddBlip(theX, theY, theZ, theStatus, theInfo);
-			
-			// Increment bytes read
-			theBytesRead += 8;
-		}
-
-		this->mFriendlyBlips.SetTimeBlipsReceived(theCurrentTime);
+		this->mEnemyBlips.AddBlipList(list);
+		this->mEnemyBlips.SetTimeBlipsReceived(theCurrentTime);
 	}
-			
-	return theBytesRead;
+	return 1;
 }
 
 BIND_MESSAGE(ClScript);
 int	AvHHud::ClScript(const char *pszName, int iSize, void *pbuf)
 {
-	int theBytesRead = 0;
-
-	BEGIN_READ(pbuf, iSize);
-	int theNumScripts = READ_BYTE();
-	theBytesRead++;
-
-	for(int i = 0; i < theNumScripts; i++)
+	StringList script_names;
+	NetMsg_ClientScripts( pbuf, iSize, script_names );
+	StringList::iterator current, end = script_names.end();
+	for( current = script_names.begin(); current != end; ++current )
 	{
-		string theScriptName = READ_STRING();
-		theBytesRead += theScriptName.length();
-
-		string theExecutableScriptName = AvHSHUBuildExecutableScriptName(theScriptName, this->GetMapName());
-
-		AvHScriptManager::Instance()->RunScript(theExecutableScriptName);
+		AvHScriptManager::Instance()->RunScript(current->c_str());
 	}
 
-	return theBytesRead;
+	return 1;
 }
 
 BIND_MESSAGE(Particles);
 int AvHHud::Particles(const char *pszName, int iSize, void *pbuf)
 {
-    // Fetch new chain of command from network message
-    BEGIN_READ(pbuf, iSize);
-	int theBytesRead = gParticleTemplateList.ReceiveFromNetworkStream();
+	AvHParticleTemplate particle_template;
+	NetMsg_SetParticleTemplate( pbuf, iSize, particle_template );
+	gParticleTemplateList.Insert( particle_template );
 	
-    return theBytesRead;
+    return 1;
 }
 
 BIND_MESSAGE(SoundNames);
 int AvHHud::SoundNames(const char *pszName, int iSize, void *pbuf)
 {
-    // Fetch new chain of command from network message
-    BEGIN_READ(pbuf, iSize);
-	
-	bool theClearSoundList = READ_BYTE();
-	int theBytesRead = 1;
+	bool theClearSoundList;
+	string sound_name;
+	NetMsg_SetSoundNames( pbuf, iSize, theClearSoundList, sound_name );
 	
 	if(theClearSoundList)
 	{
-		// Clear sound list
 		this->mSoundNameList.clear();
 	}
 	else
 	{
-		char* theString = READ_STRING();
-		theBytesRead += strlen(theString);
-		
-		string theSoundName(theString);
-		int theSize = this->mSoundNameList.size();
-		this->mSoundNameList.push_back(theString);
-		theSize = this->mSoundNameList.size();
+		this->mSoundNameList.push_back(sound_name);
 	}
 
-    return theBytesRead;
+    return 1;
 }
 
 BIND_MESSAGE(SetSelect);
 int	AvHHud::SetSelect(const char* pszName, int iSize, void* pbuf)
 {
-	// Better not get this message unless it's appropriate
-	//ASSERT(this->GetInTopDownMode());
-
-	int theBytesRead = 0;
+	Selection selection;
+	NetMsg_SetSelect( pbuf, iSize, selection );
 
 	EntityListType theGroup;
 
-    BEGIN_READ(pbuf, iSize);
-
-	// Read whether this is a hotgroup or the current selection
-	int theHotGroupNumber = READ_BYTE();
-	theBytesRead++;
-
-	if((theHotGroupNumber <= (kNumHotkeyGroups)) || (theHotGroupNumber == kSelectAllHotGroup))
+	switch( selection.group_number )
 	{
-		int theNumUnits = READ_BYTE();
-		theBytesRead += 1;
-		
-		for(int i = 0; i < theNumUnits; i++)
-		{
-			int theEntIndex = READ_SHORT();
-			theGroup.push_back(theEntIndex);
-			theBytesRead += 2;
-		}
-
-		if(theHotGroupNumber == 0)
-		{
-			// set flag to indicate selection just changed
-//			#ifdef AVH_PREDICT_SELECT
-//			this->mNumLocalSelectEvents--;
-//	
-//			// This will only be negative when the server sets the selection for us, like when becoming commander
-//			if(this->mNumLocalSelectEvents <= 0)
-//			{
-//			#endif
-
-			bool theIsTracking = READ_BYTE();
-			theBytesRead++;
-
-			if(theIsTracking)
-			{
-				this->mTrackingEntity = READ_SHORT();
-				theBytesRead += 2;
-			}
-			else
-			{
-				this->mTrackingEntity = 0;
-			}
-	
-			if(theGroup != this->mSelected)
+	case 0:
+		this->mTrackingEntity = selection.tracking_entity;
+		if( selection.selected_entities != this->mSelected )
 			{
 				this->mSelectionJustChanged = true;
-				this->mSelected = theGroup;
-			}
-//			this->mNumLocalSelectEvents = 0;
-//			#ifdef AVH_PREDICT_SELECT
-//			}
-//#endif
+			this->mSelected = selection.selected_entities;
 		}
-		else
-		{
-			if(theHotGroupNumber <= kNumHotkeyGroups)
-			{
-				this->mGroups[theHotGroupNumber-1] = theGroup;
-				
-				this->mGroupTypes[theHotGroupNumber-1] = (AvHUser3)READ_BYTE();
-				theBytesRead++;
-				
-				mGroupAlerts[theHotGroupNumber-1] = (AvHAlertType)READ_BYTE();
-				theBytesRead++;
-			}
-			else
-			{
-				// Select all group
-				ASSERT(theHotGroupNumber == kSelectAllHotGroup);
-				this->mSelectAllGroup = theGroup;
-			}
-		}
+		break;
+	case kSelectAllHotGroup:
+		this->mSelectAllGroup = selection.selected_entities;
+		break;
+	default:
+		this->mGroups[selection.group_number-1] = selection.selected_entities;
+		this->mGroupTypes[selection.group_number-1] = selection.group_type;
+		this->mGroupAlerts[selection.group_number-1] = selection.group_alert;
 	}
-	else
-	{
-		// Read request type
-		AvHMessageID theRequestType = AvHMessageID(READ_BYTE());
-		theBytesRead++;
 
-		// Read either number of idle soldiers
-		int theNumberPendingRequests = READ_BYTE();
-		theBytesRead++;
+	return 1;
+}
 
-		// Save it
-		this->mPendingRequests[theRequestType] = theNumberPendingRequests;
-	}
+BIND_MESSAGE(SetRequest);
+int AvHHud::SetRequest(const char* pszName, int iSize, void* pbuf)
+{
+	int request_type, request_count;
+	NetMsg_SetRequest( pbuf, iSize, request_type, request_count );
+	this->mPendingRequests[(AvHMessageID)request_type] = request_count;
 	
-	return theBytesRead;
+	return 1;
 }
 
 BIND_MESSAGE(SetOrder);
 int	AvHHud::SetOrder(const char* pszName, int iSize, void* pbuf)
 {
-	int theBytesRead = 0;
-	
-    BEGIN_READ(pbuf, iSize);
-
-	// Read status, changed or new
-	//int theStatus = READ_BYTE();
-	//theBytesRead++;
-	
 	AvHOrder theNewOrder;
-	theBytesRead += theNewOrder.ReceiveFromNetworkStream();
-	
+	NetMsg_SetOrder( pbuf, iSize, theNewOrder );
+
 	AvHChangeOrder(this->mOrders, theNewOrder);
 	
 	// Give feedback on order
@@ -2964,255 +2604,171 @@ int	AvHHud::SetOrder(const char* pszName, int iSize, void* pbuf)
 		}
 	}
 	
-	return theBytesRead;
+	return 1;
 }
-
-//BIND_MESSAGE(CplteOrder);
-//int	AvHHud::CplteOrder(const char* pszName, int iSize, void* pbuf)
-//{
-//	int theBytesRead = 0;
-//	
-//    BEGIN_READ(pbuf, iSize);
-//
-//	int theNumPlayers = READ_BYTE();
-//	theBytesRead++;
-//
-//	for(int i = 0; i < theNumPlayers; i++)
-//	{
-//		int thePlayerIndex = READ_BYTE();
-//		theBytesRead++;
-//
-//		AvHRemovePlayerFromOrders(this->mOrders, thePlayerIndex);
-//	}
-//
-//	return theBytesRead;
-//}	
 
 BIND_MESSAGE(SetupMap);
 int	AvHHud::SetupMap(const char* pszName, int iSize, void* pbuf)
 {
-	int theBytesRead = 0;
-	
-    BEGIN_READ(pbuf, iSize);
+	bool is_location, draw_background;
+	float min_extents[3], max_extents[3];
+	string name;
+	NetMsg_SetupMap( pbuf, iSize, is_location, name, min_extents, max_extents, draw_background );
 
-	int theMessageType = READ_BYTE();
-	theBytesRead++;
-
-	ASSERT((theMessageType == 0) || (theMessageType == 1));
-	if(theMessageType == 0)
+	if( is_location )
 	{
-		// Read map name
-		char* theMapName = READ_STRING();
-		this->mMapName = string(theMapName);
-		theBytesRead += strlen(theMapName);
-		
-		// Read map extents if entering top down mode
-		theBytesRead += this->mMapExtents.ReceiveFromNetworkStream();
-	}
-	else if(theMessageType == 1)
-	{
-		// Receiving an info location
-		// Read string
-		char* theInfoLocationName = READ_STRING();
-		theBytesRead += strlen(theInfoLocationName);
-
-		// Read max extents
 		vec3_t theMaxExtent;
-		theMaxExtent.x = READ_COORD();
-		theMaxExtent.y = READ_COORD();
-		theMaxExtent.z = 0;//READ_COORD();
-		theBytesRead += 4;
-
-		// Read min extents
+		theMaxExtent.x = max_extents[0];
+		theMaxExtent.y = max_extents[1];
+		theMaxExtent.z = max_extents[2];
 		vec3_t theMinExtent;
-		theMinExtent.x = READ_COORD();
-		theMinExtent.y = READ_COORD();
-		theMinExtent.z = 0;//READ_COORD();
-		theBytesRead += 4;
+		theMinExtent.x = min_extents[0];
+		theMinExtent.y = min_extents[1];
+		theMinExtent.z = min_extents[2];
 
-		// Save info location
-		string theLocationName(theInfoLocationName);
-		AvHBaseInfoLocation theLocation(theLocationName, theMaxExtent, theMinExtent);
-		this->mInfoLocationList.push_back(theLocation);
+		this->mInfoLocationList.push_back( AvHBaseInfoLocation( name, theMaxExtent, theMinExtent ) );
+	}
+	else
+	{
+		this->mMapName = name;
+		this->mMapExtents.SetMaxMapX( max_extents[0] );
+		this->mMapExtents.SetMaxMapY( max_extents[1] );
+		this->mMapExtents.SetMaxViewHeight( max_extents[2] );
+		this->mMapExtents.SetMinMapX( min_extents[0] );
+		this->mMapExtents.SetMinMapY( min_extents[1] );
+		this->mMapExtents.SetMinViewHeight( min_extents[2] );
+		this->mMapExtents.SetDrawMapBG( draw_background );
 	}
 	
-	return theBytesRead;
+	return 1;
 }
 
   
 BIND_MESSAGE(SetTopDown);
 int	AvHHud::SetTopDown(const char* pszName, int iSize, void* pbuf)
 {
-	int theBytesRead = 0;
-	
-    BEGIN_READ(pbuf, iSize);
+	bool is_menu_tech, is_top_down;
+	float position[3];
+	int tech_slots;
+	NetMsg_SetTopDown( pbuf, iSize, is_menu_tech, is_top_down, position, tech_slots );
 
-	bool theSendingTechSlots = READ_BYTE();
-
-	if(!theSendingTechSlots)
+	if(is_menu_tech)
 	{
-		BYTE theTopDownMode = READ_BYTE();
-		theBytesRead += 1;
-		
-		if(this->mInTopDownMode && !theTopDownMode)
+		this->mMenuTechSlots = tech_slots;
+	}
+	else
+	{
+		if(this->mInTopDownMode && !is_top_down)
 		{
 			// Switch away from top down mode
 			this->mInTopDownMode = false;
 			this->ToggleMouse();
 		
 			// Reset angles
-			gViewAngles[0] = READ_COORD();
-			gViewAngles[1] = READ_COORD();
-			gViewAngles[2] = READ_COORD();
-			theBytesRead += 6;
+			gViewAngles[0] = position[0];
+			gViewAngles[1] = position[1];
+			gViewAngles[2] = position[2];
 		
 			gResetViewAngles = true;
 		
 			this->mSelectionEffects.clear();
 		}
-		else if(!this->mInTopDownMode && theTopDownMode)
+		else if(!this->mInTopDownMode && is_top_down)
 		{
 			// Switch to top down mode!
 			this->mInTopDownMode = true;
 			this->ToggleMouse();
 		}
 		
-		if(theTopDownMode)
+		if(is_top_down)
 		{
 			// Read new PAS
-			this->mCommanderPAS.x = READ_COORD();
-			this->mCommanderPAS.y = READ_COORD();
-			this->mCommanderPAS.z = READ_COORD();
-			theBytesRead += 6;
+			this->mCommanderPAS.x = position[0];
+			this->mCommanderPAS.y = position[1];
+			this->mCommanderPAS.z = position[2];
 		}
 	}
-	else
-	{
-		// Read data for commander menus
-		this->mMenuTechSlots = READ_LONG();
-		theBytesRead += 4;
-	}
 
-	return theBytesRead;
+	return 1;
 }
 
 
 BIND_MESSAGE(EntHier);
 int AvHHud::EntHier(const char *pszName, int iSize, void *pbuf)
 {
-    // Fetch new chain of command from network message
-	int theBytesRead = this->mEntityHierarchy.ReceiveFromNetworkStream(iSize, pbuf);
+	MapEntityMap new_items;
+	EntityListType old_items;
+	NetMsg_UpdateEntityHierarchy( pbuf, iSize, new_items, old_items );
 
-	// Print how much data we just received
-    //char theMessage[256];
-    //sprintf(theMessage, "EntityHierarchy, received %d bytes.", theBytesRead);
-	//CenterPrint(theMessage);
+	MapEntityMap::iterator current, end = new_items.end();
+	for( current = new_items.begin(); current != end; ++current )
+	{
+		this->mEntityHierarchy.InsertEntity( current->first, current->second );
+	}
 
-    return theBytesRead;
+	EntityListType::iterator d_current, d_end = old_items.end();
+	for( d_current = old_items.begin(); d_current != d_end; ++d_current )
+	{
+		this->mEntityHierarchy.DeleteEntity( *d_current );
+	}
+
+    return 0;
 }
 
 BIND_MESSAGE(EditPS);
 int	AvHHud::EditPS(const char* pszName, int iSize, void* pbuf)
 {
-	int theNumBytesRead = 0;
-	
-    BEGIN_READ( pbuf, iSize);
-	
-	uint32 theEditParticleSystemIndex = (uint32)(READ_SHORT());
-	theNumBytesRead += 2;
+	int particle_index;
+	NetMsg_EditPS( pbuf, iSize, particle_index );
+	AvHParticleEditorHandler::SetEditIndex((uint32)particle_index);
 
-	AvHParticleEditorHandler::SetEditIndex(theEditParticleSystemIndex);
-
-	return theNumBytesRead;
+	return 1;
 }
 
 BIND_MESSAGE(Fog);
 int	AvHHud::Fog(const char* pszName, int iSize, void* pbuf)
 {
-	int theNumBytesRead = 0;
+	bool enabled;
+	int R, G, B;
+	float start, end;
+	NetMsg_Fog( pbuf, iSize, enabled, R, G, B, start, end );
 	
-    BEGIN_READ( pbuf, iSize);
-
-	// Read fog values
-	this->mFogActive = READ_BYTE();
-	theNumBytesRead++;
-
-	if(this->mFogActive)
+	this->mFogActive = enabled;
+	if(enabled)
 	{
-		this->mFogColor.x = READ_BYTE();
-		this->mFogColor.y = READ_BYTE();
-		this->mFogColor.z = READ_BYTE();
-		theNumBytesRead += 3;
-
-		this->mFogStart = READ_COORD();
-		this->mFogEnd = READ_COORD();
-		theNumBytesRead += 4;
+		this->mFogColor.x = R;
+		this->mFogColor.y = G;
+		this->mFogColor.z = B;
+		this->mFogStart = start;
+		this->mFogEnd = end;
 	}
 
-	return theNumBytesRead;
+	return 1;
 }
 
 BIND_MESSAGE(ListPS);
 int	AvHHud::ListPS(const char* pszName, int iSize, void* pbuf)
 {
-	int theNumBytesRead = 0;
-	
-    BEGIN_READ( pbuf, iSize);
-	
-	//int theNumTemplates = READ_SHORT();
-	//theNumBytesRead += 2;
+	string name;
+	NetMsg_ListPS( pbuf, iSize, name );
+	this->m_SayText.SayTextPrint(name.c_str(), 256, 0);
 
-	//for(int i = 0; i < theNumTemplates; i++)
-	//{
-		string theTemplateName = READ_STRING();
-		theNumBytesRead += theTemplateName.length();
-
-		this->m_SayText.SayTextPrint(theTemplateName.c_str(), 256, 0);
-	//}
-
-	return theNumBytesRead;
-}
-
-BIND_MESSAGE(Reinfor);
-int	AvHHud::Reinfor(const char* pszName, int iSize, void* pbuf)
-{
-	int theNumBytesRead = 0;
-	
-    BEGIN_READ( pbuf, iSize);
-	
-	int theReinforcements = READ_SHORT();
-	theNumBytesRead += 2;
-
-	this->SetReinforcements(theReinforcements);
-	
-	return theNumBytesRead;
+	return 1;
 }
 
 BIND_MESSAGE(PlayHUDNot);
 int AvHHud::PlayHUDNot(const char* pszName, int iSize, void* pbuf)
 {
-	int theBytesRead = 0;
-    BEGIN_READ( pbuf, iSize);
+	int message_id, sound;
+	float location_x, location_y;
+	NetMsg_PlayHUDNotification( pbuf, iSize, message_id, sound, location_x, location_y );
 
-	int theHUDNotType = READ_BYTE();
-	theBytesRead++;
-
-	int theHUDNotData = READ_BYTE();
-	theBytesRead++;
-
-	if(theHUDNotType == 0)
+	if(message_id == 0)
 	{
-		AvHHUDSound theSound = (AvHHUDSound)theHUDNotData;
-
-		// Added by mmcguire.
-        float theX = READ_COORD();
-		float theY = READ_COORD();
-		theBytesRead += 4;
-		
 		// Hack to avoid adding another network message (at max)
 		if(!this->GetInTopDownMode())
 		{
-			switch(theSound)
+			switch(sound)
 			{
 			case HUD_SOUND_SQUAD1:
 				this->mCurrentSquad = 1;
@@ -3233,7 +2789,7 @@ int AvHHud::PlayHUDNot(const char* pszName, int iSize, void* pbuf)
 		}
 		else
 		{
-			switch(theSound)
+			switch((AvHHUDSound)sound)
 			{
 			// Danger
 			case HUD_SOUND_MARINE_SOLDIER_UNDER_ATTACK:
@@ -3242,45 +2798,27 @@ int AvHHud::PlayHUDNot(const char* pszName, int iSize, void* pbuf)
 			case HUD_SOUND_MARINE_SOLDIERLOST:
 			case HUD_SOUND_MARINE_CCUNDERATTACK:
 				this->mBlinkingAlertType = 2;
-				AddMiniMapAlert(theX, theY);
+				AddMiniMapAlert(location_x, location_y);
 				break;
 		
 			// Just research or something like that
 			case HUD_SOUND_MARINE_UPGRADE_COMPLETE:
 			case HUD_SOUND_MARINE_RESEARCHCOMPLETE:
 				this->mBlinkingAlertType = 1;
-				AddMiniMapAlert(theX, theY);
+				AddMiniMapAlert(location_x, location_y);
 				break;
 			}
 		}
 		
-        this->PlayHUDSound(theSound);
-
-		//char theMessage[512];
-		//sprintf(theMessage, "Playing sound %d in HUD\n", theSound );
-		//ConsolePrint(theMessage);
-	
+        this->PlayHUDSound((AvHHUDSound)sound);
 	}
 	else
 	{
-		// Read byte for data (AvHUser3)
-		AvHMessageID theMessageID = AvHMessageID(theHUDNotData);
-
-		// Read byte for source player
-		//int theSourcePlayer = READ_BYTE();
-		//theBytesRead++;
-
-		// Location
-		float theX = READ_COORD();
-		float theY = READ_COORD();
-		theBytesRead += 4;
-
 		// Push back icon
 		HUDNotificationType theNotification;
-		theNotification.mStructureID = theMessageID;
+		theNotification.mStructureID = (AvHMessageID)message_id;
 		theNotification.mTime = this->mTimeOfCurrentUpdate;
-		//theNotification.mPlayerIndex = theSourcePlayer;
-		theNotification.mLocation = Vector(theX, theY, 0.0f);
+		theNotification.mLocation = Vector(location_x, location_y, 0.0f);
 
 		if(CVAR_GET_FLOAT(kvBuildMessages))
 		{
@@ -3288,107 +2826,17 @@ int AvHHud::PlayHUDNot(const char* pszName, int iSize, void* pbuf)
 		}
 	}
 
-	return theBytesRead;
+	return 1;
 }
 
 BIND_MESSAGE(AlienInfo);
 int	AvHHud::AlienInfo(const char* pszName, int iSize, void* pbuf)
 {
-	int theNumBytesRead = 0;
-	
-    BEGIN_READ( pbuf, iSize);
-
-	// 0 means upgrades, 1 means hive info
-	int theMessageType = READ_BYTE();
-	theNumBytesRead++;
-
-	if(theMessageType == 0)
-	{
-		// Read upgrades
-		int theNumUpgrades = READ_BYTE();
-		theNumBytesRead++;
-		
-		this->mUpgrades.clear();
-		for(int i = 0; i < theNumUpgrades; i++)
-		{
-			AvHAlienUpgradeCategory theUpgradeCategory = AvHAlienUpgradeCategory(READ_BYTE());
-			this->mUpgrades.push_back(theUpgradeCategory);
-			theNumBytesRead++;
-		}
-	}
-	else if(theMessageType == 1)
-	{
-		// Read num hives
-		int theNumHives = READ_BYTE();
-		theNumBytesRead++;
-
-		// For each hive, read if it changed or not
-		for(int i = 0; i < theNumHives; i++)
-		{
-			int theHiveInfoChanged = READ_BYTE();
-			theNumBytesRead++;
-
-			if(theHiveInfoChanged)
-			{
-				float theX = 0;
-				float theY = 0;
-				float theZ = 0;
-
-				// Sending coords for hive?
-				int theSentCoords = READ_BYTE();
-				theNumBytesRead++;
-
-				if(theSentCoords)
-				{
-					theX = READ_COORD();
-					theY = READ_COORD();
-					theZ = READ_COORD();
-					theNumBytesRead += 6;
-				}
-				else if((int)this->mHiveInfoList.size() > i)
-				{
-					// Preserve existing coords
-					theX = this->mHiveInfoList[i].mPosX;
-					theY = this->mHiveInfoList[i].mPosY;
-					theZ = this->mHiveInfoList[i].mPosZ;
-				}
-				else
-				{
-					int a = 0;
-				}
-
-				AvHHiveInfo theHiveInfo;
-				theHiveInfo.mPosX = theX;
-				theHiveInfo.mPosY = theY;
-				theHiveInfo.mPosZ = theZ;
-
-				theHiveInfo.mStatus = READ_BYTE();
-				theHiveInfo.mUnderAttack = READ_BYTE();
-				theHiveInfo.mTechnology = READ_SHORT();
-				theNumBytesRead += 4;
-				
-				theHiveInfo.mHealthPercentage = READ_BYTE();
-				theNumBytesRead += 1;
-
-				
-				// Add or replace
-				if((int)this->mHiveInfoList.size() <= i)
-				{
-					this->mHiveInfoList.push_back(theHiveInfo);
-				}
-				else
-				{
-					this->mHiveInfoList[i] = theHiveInfo;
-				}
-			}
-		}
-	}
-	else
-	{
-		ASSERT(false);
-	}
-	
-	return theNumBytesRead;
+	bool was_hive_info;
+	AvHAlienUpgradeListType upgrades;
+	HiveInfoListType hives;
+	NetMsg_AlienInfo( pbuf, iSize, was_hive_info, this->mUpgrades, this->mHiveInfoList );
+	return 1;
 }
 
 void AvHHud::PlayHUDSound(const char *szSound, float vol, float inSoundLength) 
@@ -3893,9 +3341,6 @@ void AvHHud::PlayHUDSound(AvHHUDSound inSound)
 		if(theSoundPtr)
 		{
 			gEngfuncs.pfnPlaySoundByName(theSoundPtr, theVolume);
-			// char theMessage[512];
-			// sprintf(theMessage, "Playing HUD sound %s, volume %f in HUD using gEngfuncs.pfnPlaySoundByName\n", theSoundPtr, theVolume );
-			// ConsolePrint(theMessage);
 			if(theSoundLength >= 0.0f)
 			{
 				this->mTimeOfNextHudSound = this->mTimeOfCurrentUpdate + theSoundLength;
@@ -3905,151 +3350,53 @@ void AvHHud::PlayHUDSound(AvHHUDSound inSound)
 	}
 }
 
-//BIND_MESSAGE(SetRole);
-//int AvHHud::SetRole(const char* pszName, int iSize, void* pbuf)
-//{
-//	int theBytesRead = 0;
-//
-//	// Fetch play mode from network message
-//    BEGIN_READ( pbuf, iSize);
-//    int theNewRole = READ_BYTE();
-//	this->mRole = AvHRole(theNewRole);
-//	theBytesRead++;
-//	
-//	AvHTeamNumber theTeam = (AvHTeamNumber)(READ_BYTE());
-//
-//	// When switching sides, zero out visible resources (prevents weird behavior when going from marine team to aliens especially)
-////	if(this->mTeam != theTeam)
-////	{
-////		this->mVisualResources = 0;
-////		this->mUser2OfLastResourceMessage = 0;
-////
-////		this->mVisualEnergyLevel = 0;
-////		this->mUser2OfLastEnergyLevel = 0;
-////
-////		// Remove HUD indication of current squad
-////		this->mCurrentSquad = 0;
-////	}
-////
-////	this->mTeam = theTeam;
-//	theBytesRead++;
-//
-//	// Resources always visible these days
-//	//if(this->mResourceLabel)
-//	//	this->mResourceLabel->setVisible(true);
-//
-//	this->mGhostBuilding = MESSAGE_NULL;
-//	
-//	this->mReticleInfoText = "";
-//
-//	// Set default color for tooltip
-////	int theR, theG, theB;
-////	this->GetPrimaryHudColor(theR, theG, theB);
-////	this->mReticleTooltip.SetR(theR);
-////	this->mReticleTooltip.SetG(theG);
-////	this->mReticleTooltip.SetB(theB);
-//	
-//	this->mTooltips.clear();
-//
-//	return theBytesRead;
-//}
-
 BIND_MESSAGE(SetTech);
 int	AvHHud::SetTech(const char* pszName, int iSize, void* pbuf)
 {
-	int theBytesRead = 0;
+	AvHTechNode* theTechNode = NULL;
+	NetMsg_SetTechNode( pbuf, iSize, theTechNode );
+	this->mTechNodes.InsertNode(theTechNode);
+	delete theTechNode;
 
-    BEGIN_READ( pbuf, iSize);
-
-	//AvHTechNodes theTechNodes;
-	//theBytesRead += theTechNodes.ReceiveFromNetworkStream();
-	//
-	//this->mTechNodes = theTechNodes;
-
-	int theIndex = READ_SHORT();
-	theBytesRead += 2;
-
-	AvHTechNode theTechNode;
-	theBytesRead += theTechNode.ReceiveFromNetworkStream();
-
-	if(!this->mTechNodes.SetTechNode(theIndex, theTechNode))
-	{
-		ASSERT(false);
-	}
-
-	//AvHActionButtons* theActionButtons = NULL;
-	//if(this->GetManager().GetVGUIComponentNamed(kActionButtonsComponents, theActionButtons))
-	//{
-	//	theActionButtons->SetTechNodes(theTechNodes);
-	//}
-
-//	AvHTechButtons* theTechButtons = NULL;
-//	if(this->GetManager().GetVGUIComponentNamed(theCategoryName, theTechButtons))
-//	{
-//		theTechButtons->SetTechNodes(theTechNodes);
-//	}
-
-	return theBytesRead;
+	return 1;
 }
 
 BIND_MESSAGE(TechSlots);
 int AvHHud::TechSlots(const char* pszName, int iSize, void* pbuf)
 {
-	int theBytesRead = 0;
-
-    BEGIN_READ( pbuf, iSize);
-
-	//int theIndex = READ_SHORT();
-	//theBytesRead += 2;
-
 	AvHTechSlots theNewTechSlots;
-	theBytesRead += theNewTechSlots.ReceiveFromNetworkStream();
+	NetMsg_SetTechSlots( pbuf, iSize, theNewTechSlots );
 
 	this->mTechSlotManager.AddTechSlots(theNewTechSlots);
 
-	return theBytesRead;
+	return 1;
 }
 
 BIND_MESSAGE(DebugCSP);
 int	AvHHud::DebugCSP(const char* pszName, int iSize, void* pbuf)
 {
-	int theBytesRead = 0;
-
-    BEGIN_READ( pbuf, iSize);
-
-	int theID = READ_LONG();
-	int theClip = READ_LONG();
-	theBytesRead += 8;
-
-	float theNextPrimaryAttack = READ_COORD();
-	float theTimeWeaponIdle = READ_COORD();
-	theBytesRead += 4;
-
-	float theNextAttack = READ_COORD();
-	theBytesRead += 2;
+	weapon_data_t weapon_data;
+	float next_attack;
+	NetMsg_DebugCSP( pbuf, iSize, weapon_data, next_attack );
 
 	char theServerInfoString[512];
-	sprintf(theServerInfoString, "Server: id: %d, clip: %d, prim attack: %f, idle: %f, next attack: %f", theID, theClip, theNextPrimaryAttack, theTimeWeaponIdle, theNextAttack);
-		
+	sprintf(theServerInfoString, "Server: id: %d, clip: %d, prim attack: %f, idle: %f, next attack: %f", 
+		weapon_data.m_iId,
+		weapon_data.m_iClip,
+		weapon_data.m_flNextPrimaryAttack,
+		weapon_data.m_flTimeWeaponIdle,
+		weapon_data.m_flNextSecondaryAttack,
+		next_attack
+	);
+	
 	vgui::Label* theLabel = NULL;
 	if(this->GetManager().GetVGUIComponentNamed(kDebugCSPServerLabel, theLabel))
 	{
 		theLabel->setText(theServerInfoString);
 	}
 	
-	return theBytesRead;
+	return 1;
 }
-
-//BIND_MESSAGE(GivePlayerItem);
-//int AvHHud::GivePlayerItem(const char* pszName, int iSize, void *pbuf)
-//{
-//    BEGIN_READ( pbuf, iSize);
-//    int theItem = READ_LONG();
-//
-//    // Give player item
-//
-//    return 4;
-//}
 
 AvHVisibleBlipList&	AvHHud::GetEnemyBlipList()
 {
@@ -4106,27 +3453,20 @@ void AvHHud::Init(void)
 	HOOK_MESSAGE(Particles);
 	HOOK_MESSAGE(SoundNames);
 	HOOK_MESSAGE(PlayHUDNot);
-//	HOOK_MESSAGE(ChangeNode);
-
-	#ifdef AVH_PLAYTEST_BUILD
 	HOOK_MESSAGE(BalanceVar);
-	#endif
-
 	HOOK_MESSAGE(GameStatus);
-	//HOOK_MESSAGE(NetSS);
 	HOOK_MESSAGE(Progress);
 	HOOK_MESSAGE(Countdown);
 	HOOK_MESSAGE(MiniMap);
 	HOOK_MESSAGE(SetOrder);
-	//HOOK_MESSAGE(CplteOrder);
 	HOOK_MESSAGE(SetSelect);
+	HOOK_MESSAGE(SetRequest);
 	HOOK_MESSAGE(SetupMap);
 	HOOK_MESSAGE(SetTopDown);
 	HOOK_MESSAGE(SetTech);
 	HOOK_MESSAGE(EditPS);
 	HOOK_MESSAGE(Fog);
 	HOOK_MESSAGE(ListPS);
-	HOOK_MESSAGE(Reinfor);
 	HOOK_MESSAGE(SetGmma);
 	HOOK_MESSAGE(BlipList);
 	HOOK_MESSAGE(ClScript);
@@ -4683,13 +4023,13 @@ void AvHHud::InitializeDemoRecording()
     int theCommanderIndex = this->GetCommanderIndex();
 	int theCommanderSize = sizeof(theCommanderIndex);
 
-	int theNumHiveInfoRecords = this->mHiveInfoList.size();
+	int theNumHiveInfoRecords = (int)this->mHiveInfoList.size();
 	int theHiveInfoSize = sizeof(int) + theNumHiveInfoRecords*sizeof(AvHHiveInfo);
 
 	string thePieMenuControl = gPieMenuHandler.GetPieMenuControl();
-	int theCurrentPieMenuControlSize = sizeof(int) + thePieMenuControl.size();
+	int theCurrentPieMenuControlSize = sizeof(int) + (int)thePieMenuControl.size();
 	
-	int theSelectedSize = sizeof(int) + this->mSelected.size()*sizeof(EntityInfo);
+	int theSelectedSize = sizeof(int) + (int)this->mSelected.size()*sizeof(EntityInfo);
 
 	int theTotalSize = theUpgradesSize + theGammaSize + theResourcesSizes + theCommanderSize + theHiveInfoSize + theCurrentPieMenuControlSize + theSelectedSize;
 
@@ -4716,12 +4056,12 @@ void AvHHud::InitializeDemoRecording()
 		}
 
 		// Save length of pie menu control name
-		int thePieMenuControlNameLength = thePieMenuControl.size();
+		int thePieMenuControlNameLength = (int)thePieMenuControl.size();
 		SaveData(theCharArray, &thePieMenuControlNameLength, sizeof(int), theCounter);
 		SaveData(theCharArray, thePieMenuControl.c_str(), thePieMenuControlNameLength, theCounter);
 
 		// Save out size of selected
-		int theNumSelected = this->mSelected.size();
+		int theNumSelected = (int)this->mSelected.size();
 		SaveData(theCharArray, &theNumSelected, sizeof(theNumSelected), theCounter);
 
 		for(EntityListType::const_iterator theSelectedIter = this->mSelected.begin(); theSelectedIter != this->mSelected.end(); theSelectedIter++)
@@ -4760,7 +4100,7 @@ void AvHHud::InitializeDemoRecording()
 	theTotalSize += sizeof(this->mMapExtents.GetDrawMapBG());
 
 	// Save sound names
-	int theSoundNameListSize = this->mSoundNameList.size();
+	int theSoundNameListSize = (int)this->mSoundNameList.size();
 	theTotalSize += sizeof(theSoundNameListSize);
 
 	for(int i = 0; i < theSoundNameListSize; i++)
@@ -5617,15 +4957,8 @@ void AvHHud::UpdateMusic(float inCurrentTime)
 		// If we're entering play mode and music is enabled, allow playing of music
 		if(this->GetHUDPlayMode() != PLAYMODE_READYROOM && (cl_musicenabled->value == 1.0f) && (cl_musicvolume->value > 0))
 		{
-			// Disable music when debugging
-//			#ifndef DEBUG
 			theMusicEnabled = true;
-//			#endif
 		}
-        else
-        {
-            int a = 0;
-        }
 	}
 
 	this->SetMusicAllowed(theMusicEnabled);
@@ -5785,193 +5118,162 @@ void AvHHud::UpdateEntityID(float inCurrentTime)
 	bool theSetHelpMessage = false;
 	bool theSetReticleMessage = false;
 
-	//if(this->GetIsAlive())
-	//{
-		//char* theNewPlayerName = NULL;
-		int theEntityIndex = -1;
-		
-		if(this->GetHUDUser3() == AVH_USER3_COMMANDER_PLAYER)
-		{
-			int theCurrentX, theCurrentY;
-			this->GetMousePos(theCurrentX, theCurrentY);
+	//char* theNewPlayerName = NULL;
+	int theEntityIndex = -1;
+	
+	if(this->GetHUDUser3() == AVH_USER3_COMMANDER_PLAYER)
+	{
+		int theCurrentX, theCurrentY;
+		this->GetMousePos(theCurrentX, theCurrentY);
 
-			// Don't show help when mouse is over the UI
-			float theNormX = ((float)theCurrentX)/(ScreenWidth());
-			float theNormY = ((float)theCurrentY)/(ScreenHeight());
-			if(!this->GetIsRegionBlockedByUI(theNormX, theNormY))
-			{
-				Vector theNormRay;
-				
-				CreatePickingRay(theCurrentX, theCurrentY, theNormRay);
-				
-				// Look for player and entities under/near the mouse
-				AvHSHUGetEntityAtRay(this->GetVisualOrigin(), theNormRay, theEntityIndex);
-			}
-			else
-			{
-				int a = 0;
-			}
-		}
-		else if(g_iUser1 != OBS_IN_EYE)
+		// Don't show help when mouse is over the UI
+		float theNormX = ((float)theCurrentX)/(ScreenWidth());
+		float theNormY = ((float)theCurrentY)/(ScreenHeight());
+		if(!this->GetIsRegionBlockedByUI(theNormX, theNormY))
 		{
-			// Trace entity id in front of us
-			this->TraceEntityID(theEntityIndex);
-		}
-		
-		if(this->mSelectingWeaponID != -1)
-		{
-			// Look up help, set our current help to it
-			string theWeaponHelpKey;
-			sprintf(theWeaponHelpKey, kWeaponHelpText, this->mSelectingWeaponID);
+			Vector theNormRay;
 			
-			string theHelpText;
-			if(LocalizeString(theWeaponHelpKey.c_str(), theHelpText))
+			CreatePickingRay(theCurrentX, theCurrentY, theNormRay);
+			
+			// Look for player and entities under/near the mouse
+			AvHSHUGetEntityAtRay(this->GetVisualOrigin(), theNormRay, theEntityIndex);
+		}
+	}
+	else if(g_iUser1 != OBS_IN_EYE)
+	{
+		// Trace entity id in front of us
+		this->TraceEntityID(theEntityIndex);
+	}
+	
+	if(this->mSelectingWeaponID != -1)
+	{
+		// Look up help, set our current help to it
+		string theWeaponHelpKey;
+		sprintf(theWeaponHelpKey, kWeaponHelpText, this->mSelectingWeaponID);
+		
+		string theHelpText;
+		if(LocalizeString(theWeaponHelpKey.c_str(), theHelpText))
+		{
+			// Get damage amount from weapon
+			ASSERT(this->mSelectingWeaponID >= 0);
+			ASSERT(this->mSelectingWeaponID < 32);
+			WEAPON* theWeapon = gWR.GetWeapon(this->mSelectingWeaponID);
+			int theDamage = theWeapon->iMax2;
+
+			char theHelpTextWithDamage[1024];
+			sprintf(theHelpTextWithDamage, theHelpText.c_str(), theDamage);
+
+			this->SetHelpMessage(theHelpTextWithDamage);
+			theSetHelpMessage = true;
+		}
+	}
+	else if(this->mTechHelpText != "")
+	{
+		this->SetHelpMessage(this->mTechHelpText, false, .8f, .6f);
+		theSetHelpMessage = true;
+	}
+	else if(this->mSelectingNodeID > 0)
+	{
+		char theNumber[8];
+		sprintf(theNumber, "%d", this->mSelectingNodeID);
+		string theNumberString(theNumber);
+		
+		string theKey = string(kTechNodeHelpPrefix) + theNumberString;
+		if(LocalizeString(theKey.c_str(), this->mReticleInfoText))
+		{
+			string theCostString;
+			if(LocalizeString(kCostMarker, theCostString))
 			{
-				// Get damage amount from weapon
-				ASSERT(this->mSelectingWeaponID >= 0);
-				ASSERT(this->mSelectingWeaponID < 32);
-				WEAPON* theWeapon = gWR.GetWeapon(this->mSelectingWeaponID);
-				int theDamage = theWeapon->iMax2;
-
-				char theHelpTextWithDamage[1024];
-				sprintf(theHelpTextWithDamage, theHelpText.c_str(), theDamage);
-
-				this->SetHelpMessage(theHelpTextWithDamage);
+				string thePointsString;
+				if(LocalizeString(kPointsSuffix, thePointsString))
+				{
+				}
+				
+				// Don't draw marine sayings, as they are printed on the controls and the aliens are using the titles.txt entries
+				if(this->GetIsMarine())
+				{
+					switch(this->mSelectingNodeID)
+					{
+					case SAYING_1:
+					case SAYING_2:
+					case SAYING_3:
+					case SAYING_4:
+					case SAYING_5:
+					case SAYING_6:
+					case SAYING_7:
+					case SAYING_8:
+					case SAYING_9:
+						this->mReticleInfoText = "";
+						break;
+					}
+				}
+				
+				this->SetHelpMessage(this->mReticleInfoText);
 				theSetHelpMessage = true;
 			}
 		}
-		else if(this->mTechHelpText != "")
+	}
+	
+	if(theEntityIndex > 0)
+	{
+		// Don't draw info for cloaked structures
+		cl_entity_s* theProgressEntity = gEngfuncs.GetEntityByIndex(theEntityIndex);
+		if(theProgressEntity)
 		{
-			this->SetHelpMessage(this->mTechHelpText, false, .8f, .6f);
-			theSetHelpMessage = true;
-		}
-		else if(this->mSelectingNodeID > 0)
-		{
-			char theNumber[8];
-			sprintf(theNumber, "%d", this->mSelectingNodeID);
-			string theNumberString(theNumber);
-			
-			string theKey = string(kTechNodeHelpPrefix) + theNumberString;
-			if(LocalizeString(theKey.c_str(), this->mReticleInfoText))
+			if((theProgressEntity->curstate.rendermode != kRenderTransTexture) || (theProgressEntity->curstate.renderamt > kAlienStructureCloakAmount))
 			{
-				string theCostString;
-				if(LocalizeString(kCostMarker, theCostString))
+				if(std::find(this->mBuildingEffectsEntityList.begin(), this->mBuildingEffectsEntityList.end(), theEntityIndex) == this->mBuildingEffectsEntityList.end())
 				{
-					string thePointsString;
-					if(LocalizeString(kPointsSuffix, thePointsString))
-					{
-/*
-						// Lookup point cost
-						for(UpgradeCostListType::iterator theIter = this->mPersonalUpgradeCosts.begin(); theIter != this->mPersonalUpgradeCosts.end(); theIter++)
-						{
-							if(theIter->first == this->mSelectingNodeID)
-							{
-								this->mSelectedNodeResourceCost = theIter->second;
-								
-								char theCostSuffix[128];
-								sprintf(theCostSuffix, "  %s: %d %s", theCostString.c_str(), this->mSelectedNodeResourceCost, thePointsString.c_str());
-								this->mReticleInfoText += string(theCostSuffix);
-								break;
-							}
-						}
-*/
-					}
-					
-					// Don't draw marine sayings, as they are printed on the controls and the aliens are using the titles.txt entries
-					if(this->GetIsMarine())
-					{
-						switch(this->mSelectingNodeID)
-						{
-						case SAYING_1:
-						case SAYING_2:
-						case SAYING_3:
-						case SAYING_4:
-						case SAYING_5:
-						case SAYING_6:
-						case SAYING_7:
-						case SAYING_8:
-						case SAYING_9:
-							this->mReticleInfoText = "";
-							break;
-						}
-					}
-					
-					this->SetHelpMessage(this->mReticleInfoText);
-					theSetHelpMessage = true;
+					this->mBuildingEffectsEntityList.push_back(theEntityIndex);
 				}
-			}
-		}
-		
-		if(theEntityIndex > 0)
-		{
-			// Don't draw info for cloaked structures
-			cl_entity_s* theProgressEntity = gEngfuncs.GetEntityByIndex(theEntityIndex);
-			if(theProgressEntity)
-			{
-				if((theProgressEntity->curstate.rendermode != kRenderTransTexture) || (theProgressEntity->curstate.renderamt > kAlienStructureCloakAmount))
+										
+				bool theEntityIsPlayer = ((theEntityIndex > 0) && (theEntityIndex <= gEngfuncs.GetMaxClients()));
+				
+				string theHelpText;
+				bool theIsEnemy = false;
+				
+				if(this->GetEntityInfoString(theEntityIndex, theHelpText, theIsEnemy))
 				{
-					if(std::find(this->mBuildingEffectsEntityList.begin(), this->mBuildingEffectsEntityList.end(), theEntityIndex) == this->mBuildingEffectsEntityList.end())
+					// Set color to red if enemy, otherise to our HUD color
+					int theR, theG, theB;
+					if(theIsEnemy)
 					{
-						this->mBuildingEffectsEntityList.push_back(theEntityIndex);
+						theR = 255;
+						theG = theB = 0;
 					}
-											
-					bool theEntityIsPlayer = ((theEntityIndex > 0) && (theEntityIndex <= gEngfuncs.GetMaxClients()));
-					
-					string theHelpText;
-					bool theIsEnemy = false;
-					
-					if(this->GetEntityInfoString(theEntityIndex, theHelpText, theIsEnemy))
+					else
 					{
-						// Set color to red if enemy, otherise to our HUD color
-						int theR, theG, theB;
-						if(theIsEnemy)
-						{
-							theR = 255;
-							theG = theB = 0;
-						}
-						else
-						{
-							this->GetPrimaryHudColor(theR, theG, theB, true, false);
-						}
-
-						// If we have auto help on, or we're in top down mode, display as help
-						if(gEngfuncs.pfnGetCvarFloat(kvAutoHelp) || this->GetInTopDownMode())
-						{
-							this->SetHelpMessage(theHelpText);
-							
-							this->mHelpMessage.SetRGB(theR, theG, theB);
-
-							theSetHelpMessage = true;
-						}
-						// else, display as reticle message
-						else
-						{
-							this->SetReticleMessage(theHelpText);
-							
-							this->mReticleMessage.SetRGB(theR, theG, theB);
-							
-							theSetReticleMessage = true;
-						}
+						this->GetPrimaryHudColor(theR, theG, theB, true, false);
 					}
-				}
-				else
-				{
-					//char theMessage[128];
-					//sprintf(theMessage, "Entity %d cloaked, not drawing circle.", theProgressEntity->curstate.iuser3);
-					//CenterPrint(theMessage);
+
+					// If we have auto help on, or we're in top down mode, display as help
+					if(gEngfuncs.pfnGetCvarFloat(kvAutoHelp) || this->GetInTopDownMode())
+					{
+						this->SetHelpMessage(theHelpText);
+						
+						this->mHelpMessage.SetRGB(theR, theG, theB);
+
+						theSetHelpMessage = true;
+					}
+					// else, display as reticle message
+					else
+					{
+						this->SetReticleMessage(theHelpText);
+						
+						this->mReticleMessage.SetRGB(theR, theG, theB);
+						
+						theSetReticleMessage = true;
+					}
 				}
 			}
 			else
 			{
-				int a = 0;
+				//char theMessage[128];
+				//sprintf(theMessage, "Entity %d cloaked, not drawing circle.", theProgressEntity->curstate.iuser3);
+				//CenterPrint(theMessage);
 			}
 		}
-		
-		//if(this->mReticleInfoColorA == 0)
-		//{
-		//	this->mReticleInfoText = "";
-		//}
-	//}
+	}
 
 	float theTimePassed = (inCurrentTime - this->mTimeOfLastUpdate);
 	if(!theSetHelpMessage)
@@ -5989,7 +5291,7 @@ int	AvHHud::GetMenuTechSlots() const
 	return this->mMenuTechSlots;
 }
 
-const AvHTechNodes& AvHHud::GetTechNodes() const
+const AvHTechTree& AvHHud::GetTechNodes() const
 {
 	return this->mTechNodes;
 }
@@ -6608,40 +5910,8 @@ void AvHHud::UpdateSelection()
 	}
 	//}
 
-	#ifdef AVH_PREDICT_SELECT
 	if(this->mLeftMouseEnded)
 	{
-
-// Debug code to draw little triangles in the area that you marquee select.  Uncomment to test again.
-//		// Loop through set of points near our origin, adding an effect for each one if it is in the area
-//		gTriDebugLocations.clear();
-//		Vector theBasePoint;
-//		VectorCopy(gEngfuncs.GetLocalPlayer()->origin, theBasePoint);
-//		float thePlaneABCD[4];
-//		thePlaneABCD[0] = thePlaneABCD[1] = thePlaneABCD[4] = 0;
-//		thePlaneABCD[2] = 1;
-//
-//		const int kRange = 50;
-//		const float kMultiplier = 5.0f;
-//		for(int i = -kRange; i <= kRange; i++)
-//		{
-//			for(int j = -kRange; j <= kRange; j++)
-//			{
-//				float theZ = theBasePoint.z - 100;
-//				Vector theCurrentPoint(theBasePoint.x + i*kMultiplier, theBasePoint.y + j*kMultiplier, theZ);
-//
-//				Vector theEyeToEntity(theCurrentPoint.x - theBasePoint.x, theCurrentPoint.y - theBasePoint.y, theCurrentPoint.z - theBasePoint.z);
-//				VectorNormalize(theEyeToEntity);
-//
-//				if(IsVectorBetweenBoundingVectors(theBasePoint, theEyeToEntity, this->mLeftMouseWorldStart, this->mLeftMouseWorldEnd, thePlaneABCD))
-//				{
-//					DebugPoint theDebugPoint(theCurrentPoint.x, theCurrentPoint.y, theCurrentPoint.z);
-//					gTriDebugLocations.push_back(theDebugPoint);
-//				}
-//			}
-//		}
-
-
 		// Select all units at this click or in this area (but don't select when clicking a building down)
 		if(!this->mPlacingBuilding)
 		{
@@ -6664,7 +5934,6 @@ void AvHHud::UpdateSelection()
 
 		this->ClearTrackingEntity();
 	}
-	#endif
 
 	// If selection just changed, make sure we have selection effects for everyone
 	if(this->mSelectionJustChanged)
@@ -6898,25 +6167,6 @@ void AvHHud::UpdateFromEntities(float inCurrentTime)
 								// Push back entity for displaying helpful tooltips
 								this->mHelpEnts.push_back(*theIter);
 							}
-							
-//							// If entity is buildable and within a certain distance, add it to have it's building effects potentially drawn
-//							if(!this->GetInTopDownMode())
-//							{
-//								// Draw if in large radius and unbuilt, or if close by whether it's built or not
-//								if((GetHasUpgrade(this->GetLocalUpgrades(), MASK_BUILDABLE) && (theDistance < kBuildDistance)) || (theDistance < kHealthDistance))
-//								{
-//									// Only put it in if it doesn't exist already
-//									int theEntity = *theIter;
-//									if(std::find(this->mBuildingEffectsEntityList.begin(), this->mBuildingEffectsEntityList.end(), theEntity) == this->mBuildingEffectsEntityList.end())
-//									{
-//										this->mBuildingEffectsEntityList.push_back(theEntity);
-//									}
-//								}
-//							}
-						}
-						else
-						{
-							int a = 0;
 						}
 					}
 				}
@@ -7174,14 +6424,10 @@ bool AvHHud::GetSafeForSpriteDrawing() const
 	if(theLevelName && (theCurrentMapName != ""))
 	{
 		string theLevelNameString(theLevelName);
-		int thePos = theLevelNameString.find(theCurrentMapName);
+		int thePos = (int)theLevelNameString.find(theCurrentMapName);
 		if(thePos != string::npos)
 		{
 			theSafeForDrawing = true;
-		}
-		else
-		{
-			int a = 0;
 		}
 	}
 
@@ -7205,8 +6451,8 @@ bool AvHHud::GetShouldDisplayUser3(AvHUser3 inUser3) const
 		case AVH_USER3_ALPHA:
 		case AVH_USER3_WAYPOINT:
 		case AVH_USER3_NOBUILD:
-		case AVH_USER3_SPAWN_TEAMONE:
-		case AVH_USER3_SPAWN_TEAMTWO:
+		case AVH_USER3_SPAWN_TEAMA:
+		case AVH_USER3_SPAWN_TEAMB:
 			theShouldDisplay = false;
 			break;
 		}

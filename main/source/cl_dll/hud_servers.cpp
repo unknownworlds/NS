@@ -3,7 +3,7 @@
 #include "cl_util.h"
 #include "hud_servers_priv.h"
 #include "hud_servers.h"
-#include "net_api.h"
+#include "common/net_api.h"
 #include <string.h>
 #include <winsock.h>
 
@@ -173,7 +173,7 @@ void CHudServers::ServerResponse( struct net_response_s *response )
 		if ( response->response )
 		{
 			szresponse = (char *)response->response;
-			len = strlen( szresponse ) + 100 + 1;
+			len = (int)strlen( szresponse ) + 100 + 1;
 			sprintf( sz, "%i", (int)( 1000.0 * response->ping ) );
 
 			browser = new server_t;

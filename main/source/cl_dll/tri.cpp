@@ -7,19 +7,19 @@
 
 // Triangle rendering apis are in gEngfuncs.pTriAPI
 
-#include "const.h"
-#include "entity_state.h"
-#include "cl_entity.h"
-#include "triangleapi.h"
-#include "APIProxy.h"
+#include "common/const.h"
+#include "common/entity_state.h"
+#include "common/cl_entity.h"
+#include "common/triangleapi.h"
+#include "engine/APIProxy.h"
 #include "Exports.h"
-#include "particles/p_vector.h"
-#include "particles/papi.h"
+#include <p_vector.h>
+#include <papi.h>
 #include "mod/AvHParticleSystemManager.h"
 
-#include "pm_defs.h"
-#include "pm_shared.h"
-#include "pm_movevars.h"
+#include "pm_shared/pm_defs.h"
+#include "pm_shared/pm_shared.h"
+#include "pm_shared/pm_movevars.h"
 #include "mod/AvHEvents.h"
 #include "mod/AvHScriptManager.h"
 #include "mod/AvHClientVariables.h"
@@ -420,14 +420,6 @@ void CL_DLLEXPORT HUD_DrawTransparentTriangles( void )
 
         // Draw the hitboxes for all of the objects.
 
-/*
-#ifdef AVH_PLAYTEST_BUILD
-        if (CVAR_GET_FLOAT("sv_cheats") != 0 && CVAR_GET_FLOAT("cl_drawhitboxes") != 0)
-        {
-            DrawHitBoxes();
-        }
-#endif
-*/        
 		// Assumes that the only time players don't have view models is when they are commanding, gestating, cocooned
 		// or when they aren't playing.  See the end of StudioModelRenderer::StudioDrawModel().
 		//if((gHUD.GetRole() == ROLE_COMMANDER) || (gHUD.GetRole() == ROLE_GESTATING) || (gHUD.GetRole() == ROLE_COCOONED) || (gHUD.GetPlayMode() != PLAYMODE_PLAYING))

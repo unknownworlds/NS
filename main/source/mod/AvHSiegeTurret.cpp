@@ -65,7 +65,7 @@ extern int		gSiegeViewHitEventID;
 
 AvHSiegeTurret::AvHSiegeTurret() : AvHMarineTurret(TECH_NULL, BUILD_SIEGE, kwsSiegeTurret, AVH_USER3_SIEGETURRET)
 {
-	float theStartTime = RANDOM_FLOAT(0, BALANCE_IVAR(kSiegeROF));
+	float theStartTime = RANDOM_FLOAT(0, BALANCE_VAR(kSiegeROF));
 	this->mTimeLastFired = gpGlobals->time - theStartTime;
 }
 
@@ -82,7 +82,7 @@ void AvHSiegeTurret::CheckEnabledState()
 			float the2DDistance = VectorDistance2D(this->pev->origin, theEntity->pev->origin);
 			
 			// Enabled state is true
-			if(the2DDistance <= BALANCE_IVAR(kTurretFactoryBuildDistance))
+			if(the2DDistance <= BALANCE_VAR(kTurretFactoryBuildDistance))
 			{
 				theEnabledState = true;
 				break;
@@ -142,7 +142,7 @@ char* AvHSiegeTurret::GetPingSound() const
 
 int AvHSiegeTurret::GetPointValue(void) const
 {
-	return BALANCE_IVAR(kScoringSiegeValue);
+	return BALANCE_VAR(kScoringSiegeValue);
 }
 
 //int	AvHSiegeTurret::GetMinimumRange() const
@@ -157,7 +157,7 @@ char* AvHSiegeTurret::GetModelName() const
 
 int	AvHSiegeTurret::GetXYRange() const
 {
-	return BALANCE_IVAR(kSiegeTurretRange);
+	return BALANCE_VAR(kSiegeTurretRange);
 }
 
 bool AvHSiegeTurret::GetRequiresLOS() const
@@ -183,7 +183,7 @@ void AvHSiegeTurret::Shoot(const Vector &inOrigin, const Vector &inToEnemy, cons
 {
 	// Only fire once every few seconds...this is hacky but there's no way to override think functions so it must be done
 	// I wish it was easier to change the update rate but it's not so...
-	if((gpGlobals->time - this->mTimeLastFired) > BALANCE_IVAR(kSiegeROF))
+	if((gpGlobals->time - this->mTimeLastFired) > BALANCE_VAR(kSiegeROF))
 	{
 		// Find enemy player in range, ignore walls and everything else
 		if(this->m_hEnemy != NULL)
@@ -197,7 +197,7 @@ void AvHSiegeTurret::Shoot(const Vector &inOrigin, const Vector &inToEnemy, cons
 				// Apply damage, taking upgrade into account
 				float theDamageMultiplier;
 				AvHPlayerUpgrade::GetWeaponUpgrade(this->pev->iuser3, this->pev->iuser4, &theDamageMultiplier);
-				float theDamage = theDamageMultiplier*BALANCE_IVAR(kSiegeDamage);
+				float theDamage = theDamageMultiplier*BALANCE_VAR(kSiegeDamage);
 
 				// Play view shake, because a big gun is going off
 				float theShakeAmplitude = 20;

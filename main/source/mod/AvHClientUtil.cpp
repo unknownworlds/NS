@@ -146,13 +146,13 @@ void AvHCUTrimExtraneousLocationText(string& ioTranslatedString)
 
 	// Now trim off the "Hive location" before hand, everything up to the -
 	string theChoppedTranslatedLocationName;
-	int theStartChopIndex = ioTranslatedString.find_first_of("-") + 1;
+	int theStartChopIndex = (int)ioTranslatedString.find_first_of("-") + 1;
 	if((theStartChopIndex < 0) || (theStartChopIndex >= (int)(ioTranslatedString.length())))
 	{
 		theStartChopIndex = 0;
 	}
 
-	int theLength = ioTranslatedString.length() - theStartChopIndex;
+	int theLength = (int)ioTranslatedString.length() - theStartChopIndex;
 	if(theLength > 0)
 	{
 		theChoppedTranslatedLocationName = ioTranslatedString.substr(theStartChopIndex, theLength);

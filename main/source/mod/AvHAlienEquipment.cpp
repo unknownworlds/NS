@@ -112,7 +112,7 @@ char* AvHAlienResourceTower::GetActiveSoundList() const
 	char* theActiveSoundList = NULL;
 
 	// Don't play active sounds until kAlienResourceTowerSoundDelayTime seconds have passed, to prevent marines from knowing where aliens start
-	int theTimeToWaitBeforeSounds = BALANCE_IVAR(kAlienResourceTowerSoundDelayTime);
+	int theTimeToWaitBeforeSounds = BALANCE_VAR(kAlienResourceTowerSoundDelayTime);
 	int theGameTime = GetGameRules()->GetGameTime();
 	if((theGameTime > 0) && (theGameTime >= theTimeToWaitBeforeSounds))
 	{
@@ -181,7 +181,7 @@ bool AvHAlienUpgradeBuilding::GetIsOrganic() const
 
 int AvHAlienUpgradeBuilding::GetPointValue() const
 {
-	return BALANCE_IVAR(kScoringAlienUpgradeChamberValue);
+	return BALANCE_VAR(kScoringAlienUpgradeChamberValue);
 }
 
 void AvHAlienUpgradeBuilding::Killed(entvars_t* pevAttacker, int iGib)
@@ -374,7 +374,7 @@ void AvHDefenseChamber::SetHasBeenBuilt()
 	AvHAlienUpgradeBuilding::SetHasBeenBuilt();
 	
 	SetThink(&AvHDefenseChamber::RegenAliensThink);
-	this->pev->nextthink = gpGlobals->time + BALANCE_IVAR(kDefenseChamberThinkInterval);
+	this->pev->nextthink = gpGlobals->time + BALANCE_VAR(kDefenseChamberThinkInterval);
 }
 
 void AvHDefenseChamber::RegenAliensThink()
@@ -383,7 +383,7 @@ void AvHDefenseChamber::RegenAliensThink()
 	CBaseEntity* theBaseEntity = NULL;
 	int theNumEntsHealed = 0;
 	
-	while(((theBaseEntity = UTIL_FindEntityInSphere(theBaseEntity, this->pev->origin, BALANCE_IVAR(kDefensiveChamberHealRange))) != NULL) && (theNumEntsHealed < BALANCE_IVAR(kAlienChamberMaxPlayers)))
+	while(((theBaseEntity = UTIL_FindEntityInSphere(theBaseEntity, this->pev->origin, BALANCE_VAR(kDefensiveChamberHealRange))) != NULL) && (theNumEntsHealed < BALANCE_VAR(kAlienChamberMaxPlayers)))
 	{
 		if(theBaseEntity->pev->team == this->pev->team)
 		{
@@ -391,14 +391,14 @@ void AvHDefenseChamber::RegenAliensThink()
 			AvHPlayer* thePlayer = dynamic_cast<AvHPlayer*>(theBaseEntity);
 			if(thePlayer && thePlayer->IsAlive())
 			{
-				if(thePlayer->Heal(BALANCE_IVAR(kDefensiveChamberRegenAmount)))
+				if(thePlayer->Heal(BALANCE_VAR(kDefensiveChamberRegenAmount)))
 				{
 					theNumEntsHealed++;
 				}
 			}
 			else if(theBuildable && theBuildable->GetIsBuilt() && (theBuildable != this))
 			{
-				if(theBuildable->Regenerate(BALANCE_IVAR(kDefensiveChamberRegenAmount)))
+				if(theBuildable->Regenerate(BALANCE_VAR(kDefensiveChamberRegenAmount)))
 				{
 					theNumEntsHealed++;
 				}
@@ -407,7 +407,7 @@ void AvHDefenseChamber::RegenAliensThink()
 	}
 	
 	// Set next think
-	this->pev->nextthink = gpGlobals->time + BALANCE_IVAR(kDefenseChamberThinkInterval);
+	this->pev->nextthink = gpGlobals->time + BALANCE_VAR(kDefenseChamberThinkInterval);
 	
 	// Play a random idle animation
 	int theIdle = this->GetIdle1Animation();
@@ -530,7 +530,7 @@ void AvHMovementChamber::SetHasBeenBuilt()
 	//SetThink(&AvHMovementChamber::TeleportUseThink);
 
 	SetThink(&AvHMovementChamber::EnergyAliensThink);
-	this->pev->nextthink = gpGlobals->time + BALANCE_IVAR(kMovementChamberThinkInterval);
+	this->pev->nextthink = gpGlobals->time + BALANCE_VAR(kMovementChamberThinkInterval);
 }
 
 void AvHMovementChamber::EnergyAliensThink()
@@ -542,11 +542,11 @@ void AvHMovementChamber::EnergyAliensThink()
 	CBaseEntity* theBaseEntity = NULL;
 	int theNumEntsProcessed = 0;
 	
-	while(((theBaseEntity = UTIL_FindEntityInSphere(theBaseEntity, this->pev->origin, BALANCE_IVAR(kMovementChamberEnergyRange))) != NULL) && (theNumEntsProcessed < BALANCE_IVAR(kAlienChamberMaxPlayers)))
+	while(((theBaseEntity = UTIL_FindEntityInSphere(theBaseEntity, this->pev->origin, BALANCE_VAR(kMovementChamberEnergyRange))) != NULL) && (theNumEntsProcessed < BALANCE_VAR(kAlienChamberMaxPlayers)))
 	{
 		if(theBaseEntity->pev->team == this->pev->team)
 		{
-			float theEnergizeAmount = BALANCE_FVAR(kMovementChamberEnergyAmount);
+			float theEnergizeAmount = BALANCE_VAR(kMovementChamberEnergyAmount);
 			AvHBaseBuildable* theBuildable = dynamic_cast<AvHBaseBuildable*>(theBaseEntity);
 			AvHPlayer* thePlayer = dynamic_cast<AvHPlayer*>(theBaseEntity);
 			if(thePlayer && thePlayer->IsAlive())
@@ -581,7 +581,7 @@ void AvHMovementChamber::EnergyAliensThink()
 	this->PlayAnimationAtIndex(theIdle);
 	
 	// Set next think
-	this->pev->nextthink = gpGlobals->time + BALANCE_IVAR(kMovementChamberThinkInterval);
+	this->pev->nextthink = gpGlobals->time + BALANCE_VAR(kMovementChamberThinkInterval);
 }
 
 

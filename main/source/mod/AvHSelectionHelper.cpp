@@ -1,8 +1,8 @@
 #include "util/nowarnings.h"
 
 #ifdef AVH_SERVER
-#include "extdll.h"
-#include "util.h"
+#include "dlls/extdll.h"
+#include "dlls/util.h"
 #include "types.h"
 #endif
 
@@ -273,11 +273,6 @@ bool AvHSelectionHelper::SelectUnitsInRegion(const Vector& inPointOfView, const 
 			bool theSameTeam = (theEntity->team == inTeamNumber);
 			bool theIsVisible = (theSameTeam || GetHasUpgrade(theEntity->iuser4, MASK_VIS_SIGHTED));
 			
-			if(theIsVisible || theIsPlayer || theIsMarkedSelectable)
-			{
-				int a = 0;
-			}
-			
 			Vector thePosition = theEntity->origin;
 			if((thePosition.x == thePosition.y) && (thePosition.y == thePosition.z) && (thePosition.z == 0.0f))
 			{
@@ -291,19 +286,6 @@ bool AvHSelectionHelper::SelectUnitsInRegion(const Vector& inPointOfView, const 
 	}
 
 	gEngfuncs.pEventAPI->EV_PopPMStates();
-	
-	//	gTriDebugLocations.clear();
-	//	
-	//	DebugPoint thePoint;
-	//	thePoint.x = theResultOne.x;
-	//	thePoint.y = theResultOne.y;
-	//	thePoint.z = theResultOne.z;
-	//	gTriDebugLocations.push_back(thePoint);
-	//
-	//	thePoint.x = theResultTwo.x;
-	//	thePoint.y = theResultTwo.y;
-	//	thePoint.z = theResultTwo.z;
-	//	gTriDebugLocations.push_back(thePoint);
 #endif
 
 	bool theSuccess = false;

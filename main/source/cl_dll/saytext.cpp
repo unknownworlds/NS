@@ -20,14 +20,14 @@
 
 #include "hud.h"
 #include "cl_util.h"
-#include "parsemsg.h"
+#include "mod/AvHNetworkMessages.h"
 
 #include <string.h>
 #include <stdio.h>
 
 #include "vgui_TeamFortressViewport.h"
 #include "mod/AvHClientUtil.h"
-#include "mod/ChatPanel.h"
+#include "ui/ChatPanel.h"
 
 float* GetClientColor(int clientIndex);
 
@@ -166,20 +166,12 @@ int CHudSayText :: Draw( float flTime )
 int CHudSayText :: MsgFunc_SayText( const char *pszName, int iSize, void *pbuf )
 {
 
-	BEGIN_READ( pbuf, iSize );
-
-	// Read client who spoke the message
-	int client_index = READ_BYTE();		
-
-	// Read message
-	const char* inString = READ_STRING();
-	string theChatMessage(inString);
-
-	// Read location of player when he spoke this (" " if nowhere)
-	const char* theLocation = READ_STRING();
+	int client_index;
+	string content, location;
+	NetMsg_SayText( pbuf, iSize, client_index, content, location );
 
 	string theTranslatedLocation;
-	if(LocalizeString(theLocation, theTranslatedLocation))
+	if(LocalizeString(location.c_str(), theTranslatedLocation))
 	{
 		// If player is on our team, add location
 		cl_entity_s* theEntity = gEngfuncs.GetEntityByIndex(client_index);
@@ -188,26 +180,26 @@ int CHudSayText :: MsgFunc_SayText( const char *pszName, int iSize, void *pbuf )
 		if(theEntity && theLocalPlayer && (theEntity->curstate.team == theLocalPlayer->curstate.team))
 		{
 			// Search for first : so we can insert location 
-			int theColonIndex = theChatMessage.find_first_of(":");
-			if((theColonIndex > 0) && (theColonIndex < (int)theChatMessage.length()))
+			int theColonIndex = (int)content.find_first_of(":");
+			if((theColonIndex > 0) && (theColonIndex < (int)content.length()))
 			{
 				AvHCUTrimExtraneousLocationText(theTranslatedLocation);
 				
 				// Insert location
-				string theNewMessage = theChatMessage.substr(0, theColonIndex);
+				string theNewMessage = content.substr(0, theColonIndex);
 				theNewMessage += " (";
 				
 				theNewMessage += theTranslatedLocation;
 				theNewMessage += ")";
-				theNewMessage += theChatMessage.substr(theColonIndex/*, theChatMessage.length()*/);
+				theNewMessage += content.substr(theColonIndex);
 			
 				// Replace the message with new one
-				theChatMessage = theNewMessage;
+				content = theNewMessage;
 			}
 		}
 	}
 
-	SayTextPrint(theChatMessage.c_str(), theChatMessage.length(),  client_index );
+	SayTextPrint(content.c_str(), (int)content.length(),  client_index );
 	
 	return 1;
 }
@@ -249,7 +241,7 @@ void CHudSayText :: SayTextPrint( const char *pszBuf, int iBufSize, int clientIn
 
 			if ( nameInString )
 			{
-				g_iNameLengths[i] = strlen( pName ) + (nameInString - pszBuf);
+				g_iNameLengths[i] = (int)strlen( pName ) + (nameInString - pszBuf);
 				g_pflNameColors[i] = GetClientColor(clientIndex);
 			}
 		}
@@ -286,7 +278,8 @@ void CHudSayText :: SayTextPrint( const char *pszBuf, int iBufSize, int clientIn
         gViewPort->GetChatPanel()->getSize(theWidth, theHeight);
     
         //Y_START = theY + theHeight + 5; //voogru: this is too high imo.
-		Y_START = ScreenHeight()*.5f;
+		//KGP: then move the viewport
+        Y_START = theY + theHeight + 5;
     }
 
 }
@@ -358,8 +351,8 @@ void CHudSayText :: EnsureTextFitsInOneLineAndWrapIfHaveTo( int line )
 				// copy remaining string into next buffer,  making sure it starts with a space character
 				if ( (char)*last_break == (char)' ' )
 				{
-					int linelen = strlen(g_szLineBuffer[j]);
-					int remaininglen = strlen(last_break);
+					int linelen = (int)strlen(g_szLineBuffer[j]);
+					int remaininglen = (int)strlen(last_break);
 
 					if ( (linelen - remaininglen) <= MAX_CHARS_PER_LINE )
 						strcat( g_szLineBuffer[j], last_break );

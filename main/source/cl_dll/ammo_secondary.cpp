@@ -22,16 +22,9 @@
 #include "cl_util.h"
 #include <string.h>
 #include <stdio.h>
-#include "parsemsg.h"
-
-DECLARE_MESSAGE( m_AmmoSecondary, SecAmmoVal );
-DECLARE_MESSAGE( m_AmmoSecondary, SecAmmoIcon );
 
 int CHudAmmoSecondary :: Init( void )
 {
-	HOOK_MESSAGE( SecAmmoVal );
-	HOOK_MESSAGE( SecAmmoIcon );
-
 	gHUD.AddHudElem(this);
 	m_HUD_ammoicon = 0;
 
@@ -109,51 +102,3 @@ int CHudAmmoSecondary :: Draw(float flTime)
 
 	return 1;
 }
-
-// Message handler for Secondary Ammo Value
-// accepts one value:
-//		string:  sprite name
-int CHudAmmoSecondary :: MsgFunc_SecAmmoIcon( const char *pszName, int iSize, void *pbuf )
-{
-	BEGIN_READ( pbuf, iSize );
-	m_HUD_ammoicon = gHUD.GetSpriteIndex( READ_STRING() );
-
-	return 1;
-}
-
-// Message handler for Secondary Ammo Icon
-// Sets an ammo value
-// takes two values:
-//		byte:  ammo index
-//		byte:  ammo value
-int CHudAmmoSecondary :: MsgFunc_SecAmmoVal( const char *pszName, int iSize, void *pbuf )
-{
-	BEGIN_READ( pbuf, iSize );
-
-	int index = READ_BYTE();
-	if ( index < 0 || index >= MAX_SEC_AMMO_VALUES )
-		return 1;
-
-	m_iAmmoAmounts[index] = READ_BYTE();
-	m_iFlags |= HUD_ACTIVE;
-
-	// check to see if there is anything left to draw
-	int count = 0;
-	for ( int i = 0; i < MAX_SEC_AMMO_VALUES; i++ )
-	{
-		count += max( 0, m_iAmmoAmounts[i] );
-	}
-
-	if ( count == 0 ) 
-	{	// the ammo fields are all empty, so turn off this hud area
-		m_iFlags &= ~HUD_ACTIVE;
-		return 1;
-	}
-
-	// make the icons light up
-	m_fFade = 200.0f;
-
-	return 1;
-}
-
-

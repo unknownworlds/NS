@@ -22,8 +22,9 @@
 #include "weapons.h"
 #include "nodes.h"
 #include "effects.h"
-#include "customentity.h"
+#include "engine/customentity.h"
 #include "gamerules.h"
+#include "mod/AvHNetworkMessages.h"
 
 #define	EGON_PRIMARY_VOLUME		450
 #define EGON_BEAM_SPRITE		"sprites/xbeam1.spr"
@@ -97,9 +98,7 @@ int CEgon::AddToPlayer( CBasePlayer *pPlayer )
 {
 	if ( CBasePlayerWeapon::AddToPlayer( pPlayer ) )
 	{
-		MESSAGE_BEGIN( MSG_ONE, gmsgWeapPickup, NULL, pPlayer->pev );
-			WRITE_BYTE( m_iId );
-		MESSAGE_END();
+		NetMsg_WeapPickup( pPlayer->pev, m_iId );
 		return TRUE;
 	}
 	return FALSE;
@@ -182,12 +181,7 @@ void CEgon::Attack( void )
 	Vector vecAiming = gpGlobals->v_forward;
 	Vector vecSrc	 = m_pPlayer->GetGunPosition( );
 
-	int flags;
-#if defined( CLIENT_WEAPONS )
-	flags = FEV_NOTHOST;
-#else
-	flags = 0;
-#endif
+	int flags = FEV_NOTHOST;
 
 	switch( m_fireState )
 	{

@@ -21,18 +21,17 @@ This file contains "stubs" of class member implementations so that we can predic
  add in the functionality you need.
 ==========================
 */
-#include	"extdll.h"
-#include	"util.h"
-#include	"cbase.h"
-#include	"player.h"
-#include	"weapons.h"
-#include	"nodes.h"
-#include	"soundent.h"
-#include	"skill.h"
+#include	"dlls/extdll.h"
+#include	"dlls/util.h"
+#include	"dlls/cbase.h"
+#include	"dlls/player.h"
+#include	"dlls/weapons.h"
+#include	"dlls/nodes.h"
+#include	"dlls/soundent.h"
+#include	"dlls/skill.h"
 
 // Globals used by game logic
 const Vector g_vecZero = Vector( 0, 0, 0 );
-int gmsgWeapPickup = 0;
 enginefuncs_t g_engfuncs;
 globalvars_t  *gpGlobals;
 
@@ -205,10 +204,7 @@ void CBasePlayer::SelectNextItem( int iItem ) { }
 BOOL CBasePlayer::HasWeapons( void ) { return FALSE; }
 void CBasePlayer::SelectPrevItem( int iItem ) { }
 CBaseEntity *FindEntityForward( CBaseEntity *pMe ) { return NULL; }
-BOOL CBasePlayer :: FlashlightIsOn( void ) { return FALSE; }
-void CBasePlayer :: FlashlightTurnOn( void ) { }
-void CBasePlayer :: FlashlightTurnOff( void ) { }
-void CBasePlayer :: ForceClientDllUpdate( void ) { }
+void CBasePlayer::ForceClientDllUpdate( void ) { }
 void CBasePlayer::ImpulseCommands( ) { }
 void CBasePlayer::CheatImpulseCommands( int iImpulse ) { }
 int CBasePlayer::AddPlayerItem( CBasePlayerItem *pItem ) { return FALSE; }

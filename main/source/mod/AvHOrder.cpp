@@ -39,14 +39,13 @@
 #include "common/const.h"
 #include "engine/progdefs.h"
 #include "cl_dll/ev_hldm.h"
-#include "cl_dll/parsemsg.h"
 #include "common/vector_util.h"
 #include "common/r_efx.h"
 #endif
 
 #ifdef AVH_SERVER
-#include "extdll.h"
-#include "util.h"
+#include "dlls/extdll.h"
+#include "dlls/util.h"
 #include "common/vector_util.h"
 //#include "mod/AvHSelection.h"
 #include "mod/AvHSelectionHelper.h"
@@ -59,12 +58,12 @@
 #include "mod/AvHPlayerUpgrade.h"
 #endif
 
-#include "pm_defs.h"
-#include "pm_shared.h"
-#include "pm_movevars.h"
-#include "pm_debug.h"
+#include "pm_shared/pm_defs.h"
+#include "pm_shared/pm_shared.h"
+#include "pm_shared/pm_movevars.h"
+#include "pm_shared/pm_debug.h"
 #include <stdio.h>  // NULL
-#include <math.h>   // sqrt
+#include <cmath>	// sqrt
 #include <string.h> // strcpy
 #include <stdlib.h> // atoi
 #include <ctype.h>  // isspace
@@ -76,106 +75,21 @@ extern playermove_t *pmove;
 #include "mod/AvHSelectionHelper.h"
 #include "mod/AvHSharedUtil.h"
 
-// Allow assignment within conditional
-#pragma warning (disable: 4706)
-
-#ifdef AVH_CLIENT
-int	AvHOrder::ReceiveFromNetworkStream()
-{
-	int theBytesReceived = 0;
-
-	// Receive player
-
-	this->mPlayer = READ_BYTE();
-	theBytesReceived += 1;
-
-
-	// Get order type
-	AvHOrderType theOrder = (AvHOrderType)(READ_BYTE());
-	theBytesReceived += 1;
-
-	ASSERT(theOrder > ORDERTYPE_UNDEFINED);
-	ASSERT(theOrder < ORDERTYPE_MAX);
-	this->mOrderType = theOrder;
-	
-	// Get order target type
-	AvHOrderTargetType theOrderTargetType = (AvHOrderTargetType)READ_BYTE();
-	theBytesReceived += 1;
-	
-	ASSERT(theOrderTargetType > ORDERTARGETTYPE_UNDEFINED);
-	ASSERT(theOrderTargetType <= ORDERTARGETTYPE_TARGET);
-	this->mOrderTargetType = theOrderTargetType;
-
-	// Read target location, if appropriate
-	if(this->mOrderTargetType == ORDERTARGETTYPE_LOCATION)
-	{
-		this->mLocation.x = READ_COORD();
-		this->mLocation.y = READ_COORD();
-		this->mLocation.z = READ_COORD();
-		theBytesReceived += 6;
-	}
-	
-	// Read target index, if appropriate
-	if(this->mOrderTargetType == ORDERTARGETTYPE_TARGET)
-	{
-		this->mTargetIndex = READ_SHORT();
-		theBytesReceived += 2;
-	}
-
-	this->mOrderTargetUser3 = (AvHUser3)READ_BYTE();
-	theBytesReceived += 1;
-
-	this->mOrderStatus = READ_BYTE();
-	theBytesReceived++;
-	
-	return theBytesReceived;
-}
-#endif
-
-// Server			
-#ifdef AVH_SERVER
-
 bool AvHOrder::operator==(const AvHOrder& inOrder) const
 {
-	bool theAreEqual = false;
-
-	if(this->mPlayer == inOrder.mPlayer)
-	{
-		if(this->mOrderType == inOrder.mOrderType)
-		{
-			if(this->mOrderTargetType == inOrder.mOrderTargetType)
-			{
-				if(this->mOrderTargetUser3 == inOrder.mOrderTargetUser3)
-				{
-					if(this->mLocation == inOrder.mLocation)
-					{
-						if(this->mTargetIndex == inOrder.mTargetIndex)
-						{
-							if(this->mOrderStatus == inOrder.mOrderStatus)
-							{
-								#ifdef AVH_SERVER
-								{
-									if(this->mTimeOrderCompleted == inOrder.mTimeOrderCompleted)
-									{
-										if(this->mOrderID == inOrder.mOrderID)
-										{
-								#endif
-											theAreEqual = true;
-								#ifdef AVH_SERVER
-										}
-									}
-								}
-								#endif
-							}
-						}
-					}
-				}
-			}
-		}
-	}
-
+	bool theAreEqual = this->mPlayer == inOrder.mPlayer && this->mOrderType == inOrder.mOrderType;
+#ifdef AVH_SERVER
+	theAreEqual = theAreEqual && this->mTimeOrderCompleted == inOrder.mTimeOrderCompleted && this->mOrderID == inOrder.mOrderID;
+#endif
+	theAreEqual = theAreEqual && this->mLocation == inOrder.mLocation && this->mTargetIndex == inOrder.mTargetIndex && this->mOrderStatus == inOrder.mOrderStatus;
+	theAreEqual = theAreEqual && this->mOrderTargetType == inOrder.mOrderTargetType && this->mOrderTargetUser3 == inOrder.mOrderTargetUser3;
 
 	return theAreEqual;
+}
+
+bool AvHOrder::operator!=(const AvHOrder& inOrder) const
+{
+	return !this->operator==(inOrder);
 }
 
 void AvHOrder::operator=(const AvHOrder& inOrder)
@@ -194,230 +108,11 @@ void AvHOrder::operator=(const AvHOrder& inOrder)
 	return;
 }
 
-bool AvHOrder::operator!=(const AvHOrder& inOrder) const
-{
-	return !this->operator==(inOrder);
-}
-
-bool AvHOrder::Update()
-{
-	bool theOrderJustCompleted = false;
-
-	ASSERT(this->GetReceiver() != -1 );
-	//ALERT(at_console, "AvHOrder Update %d : %d \n", this->mOrderType, this->mOrderStatus);
-	if(this->GetOrderActive())
-	{
-		bool theOrderIsComplete = false;
-		AvHPlayer* thePlayer = NULL;
-		vec3_t theOrderLocation;
-		this->GetLocation(theOrderLocation);
-		
-		EntityInfo theReceiver = this->GetReceiver();
-		float theDistance;
-		const float kMoveToDistance = 90;
-		const float kPickupDistance = 20;
-		
-		CBaseEntity* theTargetEntity = CBaseEntity::Instance(g_engfuncs.pfnPEntityOfEntIndex(this->mTargetIndex));
-		AvHBaseBuildable* theTargetBuildable = dynamic_cast<AvHBaseBuildable*>(theTargetEntity);
-		AvHPlayer* theTargetPlayer = dynamic_cast<AvHPlayer*>(theTargetEntity);
-		AvHWeldable* theWeldable = dynamic_cast<AvHWeldable*>(theTargetEntity);
-		switch(this->mOrderType)
-		{
-		case ORDERTYPE_UNDEFINED:
-		default:
-			break;
-		
-		case ORDERTYPEL_MOVE:
-			// set true if all receivers are within a certain distance of move to order
-			theTargetPlayer = dynamic_cast<AvHPlayer*>(CBaseEntity::Instance(g_engfuncs.pfnPEntityOfEntIndex(theReceiver)));
-			if(theTargetPlayer)
-			{
-				theOrderIsComplete = true;
-				theDistance = VectorDistance(theTargetPlayer->pev->origin, theOrderLocation);
-				if(!theTargetPlayer->GetIsRelevant() || (theDistance > kMoveToDistance))
-				{
-					theOrderIsComplete = false;
-				}
-			}
-
-			if(theOrderIsComplete)
-			{
-				this->mOrderStatus = kOrderStatusComplete;
-			}
-			break;
-		
-		case ORDERTYPET_GET:
-			// set true if all receivers are within a certain distance of item
-			theTargetPlayer = dynamic_cast<AvHPlayer*>(CBaseEntity::Instance(g_engfuncs.pfnPEntityOfEntIndex(theReceiver)));
-			if(theTargetPlayer)
-			{
-				// If one of the players in the group is near enough to pick it up
-				theDistance = VectorDistance(theTargetPlayer->pev->origin, theOrderLocation);
-				if(theTargetPlayer->GetIsRelevant() && (theDistance < kPickupDistance))
-				{
-					theOrderIsComplete = true;
-				}
-			}
-
-		
-			// If the item is gone, the order is done
-			if(!theTargetEntity)
-			{
-				this->mOrderStatus = kOrderStatusCancelled;
-			}
-			break;
-		
-		case ORDERTYPET_ATTACK:
-			// set true if target is dead or not relevant
-			if(!theTargetEntity || (theTargetPlayer && !theTargetPlayer->GetIsRelevant()))
-			{
-				this->mOrderStatus = kOrderStatusCancelled;
-				theOrderIsComplete = true;
-			}
-			else if(theTargetEntity && !theTargetEntity->IsAlive())
-			{
-				this->mOrderStatus = kOrderStatusComplete;
-				theOrderIsComplete = true;
-			}
-			break;
-		
-		case ORDERTYPET_BUILD:
-			if(!theTargetEntity || !theTargetEntity->IsAlive())
-			{
-				this->mOrderStatus = kOrderStatusCancelled;
-				theOrderIsComplete = true;
-			}
-			else if(theTargetBuildable && theTargetBuildable->GetIsBuilt())
-			{
-				this->mOrderStatus = kOrderStatusComplete;
-				theOrderIsComplete = true;
-			}
-			else
-			{
-				if(theTargetEntity)
-				{
-					bool theIsBuilding;
-					bool theIsResearching;
-					float thePercentage;
-		
-					AvHSHUGetBuildResearchState(theTargetEntity->pev->iuser3, theTargetEntity->pev->iuser4, theTargetEntity->pev->fuser1, theIsBuilding, theIsResearching, thePercentage);
-					if(!theIsBuilding && (thePercentage == 1.0f))
-					{
-						this->mOrderStatus = kOrderStatusComplete;
-						theOrderIsComplete = true;
-					}
-				}
-			}
-			break;
-		
-		case ORDERTYPET_GUARD:
-			theOrderIsComplete = false;
-		
-			if(!theTargetEntity ||!theTargetEntity->IsAlive())
-			{
-				this->mOrderStatus = kOrderStatusCancelled;
-				theOrderIsComplete = true;
-			}
-			break;
-		
-		case ORDERTYPET_WELD:
-			//ALERT(at_console, "Checking weldables ");
-			// set true when target is fully welded
-			if(!theTargetEntity ||!theTargetEntity->IsAlive())
-			{
-				this->mOrderStatus = kOrderStatusCancelled;
-				theOrderIsComplete = true;
-			}
-			if(theWeldable && theWeldable->GetIsWelded())
-			{
-				this->mOrderStatus = kOrderStatusComplete;
-				theOrderIsComplete = true;
-			} 
-//			else if(!theWeldable || !theWeldable->GetCanBeWelded())
-//			{
-//				this->mOrderStatus = kOrderStatusCancelled;
-//				theOrderIsComplete = true;
-//			}
-			else if ( !theWeldable ) 
-			{
-				if ( theTargetEntity->pev->iuser3 == AVH_USER3_MARINE_PLAYER )
-				{
-					// Players are welded if they have full armour
-					if ( theTargetEntity->pev->armorvalue == AvHPlayerUpgrade::GetMaxArmorLevel(theTargetEntity->pev->iuser4, (AvHUser3)theTargetEntity->pev->iuser3)) 
-					{
-						this->mOrderStatus = kOrderStatusComplete;
-						theOrderIsComplete = true;
-					}
-				}
-				else 
-				{
-					// Structures are welded if they have full health
-					if ( theTargetEntity->pev->health == theTargetEntity->pev->max_health ) 
-					{
-						this->mOrderStatus = kOrderStatusComplete;
-						theOrderIsComplete = true;
-					}
-				}
-			}
-			break;
-		}
-
-		if(theOrderIsComplete)
-		{
-			this->SetOrderCompleted();
-			theOrderJustCompleted = true;
-		}
-	}
-
-	return theOrderJustCompleted;
-}
-
-int	AvHOrder::SendToNetworkStream()
-{
-	int theBytesSent = 0;
-
-	WRITE_BYTE(this->mPlayer);
-	
-	// Send order type
-	WRITE_BYTE(this->mOrderType);
-	theBytesSent += 1;
-	
-	// Send order target type
-	WRITE_BYTE(this->mOrderTargetType);
-	theBytesSent += 1;
-	
-	// Send location, if appropriate
-	if(this->mOrderTargetType == ORDERTARGETTYPE_LOCATION)
-	{
-		WRITE_COORD(this->mLocation.x);
-		WRITE_COORD(this->mLocation.y);
-		WRITE_COORD(this->mLocation.z);
-		
-		theBytesSent += 6;
-	}
-
-	// Send target index, if appropriate
-	if(this->mOrderTargetType == ORDERTARGETTYPE_TARGET)
-	{
-		WRITE_SHORT(this->mTargetIndex);
-		theBytesSent += 2;
-	}
-
-	WRITE_BYTE(this->mOrderTargetUser3);
-	theBytesSent += 1;
-	
-	// Write completed or not
-	WRITE_BYTE(this->mOrderStatus);
-
-	return theBytesSent;
-}
-
 bool AvHOrder::SetReceiver(const EntityInfo& inPlayer)
 {
 	this->mPlayer = inPlayer;
 	return true;
 }
-#endif
 
 // Shared			
 AvHOrder::AvHOrder()
@@ -590,14 +285,186 @@ bool AvHOrder::GetOrderCompleted() const
 	return (this->mOrderStatus == kOrderStatusComplete);
 }
 
-void AvHOrder::SetOrderCompleted()
+void AvHOrder::SetOrderCompleted(bool inCompleted)
 {
 #ifdef AVH_SERVER
-	this->mTimeOrderCompleted = gpGlobals->time;
+	if(inCompleted)
+	{ this->mTimeOrderCompleted = gpGlobals->time; }
+	else
+	{ this->mTimeOrderCompleted = -1; }
+#else
+	this->mOrderCompleted = inCompleted;
 #endif
 }
 
 #ifdef AVH_SERVER
+bool AvHOrder::Update()
+{
+	bool theOrderJustCompleted = false;
+
+	ASSERT(this->GetReceiver() != -1 );
+	if(this->GetOrderActive())
+	{
+		bool theOrderIsComplete = false;
+		AvHPlayer* thePlayer = NULL;
+		vec3_t theOrderLocation;
+		this->GetLocation(theOrderLocation);
+		
+		EntityInfo theReceiver = this->GetReceiver();
+		float theDistance;
+		const float kMoveToDistance = 90;
+		const float kPickupDistance = 20;
+		
+		CBaseEntity* theTargetEntity = CBaseEntity::Instance(g_engfuncs.pfnPEntityOfEntIndex(this->mTargetIndex));
+		AvHBaseBuildable* theTargetBuildable = dynamic_cast<AvHBaseBuildable*>(theTargetEntity);
+		AvHPlayer* theTargetPlayer = dynamic_cast<AvHPlayer*>(theTargetEntity);
+		AvHWeldable* theWeldable = dynamic_cast<AvHWeldable*>(theTargetEntity);
+		switch(this->mOrderType)
+		{
+		case ORDERTYPE_UNDEFINED:
+		default:
+			break;
+		
+		case ORDERTYPEL_MOVE:
+			// set true if all receivers are within a certain distance of move to order
+			theTargetPlayer = dynamic_cast<AvHPlayer*>(CBaseEntity::Instance(g_engfuncs.pfnPEntityOfEntIndex(theReceiver)));
+			if(theTargetPlayer)
+			{
+				theOrderIsComplete = true;
+				theDistance = VectorDistance(theTargetPlayer->pev->origin, theOrderLocation);
+				if(!theTargetPlayer->GetIsRelevant() || (theDistance > kMoveToDistance))
+				{
+					theOrderIsComplete = false;
+				}
+			}
+
+			if(theOrderIsComplete)
+			{
+				this->mOrderStatus = kOrderStatusComplete;
+			}
+			break;
+		
+		case ORDERTYPET_GET:
+			// set true if all receivers are within a certain distance of item
+			theTargetPlayer = dynamic_cast<AvHPlayer*>(CBaseEntity::Instance(g_engfuncs.pfnPEntityOfEntIndex(theReceiver)));
+			if(theTargetPlayer)
+			{
+				// If one of the players in the group is near enough to pick it up
+				theDistance = VectorDistance(theTargetPlayer->pev->origin, theOrderLocation);
+				if(theTargetPlayer->GetIsRelevant() && (theDistance < kPickupDistance))
+				{
+					theOrderIsComplete = true;
+				}
+			}
+
+		
+			// If the item is gone, the order is done
+			if(!theTargetEntity)
+			{
+				this->mOrderStatus = kOrderStatusCancelled;
+			}
+			break;
+		
+		case ORDERTYPET_ATTACK:
+			// set true if target is dead or not relevant
+			if(!theTargetEntity || (theTargetPlayer && !theTargetPlayer->GetIsRelevant()))
+			{
+				this->mOrderStatus = kOrderStatusCancelled;
+				theOrderIsComplete = true;
+			}
+			else if(theTargetEntity && !theTargetEntity->IsAlive())
+			{
+				this->mOrderStatus = kOrderStatusComplete;
+				theOrderIsComplete = true;
+			}
+			break;
+		
+		case ORDERTYPET_BUILD:
+			if(!theTargetEntity || !theTargetEntity->IsAlive())
+			{
+				this->mOrderStatus = kOrderStatusCancelled;
+				theOrderIsComplete = true;
+			}
+			else if(theTargetBuildable && theTargetBuildable->GetIsBuilt())
+			{
+				this->mOrderStatus = kOrderStatusComplete;
+				theOrderIsComplete = true;
+			}
+			else
+			{
+				if(theTargetEntity)
+				{
+					bool theIsBuilding;
+					bool theIsResearching;
+					float thePercentage;
+		
+					AvHSHUGetBuildResearchState(theTargetEntity->pev->iuser3, theTargetEntity->pev->iuser4, theTargetEntity->pev->fuser1, theIsBuilding, theIsResearching, thePercentage);
+					if(!theIsBuilding && (thePercentage == 1.0f))
+					{
+						this->mOrderStatus = kOrderStatusComplete;
+						theOrderIsComplete = true;
+					}
+				}
+			}
+			break;
+		
+		case ORDERTYPET_GUARD:
+			theOrderIsComplete = false;
+		
+			if(!theTargetEntity ||!theTargetEntity->IsAlive())
+			{
+				this->mOrderStatus = kOrderStatusCancelled;
+				theOrderIsComplete = true;
+			}
+			break;
+		
+		case ORDERTYPET_WELD:
+			//ALERT(at_console, "Checking weldables ");
+			// set true when target is fully welded
+			if(!theTargetEntity ||!theTargetEntity->IsAlive())
+			{
+				this->mOrderStatus = kOrderStatusCancelled;
+				theOrderIsComplete = true;
+			}
+			if(theWeldable && theWeldable->GetIsWelded())
+			{
+				this->mOrderStatus = kOrderStatusComplete;
+				theOrderIsComplete = true;
+			} 
+			else if ( !theWeldable ) 
+			{
+				if ( theTargetEntity->pev->iuser3 == AVH_USER3_MARINE_PLAYER )
+				{
+					// Players are welded if they have full armour
+					if ( theTargetEntity->pev->armorvalue == AvHPlayerUpgrade::GetMaxArmorLevel(theTargetEntity->pev->iuser4, (AvHUser3)theTargetEntity->pev->iuser3)) 
+					{
+						this->mOrderStatus = kOrderStatusComplete;
+						theOrderIsComplete = true;
+					}
+				}
+				else 
+				{
+					// Structures are welded if they have full health
+					if ( theTargetEntity->pev->health == theTargetEntity->pev->max_health ) 
+					{
+						this->mOrderStatus = kOrderStatusComplete;
+						theOrderIsComplete = true;
+					}
+				}
+			}
+			break;
+		}
+
+		if(theOrderIsComplete)
+		{
+			this->SetOrderCompleted();
+			theOrderJustCompleted = true;
+		}
+	}
+
+	return theOrderJustCompleted;
+}
+
 int AvHOrder::GetOrderID() const
 {
 	return this->mOrderID;
@@ -647,125 +514,6 @@ void AvHChangeOrder(OrderListType& inList, const AvHOrder& inOrder)
 	}
 }
 
-//void AvHRemovePlayerFromOrders(OrderListType& inList, int inPlayerIndex)
-//{
-//	// Run through list
-//	for(OrderListType::iterator theOrderListIter = inList.begin(); theOrderListIter != inList.end(); /* no increment */)
-//	{
-//		theOrderListIter->RemovePlayerFromReceivers(inPlayerIndex);
-//		
-//		// If the order has no receivers, remove the order
-//		int theNumReceivers = theOrderListIter->GetReceivers().size();
-//		if(theNumReceivers == 0)
-//		{
-//			theOrderListIter = inList.erase(theOrderListIter);
-//		}
-//		else
-//		{
-//			theOrderListIter++;
-//		}
-//	}
-//}
-
-
-//bool AvHOrderTraceNonPlayers(AvHTeamNumber inTeam, const vec3_t& inOrigin, const vec3_t& inNormRay, AvHOrderType& outOrderType, int& outTargetIndex, vec3_t& outTargetPoint)
-//{
-//	vec3_t			theTraceStart;
-//	vec3_t			theTraceEnd;
-//	vec3_t			theForward;
-//	pmtrace_t*		theTrace = NULL;
-//	physent_t*		theTarget = NULL;
-//	float			theHeight = 175;
-//	qboolean		theDone = false;
-//	int				theEntityHit = -1;
-//	const int		kHitOffsetAmount = 10;
-//	bool			theSuccess = false;
-//	
-//	// Trace to get target enemy, target friendly and target location
-//	// Offset starting position a little so we don't select ourselves
-//	VectorCopy(inOrigin, theTraceStart);
-//	VectorMA(inOrigin, kSelectionEndRange, inNormRay, theTraceEnd);
-//	
-//	// While we haven't hit the floor
-//	do
-//	{
-//		//struct pmtrace_s *(*PM_TraceLine)( float *start, float *end, int flags, int usehull, int ignore_pe );
-//		theTrace = pmove->PM_TraceLine(theTraceStart, theTraceEnd, PM_TRACELINE_ANYVISIBLE, 2,  -1);
-//		
-//		// Find out if there are any view height entities at our x,y
-//		theEntityHit = theTrace->ent;
-//		
-//		theTarget = AvHSUGetEntity(theEntityHit);
-//		
-//		if(theTarget)
-//		{
-//			// Hit the ground?  Move to, we're done
-//			if(theTarget->iuser3 == AVH_USER3_WAYPOINT)
-//			{
-//				// Use it's center for the height
-//				VectorCopy(theTarget->origin, outTargetPoint);
-//				
-//				// We're done
-//				outOrderType = ORDERTYPEL_MOVE;
-//				theSuccess = true;
-//				theDone = true;
-//			}
-//		}
-//		
-//		if(!theTarget)
-//		{
-//			theDone = true;
-//		}
-//		
-//		// Do the trace again but starting at this point
-//		//VectorCopy(, theTraceStart);
-//		VectorMA(theTrace->endpos, kHitOffsetAmount, inNormRay, theTraceStart);
-//	}
-//	// While the end point is not a view entity and not below
-//	while((theTrace->fraction >= 0) && (theTrace->fraction <= 1.0f) && !theDone);
-//	
-//	return theSuccess;
-//}
-
-//bool AvHOrderTracePlayers(AvHTeamNumber inTeam, const vec3_t& inOrigin, const vec3_t& inNormRay, AvHOrderType& outOrderType, int& outTargetIndex)
-//{
-//	int theEntIndex = 0;
-//	bool theSuccess = false;
-//
-//	if(AvHSHUGetEntityAtRay(inOrigin, inNormRay, theEntIndex))
-//	{
-//		// TODO: Fetch team for player hit
-//		//AvHTeamNumber theTeamOfPlayerHit = TEAM_IND;
-//
-//		//#ifdef AVH_SERVER
-//		//CBaseEntity* theEntity = CBaseEntity::Instance(g_engfuncs.pfnPEntityOfEntIndex(*theIterator));
-//		//theTeamOfPlayerHit = (theEntity ? (AvHTeamNumber)(theEntity->pev->team) : TEAM_IND);
-//		//#endif
-//		physent_t* theEntity = AvHSUGetEntity(theEntIndex);
-//		if(theEntity)
-//		{
-//			AvHTeamNumber theTeamOfPlayerHit = AvHTeamNumber(theEntity->team);
-//			
-//			// Did we hit an enemy?  If so, issue an attack order on him, then we're done, it's highest priority
-////			if((theTeamOfPlayerHit != inTeam) && (theTeamOfPlayerHit != TEAM_IND))
-////			{
-//				outOrderType = ORDERTYPET_ATTACK;
-//				outTargetIndex = theEntIndex;
-//				theSuccess = true;
-////			}
-////			// Did we hit an entity on our team?  Repair/guard it, we're done
-////			else if((theTeamOfPlayerHit == inTeam) && (theTeamOfPlayerHit != TEAM_IND))
-////			{
-////				outOrderType = ORDERTYPET_GUARD;
-////				outTargetIndex = theEntIndex;
-////				theSuccess = true;
-////			}
-//		}
-//	}
-//	
-//	return theSuccess;
-//}
-
 // Used for context sensitive mouse and for processing right-click
 // Must be shared, uses prediction code
 // Fill in target index or target point, depending on type of order decided upon
@@ -812,20 +560,10 @@ AvHOrderType AvHGetDefaultOrderType(AvHTeamNumber inTeam, const vec3_t& inOrigin
         theArmorPercentage = theEntity->pev->armorvalue/AvHPlayerUpgrade::GetMaxArmorLevel(theEntity->pev->iuser4, (AvHUser3)theEntity->pev->iuser3);
 		theSighted=GetHasUpgrade(theEntity->pev->iuser4, MASK_VIS_SIGHTED);
 #endif
-		if(theUserThree == AVH_USER3_MARINEITEM)
-		{
-			int a = 0;
-		}
 
 		// Did we hit an enemy?  If so, issue an attack order on him, then we're done, it's highest priority
 		if(thePlayerHit ) 
 		{
-//			if ( theTeamOfThingHit != inTeam && theSighted )
-//			{
-//				theOrderType = ORDERTYPET_ATTACK;
-//				outTargetIndex = theFoundIndex;
-//				outUser3 = (AvHUser3)theUserThree;
-//			}
 			// Did we hit a player on our team?  If so check for welding, if not guard
 			if((theTeamOfThingHit == inTeam ) && (theTeamOfThingHit != TEAM_IND) )
 			{
@@ -990,7 +728,7 @@ bool AvHToggleUseable(CBaseEntity* inUser, const vec3_t& inOrigin, const vec3_t&
 				if(theEntity->pev->targetname)
 				{
 					CBaseEntity* theTarget = NULL;
-					while(theTarget = UTIL_FindEntityByTargetname(theTarget, STRING(theEntity->pev->targetname)))
+					while((theTarget = UTIL_FindEntityByTargetname(theTarget, STRING(theEntity->pev->targetname))) != NULL)
 					{
 						int	theObjectCaps = theTarget->ObjectCaps();
 						if((theObjectCaps & FCAP_IMPULSE_USE) || (FCAP_ONOFF_USE))
@@ -1002,7 +740,7 @@ bool AvHToggleUseable(CBaseEntity* inUser, const vec3_t& inOrigin, const vec3_t&
 				else if(FClassnameIs(theEntity->edict(), "func_button") && theEntity->pev->target) ////voogru: Its probably a button!, classname check to prevent any possible exploits
 				{
 					CBaseEntity* theTarget = NULL;
-					while(theTarget = UTIL_FindEntityByTargetname(theTarget, STRING(theEntity->pev->target)))
+					while((theTarget = UTIL_FindEntityByTargetname(theTarget, STRING(theEntity->pev->target))) != NULL)
 					{
 						int	theObjectCaps = theTarget->ObjectCaps();
 						if((theObjectCaps & FCAP_IMPULSE_USE) || (FCAP_ONOFF_USE))

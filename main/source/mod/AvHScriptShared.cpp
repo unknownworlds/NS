@@ -25,9 +25,9 @@
 #include "util/STLUtil.h"
 
 #ifdef AVH_SERVER
-#include "extdll.h"
+#include "dlls/extdll.h"
 #include "dlls/util.h"
-#include "cbase.h"
+#include "dlls/cbase.h"
 #endif
 
 #ifdef AVH_CLIENT
@@ -36,6 +36,11 @@
 #endif
 
 #include "mod/AvHSharedUtil.h"
+
+extern "C" {
+	#include <lua.h>
+}
+
 
 extern AvHScriptInstance* gRunningScript;
 

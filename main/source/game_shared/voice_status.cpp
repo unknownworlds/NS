@@ -12,13 +12,12 @@
 #include <assert.h>
 #include <string.h>
 #include <stdio.h>
-#include "../cl_dll/parsemsg.h"
 #include "../cl_dll/hud_servers.h"
 #include "../cl_dll/demo.h"
-#include "demo_api.h"
+#include "common/demo_api.h"
 #include "voice_status.h"
-#include "r_efx.h"
-#include "entity_types.h"
+#include "common/r_efx.h"
+#include "common/entity_types.h"
 #include "VGUI_ActionSignal.h"
 #include "VGUI_Scheme.h"
 #include "VGUI_TextImage.h"
@@ -601,7 +600,7 @@ void CVoiceStatus::UpdateBanButton(int iClient)
 	}
 }
 
-
+#include "cl_dll\parsemsg.h"
 void CVoiceStatus::HandleVoiceMaskMsg(int iSize, void *pbuf)
 {
 	BEGIN_READ( pbuf, iSize );

@@ -101,14 +101,10 @@ void AvHWelder::FireProjectiles(void)
 {
 #ifdef AVH_SERVER
 	
-	//	FOR_ALL_ENTITIES(kwsWeldableClassName, AvHWeldable*)
-	//		theEntity->StartTrace();
-	//	END_FOR_ALL_ENTITIES(kwsWeldableClassName)
-	
 	Vector theWelderBarrel = this->GetWorldBarrelPoint();
 
 	UTIL_MakeVectors(this->m_pPlayer->pev->v_angle);
-	Vector vecEnd = theWelderBarrel + gpGlobals->v_forward*BALANCE_IVAR(kWelderRange);
+	Vector vecEnd = theWelderBarrel + gpGlobals->v_forward*BALANCE_VAR(kWelderRange);
 
 	TraceResult tr;
 	UTIL_TraceLine(theWelderBarrel, vecEnd, dont_ignore_monsters, dont_ignore_glass, ENT( m_pPlayer->pev ), &tr);
@@ -138,16 +134,8 @@ void AvHWelder::FireProjectiles(void)
 		{
 			if(this->m_pPlayer->pev->team == theEntity->pev->team)
 			{
-				// Hack in quick playest ability for welder to rebuild dead command stations
-//				if((theEntity->pev->classname == MAKE_STRING(kwsTeamCommand)) && (theEntity->pev->health == 0))
-//				{
-//					theEntity->ResetEntity();
-//				}
-//				else
-//				{
 				if( this->RepairTarget(theEntity, theROF) )
 					theDidWeld = true;
-//				}
 			}
 			else
 			{
@@ -204,10 +192,6 @@ void AvHWelder::FireProjectiles(void)
 		}
 	}
 
-//	FOR_ALL_ENTITIES(kwsWeldableClassName, AvHWeldable*)
-//		theEntity->EndTrace();
-//	END_FOR_ALL_ENTITIES(kwsWeldableClassName)
-
 	#endif
 }
 
@@ -219,7 +203,7 @@ int	AvHWelder::GetBarrelLength() const
 
 float AvHWelder::GetRateOfFire() const
 {
-	return BALANCE_FVAR(kWelderROF);
+	return BALANCE_VAR(kWelderROF);
 }
 
 void AvHWelder::Holster( int skiplocal )
@@ -234,10 +218,8 @@ void AvHWelder::Holster( int skiplocal )
 	}
 #endif
 
-#ifndef AVH_MAPPER_BUILD
 	PLAYBACK_EVENT_FULL(0, this->m_pPlayer->edict(), this->mEndEvent, 0, this->m_pPlayer->pev->origin, (float *)&g_vecZero, 0.0, 0.0, 0, 0, 0, 0 );
 	this->PlaybackEvent(this->mEndEvent);
-#endif
 }
 
 void AvHWelder::WeaponIdle(void)
@@ -256,8 +238,8 @@ void AvHWelder::WeaponIdle(void)
 
 void AvHWelder::Init()
 {
-	this->mRange = BALANCE_IVAR(kWelderRange);
-	this->mDamage = BALANCE_IVAR(kWelderDamage);
+	this->mRange = BALANCE_VAR(kWelderRange);
+	this->mDamage = BALANCE_VAR(kWelderDamage);
 	this->SetIsWelding(false);
 }
 
@@ -286,7 +268,7 @@ void AvHWelder::Precache()
 
 bool AvHWelder::RepairTarget(CBaseEntity* inEntity, float inROF)
 {
-    int theAmountToRepair = inROF*BALANCE_IVAR(kWelderRepairRate);
+    int theAmountToRepair = inROF*BALANCE_VAR(kWelderRepairRate);
 	
 	bool theReturn = false;
 
@@ -302,7 +284,7 @@ bool AvHWelder::RepairTarget(CBaseEntity* inEntity, float inROF)
 			
 			if(theCurrentArmor < theMaxArmor)
 			{
-				int theNewArmor = theCurrentArmor + (theAmountToRepair * BALANCE_FVAR(kWelderPlayerModifier));
+				int theNewArmor = theCurrentArmor + (theAmountToRepair * BALANCE_VAR(kWelderPlayerModifier));
 				theHitPlayer->pev->armorvalue = min(theMaxArmor, theNewArmor);
 				theReturn = true;
 			}
@@ -320,7 +302,7 @@ bool AvHWelder::RepairTarget(CBaseEntity* inEntity, float inROF)
 			AvHBaseBuildable* theBuildable = dynamic_cast<AvHBaseBuildable*>(inEntity);
 			if(theBuildable)
 			{
-				if(theBuildable->Regenerate((theAmountToRepair * BALANCE_FVAR(kWelderBuildingModifier)), false))
+				if(theBuildable->Regenerate((theAmountToRepair * BALANCE_VAR(kWelderBuildingModifier)), false))
                 {
                     // Award experience for welding the CC.  Might award a little more if barely wounded, but that seems OK.
                     if(GetGameRules()->GetIsCombatMode() && (theBuildable->pev->iuser3 == AVH_USER3_COMMANDER_STATION))
@@ -328,7 +310,7 @@ bool AvHWelder::RepairTarget(CBaseEntity* inEntity, float inROF)
                         AvHPlayer* theWeldingPlayer = dynamic_cast<AvHPlayer*>(this->m_pPlayer);
                         if(theWeldingPlayer && (theWeldingPlayer->pev->team == theBuildable->pev->team))
                         {
-                            float theCombatHealExperienceScalar = BALANCE_FVAR(kCombatHealExperienceScalar);
+                            float theCombatHealExperienceScalar = BALANCE_VAR(kCombatHealExperienceScalar);
                             theWeldingPlayer->AwardExperienceForObjective(theAmountToRepair*theCombatHealExperienceScalar, theBuildable->GetMessageID());
                         }
                     }
@@ -361,12 +343,6 @@ void AvHWelder::Spawn()
 // When welder is deployed, it makes the welding sound
 void AvHWelder::WelderThink()
 {
-	//#ifndef AVH_MAPPER_BUILD
-	// Either way, always play looping welder sounds (maybe this should play always, whether using it or not)
-	//EMIT_SOUND_DYN(ENT(m_pPlayer->pev), CHAN_STATIC, kWeldingSound, RANDOM_FLOAT(.3, .5), ATTN_NORM, 0, 93 + RANDOM_LONG(0,0xF));
-	//#endif
-
-	//this->pev->nextthink = gpGlobals->time + kWelderThinkTime;
 }
 
 bool AvHWelder::UsesAmmo(void) const

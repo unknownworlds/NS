@@ -4,13 +4,13 @@
 
 #include "hud.h"
 #include "cl_util.h"
-#include "const.h"
-#include "entity_types.h"
-#include "studio_event.h" // def. of mstudioevent_t
-#include "r_efx.h"
-#include "event_api.h"
-#include "pm_defs.h"
-#include "pmtrace.h"	
+#include "common/const.h"
+#include "common/entity_types.h"
+#include "common/studio_event.h" // def. of mstudioevent_t
+#include "common/r_efx.h"
+#include "common/event_api.h"
+#include "pm_shared/pm_defs.h"
+#include "common/pmtrace.h"	
 #include "pm_shared/pm_shared.h"
 #include "mod/AvHParticleSystemManager.h"
 #include "mod/AvHSpecials.h"
@@ -35,11 +35,6 @@ HUD_AddEntity
 int CL_DLLEXPORT HUD_AddEntity( int type, struct cl_entity_s *ent, const char *modelname )
 {
 	RecClAddEntity(type, ent, modelname);
-
-	if(ent->curstate.iuser3 == AVH_USER3_MARINE_PLAYER)
-	{
-		int a = 0;
-	}
 
 	gHUD.ClientProcessEntity(&ent->curstate);
 
@@ -787,10 +782,12 @@ void CL_DLLEXPORT HUD_TempEntUpdate (
 							float s, c;
 							s = sin( pTemp->entity.baseline.origin[2] + fastFreq );
 							c = cos( pTemp->entity.baseline.origin[2] + fastFreq );
-							
+#pragma warning(push)
+#pragma warning(disable: 311)							
 							pTemp->entity.origin[0] += pTemp->entity.baseline.origin[0] * frametime + 8 * sin( client_time * 20 + (int)pTemp );
 							pTemp->entity.origin[1] += pTemp->entity.baseline.origin[1] * frametime + 4 * sin( client_time * 30 + (int)pTemp );
 							pTemp->entity.origin[2] += pTemp->entity.baseline.origin[2] * frametime;
+#pragma warning(pop)
 						}
 						
 						else 

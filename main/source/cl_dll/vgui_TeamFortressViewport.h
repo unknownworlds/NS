@@ -21,10 +21,9 @@
 #include<VGUI_ScrollPanel.h>
 #include<VGUI_ScrollBar.h>
 #include<VGUI_Slider.h>
-#include<VGUI_ListBox.h>
 #include<VGUI_TextEntry.h>
 #include "cl_dll/CLabelHeader.h"
-#include "build.h"
+#include "game_shared/VGUI_ListBox.h"
 #include "game_shared/VGUI_Grid.h"
 
 
@@ -408,27 +407,6 @@ public:
 	virtual void paintBackground();
 };
 
-#ifdef AVH_PLAYTEST_BUILD
-class OptionsScreenInputSignal : public InputSignal
-{
-public:
-	virtual void cursorMoved(int x,int y,Panel* panel);
-	virtual void cursorEntered(Panel* panel);
-	virtual void cursorExited(Panel* panel);
-	virtual void mousePressed(MouseCode code,Panel* panel);
-	virtual void mouseDoublePressed(MouseCode code,Panel* panel);
-	virtual void mouseReleased(MouseCode code,Panel* panel);
-	virtual void mouseWheeled(int delta,Panel* panel);
-	virtual void keyPressed(KeyCode code,Panel* panel);
-	virtual void keyTyped(KeyCode code,Panel* panel);
-	virtual void keyReleased(KeyCode code,Panel* panel);
-	virtual void keyFocusTicked(Panel* panel);
-
-private:
-	void SelectLabel(Panel* inPanel);
-};
-#endif
-
 class SmartLabel : public vgui::Label
 {
 public:
@@ -534,7 +512,6 @@ public:
 	void UpdateSpectatorPanel( void );
 
 	int	 KeyInput( int down, int keynum, const char *pszCurrentBinding );
-	void InputPlayerSpecial( void );
 	void GetAllPlayersInfo( void );
 	void DeathMsg( int killer, int victim );
 
@@ -577,20 +554,12 @@ public:
 	int GetAllowSpectators() { return m_iAllowSpectators; };
 
 	// Message Handlers
-	int MsgFunc_ValClass(const char *pszName, int iSize, void *pbuf );
 	int MsgFunc_TeamNames(const char *pszName, int iSize, void *pbuf );
-	int MsgFunc_Feign(const char *pszName, int iSize, void *pbuf );
-	int MsgFunc_Detpack(const char *pszName, int iSize, void *pbuf );
-	int MsgFunc_VGUIMenu(const char *pszName, int iSize, void *pbuf );
 	int MsgFunc_MOTD( const char *pszName, int iSize, void *pbuf );
-	int MsgFunc_BuildSt( const char *pszName, int iSize, void *pbuf );
-	int MsgFunc_RandomPC( const char *pszName, int iSize, void *pbuf );
 	int MsgFunc_ServerName( const char *pszName, int iSize, void *pbuf );
 	int MsgFunc_ScoreInfo( const char *pszName, int iSize, void *pbuf );
 	int MsgFunc_TeamScore( const char *pszName, int iSize, void *pbuf );
 	int MsgFunc_TeamInfo( const char *pszName, int iSize, void *pbuf );
-	int MsgFunc_Spectator( const char *pszName, int iSize, void *pbuf );
-	int MsgFunc_AllowSpec( const char *pszName, int iSize, void *pbuf );
 
 	// Input
 	bool SlotInput( int iSlot );
@@ -614,34 +583,6 @@ public:
 	ScorePanel		*m_pScoreBoard;
 	CTransparentPanel*	mOptionsScreen;
 	CommandButton**		mOptionsButtons;
-
-	#ifdef AVH_PLAYTEST_BUILD
-	void						AddAnalysisLine(const string& inAnalysisLine);
-	void						AddBalanceVariable(const string& inVariableName);
-
-	#define						kMaxPlaytestVariables 2048
-
-	CListBox*					mPlaytestVariables;
-	SmartLabel					mPlaytestEntryLabels[kMaxPlaytestVariables];
-	int							mPlaytestVariableRow;
-
-	CListBox*					mPlaytestAnalysis;
-	SmartLabel					mPlaytestAnalysisLabels[kMaxPlaytestVariables];
-	int							mPlaytestAnalysisRow;
-	bool						mBalanceChanged;
-	void						RecomputeAnalysis();
-
-	OptionsScreenInputSignal	mPlaytestInputSignal;
-	SmartLabel					mPlaytestVariableName;
-	TextEntry*					mPlaytestVariableValue;
-	string						mPlaytestVariableValueBeforeHide;
-	int							mPlaytestVariableWidth;
-	int							mPlaytestVariableHeight;
-	int							mPlaytestAnalysisWidth;
-	int							mPlaytestAnalysisHeight;
-	vgui::BitmapTGA*			mNSLogoBitmap;
-	vgui::Label*				mNSLogoLabel;
-	#endif
 
 	SpectatorPanel	*m_pSpectatorPanel;
 	char			m_szServerName[ MAX_SERVERNAME_LENGTH ];

@@ -21,7 +21,7 @@
 
 #include "hud.h"
 #include "cl_util.h"
-#include "parsemsg.h"
+#include "mod/AvHNetworkMessages.h"
 
 #include <string.h>
 #include <stdio.h>
@@ -258,15 +258,15 @@ int CHudStatusBar :: Draw( float fTime )
 // %iX, where X is an integer, will substitute a number here, getting the number from StatusValue[X]
 int CHudStatusBar :: MsgFunc_StatusText( const char *pszName, int iSize, void *pbuf )
 {
-	BEGIN_READ( pbuf, iSize );
+	int location;
+	string content;
+	NetMsg_StatusText( pbuf, iSize, location, content );
 
-	int line = READ_BYTE();
-
-	if ( line < 0 || line >= MAX_STATUSBAR_LINES )
+	if ( location < 0 || location >= MAX_STATUSBAR_LINES )
 		return 1;
 
-	strncpy( m_szStatusText[line], READ_STRING(), MAX_STATUSTEXT_LENGTH );
-	m_szStatusText[line][MAX_STATUSTEXT_LENGTH-1] = 0;  // ensure it's null terminated ( strncpy() won't null terminate if read string too long)
+	strncpy( m_szStatusText[location], content.c_str(), MAX_STATUSTEXT_LENGTH );
+	m_szStatusText[location][MAX_STATUSTEXT_LENGTH-1] = 0;  // ensure it's null terminated ( strncpy() won't null terminate if read string too long)
 
 	if ( m_szStatusText[0] == 0 )
 		m_iFlags &= ~HUD_ACTIVE;
@@ -285,13 +285,13 @@ int CHudStatusBar :: MsgFunc_StatusText( const char *pszName, int iSize, void *p
 //		short: value to store
 int CHudStatusBar :: MsgFunc_StatusValue( const char *pszName, int iSize, void *pbuf )
 {
-	BEGIN_READ( pbuf, iSize );
+	int location, state;
+	NetMsg_StatusValue( pbuf, iSize, location, state );
 
-	int index = READ_BYTE();
-	if ( index < 1 || index >= MAX_STATUSBAR_VALUES )
+	if ( location < 1 || location >= MAX_STATUSBAR_VALUES )
 		return 1; // index out of range
 
-	m_iStatusValues[index] = READ_SHORT();
+	m_iStatusValues[location] = state;
 
 	m_bReparseString = TRUE;
 	this->ReparseStringIfNeeded();

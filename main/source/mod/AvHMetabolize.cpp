@@ -62,13 +62,13 @@ int	AvHMetabolize::GetBarrelLength() const
 
 float AvHMetabolize::GetRateOfFire() const
 {
-    return BALANCE_FVAR(kMetabolizeROF);
+    return BALANCE_VAR(kMetabolizeROF);
 }
 
 #ifdef AVH_SERVER
 int	AvHMetabolize::GetResourceCost() const
 {
-	return BALANCE_IVAR(kMetabolizeResourceCost);
+	return BALANCE_VAR(kMetabolizeResourceCost);
 }
 #endif
 
@@ -169,7 +169,7 @@ void AvHMetabolize::FireProjectiles(void)
     }
 
 	// Get health back
-	int theRegenAmount = BALANCE_IVAR(kMetabolizeHealAmount)*theFocusAmount;
+	int theRegenAmount = BALANCE_VAR(kMetabolizeHealAmount)*theFocusAmount;
 	AvHPlayer* thePlayer = dynamic_cast<AvHPlayer*>(this->m_pPlayer);
 	ASSERT(thePlayer);
 	thePlayer->Heal(theRegenAmount);
@@ -191,7 +191,7 @@ void AvHMetabolize::DeductCostForShot(void)
         theFocusAmount *= AvHPlayerUpgrade::GetFocusDamageUpgrade(this->m_pPlayer->pev->iuser4);
     }
 
-    float theEnergyAmount = BALANCE_FVAR(kMetabolizeEnergyAmount)*theFocusAmount;
+    float theEnergyAmount = BALANCE_VAR(kMetabolizeEnergyAmount)*theFocusAmount;
 	AvHMUGiveAlienEnergy(this->m_pPlayer->pev->fuser3, theEnergyAmount);
 }
 

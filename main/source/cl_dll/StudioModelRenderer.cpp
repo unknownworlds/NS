@@ -3,13 +3,13 @@
 
 #include "hud.h"
 #include "cl_util.h"
-#include "const.h"
-#include "com_model.h"
-#include "studio.h"
-#include "entity_state.h"
-#include "cl_entity.h"
-#include "dlight.h"
-#include "triangleapi.h"
+#include "common/const.h"
+#include "common/com_model.h"
+#include "engine/studio.h"
+#include "common/entity_state.h"
+#include "common/cl_entity.h"
+#include "common/dlight.h"
+#include "common/triangleapi.h"
 
 #include <stdio.h>
 #include <string.h>

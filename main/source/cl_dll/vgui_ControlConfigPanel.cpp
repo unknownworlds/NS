@@ -96,7 +96,7 @@ public:
 	}
 	virtual Panel* startCellEditing(int column,int row)
 	{
-		_textEntry->setText("Goat",strlen("Goat"));
+		_textEntry->setText("Goat",(int)strlen("Goat"));
 		_textEntry->requestFocus();
 		return _textEntry;
 	}

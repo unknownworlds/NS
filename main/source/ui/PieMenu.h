@@ -91,7 +91,7 @@ public:
 
     void Update(float theCurrentTime);
 
-	void UpdateMenuFromTech(const AvHTechNodes& inMenuCosts, int inPurchaselevel);
+	void UpdateMenuFromTech(const AvHTechTree& inMenuCosts, int inPurchaselevel);
 
 	void VidInit();
 

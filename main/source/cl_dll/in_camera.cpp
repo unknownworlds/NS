@@ -2,17 +2,16 @@
 #include "cl_util.h"
 #include "camera.h"
 #include "kbutton.h"
-#include "cvardef.h"
-#include "usercmd.h"
-#include "const.h"
+#include "common/cvardef.h"
+#include "common/usercmd.h"
+#include "common/const.h"
 #include "camera.h"
 #include "in_defs.h"
 
-#include "APIProxy.h"
+#include "engine/APIProxy.h"
 #include "Exports.h"
 
 #include "windows.h"
-#include "build.h"
 
 float CL_KeyState (kbutton_t *key);
 extern "C" 
@@ -465,8 +464,6 @@ void CAM_ToggleSnapto( void )
 
 void CAM_Toggle( void )
 {
-	int a = 0;
-
 #ifdef DEBUG
 	if(cam_thirdperson)
 	{

@@ -12,7 +12,7 @@
 #endif
 
 #ifdef AVH_SERVER
-#include "extdll.h"
+#include "dlls/extdll.h"
 class CBaseEntity;
 #endif
 

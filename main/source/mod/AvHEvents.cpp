@@ -97,7 +97,7 @@
 #include "common/event_api.h"
 #include "common/event_args.h"
 #include "common/dlight.h"
-#include "r_efx.h"
+#include "common/r_efx.h"
 #include "mod/AvHMarineWeaponConstants.h"
 #include "mod/AvHAlienWeaponConstants.h"
 #include "mod/AvHParticleSystemManager.h"
@@ -105,7 +105,7 @@
 #include "mod/AvHSpecials.h"
 #include "mod/AvHEvents.h"
 #include "mod/AvHSelectionHelper.h"
-#include "pm_defs.h"
+#include "pm_shared/pm_defs.h"
 #include "mod/AvHPlayerUpgrade.h"
 #include "mod/AvHSharedUtil.h"
 #include "mod/AvHParticleConstants.h"
@@ -182,9 +182,7 @@ extern DebugPointListType				gTriDebugLocations;
 extern DebugPointListType				gSquareDebugLocations;
 extern DebugEntityListType				gCubeDebugEntities;
 
-#ifdef AVH_PREDICT_SELECT
 AvHSelectionHelper						gSelectionHelper;
-#endif
 extern AvHParticleTemplateListClient	gParticleTemplateList;
 
 extern const Vector						g_vecZero;
@@ -748,21 +746,6 @@ void EV_MachineGun(struct event_args_s* args)
 	
 	char* theSoundToPlay = kMGFireSound1;
 
-	#ifdef AVH_UPGRADE_SOUNDS
-	switch(theUpgradeLevel)
-	{
-	case 1:
-		theSoundToPlay = kMGFireSound2;
-		break;
-	case 2:
-		theSoundToPlay = kMGFireSound3;
-		break;
-	case 3:
-		theSoundToPlay = kMGFireSound4;
-		break;
-	}
-	#endif
-	
 	gEngfuncs.pEventAPI->EV_PlaySound(idx, origin, CHAN_WEAPON, theSoundToPlay, theVolume, theAttenuation, 0, thePitch);
 	
 	EV_GetGunPosition( args, vecSrc, origin );
@@ -848,24 +831,6 @@ void EV_Pistol(struct event_args_s* args)
 	
 	char* theSoundToPlay = kHGFireSound1;
 	
-	#ifdef AVH_UPGRADE_SOUNDS
-	switch(theUpgradeLevel)
-	{
-	case 1:
-		theSoundToPlay = kHGFireSound2;
-		break;
-	case 2:
-		theSoundToPlay = kHGFireSound3;
-		break;
-	case 3:
-		theSoundToPlay = kHGFireSound4;
-		break;
-	default:
-		theSoundToPlay = kHGFireSound1;
-		break;
-	}
-	#endif
-	
 	gEngfuncs.pEventAPI->EV_PlaySound(idx, origin, CHAN_WEAPON, theSoundToPlay, theVolume, theAttenuation, 0, thePitch);
 	
 	EV_GetGunPosition( args, vecSrc, origin );
@@ -947,21 +912,6 @@ void EV_SonicGun(struct event_args_s* args)
 	//if(gEngfuncs.pfnRandomLong(0, 1) == 0)
 	char* theSoundToPlay = kSGFireSound1;
 	
-	#ifdef AVH_UPGRADE_SOUNDS
-	switch(theUpgradeLevel)
-	{
-	case 1:
-		theSoundToPlay = kSGFireSound2;
-		break;
-	case 2:
-		theSoundToPlay = kSGFireSound3;
-		break;
-	case 3:
-		theSoundToPlay = kSGFireSound4;
-		break;
-	}
-	#endif
-
 	gEngfuncs.pEventAPI->EV_PlaySound( idx, origin, CHAN_WEAPON, theSoundToPlay, theVolume, theAttenuation, 0, 94 + gEngfuncs.pfnRandomLong( 0, 0xf ));
 	
 	EV_GetGunPosition( args, vecSrc, origin );
@@ -978,7 +928,7 @@ void EV_SonicGun(struct event_args_s* args)
 //			AvHParticleSystemManager::Instance()->CreateParticleSystem(kpsShotgun, theBarrelTip);
 //		}
 		//EV_HLDM_FireBullets( idx, forward, right, up, kSGBulletsPerShot, vecSrc, vecAiming, kSGRange, BULLET_PLAYER_BUCKSHOT, 0, &tracerCount[idx-1], VECTOR_CONE_20DEGREES.x, VECTOR_CONE_20DEGREES.y);
-		EV_HLDM_FireBulletsPlayer( idx, forward, right, up, BALANCE_IVAR(kSGBulletsPerShot), vecSrc, vecAiming, kSGRange, BULLET_PLAYER_BUCKSHOT, 0, &tracerCount[idx-1], kSGSpread, args->iparam1);
+		EV_HLDM_FireBulletsPlayer( idx, forward, right, up, BALANCE_VAR(kSGBulletsPerShot), vecSrc, vecAiming, kSGRange, BULLET_PLAYER_BUCKSHOT, 0, &tracerCount[idx-1], kSGSpread, args->iparam1);
 		//}
 	
 	// General x-punch axis
@@ -1060,21 +1010,6 @@ void EV_HeavyMachineGun(struct event_args_s* args)
 	
 	char* theSoundToPlay = kHMGFireSound1;
 	
-	#ifdef AVH_UPGRADE_SOUNDS
-	switch(theUpgradeLevel)
-	{
-	case 1:
-		theSoundToPlay = kHMGFireSound2;
-		break;
-	case 2:
-		theSoundToPlay = kHMGFireSound3;
-		break;
-	case 3:
-		theSoundToPlay = kHMGFireSound4;
-		break;
-	}
-	#endif
-
 	gEngfuncs.pEventAPI->EV_PlaySound( idx, origin, CHAN_WEAPON, theSoundToPlay, theVolume, theAttenuation, 0, thePitch);
 	
 	EV_GetGunPosition( args, vecSrc, origin );
@@ -1169,21 +1104,6 @@ void EV_GrenadeGun(struct event_args_s* inArgs)
 	
 	char* theSoundToPlay = kGGFireSound1;
 	
-	#ifdef AVH_UPGRADE_SOUNDS
-	switch(theUpgradeLevel)
-	{
-	case 1:
-		theSoundToPlay = kGGFireSound2;
-		break;
-	case 2:
-		theSoundToPlay = kGGFireSound3;
-		break;
-	case 3:
-		theSoundToPlay = kGGFireSound4;
-		break;
-	}
-	#endif
-
 	gEngfuncs.pEventAPI->EV_PlaySound( idx, origin, CHAN_WEAPON, theSoundToPlay, 1, ATTN_NORM, 0, 94 + gEngfuncs.pfnRandomLong( 0, 0xf ));
 	
 	EV_GetGunPosition( inArgs, vecSrc, origin );
@@ -1301,7 +1221,7 @@ void EV_Grenade(struct event_args_s* inArgs)
 //            VectorCopy(theStartPos, theTempEntity->entity.origin);
 //            VectorCopy(theStartPos, theTempEntity->entity.prevstate.origin);
 //            VectorCopy(theStartPos, theTempEntity->entity.curstate.origin);
-//            theTempEntity->die += BALANCE_IVAR(kGrenDetonateTime);
+//            theTempEntity->die += BALANCE_VAR(kGrenDetonateTime);
 //            theTempEntity->hitcallback = GrenadeHit;
 //            theTempEntity->flags |= (FTENT_COLLIDEALL | FTENT_GRAVITY | FTENT_ROTATE | FTENT_PERSIST);
 //            theTempEntity->clientIndex = inArgs->entindex;	// Entity to ignore collisions with
@@ -2348,12 +2268,6 @@ void EV_WelderGeneralEffects(struct event_args_s* inArgs, const Vector& thePos)
 	int theIndex = inArgs->entindex;
 	cl_entity_t* thePlayer = GetEntity(theIndex);
 	
-	// Play welding sound when target is hit
-	/*if(gEngfuncs.pfnRandomLong(0, 20) == 0)
-	{
-		gEngfuncs.pEventAPI->EV_PlaySound(theIndex, thePlayer->origin, CHAN_WEAPON, kWeldingHitSound, 1, ATTN_NORM, 0, 94 + gEngfuncs.pfnRandomLong( 0, 0xf ));
-	}*/
-
 	// Don't play flashing effects if player is photosensitive
 	if(CVAR_GET_FLOAT(kvDynamicLights))
 	{
@@ -2370,7 +2284,7 @@ void EV_WelderGeneralEffects(struct event_args_s* inArgs, const Vector& thePos)
 		theLight->color.b = 255;
 		
 		// Have it die before it fires again, so it flickers on and off
-		theLight->die = gEngfuncs.GetClientTime() + BALANCE_FVAR(kWelderROF)/2.2f;
+		theLight->die = gEngfuncs.GetClientTime() + BALANCE_VAR(kWelderROF)/2.2f;
 	}
 	
 	// TODO: Apply burn mark
@@ -2450,11 +2364,8 @@ void EV_Welder(struct event_args_s* inArgs)
 	EV_GetGunPosition(inArgs, vecSrc, inArgs->origin);
 	VectorMA(vecSrc, kWelderBarrelLength, forward, theStartPos);
 
-	// Play welder sound
-	//gEngfuncs.pEventAPI->EV_PlaySound(inArgs->entindex, theStartPos, CHAN_WEAPON, kWeldingSound, 1, ATTN_NORM, 0, 94 + gEngfuncs.pfnRandomLong( 0, 0xf ));
-
 	// Calculate theEndPos, welder range along facing
-	theEndPos = theStartPos + forward * BALANCE_IVAR(kWelderRange);
+	theEndPos = theStartPos + forward * BALANCE_VAR(kWelderRange);
 
 	gEngfuncs.pEventAPI->EV_SetUpPlayerPrediction( false, true );
 	
@@ -2483,7 +2394,7 @@ void EV_Welder(struct event_args_s* inArgs)
 	{
 		// Adjust the trace so it's offset a bit towards us so particles aren't clipped away
 		//Vector theResult = theTraceResult.endpos;//theStartPos + forward*(theTraceResult.fraction - 0.001);
-		Vector theResult = theStartPos + forward*((theTraceResult.fraction - 0.1f)*BALANCE_IVAR(kWelderRange));
+		Vector theResult = theStartPos + forward*((theTraceResult.fraction - 0.1f)*BALANCE_VAR(kWelderRange));
 		
 		EV_WelderGeneralEffects(inArgs, theResult);
 		EV_WelderHitEffects(inArgs, theResult);
@@ -2517,7 +2428,7 @@ void EV_Welder(struct event_args_s* inArgs)
 		// TODO: emit this from the actual end of the barrel
 		//AvHParticleSystemManager::Instance()->CreateParticleSystem(5, theStartPos + forward*10);
 		
-		EV_WelderGeneralEffects(inArgs, theStartPos + (forward*(.3f*BALANCE_IVAR(kWelderRange))));
+		EV_WelderGeneralEffects(inArgs, theStartPos + (forward*(.3f*BALANCE_VAR(kWelderRange))));
 		
 		// Stop playing hit sound
 		//gEngfuncs.pEventAPI->EV_StopSound( theIndex, CHAN_WEAPON, kWeldingHitSound);
@@ -2552,51 +2463,6 @@ void EV_WelderConst(struct event_args_s* inArgs)
 		gEngfuncs.pEventAPI->EV_PlaySound( inArgs->entindex, thePlayer->origin, CHAN_AUTO, kWeldingStopSound, 1, ATTN_NORM, 0, 94 + gEngfuncs.pfnRandomLong( 0, 0xf ));
 		break;
 	}
-	/*
-	// Play construction sounds
-	//if(gEngfuncs.pfnRandomLong(0, 3) == 0)
-	//{
-	//	ClientPlayRandomConstructionSound(inArgs);
-	//}
-	
-		int theIndex = inArgs->entindex;
-		cl_entity_t* thePlayer = GetEntity(theIndex);
-		
-		 //Hot blue flame
-		
-		 //See if we're hitting something and playback smoke and sparks if so
-		 //Trace to see where the sparks should emanate from
-		vec3_t vecSrc;
-		vec3_t origin;
-		vec3_t forward, right, up;
-		
-		gEngfuncs.pfnAngleVectors(inArgs->angles, forward, right, up);
-		
-		 //Calculate theStartPos
-		vec3_t theStartPos, theEndPos;
-		VectorCopy(inArgs->origin, theStartPos);
-		EV_GetGunPosition(inArgs, vecSrc, theStartPos);
-		VectorCopy(vecSrc, theStartPos);
-		
-		 //Calculate theEndPos, welder range along facing
-		theEndPos = theStartPos + forward*kWelderRange;
-		
-		struct pmtrace_s theTraceResult;
-		gEngfuncs.pEventAPI->EV_PlayerTrace(theStartPos, theEndPos, PM_NORMAL, -1, &theTraceResult);
-		if(theTraceResult.fraction != 1.0f)
-		{
-			// Fire sparks
-			Vector theVector(inPev->origin);
-			float theRandomFloat = RANDOM_FLOAT(0.5F, 1.0f);
-			float theHeight = theRandomFloat*(inPev->absmax.z - inPev->absmin.z);
-
-		// Occasionals sparks
-		for(int i = 0; i < gEngfuncs.pfnRandomLong(0, 4); i++)
-		{
-			gEngfuncs.pEfxAPI->R_SparkShower(theTraceResult.endpos);
-		}
-	}*/
-
 }
 
 void EV_WelderStart(struct event_args_s* inArgs)
@@ -2805,73 +2671,6 @@ void EV_AlienSightOff(struct event_args_s* inArgs)
 	gEngfuncs.pEventAPI->EV_PlaySound(inArgs->entindex, inArgs->origin, CHAN_AUTO, kAlienSightOffSound, inArgs->fparam1, ATTN_IDLE, 0, thePitch);
 }
 
-//void ParalysisHit(struct tempent_s* ent, struct pmtrace_s* ptr)
-//{
-//	int a = 0;
-//}
-//
-//void EV_ParalysisGun(struct event_args_s* inArgs)
-//{
-//	int thePitch = gEngfuncs.pfnRandomLong(75, 150);
-//	gEngfuncs.pEventAPI->EV_PlaySound(inArgs->entindex, inArgs->origin, CHAN_AUTO, kParalysisFireSound, inArgs->fparam1, ATTN_IDLE, 0, thePitch);
-//
-//	vec3_t forward, right, up;
-//	gEngfuncs.pfnAngleVectors(inArgs->angles, forward, right, up);
-//	
-//	vec3_t theProjectileAngles;
-//	VectorAngles(forward, theProjectileAngles);
-//	
-//	// Projectile is rotated a bit
-//	TEMPENTITY* theTempEntity = gEngfuncs.pEfxAPI->R_TempModel(gPredictedPlayerOrigin, forward, theProjectileAngles, 100, gEngfuncs.pEventAPI->EV_FindModelIndex(kParalysisProjectileModel), 0);
-//	if(theTempEntity)
-//	{
-//		vec3_t theStartPos, theEndPos;
-//		//EV_GetGunPosition(inArgs, vecSrc, inArgs->origin);
-//		VectorMA(inArgs->origin, kParalysisBarrelLength, forward, theStartPos);
-//		
-//		VectorCopy(theStartPos, theTempEntity->entity.origin);
-//		VectorCopy(theStartPos, theTempEntity->entity.prevstate.origin);
-//		VectorCopy(theStartPos, theTempEntity->entity.curstate.origin);
-//		theTempEntity->hitcallback = ParalysisHit;
-//		theTempEntity->flags = (FTENT_COLLIDEALL | FTENT_COLLIDEKILL | FTENT_PERSIST | FTENT_ROTATE);
-//		theTempEntity->entity.curstate.framerate = 30;
-//		theTempEntity->frameMax = 4;//theModel->numframes;
-//
-//		// Temp entities interpret baseline origin as velocity.
-//		Vector theStartVelocity;
-//		VectorScale(forward, kParalysisVelocity, theStartVelocity);
-//		
-//		VectorCopy(theStartVelocity, theTempEntity->entity.baseline.origin);
-//		VectorCopy(theStartVelocity, theTempEntity->entity.baseline.velocity);
-//
-//		// Make the projectile spin
-//		// baseline.angles		- angle velocity
-//		const float kSpread = 1000.0f;
-//		theTempEntity->entity.baseline.angles.x = gEngfuncs.pfnRandomFloat(-kSpread, kSpread);
-//		theTempEntity->entity.baseline.angles.y = gEngfuncs.pfnRandomFloat(-kSpread, kSpread);
-//		theTempEntity->entity.baseline.angles.z = gEngfuncs.pfnRandomFloat(-kSpread, kSpread);
-//	}
-//	
-//	// General x-punch axis
-//	if ( EV_IsLocal( inArgs->entindex ) )
-//	{
-//		float theHalfSpread = kParalysisPunch/2.0f;
-//		if(theHalfSpread > 0.0f)
-//		{
-//			V_PunchAxis( 0, gEngfuncs.pfnRandomFloat( -theHalfSpread, theHalfSpread ) );
-//		}
-//
-//		gEngfuncs.pEventAPI->EV_WeaponAnimation(inArgs->iparam2, 2);
-//	}
-//	
-//}
-
-//void EV_ParalysisStart(struct event_args_s* inArgs)
-//{
-//	int thePitch = gEngfuncs.pfnRandomLong(75, 150);
-//	gEngfuncs.pEventAPI->EV_PlaySound(inArgs->entindex, inArgs->origin, CHAN_AUTO, kParalysisHitSound, 1, ATTN_IDLE, 0, thePitch);
-//}
-
 void EV_ParasiteGun(struct event_args_s* inArgs)
 {
 	// Sharp falloff, so it's only heard at very close and by the firer
@@ -2882,40 +2681,6 @@ void EV_ParasiteGun(struct event_args_s* inArgs)
 	{
 		gEngfuncs.pEventAPI->EV_WeaponAnimation(inArgs->iparam2, 2);
 	}
-
-//	// Create fast moving parasite projectile
-//	//vec3_t theEntStartPos = gPredictedPlayerOrigin;
-//	vec3_t vecSrc, vecAiming;
-//	vec3_t up, right, forward;
-//	gEngfuncs.pfnAngleVectors(inArgs->angles, forward, right, up);
-//
-//	vec3_t theStartPos, theEndPos;
-//	EV_GetGunPosition(inArgs, vecSrc, inArgs->origin);
-//	VectorMA(vecSrc, kParasiteBarrelLength, forward, theStartPos);
-//
-//	vec3_t theParasiteAngles;
-//	VectorAngles(forward, theParasiteAngles);
-//	
-//	//TEMPENTITY* theTempEntity = gEngfuncs.pEfxAPI->CL_TempEntAlloc(theEntStartPos, theModel);
-//	TEMPENTITY* theTempEntity = gEngfuncs.pEfxAPI->R_TempModel(theStartPos, forward, theParasiteAngles, 100, gEngfuncs.pEventAPI->EV_FindModelIndex(kParasiteProjectileModel), 0);
-//	if(theTempEntity)
-//	{
-//		VectorCopy(theStartPos, theTempEntity->entity.origin);
-//		VectorCopy(theStartPos, theTempEntity->entity.prevstate.origin);
-//		VectorCopy(theStartPos, theTempEntity->entity.curstate.origin);
-//		theTempEntity->flags |= (FTENT_COLLIDEALL | FTENT_COLLIDEKILL | FTENT_PERSIST);
-//		theTempEntity->clientIndex = inArgs->entindex;
-//		
-//		// Temp entities interpret baseline origin as velocity.
-//		Vector theStartVelocity;
-//		VectorScale(forward, kParasiteVelocity, theStartVelocity);
-//		
-//		VectorCopy(theStartVelocity, theTempEntity->entity.baseline.origin);
-//		VectorCopy(theStartVelocity, theTempEntity->entity.baseline.velocity);
-//
-//		// Set orientation
-//		//VectorCopy(inArgs->angles, theTempEntity->entity.angles);
-//	}
 }
 
 void EV_BlinkSuccess(struct event_args_s* inArgs)
@@ -3024,29 +2789,6 @@ void AcidRocketHit(struct tempent_s* ent, struct pmtrace_s* ptr)
 	gEngfuncs.pEventAPI->EV_PlaySound(ent->entity.index, ptr->endpos, CHAN_AUTO, theSoundToPlay, 1, ATTN_NORM, 0, 94 + gEngfuncs.pfnRandomLong( 0, 0xf ));
 
 	AvHParticleSystemManager::Instance()->CreateParticleSystem(kpsAcidHitEffect, ptr->endpos, &(ptr->plane.normal));
-	
-//	int theModelIndex;
-//	struct model_s* theModel = gEngfuncs.CL_LoadModel(kSpitGunSprite, &theModelIndex);
-//	if(theModel)
-//	{
-//		//if(gEngfuncs.pfnRandomLong(0, 1) == 0)
-//		//{
-//			// Make acid splash
-//			int theVelocity = gEngfuncs.pfnRandomLong(50, 100) + gEngfuncs.pfnRandomLong(50, 100);
-//			int theRandomness = gEngfuncs.pfnRandomLong(20, 30) + gEngfuncs.pfnRandomLong(20, 30);
-//			int theNumGlobs = gEngfuncs.pfnRandomLong(5, 10);
-//			gEngfuncs.pEfxAPI->R_Sprite_Spray(ptr->endpos, ptr->plane.normal, theModelIndex, theNumGlobs, theVelocity, theRandomness);
-//		//}
-//		//else
-//		//{
-//			//gEngfuncs.pEfxAPI->R_BlobExplosion(ptr->endpos);
-//			//gEngfuncs.pEfxAPI->R_LavaSplash(ptr->endpos);
-//			//gEngfuncs.pEfxAPI->R_TeleportSplash(ptr->endpos);
-//		//	vec3_t theEnd = ptr->endpos;
-//		//	theEnd[2] += 100;
-//		//	gEngfuncs.pEfxAPI->R_BeamLightning(ptr->endpos, theEnd, theModelIndex, 2.0f, 50, 2.0f, 1.0f, 10);
-//		//}
-//	}
 }
 
 void EV_AcidRocket(struct event_args_s* inArgs)
@@ -3076,13 +2818,6 @@ void EV_AcidRocket(struct event_args_s* inArgs)
 	int thePitch = gEngfuncs.pfnRandomLong(75, 150);
 	gEngfuncs.pEventAPI->EV_PlaySound(inArgs->entindex, inArgs->origin, CHAN_AUTO, kAcidRocketFireSound, inArgs->fparam1, ATTN_IDLE, 0, thePitch);
 
-	// Fire rocket
-	//int theModelIndex;
-	//struct model_s* theModel = gEngfuncs.CL_LoadModel(kAcidRocketProjectileModel, &theModelIndex);
-	//if(theModel)
-	//{
-	//	TEMPENTITY* theTempEntity = gEngfuncs.pEfxAPI->CL_TempEntAlloc(gPredictedPlayerOrigin, theModel);
-
 	vec3_t theRocketAngles;
 	VectorAngles(forward, theRocketAngles);
 
@@ -3096,13 +2831,6 @@ void EV_AcidRocket(struct event_args_s* inArgs)
 	TEMPENTITY* theTempEntity = gEngfuncs.pEfxAPI->R_TempModel(theRocketOrigin, forward, theRocketAngles, 100, gEngfuncs.pEventAPI->EV_FindModelIndex(kAcidRocketProjectileModel), 0);
 	if(theTempEntity)
 	{
-		//vec3_t theStartPos, theEndPos;
-		////EV_GetGunPosition(inArgs, vecSrc, inArgs->origin);
-		//VectorMA(inArgs->origin, kAcidRocketBarrelLength, forward, theStartPos);
-		
-		//VectorCopy(theStartPos, theTempEntity->entity.origin);
-		//VectorCopy(theStartPos, theTempEntity->entity.prevstate.origin);
-		//VectorCopy(theStartPos, theTempEntity->entity.curstate.origin);
 		theTempEntity->hitcallback = AcidRocketHit;
 		theTempEntity->flags = (FTENT_COLLIDEALL | FTENT_COLLIDEKILL | FTENT_PERSIST);
 		theTempEntity->entity.curstate.framerate = 30;
@@ -3117,20 +2845,6 @@ void EV_AcidRocket(struct event_args_s* inArgs)
 		
 		VectorCopy(theStartVelocity, theTempEntity->entity.baseline.origin);
 		VectorCopy(theStartVelocity, theTempEntity->entity.baseline.velocity);
-	
-		// Orient projectile according to direction
-////		Vector theDirection;
-////		VectorCopy(theBaseVelocity, theDirection);
-////		VectorNormalize(theDirection);
-////
-//		Vector theAngles;
-//		VectorAngles(theDirection, theAngles);
-//	
-//		VectorCopy(angles, theAngles);
-//	
-//		VectorCopy(theAngles, theTempEntity->entity.baseline.angles);
-//		VectorCopy(theAngles, theTempEntity->entity.curstate.angles);
-//		VectorCopy(theAngles, theTempEntity->entity.angles);
 	}
 	
 	// General x-punch axis
@@ -3317,9 +3031,7 @@ void EV_Ability(struct event_args_s* inArgs)
 
 void EV_Select(struct event_args_s* args)
 {
-	#ifdef AVH_PREDICT_SELECT
 	gSelectionHelper.ProcessPendingSelections();
-	#endif
 }
 
 
@@ -3367,11 +3079,11 @@ void EV_Bite(struct event_args_s* inArgs)
 
 	if(gEngfuncs.pfnRandomLong(0, 1) == 0)
 	{
-		PlayMeleeHitEffects(inArgs, BALANCE_IVAR(kBiteRange), kBiteHitSound1);
+		PlayMeleeHitEffects(inArgs, BALANCE_VAR(kBiteRange), kBiteHitSound1);
 	}
 	else
 	{
-		PlayMeleeHitEffects(inArgs, BALANCE_IVAR(kBiteRange), kBiteHitSound2);
+		PlayMeleeHitEffects(inArgs, BALANCE_VAR(kBiteRange), kBiteHitSound2);
 	}
 }
 
@@ -3422,11 +3134,11 @@ void EV_Bite2(struct event_args_s* inArgs)
 
 	if(gEngfuncs.pfnRandomLong(0, 1) == 0)
 	{
-		PlayMeleeHitEffects(inArgs, BALANCE_IVAR(kBiteRange), kBiteHitSound1);
+		PlayMeleeHitEffects(inArgs, BALANCE_VAR(kBiteRange), kBiteHitSound1);
 	}
 	else
 	{
-		PlayMeleeHitEffects(inArgs, BALANCE_IVAR(kBiteRange), kBiteHitSound2);
+		PlayMeleeHitEffects(inArgs, BALANCE_VAR(kBiteRange), kBiteHitSound2);
 	}
 }
 

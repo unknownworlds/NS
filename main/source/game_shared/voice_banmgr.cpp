@@ -21,7 +21,7 @@ unsigned char HashPlayerID(char const playerID[16])
 	unsigned char curHash = 0;
 
 	for(int i=0; i < 16; i++)
-		curHash += (unsigned char)playerID[i];
+		curHash += (unsigned char)(playerID[i] & 0xFF);
 
 	return curHash;
 }

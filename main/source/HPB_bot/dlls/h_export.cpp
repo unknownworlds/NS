@@ -6,10 +6,10 @@
 // h_export.cpp
 //
 
-#include "extdll.h"
-#include "enginecallback.h"
-#include "util.h"
-#include "cbase.h"
+#include "dlls/extdll.h"
+#include "dlls/enginecallback.h"
+#include "dlls/util.h"
+#include "dlls/cbase.h"
 #include "mod/AvHConstants.h"
 
 #include "bot.h"

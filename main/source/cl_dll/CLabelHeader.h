@@ -119,7 +119,7 @@ public:
 		char buf[512];
 		strcpy(buf, text);
 
-		int len = strlen(buf);
+		size_t len = strlen(buf);
 		while (len && isspace(buf[--len]))
 		{
 			buf[len] = 0;

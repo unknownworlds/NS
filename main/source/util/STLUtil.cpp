@@ -49,8 +49,8 @@ string LowercaseString(const string& ioString)
 
 string LowercaseString(string& ioString)
 {
-	int theLength = ioString.length();
-	for(int i = 0; i < theLength; i++)
+	size_t theLength = ioString.length();
+	for(size_t i = 0; i < theLength; i++)
 	{
 		char theCurrentChar = ioString[i];
 		ioString[i] = tolower(theCurrentChar);
@@ -67,8 +67,8 @@ string UppercaseString(const string& ioString)
 
 string UppercaseString(string& ioString)
 {
-    int theLength = ioString.length();
-    for(int i = 0; i < theLength; i++)
+    size_t theLength = ioString.length();
+    for(size_t i = 0; i < theLength; i++)
     {
         char theCurrentChar = ioString[i];
         ioString[i] = toupper(theCurrentChar);
@@ -251,7 +251,7 @@ bool BuildFileList(const string& inBaseDirectoryName, const string& inDirectoryN
 	
 	string theFullDirName = theBaseDirectoryName + theDirectoryName;
 	
-	int theEndOffset = theDirectoryName.find_last_of(kDelimiter);
+	size_t theEndOffset = theDirectoryName.find_last_of(kDelimiter);
 	string theBaseDirName = theDirectoryName.substr(0, theEndOffset);
 
 	theFullDirName += inFileExtension;
@@ -357,7 +357,7 @@ int SafeStrcmp(const char* inStringOne, const char* inStringTwo)
 void TrimString(string& ioString)
 {
 	int theStartChopIndex = 0;
-	int theEndChopIndex = ioString.length();
+	int theEndChopIndex = (int)ioString.length();
 
 	// Now remove any leading spaces
 	while((theStartChopIndex < (signed)ioString.length()) && (ioString[theStartChopIndex] == ' '))
@@ -371,7 +371,7 @@ void TrimString(string& ioString)
 		theEndChopIndex--;
 	}
 
-	int theLength = theEndChopIndex - theStartChopIndex;
+	int theLength = (int)(theEndChopIndex - theStartChopIndex);
 	if(theLength > 0)
 	{
 		string theTrimmedString = ioString.substr(theStartChopIndex, theLength);

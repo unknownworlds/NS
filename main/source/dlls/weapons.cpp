@@ -70,6 +70,7 @@
 #include "mod/AvHAlienEquipmentConstants.h"
 #include "mod/AvHPlayer.h"
 #include "mod/AvHGamerules.h"
+#include "mod/AvHNetworkMessages.h"
 
 extern CGraph	WorldGraph;
 extern int gEvilImpulse101;
@@ -120,8 +121,6 @@ DLL_GLOBAL	short	g_sModelIndexBloodSpray;// holds the sprite index for splattere
 
 ItemInfo CBasePlayerItem::ItemInfoArray[MAX_WEAPONS];
 AmmoInfo CBasePlayerItem::AmmoInfoArray[MAX_AMMO_SLOTS];
-
-extern int gmsgCurWeapon;
 
 MULTIDAMAGE gMultiDamage;
 
@@ -418,7 +417,6 @@ void W_Precache(void)
     PRECACHE_UNMODIFIED_MODEL(kMarineCommanderModel);
     PRECACHE_UNMODIFIED_MODEL(kAlienGestateModel);
 
-	#ifndef AVH_MAPPER_BUILD
 	UTIL_PrecacheOtherWeapon(kwsMine);
     UTIL_PrecacheOtherWeapon(kwsKnife);
     UTIL_PrecacheOtherWeapon(kwsMachineGun);
@@ -489,7 +487,6 @@ void W_Precache(void)
 	//UTIL_PrecacheOther(kwsNukePlant);
 	UTIL_PrecacheOther(kwsDeployedTurret);
 	UTIL_PrecacheOther(kwsSiegeTurret);
-#endif
 
 	// container for dropped deathmatch weapons
 	UTIL_PrecacheOther("weaponbox");
@@ -505,7 +502,6 @@ void W_Precache(void)
 	
 	UTIL_PrecacheOther(kwsDebugEntity);
 
-	#ifndef AVH_MAPPER_BUILD
 	// Precache other events
 	gJetpackEventID = PRECACHE_EVENT(1, kJetpackEvent);
 	//gStartOverwatchEventID = PRECACHE_EVENT(1, kStartOverwatchEvent);
@@ -538,8 +534,6 @@ void W_Precache(void)
 	PRECACHE_UNMODIFIED_SOUND(kConnectSound);
 	//PRECACHE_UNMODIFIED_SOUND(kDisconnectSound);
 	PRECACHE_UNMODIFIED_MODEL(kNullModel);
-
-#endif
 
 	UTIL_PrecacheOther("monster_sentry");
 	
@@ -693,10 +687,7 @@ TYPEDESCRIPTION	CBasePlayerItem::m_SaveData[] =
 {
 	DEFINE_FIELD( CBasePlayerItem, m_pPlayer, FIELD_CLASSPTR ),
 	DEFINE_FIELD( CBasePlayerItem, m_pNext, FIELD_CLASSPTR ),
-	//DEFINE_FIELD( CBasePlayerItem, m_fKnown, FIELD_INTEGER ),Reset to zero on load
 	DEFINE_FIELD( CBasePlayerItem, m_iId, FIELD_INTEGER ),
-	// DEFINE_FIELD( CBasePlayerItem, m_iIdPrimary, FIELD_INTEGER ),
-	// DEFINE_FIELD( CBasePlayerItem, m_iIdSecondary, FIELD_INTEGER ),
 };
 IMPLEMENT_SAVERESTORE( CBasePlayerItem, CBaseAnimating );
 
@@ -710,8 +701,6 @@ TYPEDESCRIPTION	CBasePlayerWeapon::m_SaveData[] =
 	DEFINE_FIELD( CBasePlayerWeapon, m_iSecondaryAmmoType, FIELD_INTEGER ),
 	DEFINE_FIELD( CBasePlayerWeapon, m_iClip, FIELD_INTEGER ),
 	DEFINE_FIELD( CBasePlayerWeapon, m_iDefaultAmmo, FIELD_INTEGER ),
-//	DEFINE_FIELD( CBasePlayerWeapon, m_iClientClip, FIELD_INTEGER )	 , reset to zero on load so hud gets updated correctly
-//  DEFINE_FIELD( CBasePlayerWeapon, m_iClientWeaponState, FIELD_INTEGER ), reset to zero on load so hud gets updated correctly
 };
 
 IMPLEMENT_SAVERESTORE( CBasePlayerWeapon, CBasePlayerItem );
@@ -918,11 +907,7 @@ void CBasePlayerItem::DefaultTouch( CBaseEntity *pOther )
 
 BOOL CanAttack( float attack_time, float curtime, BOOL isPredicted )
 {
-#if defined( CLIENT_WEAPONS )
 	if ( !isPredicted )
-#else
-	if ( 1 )
-#endif
 	{
 		return ( attack_time <= curtime ) ? TRUE : FALSE;
 	}
@@ -1036,12 +1021,11 @@ void CBasePlayerWeapon::ItemPostFrame( void )
 
 void CBasePlayerItem::DestroyItem( void )
 {
-	if ( m_pPlayer )
-	{
-		// if attached to a player, remove. 
-		m_pPlayer->RemovePlayerItem( this );
-	}
-	Kill( );
+	//KGP: this is a virtual function call for a reason...
+	// it had been replaced with the contents of
+	// CBasePlayerItem::VirtualDestroyItem, ignoring
+	// AvHBasePlayerWeapon::VirtualDestroyItem in 3.01
+	this->VirtualDestroyItem();
 }
 
 void CBasePlayerItem::VirtualDestroyItem( void )
@@ -1137,25 +1121,19 @@ int CBasePlayerWeapon::UpdateClientData( CBasePlayer *pPlayer )
 {
 	BOOL bSend = FALSE;
 	int state = 0;
+
+	// KGP: folded m_iEnabled into the state value and converted it to a proper bitfield.
+	if( pPlayer->m_pActiveItem == this )
+	{ state |= WEAPON_IS_CURRENT; }
+	if( pPlayer->m_fOnTarget )
+	{ state |= WEAPON_ON_TARGET; }
+	if( m_iEnabled )
+	{ state |= WEAPON_IS_ENABLED; }
 	
-    if ( pPlayer->m_pActiveItem == this )
-	{
-		if ( pPlayer->m_fOnTarget )
-			state = WEAPON_IS_ONTARGET;
-		else
-			state = 1;
-	}
-
-	// If weapon is disabled, set state to 0 (for disabling alien weapons when there aren't hives anymore)
-	if(this->m_flNextSecondaryAttack == -1)
-	{
-		state = 0;
-	}
-
 	// Forcing send of all data!
 	if ( !pPlayer->m_fWeapon )
 	{
-		bSend = TRUE;
+		bSend = TRUE; 
 	}
 	
 	// This is the current or last weapon, so the state will need to be updated
@@ -1164,15 +1142,13 @@ int CBasePlayerWeapon::UpdateClientData( CBasePlayer *pPlayer )
 	{
 		if ( pPlayer->m_pActiveItem != pPlayer->m_pClientActiveItem )
 		{
-			bSend = TRUE;
+			bSend = TRUE; 
 		}
 	}
 
 	// If the ammo, state, or fov has changed, update the weapon
-	// puzl: 497 - send if enabled state has changed
 	if ( m_iClip != m_iClientClip || 
 		 state != m_iClientWeaponState || 
-		 m_iEnabled != m_iClientEnableState ||
 		 pPlayer->m_iFOV != pPlayer->m_iClientFOV )
 	{
 		bSend = TRUE;
@@ -1180,20 +1156,10 @@ int CBasePlayerWeapon::UpdateClientData( CBasePlayer *pPlayer )
 
 	if ( bSend )
 	{
-        MESSAGE_BEGIN( MSG_ONE, gmsgCurWeapon, NULL, pPlayer->pev );
-		    WRITE_BYTE( state );
-		    WRITE_BYTE( m_iId );
-		    WRITE_BYTE( m_iClip );
-			// puzl: 497 - enabled state
-		    WRITE_BYTE( m_iEnabled );
-	    MESSAGE_END();
-
+		NetMsg_CurWeapon( pPlayer->pev, state, m_iId, m_iClip );
 	    m_iClientClip = m_iClip;
 	    m_iClientWeaponState = state;
-		// puzl: 497 - remember the old enabled state
-		m_iClientEnableState = m_iEnabled;
 	    pPlayer->m_fWeapon = TRUE;
-
 	}
 
 	if ( m_pNext )
@@ -1213,10 +1179,8 @@ void CBasePlayerWeapon::SendWeaponAnim( int iAnim, int skiplocal, int body )
 	
 		m_pPlayer->pev->weaponanim = iAnim;
 	
-	#if defined( CLIENT_WEAPONS )
 		if ( skiplocal && ENGINE_CANSKIP( m_pPlayer->edict() ) )
 			return;
-	#endif
 	
 		MESSAGE_BEGIN( MSG_ONE, SVC_WEAPONANIM, NULL, m_pPlayer->pev );
 			WRITE_BYTE( iAnim );						// sequence number
@@ -1384,12 +1348,7 @@ BOOL CBasePlayerWeapon :: PlayEmptySound( void )
 	{
 //		EMIT_SOUND(ENT(m_pPlayer->pev), CHAN_WEAPON, "weapons/357_cock1.wav", 0.8, ATTN_NORM);
 
-		int flags;
-		#if defined( CLIENT_WEAPONS )
-		flags = FEV_NOTHOST;
-		#else
-		flags = 0;
-		#endif
+		int flags = FEV_NOTHOST;
 		
 		PLAYBACK_EVENT_FULL( flags, m_pPlayer->edict(), gEmptySoundEventID, 0.0, (float *)&(m_pPlayer->pev->origin), (float *)&g_vecZero, 0.0, 0.0, 0, 0, 0, 0 );
 

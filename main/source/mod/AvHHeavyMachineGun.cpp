@@ -81,7 +81,7 @@ void V_PunchAxis( int axis, float punch );
 void AvHHeavyMachineGun::Init()
 {
 	this->mRange = kHMGRange;
-	this->mDamage = BALANCE_IVAR(kHMGDamage);
+	this->mDamage = BALANCE_VAR(kHMGDamage);
 }
 
 int	AvHHeavyMachineGun::GetBarrelLength() const
@@ -91,7 +91,7 @@ int	AvHHeavyMachineGun::GetBarrelLength() const
 
 float AvHHeavyMachineGun::GetRateOfFire() const
 {
-	return BALANCE_FVAR(kHMGROF);
+	return BALANCE_VAR(kHMGROF);
 }
 
 int	AvHHeavyMachineGun::GetDeployAnimation() const
@@ -218,12 +218,6 @@ void AvHHeavyMachineGun::Precache()
 
 	PRECACHE_UNMODIFIED_SOUND(kHMGFireSound1);
 	
-	#ifdef AVH_UPGRADE_SOUNDS
-	PRECACHE_UNMODIFIED_SOUND(kHMGFireSound2);
-	PRECACHE_UNMODIFIED_SOUND(kHMGFireSound3);
-	PRECACHE_UNMODIFIED_SOUND(kHMGFireSound4);
-	#endif
-
 	PRECACHE_UNMODIFIED_SOUND(kHMGReloadSound);
 	
 	this->mEvent = PRECACHE_EVENT(1, kHMGEventName);
@@ -249,7 +243,7 @@ void AvHHeavyMachineGun::Spawn()
 	Precache();
 
 	this->m_iId = AVH_WEAPON_HMG;
-	this->m_iDefaultAmmo = BALANCE_IVAR(kHMGMaxClip);
+	this->m_iDefaultAmmo = BALANCE_VAR(kHMGMaxClip);
 
     // Set our class name
 	this->pev->classname = MAKE_STRING(kwsHeavyMachineGun);

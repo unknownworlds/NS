@@ -85,7 +85,7 @@ bool AvHSwipe::GetIsGunPositionValid() const
 
 float AvHSwipe::GetRateOfFire() const
 {
-	return BALANCE_FVAR(kSwipeROF);
+	return BALANCE_VAR(kSwipeROF);
 }
 
 bool AvHSwipe::GetFiresUnderwater() const
@@ -161,7 +161,7 @@ int	AvHSwipe::GetShootAnimation() const
 void AvHSwipe::Init()
 {
 	this->mRange = kSwipeRange;
-	this->mDamage = BALANCE_IVAR(kSwipeDamage);
+	this->mDamage = BALANCE_VAR(kSwipeDamage);
 }
 
 int AvHSwipe::GetDamageType() const

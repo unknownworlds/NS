@@ -71,7 +71,7 @@ int	AvHPrimalScream::GetBarrelLength() const
 
 float AvHPrimalScream::GetRateOfFire() const
 {
-	return BALANCE_FVAR(kPrimalScreamROF);
+	return BALANCE_VAR(kPrimalScreamROF);
 }
 
 bool AvHPrimalScream::GetFiresUnderwater() const
@@ -121,7 +121,7 @@ bool AvHPrimalScream::GetIsDroppable() const
 	
 void AvHPrimalScream::Init()
 {
-	this->mRange = BALANCE_IVAR(kPrimalScreamRange);
+	this->mRange = BALANCE_VAR(kPrimalScreamRange);
 }
 
 char* AvHPrimalScream::GetViewModel() const

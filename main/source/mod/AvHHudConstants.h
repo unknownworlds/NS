@@ -7,7 +7,7 @@ const int					kBaseBottomYOffset = 5;
 const int					kZFightingOffset = 5;
 const float					kResourceEnergyBarWidth = .06f;
 const float					kResourceEnergyBarHeight = .38f;
-const						kAttackOrderZOffset = 15.0f;
+const float					kAttackOrderZOffset = 15.0f;
 const float					kHelpIconDrawSize = 20;	// Size to draw help icons, in world coords
 
 const float                 kPIPWidth  = 0.375;

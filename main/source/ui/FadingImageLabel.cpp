@@ -382,7 +382,6 @@ void FadingImageLabel::paint()
 void FadingImageLabel::paintBackground()
 {
 	// Do nothing, we don't draw in our bg color anymore, we only draw in FillRGBA
-	int a = 0;
 }
 
 // Called
@@ -528,7 +527,7 @@ void FadingImageLabel::setText(const char* inText)
 
 			// If image name has '-frame' in it, then we draw a frame out of the sprite
 			string theImageName = string(inText + 1);
-			int theIndex = theImageName.find(kFrameIndicator);
+			size_t theIndex = theImageName.find(kFrameIndicator);
 			if(theIndex != std::string::npos)
 			{
 				// Parse out frame number

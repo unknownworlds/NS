@@ -71,13 +71,12 @@
 // - Post-crash checkin.  Restored @Backup from around 4/16.  Contains changes for last four weeks of development.
 //
 //===============================================================================
-#include "build.h"
 #include "util/nowarnings.h"
-#include "extdll.h"
+#include "dlls/extdll.h"
 #include "dlls/util.h"
-#include "cbase.h"
-#include "player.h"
-#include "weapons.h"
+#include "dlls/cbase.h"
+#include "dlls/player.h"
+#include "dlls/weapons.h"
 #include "mod/AvHGamerules.h"
 #include "mod/AvHConstants.h"
 #include "mod/AvHMarineEquipmentConstants.h"
@@ -103,22 +102,15 @@
 #include "mod/AvHCommandConstants.h"
 #include "mod/AvHPlayerUpgrade.h"
 #include <stdio.h>
-#include "voice_gamemgr.h"
-#include "mod/UPPUtil.h"
+#include "game_shared/voice_gamemgr.h"
+#include "mod/AvHNetworkMessages.h"
+#include "mod/AvHNexusServer.h"
 
 extern AvHParticleTemplateListServer	gParticleTemplateList;
-extern int								gmsgEditPS;
-extern int								gmsgListPS;
-//extern int								gmsgNetScreenShot;
-extern int								gmsgDeathMsg;
-extern int								gmsgShowMenu;
 extern CVoiceGameMgr					g_VoiceGameMgr;
 extern int								gCommanderPointsAwardedEventID;
 extern cvar_t							allow_spectators;
 extern cvar_t							avh_tournamentmode;
-#ifdef USE_UPP
-extern cvar_t							avh_uplink;
-#endif
 extern int                              kNumEntsProcessedForPlayerOne;
 
 #ifdef WIN32
@@ -237,17 +229,23 @@ int EntityInfoGetCount()
 void ReportPlayer(CBasePlayer* inPlayer, const char* inCommand)
 {
 	#ifdef AVH_PLAYTEST_BUILD
-
-	// Tell the server that this player executed x message
-	char* theMessage = UTIL_VarArgs("%s initiated command \"%s\"\n", STRING(inPlayer->pev->netname), inCommand);
-	UTIL_ClientPrintAll(HUD_PRINTNOTIFY, theMessage);
-	UTIL_LogPrintf(theMessage);
-
+		// Tell the server that this player executed x message
+		char* theMessage = UTIL_VarArgs("%s initiated command \"%s\"\n", STRING(inPlayer->pev->netname), inCommand);
+		UTIL_ClientPrintAll(HUD_PRINTNOTIFY, theMessage);
+		UTIL_LogPrintf(theMessage);
 	#endif
 }
 
 BOOL AvHGamerules::ClientCommand( CBasePlayer *pPlayer, const char *pcmd )
 {
+//adding Nexus TunnelToClient functionality up here...
+	if( strcmp( pcmd, "NexusData" ) == 0 )
+	{
+		const char* arg1 = CMD_ARGV(1);
+		return AvHNexus::recv(pPlayer->pev,arg1,strlen(arg1));
+	}
+//non-Nexus signal handler down here...
+
 	AvHPlayer*	theAvHPlayer = dynamic_cast<AvHPlayer*>(pPlayer);
 	AvHTeam*	theTeam = NULL;
 	bool		theSuccess = false;
@@ -268,25 +266,13 @@ BOOL AvHGamerules::ClientCommand( CBasePlayer *pPlayer, const char *pcmd )
 	if(theAvHPlayer)
 	{
 		theTeam = theAvHPlayer->GetTeamPointer();
-		theIsDeveloper = (theAvHPlayer->GetAuthenticationMask() & PLAYERAUTH_DEVELOPER);
-		theIsGuide = theAvHPlayer->GetAuthenticationMask() & PLAYERAUTH_GUIDE;
-		theIsPlaytester = theAvHPlayer->GetAuthenticationMask() & PLAYERAUTH_PLAYTESTER;
-				
+		theIsDeveloper = theAvHPlayer->GetIsMember(PLAYERAUTH_DEVELOPER);
+		theIsGuide = theAvHPlayer->GetIsMember(PLAYERAUTH_GUIDE);
+		theIsPlaytester = theAvHPlayer->GetIsMember(PLAYERAUTH_PLAYTESTER);
 		theIsPlayerHelper = theIsDeveloper || theIsGuide || theIsPlaytester;
 
 		#ifdef AVH_PLAYTEST_BUILD
-		theIsPlaytest = (theAvHPlayer->GetAuthenticationMask() & PLAYERAUTH_PLAYTESTER) || (theAvHPlayer->GetAuthenticationMask() & PLAYERAUTH_VETERAN) || theIsDeveloper;
-		#endif
-
-		#ifdef AVH_LAN_PLAYTEST_BUILD
-		theIsPlaytest = true;
-		#endif
-
-		#ifdef DEBUG
-		#ifndef	AVH_EXTERNAL_BUILD
-		theIsDeveloper = true;
-		theIsServerOp = true;
-		#endif
+		theIsPlaytest = theIsPlaytester || theIsDeveloper;
 		#endif
 	}
 	else
@@ -294,7 +280,7 @@ BOOL AvHGamerules::ClientCommand( CBasePlayer *pPlayer, const char *pcmd )
 		theIsDedicatedServer = true;
 	}
 
-	if(!theAvHPlayer || (theAvHPlayer->GetAuthenticationMask() & PLAYERAUTH_SERVEROP))
+	if( !theAvHPlayer || theAvHPlayer->GetIsMember(PLAYERAUTH_SERVEROP) )
 	{
 		theIsServerOp = true;
 	}
@@ -316,6 +302,22 @@ BOOL AvHGamerules::ClientCommand( CBasePlayer *pPlayer, const char *pcmd )
 		if(theAvHPlayer)
 		{
 			this->AttemptToJoinTeam(theAvHPlayer, TEAM_TWO, true);
+			theSuccess = true;
+		}
+	}
+	else if ( FStrEq( pcmd, kcJoinTeamThree ) )
+	{
+		if(theAvHPlayer)
+		{
+			this->AttemptToJoinTeam(theAvHPlayer, TEAM_THREE, true);
+			theSuccess = true;
+		}
+	}
+	else if ( FStrEq( pcmd, kcJoinTeamFour ) )
+	{
+		if(theAvHPlayer)
+		{
+			this->AttemptToJoinTeam(theAvHPlayer, TEAM_FOUR, true);
 			theSuccess = true;
 		}
 	}
@@ -359,14 +361,14 @@ BOOL AvHGamerules::ClientCommand( CBasePlayer *pPlayer, const char *pcmd )
 			if(thePlayerTeam != TEAM_IND)
 			{
 				ReportPlayer(theAvHPlayer, kcSwitch);
+				AvHTeamNumber teamA = GetGameRules()->GetTeamA()->GetTeamNumber();
+				AvHTeamNumber teamB = GetGameRules()->GetTeamB()->GetTeamNumber();
 
 				// Get other team
-				AvHTeamNumber theOtherTeamNumber = (thePlayerTeam == TEAM_ONE) ? TEAM_TWO : TEAM_ONE;
+				AvHTeamNumber theOtherTeamNumber = (thePlayerTeam == teamA) ? teamB : teamA;
 				
-				// Remember current position, add a little for good measure
+				// Remember current position
 				Vector theCurrentPosition = theAvHPlayer->pev->origin;
-				theCurrentPosition.z += 30;
-
 				Vector theCurrentAngles = theAvHPlayer->pev->angles;
 
 				// Switch teams
@@ -422,12 +424,11 @@ BOOL AvHGamerules::ClientCommand( CBasePlayer *pPlayer, const char *pcmd )
 		}
 		theSuccess = true;
 	}
-	#ifdef USE_UPP
 	else if(FStrEq(pcmd, kcUPPPing))
 	{
 		if(theIsDeveloper)
 		{
-			UPP::requestConnectionSpeedTest();
+			AvHNexus::performSpeedTest();
 		}
 		theSuccess = true;
 	}
@@ -435,31 +436,11 @@ BOOL AvHGamerules::ClientCommand( CBasePlayer *pPlayer, const char *pcmd )
 	{
 		if(theIsDeveloper)
 		{
-			UPP::setGeneratePerformanceData(!UPP::getGeneratePerformanceData());
-			if(UPP::getGeneratePerformanceData())
-			{
-				UTIL_SayText("UPP Profiling is now ON", theAvHPlayer);
-			}
-			else
-			{
-				UTIL_SayText("UPP Profiling is now OFF", theAvHPlayer);
-			}
+			AvHNexus::setGeneratePerformanceData(theAvHPlayer->edict(),!AvHNexus::getGeneratePerformanceData());
 		}
 		theSuccess = true;
 	}
-	#endif
 	#ifdef AVH_PLAYTEST_BUILD
-	# ifndef USE_UPP
-	else if(FStrEq(pcmd, kcForceUplink))
-	{
-		if(theIsDeveloper || theIsDedicatedServer)
-		{
-			this->InitializeAuthentication();
-			UTIL_SayText("Initialized authentication.", theAvHPlayer);
-		}
-		theSuccess = true;
-	}
-	# endif
 	else if(FStrEq(pcmd, kcTournyMode))
 	{
 		if(theIsPlaytest)
@@ -471,93 +452,36 @@ BOOL AvHGamerules::ClientCommand( CBasePlayer *pPlayer, const char *pcmd )
 			theSuccess = true;
 		}
 	}
+	#endif
 	else if(FStrEq(pcmd, kcSetBalanceVar))
 	{
-		if(theIsDeveloper)
+		if( theAvHPlayer && theAvHPlayer->GetIsAuthorized(AUTH_ACTION_ADJUST_BALANCE,0) )
 		{
-			bool theChangedValue = false;
-
-			// Read variable name then value
-			char theVariableName[1024];
-			if(sscanf(CMD_ARGV(1), "%s", theVariableName) == 1)
+			BalanceValueContainer* container = BalanceValueContainerFactory::get(BalanceValueContainerFactory::getDefaultFilename());
+			int theNumArgs = CMD_ARGC();
+			if( theNumArgs == 3 )
 			{
-				float theNewValue = 0.0f;
-				if(sscanf(CMD_ARGV(2), "%f", &theNewValue) == 1)
+				string name(CMD_ARGV(1));
+				string value(CMD_ARGV(2));
+				if( value.at(0) == '"' )
 				{
-					float theOldValue;
-					bool theMadeFloatChange = false;
-					
-					// Search through ints then floats
-					for(BalanceIntListType::iterator theIter = this->mBalanceInts.begin(); theIter != this->mBalanceInts.end(); theIter++)
-					{
-						string theComparison(theIter->first);
-						if(theComparison == string(theVariableName))
-						{
-							theOldValue = theIter->second;
-							theNewValue = (int)theNewValue;
-							theIter->second = theNewValue;
-							theChangedValue = true;
-							break;
-						}
-					}
-					
-					if(!theChangedValue)
-					{
-						for(BalanceFloatListType::iterator theIter = this->mBalanceFloats.begin(); theIter != this->mBalanceFloats.end(); theIter++)
-						{
-							if(theIter->first == string(theVariableName))
-							{
-								theOldValue = theIter->second;
-								theIter->second = theNewValue;
-								theChangedValue = true;
-								theMadeFloatChange = true;
-								break;
-							}
-						}
-					}
-
-					if(theChangedValue)
-					{
-						string theTimeDateString = AvHSHUGetTimeDateString();
-						string theVerb = (theNewValue > theOldValue) ? "increased" : "lowered";
-						const char* theNumberFormat = theMadeFloatChange ? "%.2f" : "%d";
-						const char* thePlayerCStrName = STRING(theAvHPlayer->pev->netname);
-						string theFormatString = string("Balance change: \"%s\" %s from ") + string(theNumberFormat) + string(" to ") + string(theNumberFormat) + string(" by %s <") + theTimeDateString + string(">.\n");
-
-						char theMessage[1024];
-						if(theMadeFloatChange)
-						{
-							sprintf(theMessage, theFormatString.c_str(), theVariableName, theVerb.c_str(), theOldValue, theNewValue, thePlayerCStrName);
-						}
-						else
-						{
-							sprintf(theMessage, theFormatString.c_str(), theVariableName, theVerb.c_str(), (int)theOldValue, (int)theNewValue, thePlayerCStrName);
-						}
-
-						UTIL_SayTextAll(theMessage, theAvHPlayer);
-
-						// Log balance change
-						ALERT(at_logged, theMessage);
-
-						this->BalanceChanged();
-
-						// Save data
-						this->RecordBalanceData();
-					}
+					container->insert(name,value.substr(1,value.length()-1));
+				}
+				else if( value.at(value.length()-1) == 'f' || value.find('.') != string::npos )
+				{
+					float fvalue = (float)atof(value.c_str());
+					container->insert(name,fvalue);
+				}
+				else
+				{
+					int ivalue = atoi(value.c_str());
+					container->insert(name,ivalue);
 				}
 			}
-
-			if(!theChangedValue)
-			{
-				char theMessage[1024];
-				sprintf(theMessage, "SetBalanceVar command not understood.\n");
-				UTIL_SayTextAll(theMessage, theAvHPlayer);
-			}
-
-			theSuccess = true;
 		}
+		
+		theSuccess = true;
 	}
-	#endif
 	else if(FStrEq(pcmd, kcNSChangeLevel))
 	{
 		if(theIsServerOp || theIsPlaytest)
@@ -757,40 +681,48 @@ BOOL AvHGamerules::ClientCommand( CBasePlayer *pPlayer, const char *pcmd )
 	{
 		if(this->GetCheatsEnabled() && theAvHPlayer)
 		{
-			//theAvHPlayer->StartTopDownMode();
-			this->AttemptToJoinTeam(theAvHPlayer, TEAM_ONE);
+			if( theAvHPlayer->GetTeamPointer(true)->GetTeamType() != AVH_CLASS_TYPE_MARINE )
+			{
+				for( int counter = TEAM_ACTIVE_BEGIN; counter < TEAM_ACTIVE_END; ++counter )
+				{
+					AvHTeam* team = GetGameRules()->GetTeam((AvHTeamNumber)counter);
+					if( team && team->GetTeamType() == AVH_CLASS_TYPE_MARINE )
+					{ 
+						this->AttemptToJoinTeam( theAvHPlayer, (AvHTeamNumber)counter );
+					}
+				}
+			}
 			
 			// Find position of command station
 			FOR_ALL_ENTITIES(kwsTeamCommand, AvHCommandStation*)
-				//if(theEntity->pev->team == theAvHPlayer->pev->team)
-				//{
-				// Get command station point
-				Vector theCommandStationOrigin;
-			theCommandStationOrigin.x = (theEntity->pev->absmax.x + theEntity->pev->absmin.x)/2.0f;
-			theCommandStationOrigin.y = (theEntity->pev->absmax.y + theEntity->pev->absmin.y)/2.0f;
-			theCommandStationOrigin.z = (theEntity->pev->absmax.z + theEntity->pev->absmin.z)/2.0f;
-			
-			// Circle the station, trying points around it to see if there's room
-			for(int i = 0; i < 8; i++)
-			{
-				const int kDistance = 100;
-				Vector theOffset;
-				float theAngle = (i/(float)360)*2*M_PI;
-				theOffset.x = cos(theAngle)*kDistance;
-				theOffset.y = sin(theAngle)*kDistance;
-				theOffset.z = 20;
-				
-				Vector thePosition = theCommandStationOrigin + theOffset;
-				
-				if(AvHSUGetIsEnoughRoomForHull(thePosition, AvHMUGetHull(false, theAvHPlayer->pev->iuser3), NULL))
+				if( theEntity->GetTeamNumber() == theAvHPlayer->pev->team )
 				{
-					// Teleport to this place
-					theAvHPlayer->pev->origin = thePosition;
-					theSuccess = true;
-					break;
+					Vector theCommandStationOrigin;
+					theCommandStationOrigin.x = (theEntity->pev->absmax.x + theEntity->pev->absmin.x)/2.0f;
+					theCommandStationOrigin.y = (theEntity->pev->absmax.y + theEntity->pev->absmin.y)/2.0f;
+					theCommandStationOrigin.z = (theEntity->pev->absmax.z + theEntity->pev->absmin.z)/2.0f;
+			
+					// Circle the station, trying points around it to see if there's room
+					for(int i = 0; i < 8; i++)
+					{
+						const int kDistance = 100;
+						Vector theOffset;
+						float theAngle = (i/(float)360)*2*M_PI;
+						theOffset.x = cos(theAngle)*kDistance;
+						theOffset.y = sin(theAngle)*kDistance;
+						theOffset.z = 20;
+						
+						Vector thePosition = theCommandStationOrigin + theOffset;
+						
+						if(AvHSUGetIsEnoughRoomForHull(thePosition, AvHMUGetHull(false, theAvHPlayer->pev->iuser3), NULL))
+						{
+							// Teleport to this place
+							theAvHPlayer->pev->origin = thePosition;
+							theSuccess = true;
+							break;
+						}
+					}
 				}
-			}
-			//}
 			END_FOR_ALL_ENTITIES(kwsTeamCommand)
 		}
 	}
@@ -963,10 +895,7 @@ BOOL AvHGamerules::ClientCommand( CBasePlayer *pPlayer, const char *pcmd )
 			if(gParticleTemplateList.GetTemplateIndexWithName(theName, theParticleIndex))
 			{
 				theAvHPlayer->SendMessage(kEditingParticleSystem, true);
-				
-				MESSAGE_BEGIN(MSG_ONE, gmsgEditPS, NULL, theAvHPlayer->pev);
-				WRITE_SHORT(theParticleIndex);
-				MESSAGE_END();
+				NetMsg_EditPS( theAvHPlayer->pev, theParticleIndex );
 			}
 			else
 			{
@@ -981,24 +910,15 @@ BOOL AvHGamerules::ClientCommand( CBasePlayer *pPlayer, const char *pcmd )
 		{
 			int theNumTemplates = gParticleTemplateList.GetNumberTemplates();
 			
-			// Send num templates
-			//WRITE_SHORT(theNumTemplates);
-			
-			// For each one, send the name
 			for(int i = 0; i < theNumTemplates; i++)
 			{
-				MESSAGE_BEGIN(MSG_ONE, gmsgListPS, NULL, theAvHPlayer->pev);
-				
 				string theTemplateName("<system not found>");
 				const AvHParticleTemplate* theTemplate = gParticleTemplateList.GetTemplateAtIndex(i);
 				if(theTemplate)
-				{
-					theTemplateName = theTemplate->GetName();
-				}
+				{ theTemplateName = theTemplate->GetName(); }
+
 				theTemplateName += "\n";
-				WRITE_STRING(theTemplateName.c_str());
-				
-				MESSAGE_END();
+				NetMsg_ListPS( theAvHPlayer->pev, theTemplateName );
 			}
 			theSuccess = true;
 		}
@@ -1062,16 +982,6 @@ BOOL AvHGamerules::ClientCommand( CBasePlayer *pPlayer, const char *pcmd )
 		}
 	}
 #ifdef DEBUG
-	else if(FStrEq(pcmd, kcSetAuth))
-	{
-		int theAuth = 0;
-		if(sscanf(CMD_ARGV(1), "%d", &theAuth) == 1)
-		{
-			theAvHPlayer->SetAuthCheatMask(theAuth);
-			theAvHPlayer->EffectivePlayerClassChanged();
-			theSuccess = true;
-		}
-	}
     else if(FStrEq(pcmd, "catalyst"))
     {
         if(this->GetCheatsEnabled())
@@ -1092,12 +1002,7 @@ BOOL AvHGamerules::ClientCommand( CBasePlayer *pPlayer, const char *pcmd )
 		char theMenuText[1024];
 		if(sscanf(CMD_ARGV(1), "%s", theMenuText) == 1)
 		{
-			MESSAGE_BEGIN(MSG_ONE, gmsgShowMenu, NULL, theAvHPlayer->edict());
-			WRITE_SHORT(theSlots);
-			WRITE_CHAR(theDisplayTime);
-			WRITE_BYTE(theNeedMore);
-			WRITE_STRING(theMenuText);
-			MESSAGE_END();
+			NetMsg_ShowMenu( theAvHPlayer->pev, theSlots, theDisplayTime, theNeedMore ? 1 : 0, string(theMenuText) );
 		}
 		
 		theSuccess = true;
@@ -1129,10 +1034,10 @@ BOOL AvHGamerules::ClientCommand( CBasePlayer *pPlayer, const char *pcmd )
             sprintf(theString, "Spawn times (marines):\n");
 
             char theResult[128];
-            sprintf(theResult, "1v1 -> low: %f  high: %f\n", AvHSUCalcCombatSpawnTime(AVH_CLASS_TYPE_MARINE, 1, 1, 0), AvHSUCalcCombatSpawnTime(AVH_CLASS_TYPE_MARINE, 1, 1, 9));
+            sprintf(theResult, "1v1 -> low: %f  high: %f\n", AvHSUCalcCombatSpawnTime(AVH_CLASS_TYPE_MARINE, 1, 0, 1), AvHSUCalcCombatSpawnTime(AVH_CLASS_TYPE_MARINE, 1, 9, 1));
             strcat(theString, theResult);
 
-            sprintf(theResult, "16v16 -> low: %f  high: %f\n", AvHSUCalcCombatSpawnTime(AVH_CLASS_TYPE_MARINE, 16, 1, 0), AvHSUCalcCombatSpawnTime(AVH_CLASS_TYPE_MARINE, 16, 16, 9));
+            sprintf(theResult, "16v16 -> low: %f  high: %f\n", AvHSUCalcCombatSpawnTime(AVH_CLASS_TYPE_MARINE, 16, 0, 1), AvHSUCalcCombatSpawnTime(AVH_CLASS_TYPE_MARINE, 16, 9, 1));
             strcat(theString, theResult);
 
             ALERT(at_logged, theString);
@@ -1393,11 +1298,7 @@ BOOL AvHGamerules::ClientCommand( CBasePlayer *pPlayer, const char *pcmd )
 		{
 			const char* theWeaponName = CMD_ARGV(1);
 			
-			MESSAGE_BEGIN(MSG_ALL, gmsgDeathMsg);
-			WRITE_BYTE(theAvHPlayer->entindex());	// Killer
-			WRITE_BYTE(theAvHPlayer->entindex());	// Victim
-			WRITE_STRING(theWeaponName);
-			MESSAGE_END();
+			NetMsg_DeathMsg( theAvHPlayer->entindex(), theAvHPlayer->entindex(), string(theWeaponName) );
 		}
 	}
 	else if(FStrEq(pcmd, kcSetSkin))
@@ -1509,15 +1410,11 @@ BOOL AvHGamerules::ClientCommand( CBasePlayer *pPlayer, const char *pcmd )
 	{
 		if(theAvHPlayer)
 		{
-#ifdef USE_UPP
-			if(!theAvHPlayer->GetAuthorized())
+			if( !theAvHPlayer->GetIsAuthorized(AUTH_ACTION_JOIN_TEAM, TEAM_SPECT) )
 			{
-				UPPUtil_HandleUnauthorizedJoinTeamAttempt(theAvHPlayer,TEAM_SPECT);
+				AvHNexus::handleUnauthorizedJoinTeamAttempt(theAvHPlayer->edict(),TEAM_SPECT);
 			}
 			else if(allow_spectators.value)
-#else
-			if(allow_spectators.value && GetGameRules()->PerformHardAuthorization(theAvHPlayer))
-#endif
 			{
 				if(theAvHPlayer->GetPlayMode() == PLAYMODE_READYROOM)
 				{
@@ -1576,7 +1473,17 @@ BOOL AvHGamerules::ClientCommand( CBasePlayer *pPlayer, const char *pcmd )
 	{
 		if(this->GetCheatsEnabled() || theIsPlaytest)
 		{
-			AvHTeam* theHiveTeam = GetGameRules()->GetTeam(TEAM_TWO);
+			AvHTeam* theHiveTeam = theAvHPlayer->GetTeamPointer(true);
+			if( theHiveTeam->GetTeamType() != AVH_CLASS_TYPE_ALIEN )
+			{
+				for( int counter = TEAM_ACTIVE_BEGIN; counter < TEAM_ACTIVE_END; ++counter )
+				{
+					theHiveTeam = GetGameRules()->GetTeam((AvHTeamNumber)counter);
+					if( theHiveTeam && theHiveTeam->GetTeamType() == AVH_CLASS_TYPE_ALIEN )
+					{ break; }
+				}
+			}
+			
 			if(theHiveTeam)
 			{
 				ReportPlayer(theAvHPlayer, pcmd);
@@ -1642,32 +1549,9 @@ BOOL AvHGamerules::ClientCommand( CBasePlayer *pPlayer, const char *pcmd )
 			theSuccess = true;
 		}
 	}
-    #ifndef AVH_SECURE_PRERELEASE_BUILD
-	else if(FStrEq(pcmd, kcAuth))
-	{
-		// Toggle auth mask
-		bool theNewState = !theAvHPlayer->GetAllowAuth();
-		theAvHPlayer->SetAllowAuth(theNewState);
-
-		if(theNewState)
-		{
-			UTIL_SayText("Authentication ON\n", theAvHPlayer);
-		}
-		else
-		{
-			UTIL_SayText("Authentication OFF\n", theAvHPlayer);
-		}
-		
-		theSuccess = true;
-	}
-    #endif
 	else if(FStrEq(pcmd, kcNumEnts))
 	{
         bool theEnableNumEnts = GetGameRules()->GetCheatsEnabled();
-
-        #ifdef AVH_SECURE_PRERELEASE_BUILD
-        theEnableNumEnts = true;
-        #endif
 
         if(theEnableNumEnts)
         {
@@ -1703,4 +1587,3 @@ BOOL AvHGamerules::ClientCommand( CBasePlayer *pPlayer, const char *pcmd )
 
     return theSuccess;
 }
-

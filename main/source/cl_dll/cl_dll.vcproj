@@ -2,7 +2,7 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="7.10"
-	Name="cl_dll"
+	Name="cl_dll.dll"
 	RootNamespace="cl_dll"
 	SccProjectName=""
 	SccAuxPath=""
@@ -14,48 +14,59 @@
 	</Platforms>
 	<Configurations>
 		<Configuration
-			Name="Debug|Win32"
-			OutputDirectory="$(SolutionDir)temp\$(ProjectName)\$(ConfigurationName)/"
-			IntermediateDirectory="$(SolutionDir)temp\$(ProjectName)\$(ConfigurationName)/"
+			Name="Developer - debug|Win32"
+			OutputDirectory="V:\temp\$(ProjectName)\$(ConfigurationName)"
+			IntermediateDirectory="V:\temp\$(ProjectName)\$(ConfigurationName)"
 			ConfigurationType="2"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="FALSE"
-			CharacterSet="2">
+			CharacterSet="2"
+			DeleteExtensionsOnClean="$(TargetPath);*.obj;*.ilk;*.pdb;*.tlb;*.tli;*.tlh;*.tmp;*.rsp;*.bat">
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				OptimizeForProcessor="1"
-				AdditionalIncludeDirectories="$(SolutionDir);$(SolutionDir)engine;$(SolutionDir)common;$(SolutionDir)pm_shared;$(SolutionDir)dlls;$(SolutionDir)game_shared;$(SolutionDir)fmod\inc;$(SolutionDir)utils\vgui\include"
+				OptimizeForProcessor="0"
+				AdditionalIncludeDirectories="&quot;$(SolutionDir)&quot;;U:\inlcude\stlport;U:\include\vgui;U:\include\libpng;U:\include\fmod;U:\include\lua;U:\include\particle;U:\include\zlib"
 				PreprocessorDefinitions="_DEBUG;_MBCS;DEBUG;WIN32;_WINDOWS;AVH_CLIENT;$(NoInherit)"
+				MinimalRebuild="TRUE"
+				BasicRuntimeChecks="3"
+				SmallerTypeCheck="TRUE"
 				RuntimeLibrary="1"
+				BufferSecurityCheck="TRUE"
+				EnableFunctionLevelLinking="TRUE"
 				RuntimeTypeInfo="TRUE"
 				UsePrecompiledHeader="0"
-				PrecompiledHeaderFile=".\Debug/cl_dll.pch"
-				AssemblerListingLocation="$(SolutionDir)temp\$(ProjectName)\$(ConfigurationName)/"
-				ObjectFile="$(SolutionDir)temp\$(ProjectName)\$(ConfigurationName)/"
-				ProgramDataBaseFileName="$(SolutionDir)temp\$(ProjectName)\$(ConfigurationName)/"
+				PrecompiledHeaderFile=""
+				AssemblerListingLocation="$(IntDir)/"
+				ObjectFile="$(IntDir)/"
+				ProgramDataBaseFileName="$(IntDir)/"
 				WarningLevel="3"
 				WarnAsError="TRUE"
 				SuppressStartupBanner="TRUE"
+				Detect64BitPortabilityProblems="TRUE"
 				DebugInformationFormat="4"
 				CompileAs="0"/>
 			<Tool
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="winmm.lib ws2_32.lib particles.lib textrep.lib util.lib $(SolutionDir)\utils\vgui\lib\win32_vc6\vgui.lib"
+				AdditionalDependencies="winmm.lib ws2_32.lib particles.lib vgui.lib liblua.lib liblualib.lib libpng.lib zlib.lib"
 				OutputFile="$(SolutionDir)..\cl_dlls\client.dll"
 				LinkIncremental="2"
 				SuppressStartupBanner="TRUE"
-				AdditionalLibraryDirectories="$(SolutionDir)lib\$(ConfigurationName)"
-				IgnoreDefaultLibraryNames="libcmt.lib"
+				AdditionalLibraryDirectories="U:\debug"
+				IgnoreDefaultLibraryNames=""
 				GenerateDebugInformation="TRUE"
-				ProgramDatabaseFile="$(SolutionDir)..\cl_dlls/client.pdb"
-				GenerateMapFile="FALSE"
-				MapFileName=""
+				ProgramDatabaseFile="$(SolutionDir)..\cl_dlls\client.pdb"
+				GenerateMapFile="TRUE"
+				MapFileName="$(SolutionDir)..\cl_dlls\client.map"
+				MapExports="TRUE"
 				SubSystem="2"
+				OptimizeReferences="1"
+				EnableCOMDATFolding="1"
+				OptimizeForWindows98="1"
 				BaseAddress="0x01900000"
-				ImportLibrary="$(SolutionDir)temp\$(ProjectName)\$(ConfigurationName)/cl_dll.lib"
+				ImportLibrary="$(IntDir)/cl_dll.lib"
 				TargetMachine="1"/>
 			<Tool
 				Name="VCMIDLTool"
@@ -87,16 +98,18 @@
 				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
 		</Configuration>
 		<Configuration
-			Name="Release|Win32"
-			OutputDirectory="$(SolutionDir)temp\$(ProjectName)\$(ConfigurationName)/"
-			IntermediateDirectory="$(SolutionDir)temp\$(ProjectName)\$(ConfigurationName)/"
+			Name="Developer - release|Win32"
+			OutputDirectory="$(SolutionDir)temp\$(ProjectName)\$(ConfigurationName)"
+			IntermediateDirectory="$(SolutionDir)temp\$(ProjectName)\$(ConfigurationName)"
 			ConfigurationType="2"
 			UseOfMFC="0"
-			ATLMinimizesCRunTimeLibraryUsage="FALSE">
+			ATLMinimizesCRunTimeLibraryUsage="FALSE"
+			DeleteExtensionsOnClean="$(TargetPath);*.obj;*.ilk;*.pdb;*.tlb;*.tli;*.tlh;*.tmp;*.rsp;*.bat">
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				InlineFunctionExpansion="2"
+				OptimizeForProcessor="0"
 				AdditionalIncludeDirectories="$(SolutionDir);$(SolutionDir)engine;$(SolutionDir)common;$(SolutionDir)pm_shared;$(SolutionDir)dlls;$(SolutionDir)game_shared;$(SolutionDir)fmod\inc;$(SolutionDir)utils\vgui\include"
 				PreprocessorDefinitions="NDEBUG;WIN32;_WINDOWS;AVH_CLIENT;$(NOINHERIT)"
 				StringPooling="TRUE"
@@ -169,14 +182,14 @@
 			<File
 				RelativePath="ammo.cpp">
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Developer - debug|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Developer - release|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
@@ -186,14 +199,14 @@
 			<File
 				RelativePath="ammo_secondary.cpp">
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Developer - debug|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Developer - release|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
@@ -203,14 +216,14 @@
 			<File
 				RelativePath="ammohistory.cpp">
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Developer - debug|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Developer - release|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
@@ -220,14 +233,14 @@
 			<File
 				RelativePath="battery.cpp">
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Developer - debug|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Developer - release|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
@@ -237,14 +250,14 @@
 			<File
 				RelativePath="cdll_int.cpp">
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Developer - debug|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Developer - release|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
@@ -254,14 +267,14 @@
 			<File
 				RelativePath="com_weapons.cpp">
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Developer - debug|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Developer - release|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
@@ -271,14 +284,14 @@
 			<File
 				RelativePath="death.cpp">
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Developer - debug|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Developer - release|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
@@ -288,14 +301,14 @@
 			<File
 				RelativePath="demo.cpp">
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Developer - debug|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Developer - release|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
@@ -305,14 +318,14 @@
 			<File
 				RelativePath="entity.cpp">
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Developer - debug|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Developer - release|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
@@ -322,14 +335,14 @@
 			<File
 				RelativePath="ev_common.cpp">
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Developer - debug|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Developer - release|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
@@ -339,14 +352,14 @@
 			<File
 				RelativePath="events.cpp">
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Developer - debug|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Developer - release|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
@@ -356,14 +369,14 @@
 			<File
 				RelativePath="flashlight.cpp">
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Developer - debug|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Developer - release|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
@@ -373,14 +386,14 @@
 			<File
 				RelativePath="GameStudioModelRenderer.cpp">
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Developer - debug|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Developer - release|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
@@ -390,14 +403,14 @@
 			<File
 				RelativePath="geiger.cpp">
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Developer - debug|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Developer - release|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
@@ -407,14 +420,14 @@
 			<File
 				RelativePath="health.cpp">
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Developer - debug|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Developer - release|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
@@ -424,14 +437,14 @@
 			<File
 				RelativePath="hud.cpp">
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Developer - debug|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Developer - release|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
@@ -441,14 +454,14 @@
 			<File
 				RelativePath="hud_msg.cpp">
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Developer - debug|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Developer - release|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
@@ -458,14 +471,14 @@
 			<File
 				RelativePath="hud_redraw.cpp">
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Developer - debug|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Developer - release|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
@@ -475,14 +488,14 @@
 			<File
 				RelativePath="hud_servers.cpp">
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Developer - debug|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Developer - release|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
@@ -492,14 +505,14 @@
 			<File
 				RelativePath="hud_spectator.cpp">
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Developer - debug|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Developer - release|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
@@ -509,14 +522,14 @@
 			<File
 				RelativePath="hud_update.cpp">
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Developer - debug|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Developer - release|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
@@ -526,14 +539,14 @@
 			<File
 				RelativePath="in_camera.cpp">
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Developer - debug|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Developer - release|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
@@ -543,14 +556,14 @@
 			<File
 				RelativePath="input.cpp">
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Developer - debug|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Developer - release|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
@@ -560,14 +573,14 @@
 			<File
 				RelativePath="inputw32.cpp">
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Developer - debug|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Developer - release|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
@@ -577,14 +590,14 @@
 			<File
 				RelativePath="..\common\interface.cpp">
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Developer - debug|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Developer - release|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
@@ -594,14 +607,14 @@
 			<File
 				RelativePath="menu.cpp">
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Developer - debug|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Developer - release|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
@@ -611,14 +624,14 @@
 			<File
 				RelativePath="message.cpp">
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Developer - debug|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Developer - release|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
@@ -628,7 +641,7 @@
 			<File
 				RelativePath="overview.cpp">
 				<FileConfiguration
-					Name="Debug|Win32"
+					Name="Developer - debug|Win32"
 					ExcludedFromBuild="TRUE">
 					<Tool
 						Name="VCCLCompilerTool"
@@ -636,7 +649,7 @@
 						AdditionalIncludeDirectories=""/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32"
+					Name="Developer - release|Win32"
 					ExcludedFromBuild="TRUE">
 					<Tool
 						Name="VCCLCompilerTool"
@@ -647,14 +660,14 @@
 			<File
 				RelativePath="parsemsg.cpp">
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Developer - debug|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Developer - release|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
@@ -664,14 +677,14 @@
 			<File
 				RelativePath="..\pm_shared\pm_debug.cpp">
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Developer - debug|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Developer - release|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
@@ -681,14 +694,14 @@
 			<File
 				RelativePath="..\pm_shared\pm_math.cpp">
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Developer - debug|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Developer - release|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
@@ -698,14 +711,14 @@
 			<File
 				RelativePath="..\pm_shared\pm_shared.cpp">
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Developer - debug|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Developer - release|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
@@ -715,14 +728,14 @@
 			<File
 				RelativePath="saytext.cpp">
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Developer - debug|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Developer - release|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
@@ -732,14 +745,14 @@
 			<File
 				RelativePath="status_icons.cpp">
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Developer - debug|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Developer - release|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
@@ -749,14 +762,14 @@
 			<File
 				RelativePath="statusbar.cpp">
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Developer - debug|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Developer - release|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
@@ -766,14 +779,14 @@
 			<File
 				RelativePath="studio_util.cpp">
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Developer - debug|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Developer - release|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
@@ -783,14 +796,14 @@
 			<File
 				RelativePath="StudioModelRenderer.cpp">
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Developer - debug|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Developer - release|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
@@ -800,14 +813,14 @@
 			<File
 				RelativePath="text_message.cpp">
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Developer - debug|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Developer - release|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
@@ -817,14 +830,14 @@
 			<File
 				RelativePath="train.cpp">
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Developer - debug|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Developer - release|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
@@ -834,14 +847,14 @@
 			<File
 				RelativePath="tri.cpp">
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Developer - debug|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Developer - release|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
@@ -851,14 +864,14 @@
 			<File
 				RelativePath="util.cpp">
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Developer - debug|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Developer - release|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
@@ -868,14 +881,14 @@
 			<File
 				RelativePath="..\game_shared\vgui_checkbutton2.cpp">
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Developer - debug|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Developer - release|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
@@ -885,14 +898,14 @@
 			<File
 				RelativePath="vgui_ClassMenu.cpp">
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Developer - debug|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Developer - release|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
@@ -902,14 +915,14 @@
 			<File
 				RelativePath="vgui_ConsolePanel.cpp">
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Developer - debug|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Developer - release|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
@@ -919,14 +932,14 @@
 			<File
 				RelativePath="vgui_ControlConfigPanel.cpp">
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Developer - debug|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Developer - release|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
@@ -936,14 +949,14 @@
 			<File
 				RelativePath="vgui_CustomObjects.cpp">
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Developer - debug|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Developer - release|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
@@ -953,14 +966,14 @@
 			<File
 				RelativePath="..\game_shared\vgui_grid.cpp">
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Developer - debug|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Developer - release|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
@@ -970,14 +983,14 @@
 			<File
 				RelativePath="..\game_shared\vgui_helpers.cpp">
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Developer - debug|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Developer - release|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
@@ -987,14 +1000,14 @@
 			<File
 				RelativePath="vgui_int.cpp">
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Developer - debug|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Developer - release|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
@@ -1004,14 +1017,14 @@
 			<File
 				RelativePath="..\game_shared\vgui_listbox.cpp">
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Developer - debug|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Developer - release|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
@@ -1021,14 +1034,14 @@
 			<File
 				RelativePath="..\game_shared\vgui_loadtga.cpp">
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Developer - debug|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Developer - release|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
@@ -1038,14 +1051,14 @@
 			<File
 				RelativePath="vgui_MOTDWindow.cpp">
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Developer - debug|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Developer - release|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
@@ -1055,14 +1068,14 @@
 			<File
 				RelativePath="vgui_SchemeManager.cpp">
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Developer - debug|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Developer - release|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
@@ -1072,14 +1085,14 @@
 			<File
 				RelativePath="vgui_ScorePanel.cpp">
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Developer - debug|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Developer - release|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
@@ -1089,14 +1102,14 @@
 			<File
 				RelativePath="..\game_shared\vgui_scrollbar2.cpp">
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Developer - debug|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Developer - release|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
@@ -1106,14 +1119,14 @@
 			<File
 				RelativePath="vgui_ServerBrowser.cpp">
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Developer - debug|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Developer - release|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
@@ -1123,14 +1136,14 @@
 			<File
 				RelativePath="..\game_shared\vgui_slider2.cpp">
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Developer - debug|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Developer - release|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
@@ -1140,14 +1153,14 @@
 			<File
 				RelativePath="vgui_SpectatorPanel.cpp">
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Developer - debug|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Developer - release|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
@@ -1157,14 +1170,14 @@
 			<File
 				RelativePath="vgui_TeamFortressViewport.cpp">
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Developer - debug|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Developer - release|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
@@ -1174,14 +1187,14 @@
 			<File
 				RelativePath="vgui_teammenu.cpp">
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Developer - debug|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Developer - release|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
@@ -1191,14 +1204,14 @@
 			<File
 				RelativePath="view.cpp">
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Developer - debug|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Developer - release|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
@@ -1208,14 +1221,14 @@
 			<File
 				RelativePath="..\game_shared\voice_banmgr.cpp">
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Developer - debug|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Developer - release|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
@@ -1225,14 +1238,14 @@
 			<File
 				RelativePath="..\game_shared\voice_status.cpp">
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Developer - debug|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Developer - release|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
@@ -1242,14 +1255,14 @@
 			<File
 				RelativePath="..\game_shared\voice_vgui_tweakdlg.cpp">
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Developer - debug|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Developer - release|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
@@ -1262,14 +1275,14 @@
 				<File
 					RelativePath="cl_util.cpp">
 					<FileConfiguration
-						Name="Debug|Win32">
+						Name="Developer - debug|Win32">
 						<Tool
 							Name="VCCLCompilerTool"
 							Optimization="0"
 							AdditionalIncludeDirectories=""/>
 					</FileConfiguration>
 					<FileConfiguration
-						Name="Release|Win32">
+						Name="Developer - release|Win32">
 						<Tool
 							Name="VCCLCompilerTool"
 							Optimization="2"
@@ -1279,14 +1292,14 @@
 				<File
 					RelativePath="ev_hldm.cpp">
 					<FileConfiguration
-						Name="Debug|Win32">
+						Name="Developer - debug|Win32">
 						<Tool
 							Name="VCCLCompilerTool"
 							Optimization="0"
 							AdditionalIncludeDirectories=""/>
 					</FileConfiguration>
 					<FileConfiguration
-						Name="Release|Win32">
+						Name="Developer - release|Win32">
 						<Tool
 							Name="VCCLCompilerTool"
 							Optimization="2"
@@ -1296,14 +1309,14 @@
 				<File
 					RelativePath="hl\hl_baseentity.cpp">
 					<FileConfiguration
-						Name="Debug|Win32">
+						Name="Developer - debug|Win32">
 						<Tool
 							Name="VCCLCompilerTool"
 							Optimization="0"
 							AdditionalIncludeDirectories=""/>
 					</FileConfiguration>
 					<FileConfiguration
-						Name="Release|Win32">
+						Name="Developer - release|Win32">
 						<Tool
 							Name="VCCLCompilerTool"
 							Optimization="2"
@@ -1313,14 +1326,14 @@
 				<File
 					RelativePath="hl\hl_objects.cpp">
 					<FileConfiguration
-						Name="Debug|Win32">
+						Name="Developer - debug|Win32">
 						<Tool
 							Name="VCCLCompilerTool"
 							Optimization="0"
 							AdditionalIncludeDirectories=""/>
 					</FileConfiguration>
 					<FileConfiguration
-						Name="Release|Win32">
+						Name="Developer - release|Win32">
 						<Tool
 							Name="VCCLCompilerTool"
 							Optimization="2"
@@ -1330,14 +1343,14 @@
 				<File
 					RelativePath="hl\hl_weapons.cpp">
 					<FileConfiguration
-						Name="Debug|Win32">
+						Name="Developer - debug|Win32">
 						<Tool
 							Name="VCCLCompilerTool"
 							Optimization="0"
 							AdditionalIncludeDirectories=""/>
 					</FileConfiguration>
 					<FileConfiguration
-						Name="Release|Win32">
+						Name="Developer - release|Win32">
 						<Tool
 							Name="VCCLCompilerTool"
 							Optimization="2"
@@ -1345,21 +1358,7 @@
 					</FileConfiguration>
 				</File>
 				<File
-					RelativePath="..\dlls\wpn_shared\hl_wpn_glock.cpp">
-					<FileConfiguration
-						Name="Debug|Win32">
-						<Tool
-							Name="VCCLCompilerTool"
-							Optimization="0"
-							AdditionalIncludeDirectories=""/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|Win32">
-						<Tool
-							Name="VCCLCompilerTool"
-							Optimization="2"
-							AdditionalIncludeDirectories=""/>
-					</FileConfiguration>
+					RelativePath="..\dlls\hl_wpn_glock.cpp">
 				</File>
 			</Filter>
 			<Filter
@@ -1368,14 +1367,14 @@
 				<File
 					RelativePath="..\mod\AvHAcidRocketGun.cpp">
 					<FileConfiguration
-						Name="Debug|Win32">
+						Name="Developer - debug|Win32">
 						<Tool
 							Name="VCCLCompilerTool"
 							Optimization="0"
 							AdditionalIncludeDirectories=""/>
 					</FileConfiguration>
 					<FileConfiguration
-						Name="Release|Win32">
+						Name="Developer - release|Win32">
 						<Tool
 							Name="VCCLCompilerTool"
 							Optimization="2"
@@ -1385,14 +1384,14 @@
 				<File
 					RelativePath="..\mod\AvHAlienAbilities.cpp">
 					<FileConfiguration
-						Name="Debug|Win32">
+						Name="Developer - debug|Win32">
 						<Tool
 							Name="VCCLCompilerTool"
 							Optimization="0"
 							AdditionalIncludeDirectories=""/>
 					</FileConfiguration>
 					<FileConfiguration
-						Name="Release|Win32">
+						Name="Developer - release|Win32">
 						<Tool
 							Name="VCCLCompilerTool"
 							Optimization="2"
@@ -1411,14 +1410,14 @@
 				<File
 					RelativePath="..\mod\AvHBasePlayerWeapon.cpp">
 					<FileConfiguration
-						Name="Debug|Win32">
+						Name="Developer - debug|Win32">
 						<Tool
 							Name="VCCLCompilerTool"
 							Optimization="0"
 							AdditionalIncludeDirectories=""/>
 					</FileConfiguration>
 					<FileConfiguration
-						Name="Release|Win32">
+						Name="Developer - release|Win32">
 						<Tool
 							Name="VCCLCompilerTool"
 							Optimization="2"
@@ -1431,14 +1430,14 @@
 				<File
 					RelativePath="..\mod\AvHBileBombGun.cpp">
 					<FileConfiguration
-						Name="Debug|Win32">
+						Name="Developer - debug|Win32">
 						<Tool
 							Name="VCCLCompilerTool"
 							Optimization="0"
 							AdditionalIncludeDirectories=""/>
 					</FileConfiguration>
 					<FileConfiguration
-						Name="Release|Win32">
+						Name="Developer - release|Win32">
 						<Tool
 							Name="VCCLCompilerTool"
 							Optimization="2"
@@ -1448,14 +1447,14 @@
 				<File
 					RelativePath="..\mod\AvHBite.cpp">
 					<FileConfiguration
-						Name="Debug|Win32">
+						Name="Developer - debug|Win32">
 						<Tool
 							Name="VCCLCompilerTool"
 							Optimization="0"
 							AdditionalIncludeDirectories=""/>
 					</FileConfiguration>
 					<FileConfiguration
-						Name="Release|Win32">
+						Name="Developer - release|Win32">
 						<Tool
 							Name="VCCLCompilerTool"
 							Optimization="2"
@@ -1465,14 +1464,14 @@
 				<File
 					RelativePath="..\mod\AvHBite2.cpp">
 					<FileConfiguration
-						Name="Debug|Win32">
+						Name="Developer - debug|Win32">
 						<Tool
 							Name="VCCLCompilerTool"
 							Optimization="0"
 							AdditionalIncludeDirectories=""/>
 					</FileConfiguration>
 					<FileConfiguration
-						Name="Release|Win32">
+						Name="Developer - release|Win32">
 						<Tool
 							Name="VCCLCompilerTool"
 							Optimization="2"
@@ -1482,14 +1481,14 @@
 				<File
 					RelativePath="..\mod\AvHBlink.cpp">
 					<FileConfiguration
-						Name="Debug|Win32">
+						Name="Developer - debug|Win32">
 						<Tool
 							Name="VCCLCompilerTool"
 							Optimization="0"
 							AdditionalIncludeDirectories=""/>
 					</FileConfiguration>
 					<FileConfiguration
-						Name="Release|Win32">
+						Name="Developer - release|Win32">
 						<Tool
 							Name="VCCLCompilerTool"
 							Optimization="2"
@@ -1499,14 +1498,14 @@
 				<File
 					RelativePath="..\mod\AvHClaws.cpp">
 					<FileConfiguration
-						Name="Debug|Win32">
+						Name="Developer - debug|Win32">
 						<Tool
 							Name="VCCLCompilerTool"
 							Optimization="0"
 							AdditionalIncludeDirectories=""/>
 					</FileConfiguration>
 					<FileConfiguration
-						Name="Release|Win32">
+						Name="Developer - release|Win32">
 						<Tool
 							Name="VCCLCompilerTool"
 							Optimization="2"
@@ -1516,14 +1515,14 @@
 				<File
 					RelativePath="..\mod\AvHDevour.cpp">
 					<FileConfiguration
-						Name="Debug|Win32">
+						Name="Developer - debug|Win32">
 						<Tool
 							Name="VCCLCompilerTool"
 							Optimization="0"
 							AdditionalIncludeDirectories=""/>
 					</FileConfiguration>
 					<FileConfiguration
-						Name="Release|Win32">
+						Name="Developer - release|Win32">
 						<Tool
 							Name="VCCLCompilerTool"
 							Optimization="2"
@@ -1533,14 +1532,14 @@
 				<File
 					RelativePath="..\mod\AvHDivineWind.cpp">
 					<FileConfiguration
-						Name="Debug|Win32">
+						Name="Developer - debug|Win32">
 						<Tool
 							Name="VCCLCompilerTool"
 							Optimization="0"
 							AdditionalIncludeDirectories=""/>
 					</FileConfiguration>
 					<FileConfiguration
-						Name="Release|Win32">
+						Name="Developer - release|Win32">
 						<Tool
 							Name="VCCLCompilerTool"
 							Optimization="2"
@@ -1550,14 +1549,14 @@
 				<File
 					RelativePath="..\mod\AvHGrenade.cpp">
 					<FileConfiguration
-						Name="Debug|Win32">
+						Name="Developer - debug|Win32">
 						<Tool
 							Name="VCCLCompilerTool"
 							Optimization="0"
 							AdditionalIncludeDirectories=""/>
 					</FileConfiguration>
 					<FileConfiguration
-						Name="Release|Win32">
+						Name="Developer - release|Win32">
 						<Tool
 							Name="VCCLCompilerTool"
 							Optimization="2"
@@ -1567,14 +1566,14 @@
 				<File
 					RelativePath="..\mod\AvHGrenadeGun.cpp">
 					<FileConfiguration
-						Name="Debug|Win32">
+						Name="Developer - debug|Win32">
 						<Tool
 							Name="VCCLCompilerTool"
 							Optimization="0"
 							AdditionalIncludeDirectories=""/>
 					</FileConfiguration>
 					<FileConfiguration
-						Name="Release|Win32">
+						Name="Developer - release|Win32">
 						<Tool
 							Name="VCCLCompilerTool"
 							Optimization="2"
@@ -1584,14 +1583,14 @@
 				<File
 					RelativePath="..\mod\AvHHealingSpray.cpp">
 					<FileConfiguration
-						Name="Debug|Win32">
+						Name="Developer - debug|Win32">
 						<Tool
 							Name="VCCLCompilerTool"
 							Optimization="0"
 							AdditionalIncludeDirectories=""/>
 					</FileConfiguration>
 					<FileConfiguration
-						Name="Release|Win32">
+						Name="Developer - release|Win32">
 						<Tool
 							Name="VCCLCompilerTool"
 							Optimization="2"
@@ -1601,14 +1600,14 @@
 				<File
 					RelativePath="..\mod\AvHHeavyMachineGun.cpp">
 					<FileConfiguration
-						Name="Debug|Win32">
+						Name="Developer - debug|Win32">
 						<Tool
 							Name="VCCLCompilerTool"
 							Optimization="0"
 							AdditionalIncludeDirectories=""/>
 					</FileConfiguration>
 					<FileConfiguration
-						Name="Release|Win32">
+						Name="Developer - release|Win32">
 						<Tool
 							Name="VCCLCompilerTool"
 							Optimization="2"
@@ -1618,14 +1617,14 @@
 				<File
 					RelativePath="..\mod\AvHItemInfo.cpp">
 					<FileConfiguration
-						Name="Debug|Win32">
+						Name="Developer - debug|Win32">
 						<Tool
 							Name="VCCLCompilerTool"
 							Optimization="0"
 							AdditionalIncludeDirectories=""/>
 					</FileConfiguration>
 					<FileConfiguration
-						Name="Release|Win32">
+						Name="Developer - release|Win32">
 						<Tool
 							Name="VCCLCompilerTool"
 							Optimization="2"
@@ -1635,14 +1634,14 @@
 				<File
 					RelativePath="..\mod\AvHKnife.cpp">
 					<FileConfiguration
-						Name="Debug|Win32">
+						Name="Developer - debug|Win32">
 						<Tool
 							Name="VCCLCompilerTool"
 							Optimization="0"
 							AdditionalIncludeDirectories=""/>
 					</FileConfiguration>
 					<FileConfiguration
-						Name="Release|Win32">
+						Name="Developer - release|Win32">
 						<Tool
 							Name="VCCLCompilerTool"
 							Optimization="2"
@@ -1652,14 +1651,14 @@
 				<File
 					RelativePath="..\mod\AvHMachineGun.cpp">
 					<FileConfiguration
-						Name="Debug|Win32">
+						Name="Developer - debug|Win32">
 						<Tool
 							Name="VCCLCompilerTool"
 							Optimization="0"
 							AdditionalIncludeDirectories=""/>
 					</FileConfiguration>
 					<FileConfiguration
-						Name="Release|Win32">
+						Name="Developer - release|Win32">
 						<Tool
 							Name="VCCLCompilerTool"
 							Optimization="2"
@@ -1669,14 +1668,14 @@
 				<File
 					RelativePath="..\mod\AvHMarineWeapon.cpp">
 					<FileConfiguration
-						Name="Debug|Win32">
+						Name="Developer - debug|Win32">
 						<Tool
 							Name="VCCLCompilerTool"
 							Optimization="0"
 							AdditionalIncludeDirectories=""/>
 					</FileConfiguration>
 					<FileConfiguration
-						Name="Release|Win32">
+						Name="Developer - release|Win32">
 						<Tool
 							Name="VCCLCompilerTool"
 							Optimization="2"
@@ -1695,14 +1694,14 @@
 				<File
 					RelativePath="..\mod\AvHMetabolize.cpp">
 					<FileConfiguration
-						Name="Debug|Win32">
+						Name="Developer - debug|Win32">
 						<Tool
 							Name="VCCLCompilerTool"
 							Optimization="0"
 							AdditionalIncludeDirectories=""/>
 					</FileConfiguration>
 					<FileConfiguration
-						Name="Release|Win32">
+						Name="Developer - release|Win32">
 						<Tool
 							Name="VCCLCompilerTool"
 							Optimization="2"
@@ -1712,14 +1711,14 @@
 				<File
 					RelativePath="..\mod\AvHMine.cpp">
 					<FileConfiguration
-						Name="Debug|Win32">
+						Name="Developer - debug|Win32">
 						<Tool
 							Name="VCCLCompilerTool"
 							Optimization="0"
 							AdditionalIncludeDirectories=""/>
 					</FileConfiguration>
 					<FileConfiguration
-						Name="Release|Win32">
+						Name="Developer - release|Win32">
 						<Tool
 							Name="VCCLCompilerTool"
 							Optimization="2"
@@ -1729,14 +1728,14 @@
 				<File
 					RelativePath="..\mod\AvHParasiteGun.cpp">
 					<FileConfiguration
-						Name="Debug|Win32">
+						Name="Developer - debug|Win32">
 						<Tool
 							Name="VCCLCompilerTool"
 							Optimization="0"
 							AdditionalIncludeDirectories=""/>
 					</FileConfiguration>
 					<FileConfiguration
-						Name="Release|Win32">
+						Name="Developer - release|Win32">
 						<Tool
 							Name="VCCLCompilerTool"
 							Optimization="2"
@@ -1746,14 +1745,14 @@
 				<File
 					RelativePath="..\mod\AvHPistol.cpp">
 					<FileConfiguration
-						Name="Debug|Win32">
+						Name="Developer - debug|Win32">
 						<Tool
 							Name="VCCLCompilerTool"
 							Optimization="0"
 							AdditionalIncludeDirectories=""/>
 					</FileConfiguration>
 					<FileConfiguration
-						Name="Release|Win32">
+						Name="Developer - release|Win32">
 						<Tool
 							Name="VCCLCompilerTool"
 							Optimization="2"
@@ -1763,14 +1762,14 @@
 				<File
 					RelativePath="..\mod\AvHPrimalScream.cpp">
 					<FileConfiguration
-						Name="Debug|Win32">
+						Name="Developer - debug|Win32">
 						<Tool
 							Name="VCCLCompilerTool"
 							Optimization="0"
 							AdditionalIncludeDirectories=""/>
 					</FileConfiguration>
 					<FileConfiguration
-						Name="Release|Win32">
+						Name="Developer - release|Win32">
 						<Tool
 							Name="VCCLCompilerTool"
 							Optimization="2"
@@ -1780,14 +1779,14 @@
 				<File
 					RelativePath="..\mod\AvHSonicGun.cpp">
 					<FileConfiguration
-						Name="Debug|Win32">
+						Name="Developer - debug|Win32">
 						<Tool
 							Name="VCCLCompilerTool"
 							Optimization="0"
 							AdditionalIncludeDirectories=""/>
 					</FileConfiguration>
 					<FileConfiguration
-						Name="Release|Win32">
+						Name="Developer - release|Win32">
 						<Tool
 							Name="VCCLCompilerTool"
 							Optimization="2"
@@ -1797,14 +1796,14 @@
 				<File
 					RelativePath="..\mod\AvHSpikeGun.cpp">
 					<FileConfiguration
-						Name="Debug|Win32">
+						Name="Developer - debug|Win32">
 						<Tool
 							Name="VCCLCompilerTool"
 							Optimization="0"
 							AdditionalIncludeDirectories=""/>
 					</FileConfiguration>
 					<FileConfiguration
-						Name="Release|Win32">
+						Name="Developer - release|Win32">
 						<Tool
 							Name="VCCLCompilerTool"
 							Optimization="2"
@@ -1814,14 +1813,14 @@
 				<File
 					RelativePath="..\mod\AvHSpitGun.cpp">
 					<FileConfiguration
-						Name="Debug|Win32">
+						Name="Developer - debug|Win32">
 						<Tool
 							Name="VCCLCompilerTool"
 							Optimization="0"
 							AdditionalIncludeDirectories=""/>
 					</FileConfiguration>
 					<FileConfiguration
-						Name="Release|Win32">
+						Name="Developer - release|Win32">
 						<Tool
 							Name="VCCLCompilerTool"
 							Optimization="2"
@@ -1831,14 +1830,14 @@
 				<File
 					RelativePath="..\mod\AvHSpores.cpp">
 					<FileConfiguration
-						Name="Debug|Win32">
+						Name="Developer - debug|Win32">
 						<Tool
 							Name="VCCLCompilerTool"
 							Optimization="0"
 							AdditionalIncludeDirectories=""/>
 					</FileConfiguration>
 					<FileConfiguration
-						Name="Release|Win32">
+						Name="Developer - release|Win32">
 						<Tool
 							Name="VCCLCompilerTool"
 							Optimization="2"
@@ -1848,14 +1847,14 @@
 				<File
 					RelativePath="..\mod\AvHStomp.cpp">
 					<FileConfiguration
-						Name="Debug|Win32">
+						Name="Developer - debug|Win32">
 						<Tool
 							Name="VCCLCompilerTool"
 							Optimization="0"
 							AdditionalIncludeDirectories=""/>
 					</FileConfiguration>
 					<FileConfiguration
-						Name="Release|Win32">
+						Name="Developer - release|Win32">
 						<Tool
 							Name="VCCLCompilerTool"
 							Optimization="2"
@@ -1865,14 +1864,14 @@
 				<File
 					RelativePath="..\mod\AvHSwipe.cpp">
 					<FileConfiguration
-						Name="Debug|Win32">
+						Name="Developer - debug|Win32">
 						<Tool
 							Name="VCCLCompilerTool"
 							Optimization="0"
 							AdditionalIncludeDirectories=""/>
 					</FileConfiguration>
 					<FileConfiguration
-						Name="Release|Win32">
+						Name="Developer - release|Win32">
 						<Tool
 							Name="VCCLCompilerTool"
 							Optimization="2"
@@ -1882,14 +1881,14 @@
 				<File
 					RelativePath="..\mod\AvHUmbraGun.cpp">
 					<FileConfiguration
-						Name="Debug|Win32">
+						Name="Developer - debug|Win32">
 						<Tool
 							Name="VCCLCompilerTool"
 							Optimization="0"
 							AdditionalIncludeDirectories=""/>
 					</FileConfiguration>
 					<FileConfiguration
-						Name="Release|Win32">
+						Name="Developer - release|Win32">
 						<Tool
 							Name="VCCLCompilerTool"
 							Optimization="2"
@@ -1899,14 +1898,14 @@
 				<File
 					RelativePath="..\mod\AvHWebSpinner.cpp">
 					<FileConfiguration
-						Name="Debug|Win32">
+						Name="Developer - debug|Win32">
 						<Tool
 							Name="VCCLCompilerTool"
 							Optimization="0"
 							AdditionalIncludeDirectories=""/>
 					</FileConfiguration>
 					<FileConfiguration
-						Name="Release|Win32">
+						Name="Developer - release|Win32">
 						<Tool
 							Name="VCCLCompilerTool"
 							Optimization="2"
@@ -1916,14 +1915,14 @@
 				<File
 					RelativePath="..\mod\AvHWelder.cpp">
 					<FileConfiguration
-						Name="Debug|Win32">
+						Name="Developer - debug|Win32">
 						<Tool
 							Name="VCCLCompilerTool"
 							Optimization="0"
 							AdditionalIncludeDirectories=""/>
 					</FileConfiguration>
 					<FileConfiguration
-						Name="Release|Win32">
+						Name="Developer - release|Win32">
 						<Tool
 							Name="VCCLCompilerTool"
 							Optimization="2"
@@ -1946,6 +1945,12 @@
 			</File>
 			<File
 				RelativePath="camera.h">
+			</File>
+			<File
+				RelativePath=".\chud.h">
+			</File>
+			<File
+				RelativePath=".\chudmisc.h">
 			</File>
 			<File
 				RelativePath="cl_dll.h">
@@ -2102,9 +2107,33 @@
 			Name="ui"
 			Filter="">
 			<File
+				RelativePath="..\ui\bitmappng.cpp">
+			</File>
+			<File
+				RelativePath="..\ui\bitmappng.h">
+			</File>
+			<File
+				RelativePath="..\ui\ChatPanel.cpp">
+				<FileConfiguration
+					Name="Developer - debug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						ObjectFile="$(IntDir)/$(InputName)1.obj"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Developer - release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						ObjectFile="$(IntDir)/$(InputName)1.obj"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\ui\ChatPanel.h">
+			</File>
+			<File
 				RelativePath="..\ui\ColoredPanel.cpp">
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Developer - debug|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
@@ -2112,7 +2141,7 @@
 						PreprocessorDefinitions="_DEBUG;_MBCS;DEBUG;WIN32;_WINDOWS;AVH_CLIENT;$(NoInherit)"/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Developer - release|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
@@ -2125,7 +2154,7 @@
 			<File
 				RelativePath="..\ui\DummyPanel.cpp">
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Developer - debug|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
@@ -2133,7 +2162,7 @@
 						PreprocessorDefinitions="_DEBUG;_MBCS;DEBUG;WIN32;_WINDOWS;AVH_CLIENT;$(NoInherit)"/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Developer - release|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
@@ -2143,7 +2172,7 @@
 			<File
 				RelativePath="..\ui\FadingImageLabel.cpp">
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Developer - debug|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
@@ -2151,7 +2180,7 @@
 						PreprocessorDefinitions="_DEBUG;_MBCS;DEBUG;WIN32;_WINDOWS;AVH_CLIENT;$(NoInherit)"/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Developer - release|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
@@ -2162,9 +2191,15 @@
 				RelativePath="..\ui\FadingImageLabel.h">
 			</File>
 			<File
+				RelativePath="..\ui\loadpng.cpp">
+			</File>
+			<File
+				RelativePath="..\ui\loadpng.h">
+			</File>
+			<File
 				RelativePath="..\ui\MarqueeComponent.cpp">
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Developer - debug|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
@@ -2172,7 +2207,7 @@
 						PreprocessorDefinitions="_DEBUG;_MBCS;DEBUG;WIN32;_WINDOWS;AVH_CLIENT;$(NoInherit)"/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Developer - release|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
@@ -2183,9 +2218,15 @@
 				RelativePath="..\ui\MarqueeComponent.h">
 			</File>
 			<File
+				RelativePath="..\ui\MemoryInputStream.cpp">
+			</File>
+			<File
+				RelativePath="..\ui\MemoryInputStream.h">
+			</File>
+			<File
 				RelativePath="..\ui\PieMenu.cpp">
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Developer - debug|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
@@ -2193,7 +2234,7 @@
 						PreprocessorDefinitions="_DEBUG;_MBCS;DEBUG;WIN32;_WINDOWS;AVH_CLIENT;$(NoInherit)"/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Developer - release|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
@@ -2206,7 +2247,7 @@
 			<File
 				RelativePath="..\ui\PieNode.cpp">
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Developer - debug|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
@@ -2214,7 +2255,7 @@
 						PreprocessorDefinitions="_DEBUG;_MBCS;DEBUG;WIN32;_WINDOWS;AVH_CLIENT;$(NoInherit)"/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Developer - release|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
@@ -2228,9 +2269,15 @@
 				RelativePath="..\ui\ReloadableComponent.h">
 			</File>
 			<File
+				RelativePath="..\ui\ScoreboardIcon.cpp">
+			</File>
+			<File
+				RelativePath="..\ui\ScoreboardIcon.h">
+			</File>
+			<File
 				RelativePath="..\ui\SliderPlus.cpp">
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Developer - debug|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
@@ -2238,7 +2285,7 @@
 						PreprocessorDefinitions="_DEBUG;_MBCS;DEBUG;WIN32;_WINDOWS;AVH_CLIENT;$(NoInherit)"/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Developer - release|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
@@ -2251,7 +2298,7 @@
 			<File
 				RelativePath="..\ui\SpritePanel.cpp">
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Developer - debug|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
@@ -2259,7 +2306,7 @@
 						PreprocessorDefinitions="_DEBUG;_MBCS;DEBUG;WIN32;_WINDOWS;AVH_CLIENT;$(NoInherit)"/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Developer - release|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
@@ -2275,7 +2322,7 @@
 			<File
 				RelativePath="..\ui\UIComponent.cpp">
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Developer - debug|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
@@ -2283,7 +2330,7 @@
 						PreprocessorDefinitions="_DEBUG;_MBCS;DEBUG;WIN32;_WINDOWS;AVH_CLIENT;$(NoInherit)"/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Developer - release|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
@@ -2296,7 +2343,7 @@
 			<File
 				RelativePath="..\ui\UIComponents.cpp">
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Developer - debug|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
@@ -2304,7 +2351,7 @@
 						PreprocessorDefinitions="_DEBUG;_MBCS;DEBUG;WIN32;_WINDOWS;AVH_CLIENT;$(NoInherit)"/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Developer - release|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
@@ -2317,7 +2364,7 @@
 			<File
 				RelativePath="..\ui\UIFactory.cpp">
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Developer - debug|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
@@ -2325,7 +2372,7 @@
 						PreprocessorDefinitions="_DEBUG;_MBCS;DEBUG;WIN32;_WINDOWS;AVH_CLIENT;$(NoInherit)"/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Developer - release|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
@@ -2338,7 +2385,7 @@
 			<File
 				RelativePath="..\ui\UIHud.cpp">
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Developer - debug|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
@@ -2346,7 +2393,7 @@
 						PreprocessorDefinitions="_DEBUG;_MBCS;DEBUG;WIN32;_WINDOWS;AVH_CLIENT;$(NoInherit)"/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Developer - release|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
@@ -2359,7 +2406,7 @@
 			<File
 				RelativePath="..\ui\UIManager.cpp">
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Developer - debug|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
@@ -2367,7 +2414,7 @@
 						PreprocessorDefinitions="_DEBUG;_MBCS;DEBUG;WIN32;_WINDOWS;AVH_CLIENT;$(NoInherit)"/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Developer - release|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
@@ -2380,7 +2427,7 @@
 			<File
 				RelativePath="..\ui\UIPieMenu.cpp">
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Developer - debug|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
@@ -2388,7 +2435,7 @@
 						PreprocessorDefinitions="_DEBUG;_MBCS;DEBUG;WIN32;_WINDOWS;AVH_CLIENT;$(NoInherit)"/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Developer - release|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
@@ -2401,7 +2448,7 @@
 			<File
 				RelativePath="..\ui\UIUtil.cpp">
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Developer - debug|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
@@ -2409,7 +2456,7 @@
 						PreprocessorDefinitions="_DEBUG;_MBCS;DEBUG;WIN32;_WINDOWS;AVH_CLIENT;$(NoInherit)"/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Developer - release|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
@@ -2426,14 +2473,14 @@
 			<File
 				RelativePath="..\mod\AnimationUtil.cpp">
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Developer - debug|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Developer - release|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
@@ -2446,14 +2493,14 @@
 			<File
 				RelativePath="..\mod\AvHActionButtons.cpp">
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Developer - debug|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Developer - release|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
@@ -2466,14 +2513,14 @@
 			<File
 				RelativePath="..\mod\AvHAlienWeapon.cpp">
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Developer - debug|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Developer - release|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
@@ -2486,14 +2533,14 @@
 			<File
 				RelativePath="..\mod\AvHAmbientSound.cpp">
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Developer - debug|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Developer - release|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
@@ -2506,71 +2553,31 @@
 			<File
 				RelativePath="..\mod\AvHAssert.cpp">
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Developer - debug|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Developer - release|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""/>
 				</FileConfiguration>
-			</File>
-			<File
-				RelativePath="..\mod\AvHBalance.cpp">
-				<FileConfiguration
-					Name="Debug|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="2"
-						AdditionalIncludeDirectories=""/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath="..\mod\AvHBalance.h">
-			</File>
-			<File
-				RelativePath="..\mod\AvHBalanceAnalysis.cpp">
-				<FileConfiguration
-					Name="Debug|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="2"
-						AdditionalIncludeDirectories=""/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath="..\mod\AvHBalanceAnalysis.h">
 			</File>
 			<File
 				RelativePath="..\mod\AvHBaseInfoLocation.cpp">
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Developer - debug|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Developer - release|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
@@ -2583,14 +2590,14 @@
 			<File
 				RelativePath="..\mod\AvHClientUtil.cpp">
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Developer - debug|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Developer - release|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
@@ -2603,14 +2610,14 @@
 			<File
 				RelativePath="..\mod\AvHCommanderModeHandler.cpp">
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Developer - debug|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Developer - release|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
@@ -2629,14 +2636,14 @@
 			<File
 				RelativePath="..\mod\AvHEntityHierarchy.cpp">
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Developer - debug|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Developer - release|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
@@ -2649,14 +2656,14 @@
 			<File
 				RelativePath="..\mod\AvHEvents.cpp">
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Developer - debug|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Developer - release|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
@@ -2666,14 +2673,14 @@
 			<File
 				RelativePath="..\mod\AvHFont.cpp">
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Developer - debug|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Developer - release|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
@@ -2686,14 +2693,14 @@
 			<File
 				RelativePath="..\mod\AvHHelp.cpp">
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Developer - debug|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Developer - release|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
@@ -2703,14 +2710,14 @@
 			<File
 				RelativePath="..\mod\AvHHud.cpp">
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Developer - debug|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Developer - release|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
@@ -2721,16 +2728,19 @@
 				RelativePath="..\mod\AvHHud.h">
 			</File>
 			<File
+				RelativePath="..\mod\AvHHudConstants.h">
+			</File>
+			<File
 				RelativePath="..\mod\AvHHudRender.cpp">
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Developer - debug|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Developer - release|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
@@ -2740,14 +2750,14 @@
 			<File
 				RelativePath="..\mod\AvHLogoutComponent.cpp">
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Developer - debug|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Developer - release|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
@@ -2760,14 +2770,14 @@
 			<File
 				RelativePath="..\mod\AvHMapExtents.cpp">
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Developer - debug|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Developer - release|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
@@ -2780,14 +2790,14 @@
 			<File
 				RelativePath="..\mod\AvHMinimap.cpp">
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Developer - debug|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Developer - release|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
@@ -2800,14 +2810,14 @@
 			<File
 				RelativePath="..\mod\AvHMovementUtil.cpp">
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Developer - debug|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Developer - release|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
@@ -2818,16 +2828,34 @@
 				RelativePath="..\mod\AvHMovementUtil.h">
 			</File>
 			<File
+				RelativePath="..\mod\AvHNetworkMessages.cpp">
+			</File>
+			<File
+				RelativePath="..\mod\AvHNetworkMessages.h">
+			</File>
+			<File
+				RelativePath="..\mod\AvHNexusClient.cpp">
+			</File>
+			<File
+				RelativePath="..\mod\AvHNexusClient.h">
+			</File>
+			<File
+				RelativePath="..\mod\AvHNexusTunnelToServer.cpp">
+			</File>
+			<File
+				RelativePath="..\mod\AvHNexusTunnelToServer.h">
+			</File>
+			<File
 				RelativePath="..\mod\AvHOrder.cpp">
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Developer - debug|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Developer - release|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
@@ -2840,14 +2868,14 @@
 			<File
 				RelativePath="..\mod\AvHOverviewControl.cpp">
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Developer - debug|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Developer - release|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
@@ -2860,14 +2888,14 @@
 			<File
 				RelativePath="..\mod\AvHOverviewMap.cpp">
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Developer - debug|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Developer - release|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
@@ -2880,14 +2908,14 @@
 			<File
 				RelativePath="..\mod\AvHParticleEditorHandler.cpp">
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Developer - debug|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Developer - release|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
@@ -2900,14 +2928,14 @@
 			<File
 				RelativePath="..\mod\AvHPieMenuHandler.cpp">
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Developer - debug|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Developer - release|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
@@ -2920,14 +2948,14 @@
 			<File
 				RelativePath="..\mod\AvHPlayerUpgrade.cpp">
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Developer - debug|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Developer - release|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
@@ -2940,14 +2968,14 @@
 			<File
 				RelativePath="..\mod\AvHScriptClient.cpp">
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Developer - debug|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Developer - release|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
@@ -2957,14 +2985,14 @@
 			<File
 				RelativePath="..\mod\AvHScriptManager.cpp">
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Developer - debug|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Developer - release|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
@@ -2977,14 +3005,14 @@
 			<File
 				RelativePath="..\mod\AvHScriptShared.cpp">
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Developer - debug|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Developer - release|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
@@ -2994,14 +3022,14 @@
 			<File
 				RelativePath="..\mod\AvHScrollHandler.cpp">
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Developer - debug|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Developer - release|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
@@ -3014,14 +3042,14 @@
 			<File
 				RelativePath="..\mod\AvHScrollPanel.cpp">
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Developer - debug|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Developer - release|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
@@ -3031,14 +3059,14 @@
 			<File
 				RelativePath="..\mod\AvHSharedMovementInfo.cpp">
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Developer - debug|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Developer - release|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
@@ -3051,14 +3079,14 @@
 			<File
 				RelativePath="..\mod\AvHSharedUtil.cpp">
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Developer - debug|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Developer - release|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
@@ -3071,14 +3099,14 @@
 			<File
 				RelativePath="..\mod\AvHSpecials.cpp">
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Developer - debug|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Developer - release|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
@@ -3091,14 +3119,14 @@
 			<File
 				RelativePath="..\mod\AvHSpriteAPI.cpp">
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Developer - debug|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Developer - release|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
@@ -3111,14 +3139,14 @@
 			<File
 				RelativePath="..\mod\AvHTeamHierarchy.cpp">
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Developer - debug|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Developer - release|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
@@ -3131,14 +3159,14 @@
 			<File
 				RelativePath="..\mod\AvHTechImpulsePanel.cpp">
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Developer - debug|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Developer - release|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
@@ -3149,33 +3177,22 @@
 				RelativePath="..\mod\AvHTechImpulsePanel.h">
 			</File>
 			<File
-				RelativePath="..\mod\AvHTechNodes.cpp">
-				<FileConfiguration
-					Name="Debug|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="2"
-						AdditionalIncludeDirectories=""/>
-				</FileConfiguration>
+				RelativePath="..\mod\AvHTechNode.cpp">
+			</File>
+			<File
+				RelativePath="..\mod\AvHTechNode.h">
 			</File>
 			<File
 				RelativePath="..\mod\AvHTechSlotManager.cpp">
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Developer - debug|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Developer - release|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
@@ -3183,16 +3200,25 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath="..\mod\AvHTechTree.cpp">
+			</File>
+			<File
+				RelativePath="..\mod\AvHTechTree.h">
+			</File>
+			<File
+				RelativePath="..\mod\AvHTitles.h">
+			</File>
+			<File
 				RelativePath="..\mod\AvHTooltip.cpp">
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Developer - debug|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Developer - release|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
@@ -3205,14 +3231,14 @@
 			<File
 				RelativePath="..\mod\AvHUIFactory.cpp">
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Developer - debug|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Developer - release|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
@@ -3225,14 +3251,14 @@
 			<File
 				RelativePath="..\mod\AvHVisibleBlipList.cpp">
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Developer - debug|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Developer - release|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
@@ -3243,26 +3269,6 @@
 				RelativePath="..\mod\AvHVisibleBlipList.h">
 			</File>
 			<File
-				RelativePath="..\mod\ChatPanel.cpp">
-				<FileConfiguration
-					Name="Debug|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="2"
-						AdditionalIncludeDirectories=""/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath="..\mod\ChatPanel.h">
-			</File>
-			<File
 				RelativePath="..\mod\CollisionChecker.cpp">
 			</File>
 			<File
@@ -3271,14 +3277,14 @@
 			<File
 				RelativePath="..\mod\CollisionUtil.cpp">
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Developer - debug|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Developer - release|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
@@ -3291,14 +3297,14 @@
 			<File
 				RelativePath="..\ui\InvisiblePanel.cpp">
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Developer - debug|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Developer - release|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
@@ -3314,14 +3320,14 @@
 				<File
 					RelativePath="..\mod\AvHParticleSystem.cpp">
 					<FileConfiguration
-						Name="Debug|Win32">
+						Name="Developer - debug|Win32">
 						<Tool
 							Name="VCCLCompilerTool"
 							Optimization="0"
 							AdditionalIncludeDirectories=""/>
 					</FileConfiguration>
 					<FileConfiguration
-						Name="Release|Win32">
+						Name="Developer - release|Win32">
 						<Tool
 							Name="VCCLCompilerTool"
 							Optimization="2"
@@ -3334,14 +3340,14 @@
 				<File
 					RelativePath="..\mod\AvHParticleSystemManager.cpp">
 					<FileConfiguration
-						Name="Debug|Win32">
+						Name="Developer - debug|Win32">
 						<Tool
 							Name="VCCLCompilerTool"
 							Optimization="0"
 							AdditionalIncludeDirectories=""/>
 					</FileConfiguration>
 					<FileConfiguration
-						Name="Release|Win32">
+						Name="Developer - release|Win32">
 						<Tool
 							Name="VCCLCompilerTool"
 							Optimization="2"
@@ -3354,14 +3360,14 @@
 				<File
 					RelativePath="..\mod\AvHParticleTemplate.cpp">
 					<FileConfiguration
-						Name="Debug|Win32">
+						Name="Developer - debug|Win32">
 						<Tool
 							Name="VCCLCompilerTool"
 							Optimization="0"
 							AdditionalIncludeDirectories=""/>
 					</FileConfiguration>
 					<FileConfiguration
-						Name="Release|Win32">
+						Name="Developer - release|Win32">
 						<Tool
 							Name="VCCLCompilerTool"
 							Optimization="2"
@@ -3374,14 +3380,14 @@
 				<File
 					RelativePath="..\mod\AvHParticleTemplateClient.cpp">
 					<FileConfiguration
-						Name="Debug|Win32">
+						Name="Developer - debug|Win32">
 						<Tool
 							Name="VCCLCompilerTool"
 							Optimization="0"
 							AdditionalIncludeDirectories=""/>
 					</FileConfiguration>
 					<FileConfiguration
-						Name="Release|Win32">
+						Name="Developer - release|Win32">
 						<Tool
 							Name="VCCLCompilerTool"
 							Optimization="2"
@@ -3394,14 +3400,14 @@
 				<File
 					RelativePath="..\mod\AvHSelectionHelper.cpp">
 					<FileConfiguration
-						Name="Debug|Win32">
+						Name="Developer - debug|Win32">
 						<Tool
 							Name="VCCLCompilerTool"
 							Optimization="0"
 							AdditionalIncludeDirectories=""/>
 					</FileConfiguration>
 					<FileConfiguration
-						Name="Release|Win32">
+						Name="Developer - release|Win32">
 						<Tool
 							Name="VCCLCompilerTool"
 							Optimization="2"
@@ -3414,8 +3420,108 @@
 			</Filter>
 		</Filter>
 		<Filter
-			Name="Resource Files"
-			Filter="ico;cur;bmp;dlg;rc2;rct;bin;cnt;rtf;gif;jpg;jpeg;jpe">
+			Name="util"
+			Filter="">
+			<File
+				RelativePath="..\util\Balance.cpp">
+			</File>
+			<File
+				RelativePath="..\util\Balance.h">
+			</File>
+			<File
+				RelativePath="..\util\Checksum.cpp">
+			</File>
+			<File
+				RelativePath="..\util\Checksum.h">
+			</File>
+			<File
+				RelativePath="..\util\CString.h">
+			</File>
+			<File
+				RelativePath="..\util\GammaTable.cpp">
+			</File>
+			<File
+				RelativePath="..\util\GammaTable.h">
+			</File>
+			<File
+				RelativePath="..\util\LinuxSupport.cpp">
+			</File>
+			<File
+				RelativePath="..\util\LinuxSupport.h">
+			</File>
+			<File
+				RelativePath="..\util\Mat3.cpp">
+			</File>
+			<File
+				RelativePath="..\util\Mat3.h">
+			</File>
+			<File
+				RelativePath="..\util\MathUtil.cpp">
+			</File>
+			<File
+				RelativePath="..\util\MathUtil.h">
+			</File>
+			<File
+				RelativePath="..\util\nowarnings.h">
+			</File>
+			<File
+				RelativePath="..\util\Quat.cpp">
+			</File>
+			<File
+				RelativePath="..\util\Quat.h">
+			</File>
+			<File
+				RelativePath="..\util\Stacktrace.cpp">
+			</File>
+			<File
+				RelativePath="..\util\Stacktrace.h">
+			</File>
+			<File
+				RelativePath="..\util\STLUtil.cpp">
+			</File>
+			<File
+				RelativePath="..\util\STLUtil.h">
+			</File>
+			<File
+				RelativePath="..\util\StringVector.h">
+			</File>
+			<File
+				RelativePath="..\util\Tokenizer.cpp">
+			</File>
+			<File
+				RelativePath="..\util\Tokenizer.h">
+			</File>
+			<File
+				RelativePath="..\util\Zassert.cpp">
+			</File>
+			<File
+				RelativePath="..\util\Zassert.h">
+			</File>
+			<File
+				RelativePath="..\util\ZassertTemplate.cpp">
+			</File>
+		</Filter>
+		<Filter
+			Name="textrep"
+			Filter="">
+			<File
+				RelativePath="..\textrep\TRDescription.cpp">
+			</File>
+			<File
+				RelativePath="..\textrep\TRDescription.h">
+			</File>
+			<File
+				RelativePath="..\textrep\TRFactory.cpp">
+			</File>
+			<File
+				RelativePath="..\textrep\TRFactory.h">
+			</File>
+			<File
+				RelativePath="..\textrep\TRTag.h">
+			</File>
+			<File
+				RelativePath="..\textrep\TRTagValuePair.h">
+			</File>
 		</Filter>
 	</Files>
 	<Globals>

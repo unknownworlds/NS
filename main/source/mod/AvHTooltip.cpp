@@ -73,15 +73,14 @@ AvHTooltip::AvHTooltip(string& inText, float inNormScreenX, float inNormScreenY,
 
 AvHTooltip::~AvHTooltip()
 {
-	int a = 0;
 }
 
 
 bool AvHTooltip::ChopStringOfMaxScreenWidth(int inMaxScreenWidth, string& ioBaseString, string& outChoppedString)
 {
 	// Loop backwards through the string, until we get a string that fits in this screen width
-	int theCurrentLength = ioBaseString.length();
-	int theMaxLength = ioBaseString.length();
+	size_t theCurrentLength = ioBaseString.length();
+	size_t theMaxLength = ioBaseString.length();
 	bool theSuccess = false;
 	
 	while(!theSuccess && (theCurrentLength > 0))
@@ -160,7 +159,7 @@ void AvHTooltip::Draw()
 
 			// If this line is bold, draw in bold color
 			string theString = theStringListIter->c_str();
-			int theToolTipPreStringLength = kTooltipBoldPreString.length();
+			int theToolTipPreStringLength = (int)kTooltipBoldPreString.length();
 			if((int)theString.length() >= theToolTipPreStringLength)
 			{
 				if(!strncmp(theString.c_str(), kTooltipBoldPreString.c_str(), kTooltipBoldPreString.length()))
@@ -299,7 +298,7 @@ void AvHTooltip::RecomputeTextAndDimensions()
 		// Compute max height needed to contain all the strings, add some extra for a frame
 		this->mScreenLineVSpacing = .01f*ScreenHeight();
 		this->mScreenLineHeight = gHUD.GetHudStringHeight();
-		this->mScreenHeight = 2*this->mScreenLineVSpacing + (this->mStringList.size()*this->mScreenLineHeight);
+		this->mScreenHeight = 2*this->mScreenLineVSpacing + ((int)this->mStringList.size()*this->mScreenLineHeight);
 	}	
 }
 

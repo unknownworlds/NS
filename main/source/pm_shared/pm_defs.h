@@ -34,10 +34,10 @@
 #include "pm_info.h"
 
 // PM_PlayerTrace results.
-#include "pmtrace.h"
+#include "common/pmtrace.h"
 
 #if !defined ( USERCMD_H )
-#include "usercmd.h"
+#include "common/usercmd.h"
 #endif
 
 // physent_t

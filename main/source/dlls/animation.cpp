@@ -25,13 +25,12 @@ typedef int BOOL;
 // hack into header files that we can ship
 typedef int qboolean;
 typedef unsigned char byte;
-#include "utils/common/mathlib.h"
-#include "const.h"
-#include "progdefs.h"
-#include "edict.h"
-#include "eiface.h"
-
-#include "studio.h"
+#include "util/hl/mathlib.h"
+#include "common/const.h"
+#include "engine/progdefs.h"
+#include "engine/edict.h"
+#include "engine/eiface.h"
+#include "engine/studio.h"
 
 #ifndef ACTIVITY_H
 #include "activity.h"

@@ -2,8 +2,8 @@
 #define AVHREINFORCEABLE_H
 
 #include "util/nowarnings.h"
-#include "extdll.h"
-#include "util.h"
+#include "dlls/extdll.h"
+#include "dlls/util.h"
 #include "mod/AvHConstants.h"
 #include "mod/AvHBuildable.h"
 #include "dlls/cbase.h"

@@ -63,7 +63,7 @@ void V_PunchAxis( int axis, float punch );
 void AvHGrenadeGun::Init()
 {
 	this->mRange = kGGRange;
-	this->mDamage = BALANCE_IVAR(kGrenadeDamage);
+	this->mDamage = BALANCE_VAR(kGrenadeDamage);
 }
 
 int	AvHGrenadeGun::GetBarrelLength() const
@@ -73,7 +73,7 @@ int	AvHGrenadeGun::GetBarrelLength() const
 
 float AvHGrenadeGun::GetRateOfFire() const
 {
-	return BALANCE_FVAR(kGGROF);
+	return BALANCE_VAR(kGGROF);
 }
 
 int	AvHGrenadeGun::GetDeployAnimation() const
@@ -109,11 +109,11 @@ char* AvHGrenadeGun::GetDeploySound() const
 
 float AvHGrenadeGun::GetReloadTime(void) const
 {
-	int theShotsToLoad = BALANCE_IVAR(kGGMaxClip) - this->GetShotsInClip();
+	int theShotsToLoad = BALANCE_VAR(kGGMaxClip) - this->GetShotsInClip();
 
-	float theBaseReloadTime = BALANCE_FVAR(kGrenadeLauncherBaseReloadTime);
-	float theGrenadeReloadTime = BALANCE_FVAR(kGrenadeLauncherGrenadeReloadTime);
-	float theEndReloadTime = BALANCE_FVAR(kGrenadeLauncherEndReloadTime);
+	float theBaseReloadTime = BALANCE_VAR(kGrenadeLauncherBaseReloadTime);
+	float theGrenadeReloadTime = BALANCE_VAR(kGrenadeLauncherGrenadeReloadTime);
+	float theEndReloadTime = BALANCE_VAR(kGrenadeLauncherEndReloadTime);
 
 	return theBaseReloadTime + theShotsToLoad*theGrenadeReloadTime + theEndReloadTime;
 }
@@ -131,7 +131,7 @@ void AvHGrenadeGun::GetEventOrigin(Vector& outOrigin) const
 
 void AvHGrenadeGun::GetEventAngles(Vector& outAngles) const
 {
-	float theGrenadeForce = BALANCE_IVAR(kGrenadeForce);
+	float theGrenadeForce = BALANCE_VAR(kGrenadeForce);
 
 	Vector theAiming = this->m_pPlayer->GetAutoaimVector(AUTOAIM_5DEGREES);
 
@@ -262,7 +262,7 @@ void AvHGrenadeGun::FireProjectiles(void)
 	this->GetEventAngles(theVelocity);
 
 	// How to handle this?  Only generate entity on server, but we should do SOMETHING on the client, no?
-	CGrenade* theGrenade = AvHSUShootServerGrenade(this->m_pPlayer->pev, theOrigin, theVelocity, BALANCE_IVAR(kGrenDetonateTime), false);
+	CGrenade* theGrenade = AvHSUShootServerGrenade(this->m_pPlayer->pev, theOrigin, theVelocity, BALANCE_VAR(kGrenDetonateTime), false);
     ASSERT(theGrenade);
     theGrenade->pev->dmg = this->mDamage;
 
@@ -282,12 +282,6 @@ void AvHGrenadeGun::Precache()
 
 	PRECACHE_UNMODIFIED_SOUND(kGGFireSound1);
 	
-	#ifdef AVH_UPGRADE_SOUNDS
-	PRECACHE_UNMODIFIED_SOUND(kGGFireSound2);
-	PRECACHE_UNMODIFIED_SOUND(kGGFireSound3);
-	PRECACHE_UNMODIFIED_SOUND(kGGFireSound4);
-	#endif
-
 	PRECACHE_UNMODIFIED_SOUND(kGGReloadSound);
 	
 	this->mEvent = PRECACHE_EVENT(1, kGGEventName);
@@ -300,7 +294,7 @@ void AvHGrenadeGun::Spawn()
 	Precache();
 
 	this->m_iId = AVH_WEAPON_GRENADE_GUN;
-	m_iDefaultAmmo = BALANCE_IVAR(kGGMaxClip);
+	m_iDefaultAmmo = BALANCE_VAR(kGGMaxClip);
 
     // Set our class name
 	this->pev->classname = MAKE_STRING(kwsGrenadeGun);

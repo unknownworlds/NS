@@ -123,7 +123,7 @@ struct entity_state_s
 	vec3_t		vuser4;
 };
 
-#include "pm_info.h"
+#include "pm_shared/pm_info.h"
 
 typedef struct clientdata_s
 {

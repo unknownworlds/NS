@@ -65,7 +65,7 @@
 //===============================================================================
 #include "mod/AvHPlayerUpgrade.h"
 #include "mod/AvHSpecials.h"
-#include "mod/AvHBalance.h"
+#include "util/Balance.h"
 #include "common/damagetypes.h"
 
 const int	kWeaponTracerDefault		= 0;
@@ -79,7 +79,7 @@ float AvHPlayerUpgrade::GetAlienMeleeDamageUpgrade(int inUpgrade, bool inInclude
 	
 	if(GetHasUpgrade(inUpgrade, MASK_BUFFED))
 	{
-		theMultiplier = 1.0f + (float)BALANCE_FVAR(kPrimalScreamDamageModifier);
+		theMultiplier = 1.0f + (float)BALANCE_VAR(kPrimalScreamDamageModifier);
 	}
 
     if(inIncludeFocus)
@@ -96,7 +96,7 @@ float AvHPlayerUpgrade::GetAlienRangedDamageUpgrade(int inUpgrade)
 	
 	if(GetHasUpgrade(inUpgrade, MASK_BUFFED))
 	{
-		theMultiplier = 1.0f + (float)BALANCE_FVAR(kPrimalScreamDamageModifier);
+		theMultiplier = 1.0f + (float)BALANCE_VAR(kPrimalScreamDamageModifier);
 	}
 
 	return theMultiplier;
@@ -110,7 +110,7 @@ float AvHPlayerUpgrade::GetFocusDamageUpgrade(int inUpgrade)
 	if(theFocusLevel > 0)
 	{
 		// Increase damage for each level of focus
-		const float theFocusDamageUpgradePercentPerLevel = (float)BALANCE_FVAR(kFocusDamageUpgradePercentPerLevel);
+		const float theFocusDamageUpgradePercentPerLevel = (float)BALANCE_VAR(kFocusDamageUpgradePercentPerLevel);
 		theFocusDamageUpgrade += theFocusLevel*theFocusDamageUpgradePercentPerLevel;
 	}
 
@@ -120,13 +120,13 @@ float AvHPlayerUpgrade::GetFocusDamageUpgrade(int inUpgrade)
 float AvHPlayerUpgrade::GetArmorValue(int inNumHives)
 {
 	// Each point of armor is work 1/x points of health
-	float theArmorValueNonAlien = BALANCE_FVAR(kArmorValueNonAlien);
+	float theArmorValueNonAlien = BALANCE_VAR(kArmorValueNonAlien);
 	float theArmorBonus = theArmorValueNonAlien;
 
 	if(inNumHives > 0)
 	{
-		float theArmorValueBase = 1.0f + (float)BALANCE_FVAR(kArmorValueBase);
-		float theArmorValuePerHive = (float)BALANCE_FVAR(kArmorValuePerHive);
+		float theArmorValueBase = 1.0f + (float)BALANCE_VAR(kArmorValueBase);
+		float theArmorValuePerHive = (float)BALANCE_VAR(kArmorValuePerHive);
 		inNumHives = min(inNumHives, kMaxHives);
 
 		theArmorBonus = (theArmorValueBase + inNumHives*theArmorValuePerHive);
@@ -141,13 +141,13 @@ float AvHPlayerUpgrade::GetArmorValue(int inNumHives)
 float AvHPlayerUpgrade::GetArmorAbsorption(AvHUser3 inUser3, int inUpgrade, int inNumHives)
 {
 	// A value of .2 means the armor Takes 80% of the damage, so the value gets smaller as it improves
-	float theAbsorption = (float)BALANCE_FVAR(kArmorAbsorptionBase);
+	float theAbsorption = (float)BALANCE_VAR(kArmorAbsorptionBase);
 	inNumHives = min(inNumHives, kMaxHives);//voogru: prevent aliens taking negative damage if some mapper goon (or me :o) ) decides to put more than 3 hives on the map.
 
 	// Heavy armor is the shiznit
 	if(inUser3 == AVH_USER3_MARINE_PLAYER && GetHasUpgrade(inUpgrade, MASK_UPGRADE_13))
 	{
-		float theHeavyArmorAbsorbPercent = BALANCE_IVAR(kHeavyArmorAbsorbPercent)/100.0f;
+		float theHeavyArmorAbsorbPercent = BALANCE_VAR(kHeavyArmorAbsorbPercent)/100.0f;
 		ASSERT(theHeavyArmorAbsorbPercent >= 0.0f);
 		ASSERT(theHeavyArmorAbsorbPercent <= 1.0f);
 
@@ -165,7 +165,7 @@ float AvHPlayerUpgrade::GetArmorAbsorption(AvHUser3 inUser3, int inUpgrade, int 
         case AVH_USER3_ALIEN_PLAYER4:
         case AVH_USER3_ALIEN_PLAYER5:
         case AVH_USER3_ALIEN_EMBRYO:
-            theAbsorption -= (inNumHives - 1)*(float)BALANCE_FVAR(kArmorAbsorptionPerExtraHive);
+            theAbsorption -= (inNumHives - 1)*(float)BALANCE_VAR(kArmorAbsorptionPerExtraHive);
             break;
         }
     }
@@ -179,7 +179,7 @@ float AvHPlayerUpgrade::GetArmorAbsorption(AvHUser3 inUser3, int inUpgrade, int 
 int AvHPlayerUpgrade::GetMaxHealth(int inUpgrade, AvHUser3 inUser3, int inLevel)
 {
 	int theMaxHealth = 0;
-	int theHealthLevelIncrementPercent = BALANCE_IVAR(kCombatLevelHealthIncrease);
+	int theHealthLevelIncrementPercent = BALANCE_VAR(kCombatLevelHealthIncrease);
 
 	// TODO: Take into account upgrade if added
 	
@@ -188,31 +188,31 @@ int AvHPlayerUpgrade::GetMaxHealth(int inUpgrade, AvHUser3 inUser3, int inLevel)
 	default:
 	case AVH_USER3_MARINE_PLAYER:
 	case AVH_USER3_COMMANDER_PLAYER:
-		theMaxHealth = BALANCE_IVAR(kMarineHealth);
+		theMaxHealth = BALANCE_VAR(kMarineHealth);
 		break;
 		
 	case AVH_USER3_ALIEN_PLAYER1:
-		theMaxHealth = BALANCE_IVAR(kSkulkHealth);
+		theMaxHealth = BALANCE_VAR(kSkulkHealth);
 		break;
 		
 	case AVH_USER3_ALIEN_PLAYER2:
-		theMaxHealth = BALANCE_IVAR(kGorgeHealth);
+		theMaxHealth = BALANCE_VAR(kGorgeHealth);
 		break;
 		
 	case AVH_USER3_ALIEN_PLAYER3:
-		theMaxHealth = BALANCE_IVAR(kLerkHealth);
+		theMaxHealth = BALANCE_VAR(kLerkHealth);
 		break;
 		
 	case AVH_USER3_ALIEN_PLAYER4:
-		theMaxHealth = BALANCE_IVAR(kFadeHealth);
+		theMaxHealth = BALANCE_VAR(kFadeHealth);
 		break;
 		
 	case AVH_USER3_ALIEN_PLAYER5:
-		theMaxHealth = BALANCE_IVAR(kOnosHealth);
+		theMaxHealth = BALANCE_VAR(kOnosHealth);
 		break;
 
 	case AVH_USER3_ALIEN_EMBRYO:
-		theMaxHealth = BALANCE_IVAR(kGestateHealth);
+		theMaxHealth = BALANCE_VAR(kGestateHealth);
 		break;
 	}
 	
@@ -238,10 +238,10 @@ int AvHPlayerUpgrade::GetMaxArmorLevel(int inUpgrade, AvHUser3 inUser3)
 	case AVH_USER3_MARINE_PLAYER:
 	case AVH_USER3_COMMANDER_PLAYER:
 		//theMaxArmorLevel = 100 + theArmorLevel*20;
-		theMaxArmorLevel = BALANCE_IVAR(kMarineBaseArmor) + (int)((theArmorLevel/3.0f)*BALANCE_IVAR(kMarineArmorUpgrade));
+		theMaxArmorLevel = BALANCE_VAR(kMarineBaseArmor) + (int)((theArmorLevel/3.0f)*BALANCE_VAR(kMarineArmorUpgrade));
 		if(theHasHeavyArmor)
 		{
-			theMaxArmorLevel = BALANCE_IVAR(kMarineBaseHeavyArmor) + (int)((theArmorLevel/3.0f)*BALANCE_IVAR(kMarineHeavyArmorUpgrade));
+			theMaxArmorLevel = BALANCE_VAR(kMarineBaseHeavyArmor) + (int)((theArmorLevel/3.0f)*BALANCE_VAR(kMarineHeavyArmorUpgrade));
 		}
 		//if(theHasPowerArmor)
 		//{
@@ -250,27 +250,27 @@ int AvHPlayerUpgrade::GetMaxArmorLevel(int inUpgrade, AvHUser3 inUser3)
 		break;
 
 	case AVH_USER3_ALIEN_PLAYER1:
-		theMaxArmorLevel = BALANCE_IVAR(kSkulkBaseArmor) + (int)((theArmorLevel/3.0f)*BALANCE_IVAR(kSkulkArmorUpgrade));//(theHasAlienCarapace ? 30 : 10);
+		theMaxArmorLevel = BALANCE_VAR(kSkulkBaseArmor) + (int)((theArmorLevel/3.0f)*BALANCE_VAR(kSkulkArmorUpgrade));//(theHasAlienCarapace ? 30 : 10);
 		break;
 
 	case AVH_USER3_ALIEN_PLAYER2:
-		theMaxArmorLevel = BALANCE_IVAR(kGorgeBaseArmor) + (int)((theArmorLevel/3.0f)*BALANCE_IVAR(kGorgeArmorUpgrade));//(theHasAlienCarapace ? 75 : 50);
+		theMaxArmorLevel = BALANCE_VAR(kGorgeBaseArmor) + (int)((theArmorLevel/3.0f)*BALANCE_VAR(kGorgeArmorUpgrade));//(theHasAlienCarapace ? 75 : 50);
 		break;
 
 	case AVH_USER3_ALIEN_PLAYER3:
-		theMaxArmorLevel = BALANCE_IVAR(kLerkBaseArmor) + (int)((theArmorLevel/3.0f)*BALANCE_IVAR(kLerkArmorUpgrade));//(theHasAlienCarapace ? 75 : 50);
+		theMaxArmorLevel = BALANCE_VAR(kLerkBaseArmor) + (int)((theArmorLevel/3.0f)*BALANCE_VAR(kLerkArmorUpgrade));//(theHasAlienCarapace ? 75 : 50);
 		break;																								
 
 	case AVH_USER3_ALIEN_PLAYER4:
-		theMaxArmorLevel = BALANCE_IVAR(kFadeBaseArmor) + (int)((theArmorLevel/3.0f)*BALANCE_IVAR(kFadeArmorUpgrade));//(theHasAlienCarapace ? 150 : 125);
+		theMaxArmorLevel = BALANCE_VAR(kFadeBaseArmor) + (int)((theArmorLevel/3.0f)*BALANCE_VAR(kFadeArmorUpgrade));//(theHasAlienCarapace ? 150 : 125);
 		break;
 
 	case AVH_USER3_ALIEN_PLAYER5:
-		theMaxArmorLevel = BALANCE_IVAR(kOnosBaseArmor) + (int)((theArmorLevel/3.0f)*BALANCE_IVAR(kOnosArmorUpgrade));//(theHasAlienCarapace ? 200 : 150);
+		theMaxArmorLevel = BALANCE_VAR(kOnosBaseArmor) + (int)((theArmorLevel/3.0f)*BALANCE_VAR(kOnosArmorUpgrade));//(theHasAlienCarapace ? 200 : 150);
 		break;
 
 	case AVH_USER3_ALIEN_EMBRYO:
-		theMaxArmorLevel = BALANCE_IVAR(kGestateBaseArmor);
+		theMaxArmorLevel = BALANCE_VAR(kGestateBaseArmor);
 		break;
 
 	}
@@ -300,20 +300,20 @@ int AvHPlayerUpgrade::GetArmorUpgrade(AvHUser3 inUser3, int inUpgrade, float* th
 		if(GetHasUpgrade(inUpgrade, MASK_UPGRADE_6))
 		{
 			if(theArmorMultiplier)
-				*theArmorMultiplier = 1.0f + (float)BALANCE_FVAR(kMarineArmorLevelThree);
+				*theArmorMultiplier = 1.0f + (float)BALANCE_VAR(kMarineArmorLevelThree);
 			theUpgradeLevel = 3;
 		}
 		else if(GetHasUpgrade(inUpgrade, MASK_UPGRADE_5))
 		{
 			if(theArmorMultiplier)
-				*theArmorMultiplier = 1.0f + (float)BALANCE_FVAR(kMarineArmorLevelTwo);
+				*theArmorMultiplier = 1.0f + (float)BALANCE_VAR(kMarineArmorLevelTwo);
 			
 			theUpgradeLevel = 2;
 		}
 		else if(GetHasUpgrade(inUpgrade, MASK_UPGRADE_4))
 		{
 			if(theArmorMultiplier)
-				*theArmorMultiplier = 1.0f + (float)BALANCE_FVAR(kMarineArmorLevelOne);
+				*theArmorMultiplier = 1.0f + (float)BALANCE_VAR(kMarineArmorLevelOne);
 			
 			theUpgradeLevel = 1;
 		}
@@ -324,7 +324,7 @@ int AvHPlayerUpgrade::GetArmorUpgrade(AvHUser3 inUser3, int inUpgrade, float* th
 		{
 			if(theArmorMultiplier)
 			{
-				*theArmorMultiplier = 1.0f + (float)BALANCE_FVAR(kAlienArmorLevelOne);
+				*theArmorMultiplier = 1.0f + (float)BALANCE_VAR(kAlienArmorLevelOne);
 			}
 			theUpgradeLevel = 1;
 
@@ -332,7 +332,7 @@ int AvHPlayerUpgrade::GetArmorUpgrade(AvHUser3 inUser3, int inUpgrade, float* th
 			{
 				if(theArmorMultiplier)
 				{
-					*theArmorMultiplier = 1.0f + (float)BALANCE_FVAR(kAlienArmorLevelTwo);
+					*theArmorMultiplier = 1.0f + (float)BALANCE_VAR(kAlienArmorLevelTwo);
 				}
 				
 				theUpgradeLevel = 2;
@@ -341,7 +341,7 @@ int AvHPlayerUpgrade::GetArmorUpgrade(AvHUser3 inUser3, int inUpgrade, float* th
 			{
 				if(theArmorMultiplier)
 				{
-					*theArmorMultiplier = 1.0f + (float)BALANCE_FVAR(kAlienArmorLevelThree);
+					*theArmorMultiplier = 1.0f + (float)BALANCE_VAR(kAlienArmorLevelThree);
 				}
 				
 				theUpgradeLevel = 3;
@@ -376,7 +376,7 @@ int AvHPlayerUpgrade::GetWeaponUpgrade(int inUser3, int inUpgrade, float* outDam
 		if(GetHasUpgrade(inUpgrade, MASK_UPGRADE_3))
 		{
 			if(outDamageMultiplier)
-				*outDamageMultiplier *= (1.0f + (float)BALANCE_FVAR(kWeaponDamageLevelThree));
+				*outDamageMultiplier *= (1.0f + (float)BALANCE_VAR(kWeaponDamageLevelThree));
 			if(outTracerFreq)
 				*outTracerFreq = kWeaponTracerLevelThree;
 		
@@ -385,7 +385,7 @@ int AvHPlayerUpgrade::GetWeaponUpgrade(int inUser3, int inUpgrade, float* outDam
 		else if(GetHasUpgrade(inUpgrade, MASK_UPGRADE_2))
 		{
 			if(outDamageMultiplier)
-				*outDamageMultiplier *= (1.0f + (float)BALANCE_FVAR(kWeaponDamageLevelTwo));
+				*outDamageMultiplier *= (1.0f + (float)BALANCE_VAR(kWeaponDamageLevelTwo));
 			if(outTracerFreq)
 				*outTracerFreq = kWeaponTracerLevelTwo;
 			theUpgradeLevel = 2;
@@ -393,7 +393,7 @@ int AvHPlayerUpgrade::GetWeaponUpgrade(int inUser3, int inUpgrade, float* outDam
 		else if(GetHasUpgrade(inUpgrade, MASK_UPGRADE_1))
 		{
 			if(outDamageMultiplier)
-				*outDamageMultiplier *= (1.0f + (float)BALANCE_FVAR(kWeaponDamageLevelOne));
+				*outDamageMultiplier *= (1.0f + (float)BALANCE_VAR(kWeaponDamageLevelOne));
 		
 			if(outTracerFreq)
 				*outTracerFreq = kWeaponTracerLevelOne;
@@ -428,13 +428,13 @@ float AvHPlayerUpgrade::GetSilenceVolumeLevel(AvHUser3 inUser3, int inUpgrade)
 	switch(theSilenceLevel)
 	{
 	case 1:
-		theSilenceVolumeFactor = (float)BALANCE_FVAR(kSilenceLevel1Volume);
+		theSilenceVolumeFactor = (float)BALANCE_VAR(kSilenceLevel1Volume);
 		break;
 	case 2:
-		theSilenceVolumeFactor = (float)BALANCE_FVAR(kSilenceLevel2Volume);
+		theSilenceVolumeFactor = (float)BALANCE_VAR(kSilenceLevel2Volume);
 		break;
 	case 3:
-		theSilenceVolumeFactor = (float)BALANCE_FVAR(kSilenceLevel3Volume);
+		theSilenceVolumeFactor = (float)BALANCE_VAR(kSilenceLevel3Volume);
 		break;
 	}
 
@@ -500,8 +500,8 @@ float AvHPlayerUpgrade::GetExperienceForLevel(int inLevel)
 	float theExperienceForLevel = 0.0f;
 	int theLevel = 1;
 
-    int theCombatBaseExperience = BALANCE_IVAR(kCombatBaseExperience);
-	float theCombatLevelExperienceModifier = (float)BALANCE_FVAR(kCombatLevelExperienceModifier);
+    int theCombatBaseExperience = BALANCE_VAR(kCombatBaseExperience);
+	float theCombatLevelExperienceModifier = (float)BALANCE_VAR(kCombatLevelExperienceModifier);
 
 	while((theLevel < inLevel) && (theCombatLevelExperienceModifier > 0))
 	{
@@ -516,8 +516,8 @@ int AvHPlayerUpgrade::GetPlayerLevel(float inExperience)
 {
 	int thePlayerLevel = 1;
 
-    int theCombatBaseExperience = BALANCE_IVAR(kCombatBaseExperience);
-	float theCombatLevelExperienceModifier = (float)BALANCE_FVAR(kCombatLevelExperienceModifier);
+    int theCombatBaseExperience = BALANCE_VAR(kCombatBaseExperience);
+	float theCombatLevelExperienceModifier = (float)BALANCE_VAR(kCombatLevelExperienceModifier);
 
 	while((inExperience > 0) && (theCombatLevelExperienceModifier > 0))
 	{

@@ -29,7 +29,7 @@
 #include "items.h"
 #include "gamerules.h"
 
-extern int gmsgItemPickup;
+#include "mod/AvHNetworkMessages.h"
 
 class CWorldItem : public CBaseEntity
 {
@@ -233,10 +233,7 @@ class CItemBattery : public CItem
 
 			EMIT_SOUND( pPlayer->edict(), CHAN_ITEM, "items/gunpickup2.wav", 1, ATTN_NORM );
 
-			MESSAGE_BEGIN( MSG_ONE, gmsgItemPickup, NULL, pPlayer->pev );
-				WRITE_STRING( STRING(pev->classname) );
-			MESSAGE_END();
-
+			NetMsg_ItemPickup( pPlayer->pev, string( STRING( pev->classname ) ) );
 			
 			// Suit reports new power level
 			// For some reason this wasn't working in release build -- round it.
@@ -328,9 +325,7 @@ class CItemLongJump : public CItem
 
 			g_engfuncs.pfnSetPhysicsKeyValue( pPlayer->edict(), "slj", "1" );
 
-			MESSAGE_BEGIN( MSG_ONE, gmsgItemPickup, NULL, pPlayer->pev );
-				WRITE_STRING( STRING(pev->classname) );
-			MESSAGE_END();
+			NetMsg_ItemPickup( pPlayer->pev, string( STRING( pev->classname ) ) );
 
 			EMIT_SOUND_SUIT( pPlayer->edict(), "!HEV_A1" );	// Play the longjump sound UNDONE: Kelly? correct sound?
 			return TRUE;		

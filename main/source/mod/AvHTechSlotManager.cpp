@@ -84,38 +84,6 @@ void AvHTechSlots::operator=(const AvHTechSlots& inTechSlot)
 #endif
 }
 
-#ifdef AVH_CLIENT
-int32 AvHTechSlots::ReceiveFromNetworkStream()
-{
-	int32 theBytesRead = 0;
-
-	int theUser3 = READ_BYTE();
-	this->mUser3 = (AvHUser3)theUser3;
-	theBytesRead++;
-
-	for(int i = 0; i < kNumTechSlots; i++)
-	{
-		this->mTechSlots[i] = (AvHMessageID)READ_BYTE();
-		theBytesRead++;
-	}
-
-	return theBytesRead;
-}
-#endif
-
-#ifdef AVH_SERVER
-void AvHTechSlots::SendToNetworkStream()
-{
-	WRITE_BYTE(this->mUser3);
-
-	for(int i=0; i<kNumTechSlots; i++)
-	{
-		WRITE_BYTE(this->mTechSlots[i]);
-	}
-}
-#endif
-
-
 void AvHTechSlotManager::AddTechSlots(AvHTechSlots inTechSlots)
 {
 	// Check to make sure we don't have something with this user3 already

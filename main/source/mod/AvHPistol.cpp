@@ -69,7 +69,7 @@ void V_PunchAxis( int axis, float punch );
 void AvHPistol::Init()
 {
 	this->mRange = kHGRange;
-	this->mDamage = BALANCE_IVAR(kHGDamage);
+	this->mDamage = BALANCE_VAR(kHGDamage);
 }
 
 int	AvHPistol::GetBarrelLength() const
@@ -79,7 +79,7 @@ int	AvHPistol::GetBarrelLength() const
 
 float AvHPistol::GetRateOfFire() const
 {
-    return BALANCE_FVAR(kHGROF);
+    return BALANCE_VAR(kHGROF);
 }
 
 int	AvHPistol::GetDeployAnimation() const
@@ -137,10 +137,6 @@ int	AvHPistol::GetReloadAnimation() const
 	{
 		theReloadAnimation = 3;
 	}
-	else
-	{
-		int a = 0;
-	}
 
 	return theReloadAnimation;
 }
@@ -171,17 +167,8 @@ void AvHPistol::Precache()
 	AvHMarineWeapon::Precache();
 
 	PRECACHE_UNMODIFIED_MODEL(kHGEjectModel);
-
 	PRECACHE_UNMODIFIED_SOUND(kHGFireSound1);
-	
-	#ifdef AVH_UPGRADE_SOUNDS
-	PRECACHE_UNMODIFIED_SOUND(kHGFireSound2);
-	PRECACHE_UNMODIFIED_SOUND(kHGFireSound3);
-	PRECACHE_UNMODIFIED_SOUND(kHGFireSound4);
-	#endif
-
 	PRECACHE_UNMODIFIED_SOUND(kHGReloadSound);
-
 	PRECACHE_UNMODIFIED_MODEL(kGenericWallpuff);
 	
 	this->mEvent = PRECACHE_EVENT(1, kHGEventName);
@@ -195,7 +182,7 @@ void AvHPistol::Spawn()
 	Precache();
 
 	this->m_iId = AVH_WEAPON_PISTOL;
-	this->m_iDefaultAmmo = BALANCE_IVAR(kHGMaxClip)*BALANCE_IVAR(kMarineSpawnClips);
+	this->m_iDefaultAmmo = BALANCE_VAR(kHGMaxClip)*BALANCE_VAR(kMarineSpawnClips);
 
     // Set our class name
 	this->pev->classname = MAKE_STRING(kwsPistol);

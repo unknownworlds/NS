@@ -1733,9 +1733,9 @@ Vector CBaseEntity::FireBulletsPlayer ( ULONG cShots, Vector vecSrc, Vector vecD
 						if ( isShotgun && !( theEntityHit->pev->iuser3 & AVH_USER3_BREAKABLE) ) 
 						{
 							float distance=fabs((vecSrc - theEntityHit->pev->origin).Length());
-							if ( distance > BALANCE_FVAR(kShotgunDamageRange) )
+							if ( distance > BALANCE_VAR(kShotgunDamageRange) )
 							{
-								float fallOffDistance=distance-BALANCE_FVAR(kShotgunDamageRange);
+								float fallOffDistance=distance-BALANCE_VAR(kShotgunDamageRange);
 								float fallOff=max(0.0, 1.0f-(fallOffDistance/(kSGRange/2)));
 								theAdjustedDamage*=fallOff;
 							}

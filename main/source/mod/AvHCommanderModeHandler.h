@@ -62,7 +62,7 @@ public:
 			void	RecalculateBuildResearchText();
 			void	Reset();
 			void	SetSelectedUnits(const EntityListType& inUnits);
-			void	Update(const AvHTechNodes& inTechNodes, int inNumPoints);
+			void	Update(const AvHTechTree& inTechNodes, int inNumPoints);
 
 	virtual void	cursorMoved(int x,int y,Panel* panel);
 	virtual void	cursorEntered(Panel* panel);

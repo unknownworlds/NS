@@ -20,12 +20,12 @@
 
 #include "hud.h"
 #include "cl_util.h"
-#include "parsemsg.h"
 
 #include <string.h>
 #include <stdio.h>
 #include "mod/AvHPlayerUpgrade.h"
 #include "mod/AvHHudConstants.h"
+#include "mod/AvHNetworkMessages.h"
 
 DECLARE_MESSAGE(m_Battery, Battery)
 
@@ -61,8 +61,8 @@ int CHudBattery:: MsgFunc_Battery(const char *pszName,  int iSize, void *pbuf )
 	m_iFlags |= HUD_ACTIVE;
 
 	
-	BEGIN_READ( pbuf, iSize );
-	int x = READ_SHORT();
+	int x;
+	NetMsg_Battery( pbuf, iSize, x );
 
 	if (x != m_iBat)
 	{

@@ -123,11 +123,11 @@ void AvHAcidRocket::AcidRocketTouch(CBaseEntity* pOther)
 	edict_t* theRocketOwner = this->pev->owner;
 	CBaseEntity* theAttacker = CBaseEntity::Instance(theRocketOwner);
 
-	//float theForceScalar = BALANCE_FVAR(kAcidRocketForceScalar)*this->mDamage;
+	//float theForceScalar = BALANCE_VAR(kAcidRocketForceScalar)*this->mDamage;
 	//AvHSUExplosiveForce(this->pev->origin, kAcidRocketRadius, theForceScalar, theAttacker);
 
 	// Explode with splash damage
-	RadiusDamage(this->pev->origin, this->pev, VARS(theRocketOwner), this->mDamage, BALANCE_IVAR(kAcidRocketRadius), CLASS_NONE, NS_DMG_ACID);
+	RadiusDamage(this->pev->origin, this->pev, VARS(theRocketOwner), this->mDamage, BALANCE_VAR(kAcidRocketRadius), CLASS_NONE, NS_DMG_ACID);
 
 	// Kill the Acid entity
 	UTIL_Remove(this);
@@ -140,7 +140,7 @@ void AvHAcidRocket::AcidRocketTouch(CBaseEntity* pOther)
 void AvHAcidRocketGun::Init()
 {
 	this->mRange = kAcidRocketRange;
-	this->mDamage = BALANCE_IVAR(kAcidRocketDamage);
+	this->mDamage = BALANCE_VAR(kAcidRocketDamage);
 }
 
 void AvHAcidRocketGun::FireProjectiles(void)
@@ -195,7 +195,7 @@ int	AvHAcidRocketGun::GetIdleAnimation() const
 
 float AvHAcidRocketGun::GetRateOfFire() const
 {
-    return BALANCE_FVAR(kAcidRocketROF);
+    return BALANCE_VAR(kAcidRocketROF);
 }
 
 int	AvHAcidRocketGun::GetDeployAnimation() const

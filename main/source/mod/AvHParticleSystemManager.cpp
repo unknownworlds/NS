@@ -32,11 +32,11 @@
   #include "cl_dll/cl_util.h"
 
   // Triangle rendering apis are in gEngfuncs.pTriAPI
-  #include "const.h"
-  #include "entity_state.h"
-  #include "cl_entity.h"
-  #include "triangleapi.h"
-  #include "particles/papi.h"
+  #include "common/const.h"
+  #include "common/entity_state.h"
+  #include "common/cl_entity.h"
+  #include "common/triangleapi.h"
+  #include <papi.h>
   #include "mod/AvHParticleTemplateClient.h"
   
 #else
@@ -205,7 +205,7 @@ AvHParticleSystemManager::GetParticleSystem(ParticleSystemHandle inHandle)
 int
 AvHParticleSystemManager::GetNumberParticleSystems()
 {
-	return this->mParticleSystemList.size();
+	return (int)this->mParticleSystemList.size();
 }
 
 #ifdef AVH_CLIENT

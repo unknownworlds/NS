@@ -39,10 +39,11 @@
 //===============================================================================
 #include "util/nowarnings.h"
 #include "mod/AvHEntityHierarchy.h"
+#include "mod/AvHNetworkMessages.h"
 
 #ifdef AVH_SERVER
-#include "extdll.h"
-#include "util.h"
+#include "dlls/extdll.h"
+#include "dlls/util.h"
 #include "mod/AvHPlayer.h"
 #include "mod/AvHTeam.h"
 #include "mod/AvHServerUtil.h"
@@ -54,11 +55,8 @@
 
 #ifdef AVH_CLIENT
 #include "cl_dll/chud.h"
-#include "cl_dll/parsemsg.h"
 #include "cl_dll/cl_util.h"
 #endif
-
-extern int gmsgUpdateEntityHierarchy;
 
 ////////////
 // Shared //
@@ -251,320 +249,73 @@ void AvHEntityHierarchy::BuildFromTeam(const AvHTeam* inTeam, BaseEntityListType
 // Returns true when something was sent
 bool AvHEntityHierarchy::SendToNetworkStream(AvHEntityHierarchy& inClientHierarchy, entvars_t* inPlayer)
 {
-
-	bool theDataSent = false;
-			
-	// This is calculated from the size of each entity sent (6 bytes), and the max network message size (around 192)
-	const int kMaxEntitiesToSend = 30;
-	bool theMessageStarted = false;
-
 	// Get iterators for both hierarchies
 
-	MapEntityMap::const_iterator clientIter; 
-	MapEntityMap::const_iterator serverIter;
-	
-	clientIter = inClientHierarchy.mEntityList.begin();
-	serverIter = mEntityList.begin();
+	MapEntityMap::const_iterator clientIter = inClientHierarchy.mEntityList.begin();
+	MapEntityMap::const_iterator clientEnd = inClientHierarchy.mEntityList.end();
+	MapEntityMap::const_iterator serverIter = mEntityList.begin();
+	MapEntityMap::const_iterator serverEnd = mEntityList.end();
 
-	int numSubMessagesSent = 0;
-	
-	while (clientIter != inClientHierarchy.mEntityList.end() && serverIter != mEntityList.end())
+	// Create maps for changes
+	MapEntityMap NewItems; //to be added or changed
+	EntityListType OldItems; //to be deleted
+	//TODO : replace OldItems with vector<int>
+
+	while (clientIter != clientEnd && serverIter != serverEnd)
 	{
-
-		MapEntity	theEntityInfo;
-		int			theEntityIndex	= 0;
-        bool        deleteFlag      = false;
-		bool		sendFlag		= false;
-
 		if (serverIter->first < clientIter->first)
 		{
-			
-			// Send add
-			theEntityIndex = serverIter->first;
-			theEntityInfo  = serverIter->second;
-			sendFlag       = true;
-		
+			NewItems.insert( *serverIter );
 			++serverIter;
-		
+			continue;
 		}
-		// If server entity index is greater, then send delete for client index
-		else if (serverIter->first > clientIter->first)
+		if (serverIter->first > clientIter->first)
 		{
-		
-			theEntityIndex = clientIter->first;
-            theEntityInfo  = clientIter->second;
-			sendFlag       = true;
-            deleteFlag     = true;
-
+			OldItems.push_back( clientIter->first );		
 			++clientIter;
-		
+			continue;
 		}
-		else	
-		{
-			if (clientIter->second != serverIter->second)
-			{	
-			
-				// Send update
-				theEntityIndex = serverIter->first;
-				theEntityInfo  = serverIter->second;
-				sendFlag       = true;
-
-			}
-
-			++serverIter;
-			++clientIter;
-		
+		if (clientIter->second != serverIter->second)
+		{	
+			NewItems.insert( *serverIter );			
 		}
 
-		if (sendFlag)
-		{
-
-			if (numSubMessagesSent == 0)
-			{
-				MESSAGE_BEGIN(MSG_ONE, gmsgUpdateEntityHierarchy, NULL, inPlayer);
-			}
-
-            WriteEntity(theEntityIndex, theEntityInfo, deleteFlag);
-            
-			++numSubMessagesSent;
-			theDataSent = true;
-
-			if (numSubMessagesSent == kMaxEntitiesToSend)
-			{
-				MESSAGE_END();
-				numSubMessagesSent = 0;
-			}
-
-		}
+		++serverIter;
+		++clientIter;
 	}
 
-    while (serverIter != mEntityList.end())
-    {
-        
-		// Send add
-     
-		if (numSubMessagesSent == 0)
-		{
-			MESSAGE_BEGIN(MSG_ONE, gmsgUpdateEntityHierarchy, NULL, inPlayer);
-		}
-
-        WriteEntity(serverIter->first, serverIter->second, false);
-
-        ++numSubMessagesSent;
-		theDataSent = true;
-
-		if (numSubMessagesSent == kMaxEntitiesToSend)
-		{
-			MESSAGE_END();
-			numSubMessagesSent = 0;
-		}
-        
-        ++serverIter;
-
-    }
-
-    while (clientIter != inClientHierarchy.mEntityList.end())
-    {
-        
-		// Send delete.
-
-		EntityInfo	theEntityInfo  = 0; // 0 entity info means delete.
-		int			theEntityIndex = clientIter->first;
-     
-		if (numSubMessagesSent == 0)
-		{
-			MESSAGE_BEGIN(MSG_ONE, gmsgUpdateEntityHierarchy, NULL, inPlayer);
-		}
-
-        WriteEntity(clientIter->first, clientIter->second, true);
-
-		++numSubMessagesSent;
-		theDataSent = true;
-
-		if (numSubMessagesSent == kMaxEntitiesToSend)
-		{
-			MESSAGE_END();
-			numSubMessagesSent = 0;
-		}
-        
-        ++clientIter;
-
-    }
-
-    if (numSubMessagesSent != 0)
+	while(serverIter != serverEnd)
 	{
-		MESSAGE_END();
+		NewItems.insert( *serverIter );
+        ++serverIter;
+    }
+
+	while(clientIter != clientEnd)
+	{
+		OldItems.push_back( clientIter->first );		
+		++clientIter;
 	}
 
-	return theDataSent;
-
+	NetMsg_UpdateEntityHierarchy( inPlayer, NewItems, OldItems );
+	return (!NewItems.empty() || !OldItems.empty());
 }
-
-
-void AvHEntityHierarchy::WriteEntity(int theEntityIndex, const MapEntity& theEntityInfo, bool deleteFlag)
-{
-
-    short s;
-    long  l;
-
-    if (deleteFlag)
-    {
-        l = 0;
-    }
-    else
-    {
-
-	    ASSERT(theEntityInfo.mUser3 < pow(2, kNumStatusBits));
-
-	    int theX = theEntityInfo.mX / kPositionNetworkConstant;
-	    int theY = theEntityInfo.mY / kPositionNetworkConstant;
-
-	    ASSERT(theX < pow(2, kNumPositionCoordinateBits));
-	    ASSERT(theY < pow(2, kNumPositionCoordinateBits));
-
-	    int px = theX << (kNumStatusBits + kNumPositionCoordinateBits + kNumTeamBits);
-	    int py = theY << (kNumStatusBits + kNumTeamBits);
-
-        ASSERT(theEntityInfo.mTeam < pow(2, kNumTeamBits));
-
-        l = px | py | (theEntityInfo.mTeam << kNumStatusBits) | theEntityInfo.mUser3;
-
-    }
-
-    if (theEntityInfo.mUser3 == AVH_USER3_MARINE_PLAYER ||
-	    theEntityInfo.mUser3 == AVH_USER3_COMMANDER_PLAYER  ||
-	    theEntityInfo.mUser3 == AVH_USER3_ALIEN_PLAYER1 ||
-	    theEntityInfo.mUser3 == AVH_USER3_ALIEN_PLAYER2 ||
-	    theEntityInfo.mUser3 == AVH_USER3_ALIEN_PLAYER3 ||
-	    theEntityInfo.mUser3 == AVH_USER3_ALIEN_PLAYER4 ||
-	    theEntityInfo.mUser3 == AVH_USER3_ALIEN_PLAYER5 ||
-	    theEntityInfo.mUser3 == AVH_USER3_ALIEN_EMBRYO)
-    {
-        
-        int i = theEntityIndex;
-        ASSERT(i > 0 && i <= 32);
-
-        int a = (WrapFloat(theEntityInfo.mAngle, 0, 360) / 360.0f) * 16;
-        ASSERT(a >= 0 && a < 16);
-
-        int h = theEntityInfo.mSquadNumber;
-        ASSERT(h >= 0 && h < 8);
-        
-        s = (h << 10) | (a << 6) | (i << 1) | 1;
-
-    }
-    else
-    {
-        s = (theEntityIndex << 1) | 0;
-    }
-
-    WRITE_LONG(l);
-    WRITE_SHORT(s);
-    
-
-}
-
 
 #endif
 ////////////////
 // end server //
 ////////////////
 
-////////////
-// Client //
-////////////
-#ifdef AVH_CLIENT
-
-void AvHEntityHierarchy::ReadEntity(int& outEntityIndex, MapEntity& outEntity, bool& outDeleteFlag)
+bool AvHEntityHierarchy::InsertEntity( const int inIndex, const MapEntity &inEntity )
 {
-
-    long  l = READ_LONG();
-    short s = READ_SHORT();
-
-    if (l == 0)
-    {
-        outDeleteFlag = true;
-    }
-    else
-    {
-        outDeleteFlag = false;
-        
-        outEntity.mX = ((l >> (kNumStatusBits + kNumPositionCoordinateBits + kNumTeamBits)) & kPositionCoordinateMask)*kPositionNetworkConstant;
-        outEntity.mY = ((l >> (kNumStatusBits + kNumTeamBits)) & kPositionCoordinateMask)*kPositionNetworkConstant;
-        outEntity.mUser3 = (AvHUser3)(l & kStatusMask);
-        outEntity.mTeam  = (AvHTeamNumber)((l >> kNumStatusBits) & kTeamMask);
-    
-    }
-
-    if (s & 0x1)
-    {
-        // Player.
-        outEntityIndex = (s >> 1) & 31;
-        outEntity.mAngle = ((s >> 6) & 15) * 360.0f / 16.0f;
-        outEntity.mSquadNumber = (s >> 10) & 7;
-    }
-    else
-    {
-        outEntityIndex = (s >> 1);
-        outEntity.mAngle = 0;
-        outEntity.mSquadNumber = 0;
-    }
-
+	this->mEntityList[inIndex] = inEntity;
+	return true;
 }
 
-
-int	AvHEntityHierarchy::ReceiveFromNetworkStream(int iSize, void *pbuf)
+bool AvHEntityHierarchy::DeleteEntity( const int inIndex )
 {
-
-	int theBytesRead = 0;
-	BEGIN_READ(pbuf, iSize);
-
-	while (theBytesRead < iSize)
-	{
-
-		ASSERT(iSize - theBytesRead >= 6);
-
-        int       theEntityIndex;
-        MapEntity theEntityInfo;
-        bool      deleteFlag;
-        
-        ReadEntity(theEntityIndex, theEntityInfo, deleteFlag);
-		theBytesRead += 6;
-        
-        if (deleteFlag)
-		{
-			// Delete the entity.
-
-			MapEntityMap::iterator entityIter = mEntityList.find(theEntityIndex);
-			//ASSERT(entityIter != mEntityList.end());
-			
-			if(entityIter == mEntityList.end())
-			{
-				char theErrorMessage[512];
-				sprintf(theErrorMessage, "ent %d can't be deleted", theEntityIndex);
-				CenterPrint(theErrorMessage);
-			}
-			else
-			{
-				mEntityList.erase(entityIter);
-			}
-		
-		}
-		else
-		{
-			// Add or update the entity.
-			mEntityList[theEntityIndex] = theEntityInfo;
-			//mEntityList.insert(MapEntityMap::value_type(theEntityIndex, theEntityInfo));
-		}
-
-	}
-
-	return theBytesRead;
-
+	MapEntityMap::iterator loc = this->mEntityList.find(inIndex);
+	if( loc == this->mEntityList.end() )
+	{ return false; }
+	this->mEntityList.erase(loc);
+	return true;
 }
-
-#endif
-////////////////
-// end client //
-////////////////
-

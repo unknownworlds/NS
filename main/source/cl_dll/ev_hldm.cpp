@@ -15,20 +15,20 @@
 //#include "hud.h"
 #include "mod/AvHHud.h"
 #include "cl_util.h"
-#include "const.h"
-#include "entity_state.h"
-#include "cl_entity.h"
-#include "entity_types.h"
-#include "usercmd.h"
-#include "pm_defs.h"
-#include "pm_materials.h"
+#include "common/const.h"
+#include "common/entity_state.h"
+#include "common/cl_entity.h"
+#include "common/entity_types.h"
+#include "common/usercmd.h"
+#include "pm_shared/pm_defs.h"
+#include "pm_shared/pm_materials.h"
 
 #include "eventscripts.h"
 #include "ev_hldm.h"
 
-#include "r_efx.h"
-#include "event_api.h"
-#include "event_args.h"
+#include "common/r_efx.h"
+#include "common/event_api.h"
+#include "common/event_args.h"
 #include "in_defs.h"
 #include "mod/AvHBasePlayerWeaponConstants.h"
 #include "mod/AvHMarineWeaponConstants.h"
@@ -39,7 +39,7 @@ static int tracerCount[ 32 ];
 extern AvHHud gHUD;
 
 #include "r_studioint.h"
-#include "com_model.h"
+#include "common/com_model.h"
 
 extern engine_studio_api_t IEngineStudio;
 
@@ -621,10 +621,10 @@ void EV_HLDM_FireBulletsPlayer( int idx, float *forward, float *right, float *up
 			case BULLET_PLAYER_BUCKSHOT:
 				if ( !tracer )
 				{
-					theSoundProbability = BALANCE_IVAR(kSGBulletsPerShot)/2;
+					theSoundProbability = BALANCE_VAR(kSGBulletsPerShot)/2;
 					EV_HLDM_PlayTextureSound( idx, &tr, vecSrc, vecEnd, iBulletType, theSoundProbability);
 
-					theSoundProbability = BALANCE_IVAR(kSGBulletsPerShot)/2;
+					theSoundProbability = BALANCE_VAR(kSGBulletsPerShot)/2;
 					EV_HLDM_DecalGunshot( &tr, iBulletType, theSoundProbability);
 
                     if(thePlayBulletHitEffect)

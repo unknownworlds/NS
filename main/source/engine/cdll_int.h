@@ -26,7 +26,7 @@
 extern "C" {
 #endif
 
-#include "const.h"
+#include "common/const.h"
 
 
 // this file is included by both the engine and the client-dll,

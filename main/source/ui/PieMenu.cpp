@@ -201,7 +201,7 @@ void PieMenu::Update(float theCurrentTime)
     this->mNodeList->Update(theCurrentTime);
 }
 
-void PieMenu::UpdateMenuFromTech(const AvHTechNodes& inMenuCosts, int inPurchaselevel)
+void PieMenu::UpdateMenuFromTech(const AvHTechTree& inMenuCosts, int inPurchaselevel)
 {
 	this->mNodeList->UpdateMenuFromTech(inMenuCosts, inPurchaselevel);
 }

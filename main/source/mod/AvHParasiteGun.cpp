@@ -88,7 +88,7 @@ extern int gParasiteStartEventID;
 void AvHParasiteGun::Init()
 {
 	this->mRange = kParasiteRange;
-	this->mDamage = BALANCE_IVAR(kParasiteDamage);
+	this->mDamage = BALANCE_VAR(kParasiteDamage);
 }
 
 int	AvHParasiteGun::GetBarrelLength() const
@@ -98,7 +98,7 @@ int	AvHParasiteGun::GetBarrelLength() const
 
 float AvHParasiteGun::GetRateOfFire() const
 {
-    return BALANCE_FVAR(kParasiteROF);
+    return BALANCE_VAR(kParasiteROF);
 }
 
 int AvHParasiteGun::GetDamageType() const

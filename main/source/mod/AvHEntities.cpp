@@ -220,13 +220,20 @@ const char*	AvHJoinTeamEntity::GetClientCommand()
 	const char* theCommand = "";
 
 	AvHTeamNumber theTeamNumber = this->GetTeamNumber();
-	if(theTeamNumber == TEAM_ONE)
+	switch(theTeamNumber)
 	{
+	case TEAM_ONE:
 		theCommand = kcJoinTeamOne;
-	}
-	else if(theTeamNumber == TEAM_TWO)
-	{
+		break;
+	case TEAM_TWO:
 		theCommand = kcJoinTeamTwo;
+		break;
+	case TEAM_THREE:
+		theCommand = kcJoinTeamThree;
+		break;
+	case TEAM_FOUR:
+		theCommand = kcJoinTeamFour;
+		break;
 	}
 
 	return theCommand; 
@@ -247,17 +254,17 @@ void AvHTeamStartEntity::Spawn(void)
 	AvHUser3 theUser3 = AVH_USER3_SPAWN_READYROOM;
 
 	AvHTeamNumber theTeamNumber = this->GetTeamNumber();
-	switch(theTeamNumber)
+	if( theTeamNumber == GetGameRules()->GetTeamA()->GetTeamNumber() )
 	{
-	case TEAM_ONE:
-		theUser3 = AVH_USER3_SPAWN_TEAMONE;
-		break;
-	case TEAM_TWO:
-		theUser3 = AVH_USER3_SPAWN_TEAMTWO;
-		break;
-	default:
+		theUser3 = AVH_USER3_SPAWN_TEAMA;
+	}
+	else if( theTeamNumber == GetGameRules()->GetTeamB()->GetTeamNumber() )
+	{
+		theUser3 = AVH_USER3_SPAWN_TEAMB;
+	}
+	else
+	{
 		ASSERT(false);
-		break;
 	}
 
 	this->pev->iuser3 = theUser3;
@@ -917,20 +924,20 @@ void AvHMapInfo::Spawn()
 
 AvHGameplay::AvHGameplay()
 {
-	this->mTeamOneType = AVH_CLASS_TYPE_UNDEFINED;
-	this->mTeamTwoType = AVH_CLASS_TYPE_UNDEFINED;
+	this->mTeamAType = AVH_CLASS_TYPE_UNDEFINED;
+	this->mTeamBType = AVH_CLASS_TYPE_UNDEFINED;
 	
 	this->mInitialHives = 1;
 }
 
-AvHClassType AvHGameplay::GetTeamOneType() const
+AvHClassType AvHGameplay::GetTeamAType() const
 {
-	return this->mTeamOneType;
+	return this->mTeamAType;
 }
 
-AvHClassType AvHGameplay::GetTeamTwoType() const
+AvHClassType AvHGameplay::GetTeamBType() const
 {
-	return this->mTeamTwoType;
+	return this->mTeamBType;
 }
 
 int	AvHGameplay::GetInitialHives() const
@@ -940,12 +947,12 @@ int	AvHGameplay::GetInitialHives() const
 
 int	AvHGameplay::GetInitialAlienPoints() const
 {
-	return BALANCE_IVAR(kNumInitialAlienPoints);
+	return BALANCE_VAR(kNumInitialAlienPoints);
 }
 
 int	AvHGameplay::GetInitialMarinePoints() const
 {
-	return BALANCE_IVAR(kNumInitialMarinePoints);
+	return BALANCE_VAR(kNumInitialMarinePoints);
 }
 
 int	AvHGameplay::GetAlienRespawnCost() const
@@ -961,7 +968,7 @@ int	AvHGameplay::GetMarineRespawnCost() const
 // Not used currently
 int	AvHGameplay::GetAlienRespawnTime() const
 {
-	float theTimeToRespawn = BALANCE_IVAR(kAlienRespawnTime);
+	float theTimeToRespawn = BALANCE_VAR(kAlienRespawnTime);
 
 	if(GetGameRules()->GetIsTesting() || GetGameRules()->GetCheatsEnabled())
 	{
@@ -973,12 +980,12 @@ int	AvHGameplay::GetAlienRespawnTime() const
 
 int	AvHGameplay::GetTowerInjectionTime() const
 {
-	return BALANCE_IVAR(kFuncResourceInjectionTime);
+	return BALANCE_VAR(kFuncResourceInjectionTime);
 }
 
 int	AvHGameplay::GetTowerInjectionAmount() const
 {
-	return BALANCE_IVAR(kFuncResourceInjectionAmount);
+	return BALANCE_VAR(kFuncResourceInjectionAmount);
 }
 
 
@@ -986,12 +993,12 @@ void AvHGameplay::KeyValue( KeyValueData* pkvd )
 {
 	if (FStrEq(pkvd->szKeyName, "teamone"))
 	{
-		this->mTeamOneType = (AvHClassType)(atoi(pkvd->szValue));
+		this->mTeamAType = (AvHClassType)(atoi(pkvd->szValue));
 		pkvd->fHandled = TRUE;
 	}
 	if (FStrEq(pkvd->szKeyName, "teamtwo"))
 	{
-		this->mTeamTwoType = (AvHClassType)(atoi(pkvd->szValue));
+		this->mTeamBType = (AvHClassType)(atoi(pkvd->szValue));
 		pkvd->fHandled = TRUE;
 	}
 	else
@@ -1003,27 +1010,10 @@ void AvHGameplay::KeyValue( KeyValueData* pkvd )
 void AvHGameplay::Reset()
 {
 	// This should have all the correct defaults (same as ns.fgd)
-	this->mTeamOneType = AVH_CLASS_TYPE_MARINE;
-	this->mTeamTwoType = AVH_CLASS_TYPE_ALIEN;
+	this->mTeamAType = AVH_CLASS_TYPE_MARINE;
+	this->mTeamBType = AVH_CLASS_TYPE_ALIEN;
 	
 	this->mInitialHives = 1;
-
-//	this->mHiveInjectionTime = (int)(avh_hiveinjectiontime.value);
-//	this->mHiveInjectionAmount = (int)(avh_hiveinjectionamount.value);
-//
-//	#ifndef AVH_MAPPER_BUILD
-//	this->mInitialAlienPoints = (int)(avh_initialalienpoints.value);
-//	this->mInitialMarinePoints = (int)(avh_initialmarinepoints.value);
-//	#else
-//	this->mInitialAlienPoints = 1000;
-//	this->mInitialMarinePoints = 1000;
-//	#endif
-//	
-//	this->mAlienRespawnCost = (int)(avh_alienrespawncost.value);
-//	this->mAlienRespawnTime = (int)(avh_alienrespawntime.value);
-//	
-//	this->mMarineResourceInjectionTime = (int)(avh_marineresourcetime.value);
-//	this->mMarineResourceInjectionAmount = (int)(avh_marineresourceamount.value);
 }
 
 // Should we even do this?
@@ -1186,8 +1176,8 @@ TriggerPresence::TriggerPresence()
 	this->mPlayersDontActivate = false;
 	this->mMonstersDontActivate = false;
 	this->mPushablesDontActivate = false;
-	this->mTeamOneOnly = false;
-	this->mTeamTwoOnly = false;
+	this->mTeamAOnly = false;
+	this->mTeamBOnly = false;
 	
 	this->mTimeOfLastTouch = -1;
 	this->mTimeBeforeLeave = .5f;
@@ -1308,11 +1298,11 @@ void TriggerPresence::Spawn(void)
 	}
 	if(this->pev->spawnflags & 8)
 	{
-		this->mTeamOneOnly = true;
+		this->mTeamAOnly = true;
 	}
 	if(this->pev->spawnflags & 16)
 	{
-		this->mTeamTwoOnly = true;
+		this->mTeamBOnly = true;
 	}
 	
 	// Don't start enabled if a master was specified
@@ -1377,11 +1367,11 @@ void TriggerPresence::TriggerTouch(CBaseEntity *pOther)
 		{
 			theTriggerFires = false;
 		}
-		if(this->mTeamOneOnly && (pOther->pev->team != 1))
+		if(this->mTeamAOnly && (pOther->pev->team != GetGameRules()->GetTeamA()->GetTeamNumber()))
 		{
 			theTriggerFires = false;
 		}
-		if(this->mTeamTwoOnly && (pOther->pev->team != 2))
+		if(this->mTeamBOnly && (pOther->pev->team != GetGameRules()->GetTeamB()->GetTeamNumber()))
 		{
 			theTriggerFires = false;
 		}
@@ -1821,13 +1811,13 @@ void AvHFuncResource::DrawUse(CBaseEntity* inActivator, CBaseEntity* inCaller, U
 		{
 			// Check interval.  It slows down as the gorge becomes full.  Automatically allows multiple gorges feeding off the same node to balance out (guy with less will hog node, then they should ping back and forth).
 			float thePlayerResources = thePlayer->GetResources();
-			float theDrawMinInterval = BALANCE_FVAR(kDrawMinInterval);
-			float theDrawMaxInterval = BALANCE_FVAR(kDrawMaxInterval);
+			float theDrawMinInterval = BALANCE_VAR(kDrawMinInterval);
+			float theDrawMaxInterval = BALANCE_VAR(kDrawMaxInterval);
 			float theDrawInterval = theDrawMinInterval + (theDrawMaxInterval - theDrawMinInterval)*(thePlayerResources/kMaxAlienResources);
 			if((this->mLastTimeDrawnUpon == -1) || (gpGlobals->time > (this->mLastTimeDrawnUpon + theDrawInterval)))
 			{
 				// Give gorge some resources
-				float theDrawAmount = BALANCE_FVAR(kDrawAmount);
+				float theDrawAmount = BALANCE_VAR(kDrawAmount);
 				thePlayer->SetResources(thePlayer->GetResources() + theDrawAmount);
 
 				// Play animation
@@ -2170,7 +2160,7 @@ char* AvHResourceTower::GetActiveSoundList() const
 
 int	AvHResourceTower::GetPointValue() const
 {
-	return BALANCE_IVAR(kScoringResourceTowerValue);
+	return BALANCE_VAR(kScoringResourceTowerValue);
 }
 
 void AvHResourceTower::SetTimeLastContributed(float inTime)
@@ -2204,10 +2194,6 @@ void AvHResourceTower::ResourceTowerThink(void)
 				{
 					gSoundListManager.PlaySoundInList(theSoundList, this, CHAN_BODY, .2f);
 					this->mTimeOfLastSound = gpGlobals->time;
-				}
-				else
-				{
-					int a = 0;
 				}
 			}
 		}
@@ -2319,7 +2305,7 @@ void AvHResourceTower::Spawn()
 
 	this->mTimeLastContributed = gpGlobals->time;
 
-	this->mActivateTime = BALANCE_IVAR(kResourceTowerActivateTime);
+	this->mActivateTime = BALANCE_VAR(kResourceTowerActivateTime);
 
 	//Claim ourselves a func_resource immediately and set it occupied
 	if(!this->mScannedForFuncResource && (this->mResourceEntityIndex <= 0))
@@ -2329,12 +2315,15 @@ void AvHResourceTower::Spawn()
 		
 		// Find nearest unoccupied func_resource and set the building's resource id
 		FOR_ALL_ENTITIES(kesFuncResource, AvHFuncResource*)
-		float theDistance = VectorDistance(theEntity->pev->origin, this->pev->origin);
-		if(theDistance < theNearestDistance)
-		{
-			theNearestDistance = theDistance;
-			theFuncResourceID = theEntity->entindex();
-		}
+			if(!theEntity->GetIsOccupied())
+			{
+				float theDistance = VectorDistance(theEntity->pev->origin, this->pev->origin);
+				if(theDistance < theNearestDistance)
+				{
+					theNearestDistance = theDistance;
+					theFuncResourceID = theEntity->entindex();
+				}
+			}
 		END_FOR_ALL_ENTITIES(kesFuncResource)
 			
 		if(theFuncResourceID != -1)

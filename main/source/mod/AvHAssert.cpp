@@ -25,9 +25,9 @@
 #include "util/Zassert.h"
 
 #ifdef AVH_SERVER
-#include "extdll.h"
+#include "dlls/extdll.h"
 #include "dlls/util.h"
-#include "cbase.h"
+#include "dlls/cbase.h"
 extern cvar_t avh_assert;
 #endif
 

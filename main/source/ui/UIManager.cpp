@@ -17,7 +17,7 @@
 //using vgui::Label;
 //extern CImageLabel *gTestLabel;
 
-extern vgui::BitmapTGA *vgui_LoadTGA( const char* pImageName );
+extern vgui::BitmapTGA *vgui_LoadTGA( const char* pImageName, bool bInvertAlpha = true);
 
 const int kTranslation = 1000;
 

@@ -29,11 +29,11 @@
 #include "common/triangleapi.h"
 #include "cl_dll/wrect.h"
 #include "cl_dll/cl_dll.h"
-#else
-  #include "extdll.h"
+#elif defined AVH_SERVER
+  #include "dlls/extdll.h"
 #endif
 
-#include "particles/p_vector.h"
+#include <p_vector.h>
 #include "mod/AvHParticleTemplate.h"
 
 typedef uint32 ParticleSystemHandle;

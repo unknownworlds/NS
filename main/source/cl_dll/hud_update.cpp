@@ -43,8 +43,6 @@ int CHud::UpdateClientData(client_data_t *cdata, float time)
 
 	cdata->fov = m_iFOV;
 	
-	v_idlescale = m_iConcussionEffect;
-
 	CL_ResetButtonBits( m_iKeyBits );
 
 	// return 1 if in anything in the client_data struct has been changed, 0 otherwise

@@ -62,7 +62,7 @@
 #include "mod/AvHMarineEquipmentConstants.h"
 #include "mod/AvHHulls.h"
 #include "mod/AvHConstants.h"
-#include "mod/AvHBalance.h"
+#include "util/Balance.h"
 #include "types.h"
 
 int AvHMUGetHull(bool inIsDucking, int inUserVar)
@@ -178,69 +178,69 @@ bool AvHMUGetEnergyCost(AvHWeaponID inWeaponID, float& outEnergyCost)
 	switch(inWeaponID)
 	{
 	case AVH_WEAPON_CLAWS:
-		theCost = (float)BALANCE_FVAR(kClawsEnergyCost);
+		theCost = (float)BALANCE_VAR(kClawsEnergyCost);
 		break;
 	case AVH_WEAPON_SPIT:
-		theCost = (float)BALANCE_FVAR(kSpitEnergyCost);
+		theCost = (float)BALANCE_VAR(kSpitEnergyCost);
 		break;
 	case AVH_WEAPON_SPORES:
-		theCost = (float)BALANCE_FVAR(kSporesEnergyCost);
+		theCost = (float)BALANCE_VAR(kSporesEnergyCost);
 		break;
 	case AVH_WEAPON_SPIKE:
-		theCost = (float)BALANCE_FVAR(kSpikeEnergyCost);
+		theCost = (float)BALANCE_VAR(kSpikeEnergyCost);
 		break;
 	case AVH_WEAPON_BITE:
-		theCost = (float)BALANCE_FVAR(kBiteEnergyCost);
+		theCost = (float)BALANCE_VAR(kBiteEnergyCost);
 		break;
     case AVH_WEAPON_BITE2:
-        theCost = (float)BALANCE_FVAR(kBite2EnergyCost);
+        theCost = (float)BALANCE_VAR(kBite2EnergyCost);
         break;
 	case AVH_WEAPON_SWIPE:
-		theCost = (float)BALANCE_FVAR(kSwipeEnergyCost);
+		theCost = (float)BALANCE_VAR(kSwipeEnergyCost);
 		break;
 	case AVH_WEAPON_BLINK:
-		theCost = (float)BALANCE_FVAR(kBlinkEnergyCost);
+		theCost = (float)BALANCE_VAR(kBlinkEnergyCost);
 		break;
 	case AVH_WEAPON_WEBSPINNER:
-		theCost = (float)BALANCE_FVAR(kWebEnergyCost);
+		theCost = (float)BALANCE_VAR(kWebEnergyCost);
 		break;
 	case AVH_WEAPON_PARASITE:
-		theCost = (float)BALANCE_FVAR(kParasiteEnergyCost);
+		theCost = (float)BALANCE_VAR(kParasiteEnergyCost);
 		break;
 	case AVH_WEAPON_DIVINEWIND:
-		theCost = (float)BALANCE_FVAR(kDivineWindEnergyCost);
+		theCost = (float)BALANCE_VAR(kDivineWindEnergyCost);
 		break;
 	case AVH_WEAPON_HEALINGSPRAY:
-		theCost = (float)BALANCE_FVAR(kHealingSprayEnergyCost);
+		theCost = (float)BALANCE_VAR(kHealingSprayEnergyCost);
 		break;
 	case AVH_WEAPON_METABOLIZE:
-		theCost = (float)BALANCE_FVAR(kMetabolizeEnergyCost);
+		theCost = (float)BALANCE_VAR(kMetabolizeEnergyCost);
 		break;
 	case AVH_WEAPON_UMBRA:
-		theCost = (float)BALANCE_FVAR(kUmbraEnergyCost);
+		theCost = (float)BALANCE_VAR(kUmbraEnergyCost);
 		break;
 	case AVH_WEAPON_PRIMALSCREAM:
-		theCost = (float)BALANCE_FVAR(kPrimalScreamEnergyCost);
+		theCost = (float)BALANCE_VAR(kPrimalScreamEnergyCost);
 		break;
 	case AVH_WEAPON_BILEBOMB:
-		theCost = (float)BALANCE_FVAR(kBileBombEnergyCost);
+		theCost = (float)BALANCE_VAR(kBileBombEnergyCost);
 		break;
 	case AVH_WEAPON_ACIDROCKET:
-		theCost = (float)BALANCE_FVAR(kAcidRocketEnergyCost);
+		theCost = (float)BALANCE_VAR(kAcidRocketEnergyCost);
 		break;
 	case AVH_WEAPON_STOMP:
-		theCost = (float)BALANCE_FVAR(kStompEnergyCost);
+		theCost = (float)BALANCE_VAR(kStompEnergyCost);
 		break;
 	case AVH_WEAPON_DEVOUR:
-		theCost = (float)BALANCE_FVAR(kDevourEnergyCost);
+		theCost = (float)BALANCE_VAR(kDevourEnergyCost);
 		break;
 
 	// Abilities
 	case AVH_ABILITY_LEAP:
-		theCost = (float)BALANCE_FVAR(kLeapEnergyCost);
+		theCost = (float)BALANCE_VAR(kLeapEnergyCost);
 		break;
 	case AVH_ABILITY_CHARGE:
-		theCost = (float)BALANCE_FVAR(kChargeEnergyCost);
+		theCost = (float)BALANCE_VAR(kChargeEnergyCost);
 		break;
 
 	}
@@ -309,32 +309,19 @@ void AvHMUUpdateAlienEnergy(float inTimePassed, int inUser3, int inUser4, float&
 		if(!GetHasUpgrade(inUser4, MASK_PLAYER_STUNNED))
 		{
 			// Percentage (0-1) per second
-			float theAlienEnergyRate = (float)BALANCE_FVAR(kAlienEnergyRate);
+			float theAlienEnergyRate = (float)BALANCE_VAR(kAlienEnergyRate);
 			//float kFadeChargingDeplectionRate = -2.8f*kAlienEnergyRate;
-			float kChargingDepletionRate = -BALANCE_FVAR(kChargingEnergyScalar)*theAlienEnergyRate;
+			float kChargingDepletionRate = -BALANCE_VAR(kChargingEnergyScalar)*theAlienEnergyRate;
 
-			const float kMultiplier = GetHasUpgrade(inUser4, MASK_BUFFED) ? (1.0f + BALANCE_FVAR(kPrimalScreamEnergyFactor)) : 1.0f;
-			if(kMultiplier > 1.0f)
-			{
-				int a = 0;
-			}
+			const float kMultiplier = GetHasUpgrade(inUser4, MASK_BUFFED) ? (1.0f + BALANCE_VAR(kPrimalScreamEnergyFactor)) : 1.0f;
 			float theEnergyRate = theAlienEnergyRate*kMultiplier;
-
-			//if(inUser3 == AVH_USER3_ALIEN_PLAYER5)
-			//{
-			//	kAlienEnergyRate *= .6f;
-			//}
-			//else if(inUser3 == AVH_USER3_ALIEN_PLAYER1)
-			//{
-			//	kAlienEnergyRate *= 1.5f;
-			//}
 
 			float theUpgradeFactor = 1.0f;
 			int theNumLevels = AvHGetAlienUpgradeLevel(inUser4, MASK_UPGRADE_5);
 			if(theNumLevels > 0)
 			{
 
-				theUpgradeFactor += theNumLevels*BALANCE_FVAR(kAdrenalineEnergyPercentPerLevel);
+				theUpgradeFactor += theNumLevels*BALANCE_VAR(kAdrenalineEnergyPercentPerLevel);
 			}
 
 			float theCurrentEnergy = ioFuser/kNormalizationNetworkFactor;

@@ -47,7 +47,7 @@ BOOL AvHDevour::CanHolster(void)
 
 void AvHDevour::Init()
 {
-	this->mRange = BALANCE_IVAR(kDevourRange);
+	this->mRange = BALANCE_VAR(kDevourRange);
 }
 
 int	AvHDevour::GetBarrelLength() const
@@ -57,7 +57,7 @@ int	AvHDevour::GetBarrelLength() const
 
 float AvHDevour::GetRateOfFire() const
 {
-	return BALANCE_FVAR(kDevourROF);
+	return BALANCE_VAR(kDevourROF);
 }
 
 int	AvHDevour::GetDeployAnimation() const
@@ -100,10 +100,6 @@ bool AvHDevour::GetIsCapableOfFiring() const
     if(!GetHasUpgrade(this->m_pPlayer->pev->iuser4, MASK_DIGESTING))
 	{
 		theIsCapableOfFiring = true;
-	}
-	else
-	{
-		int a = 0;
 	}
 
 	return theIsCapableOfFiring;

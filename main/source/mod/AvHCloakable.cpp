@@ -1,7 +1,7 @@
 #include "mod/AvHCloakable.h"
 #include "dlls/extdll.h"
 #include "dlls/util.h"
-#include "mod/AvHBalance.h"
+#include "util/Balance.h"
 
 AvHCloakable::AvHCloakable()
 {
@@ -33,7 +33,7 @@ bool AvHCloakable::GetCanCloak() const
 
 float AvHCloakable::GetCloakTime() const
 {
-	return BALANCE_FVAR(kCloakTime);
+	return BALANCE_VAR(kCloakTime);
 }
 
 bool AvHCloakable::GetIsCloaked() const
@@ -48,7 +48,7 @@ bool AvHCloakable::GetIsPartiallyCloaked() const
 
 float AvHCloakable::GetUncloakTime() const
 {
-	return BALANCE_FVAR(kUncloakTime);
+	return BALANCE_VAR(kUncloakTime);
 }
 
 void AvHCloakable::ResetCloaking()
@@ -108,7 +108,7 @@ void AvHCloakable::SetSpeeds(float inCurrentSpeed, float inMaxSpeed, float inMax
 void AvHCloakable::Cloak(bool inNoFade)
 {
 	// puzl: 864
-	if ( (this->GetTime() > this->mTimeOfLastUncloak + BALANCE_FVAR(kRecloakTime)) || inNoFade ) {
+	if ( (this->GetTime() > this->mTimeOfLastUncloak + BALANCE_VAR(kRecloakTime)) || inNoFade ) {
 		if(this->GetCanCloak())
 		{
 			this->mTimeOfLastCloak = this->GetTime();

@@ -15,15 +15,15 @@
 // shared event functions
 #include "hud.h"
 #include "cl_util.h"
-#include "const.h"
-#include "entity_state.h"
-#include "cl_entity.h"
+#include "common/const.h"
+#include "common/entity_state.h"
+#include "common/cl_entity.h"
 
-#include "r_efx.h"
+#include "common/r_efx.h"
 
 #include "eventscripts.h"
-#include "event_api.h"
-#include "pm_shared.h"
+#include "common/event_api.h"
+#include "pm_shared/pm_shared.h"
 
 #define IS_FIRSTPERSON_SPEC ( g_iUser1 == OBS_IN_EYE)
 /*

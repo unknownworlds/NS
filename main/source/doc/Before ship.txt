@@ -1,7 +1,0 @@
-Stuff to do before ship
-- Publically thank Groove Radio and Tag's Trance Trip
-- Make sure it works with the retail version of Counter-strike, and mention this publically
-- Get server ops to run the forums, they will be swamped (the Opera forums went totally nuts)
-- Put link on page that shows how many servers are up and how people are playing
-- Contact United Devices about integrating tech into server code
-

@@ -106,10 +106,6 @@ public:
 
 	bool			ProcessRankChange(AvHPlayer* inPlayer, AvHUser3 inOldUser3, AvHUser3 inNewUser3);
 
-	#ifdef AVH_PLAYTEST_BUILD
-	void			BalanceChanged();
-	#endif
-
 	bool			GetIsReady() const;
 	void			SetIsReady(bool bIsReady = true);
 
@@ -170,8 +166,8 @@ public:
 	// Tech nodes for team
 	void			InitializeTechNodes();
 
-	const AvHTechNodes&	GetTechNodes() const;
-	AvHTechNodes&		GetTechNodes();
+	const AvHTechTree&	GetTechNodes() const;
+	AvHTechTree&		GetTechNodes();
 
 	const AvHTechSlotManager& GetTechSlotManager() const;
 	AvHTechSlotManager& GetTechSlotManager();

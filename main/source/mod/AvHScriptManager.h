@@ -19,24 +19,11 @@
 #ifndef AVH_SCRIPTMANAGER_H
 #define AVH_SCRIPTMANAGER_H
 
-extern "C"
-{
-#include "lua/include/lua.h"
-#include "lua/include/lualib.h"
-}
-
 #include "util/nowarnings.h"
 #include "util/Checksum.h"
 #include "util/STLUtil.h"
 
-//#ifdef AVH_CLIENT
-//#include "cl_dll/hud.h"
-//#include "cl_dll/cl_util.h"
-//#include "cl_dll/camera.h"
-//#include "cl_dll/kbutton.h"
-//#include "cvardef.h"
-//#include "common/usercmd.h"
-//#endif
+extern "C" struct lua_State;
 
 class AvHScriptInstance
 {

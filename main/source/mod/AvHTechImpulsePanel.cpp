@@ -69,7 +69,7 @@ void AvHTechImpulsePanel::paint()
 
 		char theNumberString[5];
 		sprintf(theNumberString, "%d", this->mVisualNumber);
-		int theLength = strlen(theNumberString);
+		int theLength = (int)strlen(theNumberString);
 		
 		int theTextWidth, theTextHeight;
 		this->GetTextExtents(theTextWidth, theTextHeight);

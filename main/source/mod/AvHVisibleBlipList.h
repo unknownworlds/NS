@@ -35,9 +35,8 @@
 
 #ifdef AVH_CLIENT
 #include "cl_dll/util_vector.h"
-#include "particles/p_vector.h"
 #include "mod/AvHBlipConstants.h"
-//#include "cl_dll/hud.h"
+#include <p_vector.h>
 #endif
 
 const int	kMaxBlips = 64;
@@ -48,6 +47,7 @@ public:
 				AvHVisibleBlipList();
 
 	void		AddBlip(float inX, float inY, float inZ, int8 inStatus = 0, int8 inBlipInfo = 0);
+	void		AddBlipList(const AvHVisibleBlipList& other);
 
 	void		Clear();
 

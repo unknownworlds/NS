@@ -7,24 +7,23 @@
 
 #include "hud.h"
 #include "cl_util.h"
-#include "cl_entity.h"
-#include "triangleapi.h"
+#include "common/cl_entity.h"
+#include "common/triangleapi.h"
 #include "vgui_TeamFortressViewport.h"
 #include "vgui_SpectatorPanel.h"
-#include "hltv.h"
+#include "common/hltv.h"
 
-#include "pm_shared.h"
-#include "pm_defs.h"
-#include "pmtrace.h"
-#include "parsemsg.h"
-#include "entity_types.h"
+#include "pm_shared/pm_shared.h"
+#include "pm_shared/pm_defs.h"
+#include "common/pmtrace.h"
+#include "common/entity_types.h"
 
 // these are included for the math functions
-#include "com_model.h"
-#include "demo_api.h"
-#include "event_api.h"
+#include "common/com_model.h"
+#include "common/demo_api.h"
+#include "common/event_api.h"
 #include "studio_util.h"
-#include "screenfade.h"
+#include "common/screenfade.h"
 #include "util/STLUtil.h"
 #include "mod/AvHTitles.h"
 #include "mod/AvHSprites.h"
@@ -257,7 +256,7 @@ int UTIL_FindEntityInMap(char * name, float * origin, float * angle)
 			strcpy (keyname, token);
 
 			// another hack to fix keynames with trailing spaces
-			n = strlen(keyname);
+			n = (int)strlen(keyname);
 			while (n && keyname[n-1] == ' ')
 			{
 				keyname[n-1] = 0;
@@ -626,7 +625,7 @@ void CHudSpectator::DrawOverviewMap()
 
 }
 
-
+#include "parsemsg.h"
 void CHudSpectator::DirectorMessage( int iSize, void *pbuf )
 {
 	float	value;
@@ -663,7 +662,6 @@ void CHudSpectator::DirectorMessage( int iSize, void *pbuf )
 								g_iUser3 = m_lastSecondaryObject;
 							}
 
-							// gEngfuncs.Con_Printf("Director Camera: %i %i\n", firstObject, secondObject);
 							break;
 
 		case DRC_CMD_MODE  :
@@ -729,7 +727,6 @@ void CHudSpectator::DirectorMessage( int iSize, void *pbuf )
 							string = READ_STRING();
 							value =  READ_FLOAT();
 							
-							// gEngfuncs.Con_Printf("DRC_CMD_FX_SOUND: %s %.2f\n", string, value );
 							gEngfuncs.pEventAPI->EV_PlaySound(0, v_origin, CHAN_BODY, string, value, ATTN_NORM, 0, PITCH_NORM );
 							
 							break;
@@ -755,24 +752,6 @@ void CHudSpectator::DirectorMessage( int iSize, void *pbuf )
 							break;
 
 		case DRC_CMD_FADE:		
-							/*{
-								screenfade_t sf;
-								
-								sf.fader = 255;
-								sf.fadeg = 0;
-								sf.fadeb = 0;
-								sf.fadealpha = 128;
-								sf.fadeFlags = FFADE_STAYOUT | FFADE_OUT;
-
-								// gHUD.m_flTime = cl.time
-				
-								stream->ReadFloat();	// 	duration
-								sf.stream->ReadFloat();	//	holdTime
-								sf.fadeFlags = READ_SHORT();	//	flags
-								stream->ReadLong();	// color	RGB
-
-								CallEnghudSetScreenFade( &sf );
-							}*/
 							break;
 
 		case DRC_CMD_STUFFTEXT:

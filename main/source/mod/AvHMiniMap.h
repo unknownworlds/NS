@@ -3,25 +3,17 @@
 
 #include "types.h"
 
-#ifdef AVH_SERVER
-#include "mod/AvHPlayer.h"
-#endif
-
 #ifdef AVH_CLIENT
-#include "utils/sprgen/spritegn.h"
 #include "cl_dll/hud.h"
-#include "common/const.h"
-#include "common/entity_state.h"
-#include "common/cl_entity.h"
 #endif
 
 #include "mod/AvHMapExtents.h"
 
-const int kMaxScreenWidth = 1600;
-const int kMaxScreenHeight = 1200;
 const int kSpriteWidth = 512;
 const int kSpriteHeight = 512;
 const int kSpriteDataPixels = kSpriteWidth*kSpriteHeight;
+
+class AvHPlayer;
 
 class AvHMiniMap
 {
@@ -38,7 +30,7 @@ public:
 
 	#ifdef AVH_CLIENT
 	static string	GetSpriteNameFromMap(int inSpriteWidth, const string& inMapName);
-	int				ReceiveFromNetworkStream();
+	int				ReceiveFromNetworkStream(void* const buffer, const int size);
 	bool			WriteSpritesIfJustFinished();
 	#endif
 
@@ -80,7 +72,6 @@ private:
 
 	#ifdef AVH_CLIENT
 	// Sprite stuff
-	dsprite_t		sprite;
 	byte*			byteimage;
 	byte*			lbmpalette;
 	int				byteimagewidth;

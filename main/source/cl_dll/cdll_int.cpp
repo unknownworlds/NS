@@ -20,14 +20,11 @@
 
 #include "hud.h"
 #include "cl_util.h"
-#include "netadr.h"
+#include "common/netadr.h"
 #include "vgui_schememanager.h"
-#include "particles/papi.h"
+#include <papi.h>
 
-//extern "C"
-//{
-#include "pm_shared.h"
-//}
+#include "pm_shared/pm_shared.h"
 
 #include <string.h>
 #include "hud_servers.h"
@@ -36,8 +33,8 @@
 #include "mod\AvHUIFactory.h"
 #include "mod\AvHParticleSystemManager.h"
 #include "mod\AvHHulls.h"
-#include "interface.h"
-#include "ITrackerUser.h"
+#include "common/interface.h"
+#include "common/ITrackerUser.h"
 
 #include "engine/APIProxy.h"
 #include "cl_dll/Exports.h"
@@ -383,7 +380,7 @@ void CL_DLLEXPORT HUD_DirectorMessage( int iSize, void *pbuf )
 
 
 
-#if defined( FINAL_VAC_BUILD )
+#ifdef FINAL_VAC_BUILD
 
 cldll_func_dst_t *g_pcldstAddrs;
 

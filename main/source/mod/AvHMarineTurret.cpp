@@ -82,7 +82,7 @@ void AvHMarineTurret::CheckEnabledState()
 				float the2DDistance = VectorDistance2D(this->pev->origin, theEntity->pev->origin);
 
 				// Enabled state is true
-				if(the2DDistance <= BALANCE_IVAR(kTurretFactoryBuildDistance))
+				if(the2DDistance <= BALANCE_VAR(kTurretFactoryBuildDistance))
 				{
 					theEnabledState = true;
 					break;
@@ -99,7 +99,7 @@ void AvHMarineTurret::CheckEnabledState()
 				float the2DDistance = VectorDistance2D(this->pev->origin, theEntity->pev->origin);
 				
 				// Enabled state is true
-				if(the2DDistance <= BALANCE_IVAR(kTurretFactoryBuildDistance))
+				if(the2DDistance <= BALANCE_VAR(kTurretFactoryBuildDistance))
 				{
 					theEnabledState = true;
 					break;
@@ -195,7 +195,7 @@ char* AvHMarineTurret::GetPingSound() const
 
 int	AvHMarineTurret::GetXYRange() const
 {
-	return BALANCE_IVAR(kTurretRange);
+	return BALANCE_VAR(kTurretRange);
 }
 
 void AvHMarineTurret::Precache()
@@ -241,9 +241,9 @@ void AvHMarineTurret::Shoot(const Vector &inOrigin, const Vector &inToEnemy, con
 
 	float theDamageModifier;
 	int theTracerFreq;
-	int theUpgradeLevel = AvHPlayerUpgrade::GetWeaponUpgrade(this->pev->iuser3, /*theTeam->GetTeamWideUpgrades()*/this->pev->iuser4, &theDamageModifier, &theTracerFreq);
+	int theUpgradeLevel = AvHPlayerUpgrade::GetWeaponUpgrade(this->pev->iuser3, this->pev->iuser4, &theDamageModifier, &theTracerFreq);
 
-	float theDamage = (float)BALANCE_IVAR(kSentryDamage)*theDamageModifier;		
+	float theDamage = (float)BALANCE_VAR(kSentryDamage)*theDamageModifier;		
 
 	int theDamageType = this->GetDamageType();
 	Vector theDirToEnemy = inToEnemy.Normalize();
@@ -253,9 +253,9 @@ void AvHMarineTurret::Shoot(const Vector &inOrigin, const Vector &inToEnemy, con
 	
 	switch(theUpgradeLevel)
 	{
-	case 1:	theSoundToPlay = kTurretFire2;break;
-	case 2:theSoundToPlay = kTurretFire3;break;
-	case 3:theSoundToPlay = kTurretFire4;break;
+	case 1:	theSoundToPlay = kTurretFire2;	break;
+	case 2:	theSoundToPlay = kTurretFire3;	break;
+	case 3:	theSoundToPlay = kTurretFire4;	break;
 	}
 	
 	int thePitch = RANDOM_LONG(50, 150);

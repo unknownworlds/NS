@@ -24,7 +24,7 @@
 
 #include "types.h"
 #include "mod/AvHMessage.h"
-#include "mod/AvHTechNodes.h"
+#include "mod/AvHTechTree.h"
 
 class AvHResearchNode
 {
@@ -52,12 +52,8 @@ class AvHResearchManager
 public:
 	void				AddTechNode(AvHMessageID inMessageID, AvHTechID inTechID, AvHTechID inPrereq1, AvHTechID inPrereq2, int inPointCost, int inBuildTime, bool inResearched, bool inAllowMultiples);
 
-	#ifdef AVH_PLAYTEST_BUILD
-	void				BalanceChanged();
-	#endif
-
-	const AvHTechNodes&	GetTechNodes() const;
-	AvHTechNodes&		GetTechNodes();
+	const AvHTechTree&	GetTechNodes() const;
+	AvHTechTree&		GetTechNodes();
 
 	bool				GetResearchInfo(AvHMessageID inTech, bool& outIsResearchable, int& outCost, float& outTime) const;
 
@@ -70,7 +66,7 @@ public:
 
 	bool				GetIsMessageAvailable(AvHMessageID& inMessageID) const;
 
-	TechNodeListType	GetResearchNodesDependentOn(AvHTechID inTechID) const;
+	TechNodeMap			GetResearchNodesDependentOn(AvHTechID inTechID) const;
 
 	bool				GetIsResearchingTech(AvHMessageID inMessageID) const;
 
@@ -86,7 +82,7 @@ private:
 	bool				SetResearchDone(AvHMessageID inTech, int inEntityIndex);
 
 	ResearchListType	mResearchingTech;
-	AvHTechNodes		mTechNodes;
+	AvHTechTree			mTechNodes;
 	AvHTeamNumber		mTeamNumber;
 	
 };

@@ -9,7 +9,7 @@
 #define SPECTATOR_H
 #pragma once
 
-#include "cl_entity.h"
+#include "common/cl_entity.h"
 
 // Removed by mmcguire.
 /*

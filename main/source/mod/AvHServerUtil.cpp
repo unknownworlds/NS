@@ -141,17 +141,6 @@ extern int	gDistressBeaconEventID;
 extern int	gUmbraCloudEventID;
 extern AvHParticleTemplateListServer	gParticleTemplateList;
 
-extern const char* kSteamIDLocal;
-extern const char* kSteamIDBot;
-extern const char* kSteamIDInvalidID;
-
-//void VectorMA (const float *veca, float scale, const float *vecb, float *vecc)
-//{
-//	vecc[0] = veca[0] + scale*vecb[0];
-//	vecc[1] = veca[1] + scale*vecb[1];
-//	vecc[2] = veca[2] + scale*vecb[2];
-//}
-
 extern int gPhaseInEventID;
 extern AvHSoundListManager				gSoundListManager;
 
@@ -169,20 +158,10 @@ unsigned int AvHSUTimeGetTime()
 	/* Read the system uptime and accumulated idle time from /proc/uptime. We're disregarding theIdleTime  */
 	theFilePointer = fopen ("/proc/uptime", "r");
 	
-	//char theString[512];
-	//sprintf(theString, "/proc/uptime opened\n");
-	//ALERT(at_logged, theString);
-
 	if(fscanf(theFilePointer, "%lf %lf\n", &theUpTime, &theIdleTime) == 2)
 	{
-		//sprintf(theString, "/proc/uptime read %f, %f\n", theUpTime, theIdleTime);
-		//ALERT(at_logged, theString);
-		
 		/* uptime is in seconds... we want milliseconds */
 		theTime = (unsigned int)(theUpTime*1000);
-
-		//sprintf(theString, "AvHSUTimeGetTimeReturning %d\n", theTime);
-		//ALERT(at_logged, theString);
 	}
 	
 	fclose (theFilePointer);
@@ -193,94 +172,16 @@ unsigned int AvHSUTimeGetTime()
 
 int AvHSUCalcCombatSpawnWaveSize(int inNumPlayersOnTeam, int inNumDeadPlayers)
 {
-	int theSpawnWaveSize = min(inNumDeadPlayers, BALANCE_IVAR(kCombatMaxPlayersPerWave));
-
-	//// Always spawn players back in a wave when possible
-	//if(theNumPlayersOnTeam > 1)
-	//{
-	//	theSpawnWaveSize = 2 + BALANCE_FVAR(kCombatMaxPercentPlayersPerWave)*theNumPlayersOnTeam;
-	//	theSpawnWaveSize = max(BALANCE_FVAR(kCombatMaxPercentPlayersPerWave)*theNumPlayersOnTeam, 2);
-	//}
-
+	int theSpawnWaveSize = min(inNumDeadPlayers, BALANCE_VAR(kCombatMaxPlayersPerWave));
 	return theSpawnWaveSize;
 }
 
 float AvHSUCalcCombatSpawnTime(AvHClassType inClassType, int inNumPlayersOnTeam, int inNumDeadPlayers, int inPlayersSpentLevel)
 {
-    //const int kMaxSpentLevels = 9;
-
-    //thePlayersSpentLevel = min(thePlayersSpentLevel, kMaxSpentLevels);
-    
-    //float theMinimumWait = theNumPlayersOnTeam*(BALANCE_FVAR(kReinforcementMinimumWaitScalar) + (float)thePlayersSpentLevel*BALANCE_FVAR(kReinforcementMinimumWaitLevelScalar));
-    
-    //const int kMaxTeamSize = 16;
-    //int theCombatRespawnScalar = BALANCE_IVAR(kCombatRespawnScalar);
-    // Don't respawn players that just died, make them wait a bit longer so not everyone comes back together.  Respawn higher level players longer, but scale it to number of players in game.
-    // Target numbers: 
-    //  1v1 should go from 1 to 10 (+kCombatWaveRespawnTime/2) (2.5 - 11.5)
-    //  16v16 should go from 1 to 30 (+kCombatWaveRespawnTime/2) (2.5 - 31.5)
-    // 1v1 : 0 -> 1.125 -> 
-    //float theSpawnTime = (1.0f + (1.0f + (theNumPlayersOnTeam/(float)kMaxTeamSize)*2.0f)*(thePlayersSpentLevel/(float)kMaxSpentLevels))*theCombatRespawnScalar;
-
-    //int theMaxTeamSize = kMaxPlayers/2;
-    //const int kThresholdPlayers = BALANCE_IVAR(kCombatThresholdTeamSize);
-    //int thePlayersToTakeInAccount = max(theNumPlayersOnTeam - kThresholdPlayers, 0);
-    //
-    //// Reduce spawn times for bigger games, but only at team sizes above kThresholdPlayers
-    //float theSpawnTime = BALANCE_IVAR(kCombatBaseRespawnTime) - (thePlayersToTakeInAccount/(float)(theMaxTeamSize - kThresholdPlayers))*BALANCE_IVAR(kCombatThresholdRespawnTime);
-
 	int theWaveSize = AvHSUCalcCombatSpawnWaveSize(inNumPlayersOnTeam, inNumDeadPlayers);
-	float theSpawnTime = BALANCE_IVAR(kCombatBaseRespawnTime) + max((theWaveSize-1), 0)*BALANCE_FVAR(kCombatAdditiveRespawnTime);
-    
+	float theSpawnTime = BALANCE_VAR(kCombatBaseRespawnTime) + max((theWaveSize-1), 0)*BALANCE_VAR(kCombatAdditiveRespawnTime);
     return theSpawnTime;
 }
-
-//float AvHSUCalculateDamageLessArmor(entvars_t *inVictim, float flDamage, int bitsDamageType, BOOL inIsMultiplayer)
-//{
-//	// if we're alien, if we have the armor upgrade, we take less damage off the top
-//	if(AvHGetIsAlien(inVictim->iuser3))
-//	{
-//		int theArmorUpgradeLevel = AvHGetAlienUpgradeLevel(inVictim->iuser4, MASK_UPGRADE_1);
-//		if((theArmorUpgradeLevel > 0) && ((int)(inVictim->armorvalue) > 0))
-//		{
-//			float thePercentageOffTop = .1f*theArmorUpgradeLevel;
-//			flDamage -= flDamage*thePercentageOffTop; 
-//		}
-//	}
-//
-//	AvHUser3 theUser3 = AvHUser3(inVictim->iuser3);
-//
-//	float flRatio = AvHPlayerUpgrade::GetArmorRatio(theUser3, inVictim->iuser4);
-//	float flBonus = AvHPlayerUpgrade::GetArmorBonus(inVictim->iuser4);
-//
-//	// Level 1 aliens don't take falling damage, ever
-//	if((inVictim->iuser3 == AVH_USER3_ALIEN_PLAYER1) && (bitsDamageType & DMG_FALL))
-//	{
-//		flDamage = 0.0f;
-//	}
-//	
-//	// Armor. 
-//	if (inVictim->armorvalue && !(bitsDamageType & (DMG_FALL | DMG_DROWN)) )// armor doesn't protect against fall or drown damage!
-//	{
-//		float flNew = flDamage*flRatio;
-//		float flArmor = (flDamage - flNew)*flBonus;
-//		
-//		// Does this use more armor than we have?
-//		if (flArmor > inVictim->armorvalue)
-//		{
-//			flArmor = inVictim->armorvalue;
-//			flArmor *= (1/flBonus);
-//			flNew = flDamage - flArmor;
-//			inVictim->armorvalue = 0;
-//		}
-//		else
-//			inVictim->armorvalue -= flArmor;
-//		
-//		flDamage = flNew;
-//	}
-//	
-//	return flDamage;
-//}
 
 char* AvHSUGetGameVersionString()
 {
@@ -288,15 +189,8 @@ char* AvHSUGetGameVersionString()
 
     string theGameVersionString;
     
-    theGameVersionString = "v"	+ MakeStringFromInt(BALANCE_IVAR(kGameVersionMajor)) 
-								+ "." + MakeStringFromInt(BALANCE_IVAR(kGameVersionMinor))
-								+ "." + MakeStringFromInt(BALANCE_IVAR(kGameVersionRevision));
+    theGameVersionString = "v"	+ MakeStringFromInt(BALANCE_VAR(kGameVersionMajor)) + "." + MakeStringFromInt(BALANCE_VAR(kGameVersionMinor))	+ "." + MakeStringFromInt(BALANCE_VAR(kGameVersionRevision));
     
-    // Add letter on for beta builds
-    //#ifdef AVH_SECURE_PRERELEASE_BUILD
-    //theGameVersionString += " beta 6";
-    //#endif
-
     //memset(theGameVersion, 0, 1024);
     strcpy(theGameVersion, theGameVersionString.c_str());
     
@@ -346,49 +240,6 @@ const char* AvHSUGetTeamName(int inTeamNumber)
 
 	return theTeamName;
 }
-
-// Steam IDs
-const char* kSteamIDPending = "STEAM_ID_PENDING";
-const char* kSteamIDLocal = "STEAM_ID_LOOPBACK";
-const char* kSteamIDBot = "BOT";
-const char* kSteamIDInvalidID = "-1";
-const char* kSteamIDDefault = "STEAM_0:0:0";
-const char* kSteamIDPrefix = "STEAM_";
-
-#ifndef USE_UPP
-bool AvHSUGetIsValidAuthID(const string& inAuthID)
-{
-	bool theIsValid = true;
-
-	// "0" is WONid that hasn't been entered
-	if((inAuthID == "") || (inAuthID == " ") || (inAuthID == "0") || (inAuthID == kSteamIDDefault) || (inAuthID == kSteamIDInvalidID) || (inAuthID == kSteamIDBot) || (inAuthID == kSteamIDLocal))
-	{
-		theIsValid = false;
-	}
-
-	return theIsValid;
-}
-// Function that is backwards-compatible with WON ids 
-string AvHSUGetPlayerAuthIDString(edict_t* inPlayer)
-{
-	string thePlayerAuthID;
-	
-	// Try to get SteamID
-	const char* theSteamID = g_engfuncs.pfnGetPlayerAuthId(inPlayer);
-	if(strcmp(theSteamID, kSteamIDInvalidID))
-	{
-		thePlayerAuthID = theSteamID;
-	}
-	// If that fails, get WonID and put it into a string
-	else
-	{
-		int theWonID = g_engfuncs.pfnGetPlayerWONId(inPlayer);
-		thePlayerAuthID = MakeStringFromInt(theWonID);
-	}
-	
-	return thePlayerAuthID;
-}
-#endif
 
 void AvHSUKillPlayersTouchingPlayer(AvHPlayer* inPlayer, entvars_t* inInflictor)
 {
@@ -906,11 +757,11 @@ AvHHive* AvHSUGetRandomActivateableHive(AvHTeamNumber inTeam)
 
 int AvHSUGetWeaponStayTime()
 {
-	int theWeaponStayTime = BALANCE_IVAR(kWeaponStayTime);
+	int theWeaponStayTime = BALANCE_VAR(kWeaponStayTime);
 	
 	if(GetGameRules()->GetIsCombatMode())
 	{
-		theWeaponStayTime = BALANCE_IVAR(kCombatWeaponStayTime);
+		theWeaponStayTime = BALANCE_VAR(kCombatWeaponStayTime);
 	}
 	
 	return theWeaponStayTime;
@@ -1003,7 +854,7 @@ void AvHSUResearchComplete(CBaseEntity* inResearchEntity, AvHMessageID inResearc
 
 						if(theSpawnPoint)
 						{
-							if ( VectorDistance(theSpawnPoint->v.origin, theEntity->pev->origin) > BALANCE_IVAR(kDistressBeaconRange)) 
+							if ( VectorDistance(theSpawnPoint->v.origin, theEntity->pev->origin) > BALANCE_VAR(kDistressBeaconRange)) 
 							{
 								theEntity->InitPlayerFromSpawn(theSpawnPoint);
 
@@ -1044,87 +895,52 @@ void AvHSUResearchComplete(CBaseEntity* inResearchEntity, AvHMessageID inResearc
 	}
 }
 
+template<class x> bool isMember(CBaseEntity* object)
+{
+	return (object != NULL) && (dynamic_cast<x*>(object) != NULL);
+}
+
+//TODO: reimplememnt this functionality as a virtual function under CBaseBuildable to keep the
+// information tied directly to the class that it describes, reducing total locations to track (KGP)
 bool AvHSUGetIsResearchApplicable(CBaseEntity* inResearchEntity, AvHMessageID inResearchingTech)
 {
 	bool theIsApplicable = false;
 
-	if(inResearchingTech == RESOURCE_UPGRADE)
+	switch(inResearchingTech)
 	{
-		AvHResourceTower* theTower = dynamic_cast<AvHResourceTower*>(inResearchEntity);
-		if(theTower)
-		{
-			theIsApplicable = true;
-		}
-	}			
-	else if(inResearchingTech == ARMORY_UPGRADE || 
-			inResearchingTech == RESEARCH_GRENADES)
-	{
-		AvHArmory* theArmory = dynamic_cast<AvHArmory*>(inResearchEntity);
-		if(theArmory)
-		{
-			theIsApplicable = true;
-		}
+	case RESOURCE_UPGRADE:
+		theIsApplicable = isMember<AvHResourceTower>(inResearchEntity);
+		break;
+	case ARMORY_UPGRADE:
+	case RESEARCH_GRENADES:
+		theIsApplicable = isMember<AvHArmory>(inResearchEntity);
+		break;
+	case TURRET_FACTORY_UPGRADE:
+		theIsApplicable = isMember<AvHTurretFactory>(inResearchEntity);
+		break;
+	case RESEARCH_DISTRESSBEACON:
+	case RESEARCH_MOTIONTRACK:
+	case RESEARCH_PHASETECH:
+		theIsApplicable = isMember<AvHObservatory>(inResearchEntity);
+		break;
+	case RESEARCH_ARMOR_ONE:
+	case RESEARCH_ARMOR_TWO:
+	case RESEARCH_ARMOR_THREE:
+	case RESEARCH_WEAPONS_ONE:
+	case RESEARCH_WEAPONS_TWO:
+	case RESEARCH_WEAPONS_THREE:
+	case RESEARCH_CATALYSTS:
+		theIsApplicable = isMember<AvHArmsLab>(inResearchEntity);
+		break;
+	case RESEARCH_HEAVYARMOR:
+	case RESEARCH_JETPACKS:
+		theIsApplicable = isMember<AvHPrototypeLab>(inResearchEntity);
+		break;
+	case RESEARCH_ELECTRICAL:
+		theIsApplicable = isMember<AvHResourceTower>(inResearchEntity) || isMember<AvHTurretFactory>(inResearchEntity);
+		break;
 	}
-	else if(inResearchingTech == TURRET_FACTORY_UPGRADE)
-	{
-		AvHTurretFactory* theTurretFactory = dynamic_cast<AvHTurretFactory*>(inResearchEntity);
-		if(theTurretFactory)
-		{
-			theIsApplicable = true;
-		}
-	}
-	else if(inResearchingTech == RESEARCH_DISTRESSBEACON ||
-			inResearchingTech == RESEARCH_MOTIONTRACK ||
-			inResearchingTech == RESEARCH_PHASETECH 
-		)
-	{
-		AvHObservatory* theObservatory = dynamic_cast<AvHObservatory*>(inResearchEntity);
-		if(theObservatory)
-		{
-			theIsApplicable = true;
-		}
-	}
-	else if(inResearchingTech == RESEARCH_ARMOR_ONE ||
-			inResearchingTech == RESEARCH_ARMOR_TWO ||
-			inResearchingTech == RESEARCH_ARMOR_THREE ||
-			inResearchingTech == RESEARCH_WEAPONS_ONE ||
-			inResearchingTech == RESEARCH_WEAPONS_TWO ||
-			inResearchingTech == RESEARCH_WEAPONS_THREE ||
-			inResearchingTech == RESEARCH_CATALYSTS)
-	{
-		AvHArmsLab* theArmsLab = dynamic_cast<AvHArmsLab*>(inResearchEntity);
-		if(theArmsLab)
-		{
-			theIsApplicable = true;
-		}
-	}
-	else if (inResearchingTech == RESEARCH_HEAVYARMOR ||
-			 inResearchingTech == RESEARCH_JETPACKS)
-	{
-		AvHPrototypeLab* thePrototypeLab = dynamic_cast<AvHPrototypeLab*>(inResearchEntity);
-		if(thePrototypeLab)
-		{
-			theIsApplicable = true;
-		}
-	}
-	else if(inResearchingTech == RESEARCH_ELECTRICAL)
-	{
-		AvHBaseBuildable* theBuildable = dynamic_cast<AvHBaseBuildable*>(inResearchEntity);
-		if(theBuildable)
-		{
-			// Only allow certain structures to be electrified (fix for exploit timing/selection exploit)
-			AvHMessageID theBuildableMessage = theBuildable->GetMessageID();
-			switch(theBuildableMessage)
-			{
-			case BUILD_RESOURCES:
-			case BUILD_TURRET_FACTORY:
-			case TURRET_FACTORY_UPGRADE:
-				theIsApplicable = true;
-				break;
-			}
-		}
-	}
-	return theIsApplicable ;
+	return theIsApplicable;
 }
 
 void AvHSUSetCollisionBoxFromSequence(entvars_t* inPev)
@@ -1424,7 +1240,7 @@ void AvHSUServerTraceBullets(const Vector& inStart, const Vector& inEnd, IGNORE_
 	{
 		if(GetHasUpgrade(theEntityHit->pev->iuser4, MASK_UMBRA))
 		{
-			const int theUmbraEffectiveness = BALANCE_IVAR(kUmbraEffectiveness);
+			const int theUmbraEffectiveness = BALANCE_VAR(kUmbraEffectiveness);
 			
 			// Block most shots but not all
 			if(RANDOM_LONG(0, theUmbraEffectiveness) != 0)
@@ -1605,8 +1421,6 @@ void AvHSUCreateUmbraCloud(vec3_t inOrigin, AvHTeamNumber inTeamNumber, CBaseEnt
 // Explode with force (players only)
 void AvHSUExplosiveForce(const Vector& inOrigin, int inRadius, float inForceScalar, const CBaseEntity* inAttacker, const CBaseEntity* inIgnorePlayer)
 {
-	// ALERT(at_console, UTIL_VarArgs("Enter AvHSUExplosiveForce - inOrigin x %f y %f z %f, inRadius %i, inForceScalar %f\n", inOrigin[0], inOrigin[1], inOrigin[2], inRadius, inForceScalar));
-
 	CBaseEntity* theEntity = NULL;
 	while ((theEntity = UTIL_FindEntityInSphere(theEntity, inOrigin, inRadius)) != NULL)
 	{
@@ -1632,29 +1446,21 @@ void AvHSUExplosiveForce(const Vector& inOrigin, int inRadius, float inForceScal
 				float thePercentForce = (1.0f - (theDistanceToExplosion/(float)inRadius));
 				theForceScalar *= thePercentForce;
 				
-				// ALERT(at_console, UTIL_VarArgs("Xeno - distance: theDistanceToExplosion %f, inRadius %d\n", theDistanceToExplosion, inRadius));
-
 				theForceVector.Normalize();
-				// ALERT(at_console, UTIL_VarArgs("Xeno - FORCEVECTOR x: %f, y: %f, z: %f\n", theForceVector[0], theForceVector[1], theForceVector[2]));
-			
+
 				// tankefugl: 0000771
 				if((!(thePlayer->pev->flags & FL_ONGROUND) || !thePlayer->pev->groundentity) || 
 					((thePlayer->pev->bInDuck) || (thePlayer->pev->flags & FL_DUCKING)))
 				{
-					// ALERT(at_console, "Xeno - target ducked or flying\n");
 					theForceScalar *= 0.33f; 
 				}
 
 				Vector thePreVelocity = thePlayer->pev->velocity;
-				// ALERT(at_console, UTIL_VarArgs("Xeno - ORIGINAL x: %f, y: %f, z: %f\n", thePlayer->pev->velocity[0], thePlayer->pev->velocity[1], thePlayer->pev->velocity[2]));
 				float theDamageForce = thePlayer->DamageForce(theForceScalar);
-				//Vector thePostVelocity = (thePlayer->pev->velocity + theForceVector *( thePlayer->DamageForce(theForceScalar) ));
 				Vector thePostVelocity = (thePlayer->pev->velocity + theForceVector *( theDamageForce ));
 
-				// ALERT(at_console, UTIL_VarArgs("Xeno - theDamageForce: %f, thePostVelocity x: %f, y: %f, z: %f\n", theDamageForce, thePostVelocity[0], thePostVelocity[1], thePostVelocity[2]));
-
 				// check and cap horisontal speed
-				float theMaxHorisontalSpeed = BALANCE_FVAR(kExplodeMaxHorisontalSpeed);
+				float theMaxHorisontalSpeed = BALANCE_VAR(kExplodeMaxHorisontalSpeed);
 				Vector theHorisontalSpeed;
 				theHorisontalSpeed[0] = thePostVelocity[0];
 				theHorisontalSpeed[1] = thePostVelocity[1];
@@ -1664,24 +1470,17 @@ void AvHSUExplosiveForce(const Vector& inOrigin, int inRadius, float inForceScal
 				if (theHorisontalSpeedLength > theMaxHorisontalSpeed) {
 					thePostVelocity[0] *= theHorisontalFactor;
 					thePostVelocity[1] *= theHorisontalFactor;
-				//	ALERT(at_console, UTIL_VarArgs("Xeno - theHorisontalFactor: %f, thePostVelocity x: %f, y: %f, z: %f\n", theHorisontalFactor, thePostVelocity[0], thePostVelocity[1], thePostVelocity[2]));
-				//	ALERT(at_console, UTIL_VarArgs("Xeno - theHorisontalSpeedLength: %f, theMaxHorisontalSpeed: %f\n", theHorisontalSpeedLength, theMaxHorisontalSpeed));
 				}
 
 				// then vertical speed
-				float theMaxVerticalSpeed = BALANCE_FVAR(kExplodeMaxVerticalSpeed);
-				//if (fabs(thePostVelocity[2]) > fabs(thePreVelocity[2]) + theMaxVerticalSpeed)
+				float theMaxVerticalSpeed = BALANCE_VAR(kExplodeMaxVerticalSpeed);
 				if (fabs(thePostVelocity[2]) > theMaxVerticalSpeed)
 				{
 					thePostVelocity[2] = thePostVelocity[2]/fabs(thePostVelocity[2]) * theMaxVerticalSpeed;
-					//thePostVelocity[2] += thePostVelocity[2]/fabs(thePostVelocity[2]) * theMaxVerticalSpeed;
 				}
 
 				// assign new speed
 				thePlayer->pev->velocity = thePostVelocity;
-				// ALERT(at_console, UTIL_VarArgs("Xeno - velocity x: %f, y: %f, z: %f\n", thePlayer->pev->velocity[0], thePlayer->pev->velocity[1], thePlayer->pev->velocity[2]));
-				//thePlayer->pev->velocity = (thePlayer->pev->velocity + theForceVector *( thePlayer->DamageForce(theForceScalar) ));
-
 				// tankefugl
 			}
 		}
@@ -1735,32 +1534,6 @@ bool AvHSUGetIsEnoughRoomForHull(const vec3_t& inCenter, int inHull, edict_t* in
 		{
     		return false;
 		}
-
-        // This seems like a good idea, but it causes problems outside engine hive on ns_bast.
-        /*
-        for (int i = 0; i < theWorldModel->numsubmodels; ++i)
-        {
-            
-            dmodel_t* model = &theWorldModel->submodels[i];
-
-            if (model->numfaces > 0)
-            {
-
-                int firstClipNode = model->headnode[theHull];
-
-                if (firstClipNode <= theHullPtr->lastclipnode)
-                {
-                    if (NS_PointContents(theHullPtr, firstClipNode, (float*)&inCenter) == CONTENTS_SOLID)
-		            {
-			            return false;
-                    }
-		        }
-
-            }
-            
-        }
-        */
-	
     }
 
     if (!inIgnoreEntities)
@@ -1807,36 +1580,25 @@ void AvHSUPrintDevMessage(const string& inMessage, bool inForce)
 {
 	FOR_ALL_ENTITIES(kAvHPlayerClassName, AvHPlayer*)
 
-	bool theSendMessage = false;
-
-	#ifdef DEBUG
-	theSendMessage = true;
+	#ifndef DEBUG
+		bool theSendMessage = inForce;
+		if( !theSendMessage )
+		{
+			AvHPlayer* thePlayer = dynamic_cast<AvHPlayer*>(CBaseEntity::Instance(theEntity->edict()));
+			if(thePlayer && thePlayer->GetIsMember(PLAYERAUTH_DEVELOPER) )
+			{
+				theSendMessage = true;
+			}
+		}		
+		if( !theSendMessage )
+		{
+			continue;
+		}
 	#endif
 
-	if(inForce)
-	{
-		theSendMessage = true;
-	}
-
-    AvHPlayer* thePlayer = dynamic_cast<AvHPlayer*>(CBaseEntity::Instance(theEntity->edict()));
-    if(thePlayer)
-    {
-        int theAuthMask = thePlayer->GetAuthenticationMask();
-        if(theAuthMask & PLAYERAUTH_DEVELOPER)
-        {
-            theSendMessage = true;
-        }
-
-	}
-
-	if(theSendMessage)
-	{
-		ClientPrint(theEntity->pev, HUD_PRINTNOTIFY, inMessage.c_str());
-	}
+	ClientPrint(theEntity->pev, HUD_PRINTNOTIFY, inMessage.c_str());
 
 	END_FOR_ALL_ENTITIES(kAvHPlayerClassName);
-
-	//UTIL_LogPrintf(inMessage.c_str());
 }
 
 bool AvHCheckLineOfSight(const Vector& vecStart, const Vector& vecEnd, edict_t* pentIgnore, IGNORE_MONSTERS igmon, edict_t* pEntTarget)

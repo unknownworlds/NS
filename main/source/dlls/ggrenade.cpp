@@ -29,7 +29,6 @@
 #include "mod/AvHPlayerUpgrade.h"
 #include "mod/AvHServerVariables.h"
 #include "mod/AvHMarineWeaponConstants.h"
-#include "mod/AvHBalance.h"
 #include "mod/AvHGamerules.h"
 #include "util/MathUtil.h"
 #include "common/vec_op.h"
@@ -114,7 +113,7 @@ void CGrenade::Explode( TraceResult *pTrace, int bitsDamageType )
 //	pev->owner = NULL; // can't traceline attack owner if this is set
 
 	// Current radius = 2.5*140 = 350
-	float theRadius = BALANCE_IVAR(kGrenadeRadius);
+	float theRadius = BALANCE_VAR(kGrenadeRadius);
 	::RadiusDamage(this->pev->origin, this->pev, pevOwner, theDamage, theRadius, CLASS_NONE, bitsDamageType);
 
 	// Play view shake here

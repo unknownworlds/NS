@@ -3,7 +3,7 @@
 
 #include "types.h"
 #include "mod/AvHConstants.h"
-#include "mod/AvHTechNodes.h"
+#include "mod/AvHTechTree.h"
 #include "mod/AvHMessageList.h"
 
 class AvHServerPlayerData
@@ -20,8 +20,8 @@ public:
 	float		GetExperience() const;
 	void		SetExperience(float inExperience);
 
-	const AvHTechNodes& GetCombatNodes();
-	void		SetCombatNodes(const AvHTechNodes& inTechNodes);
+	const AvHTechTree& GetCombatNodes();
+	void		SetCombatNodes(const AvHTechTree& inTechNodes);
 
 	const MessageIDListType& GetPurchasedCombatUpgrades() const;
 	void		SetPurchasedCombatUpgrades(const MessageIDListType& inPurchasedCombatUpgrades);
@@ -37,7 +37,7 @@ private:
 	float			mTimeLastVotedDown;
 	float			mExperience;
 
-	AvHTechNodes    mCombatNodes;
+	AvHTechTree		mCombatNodes;
 
 	MessageIDListType	mPurchasedCombatUpgrades;
 	int					mExperienceLevelsSpent;

@@ -150,7 +150,7 @@ void AvHSpit::SpitTouch(CBaseEntity* pOther)
 void AvHSpitGun::Init()
 {
 	this->mRange = kSpitGRange;
-	this->mDamage = BALANCE_IVAR(kSpitGDamage);
+	this->mDamage = BALANCE_VAR(kSpitGDamage);
 }
 
 int	AvHSpitGun::GetBarrelLength() const
@@ -160,7 +160,7 @@ int	AvHSpitGun::GetBarrelLength() const
 
 float AvHSpitGun::GetRateOfFire() const
 {
-	return BALANCE_FVAR(kSpitROF);
+	return BALANCE_VAR(kSpitROF);
 }
 
 int	AvHSpitGun::GetDamageType() const

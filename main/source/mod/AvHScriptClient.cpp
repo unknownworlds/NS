@@ -46,6 +46,10 @@
 #include "common/event_api.h"
 #include "mod/AvHScriptManager.h"
 
+extern "C" {
+	#include <lua.h>
+}
+
 extern void DrawScaledHUDSprite(int inSpriteHandle, int inMode, int inRowsInSprite = 1, int inX = 0, int inY = 0, int inWidth = ScreenWidth(), int inHeight = ScreenHeight(), int inForceSpriteFrame = -1, float inStartU = 0.0f, float inStartV = 0.0f, float inEndU = 1.0f, float inEndV = 1.0f, float inRotateUVRadians = 0.0f, bool inUVWrapsOverFrames = false);
 extern vec3_t v_origin;
 

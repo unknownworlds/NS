@@ -299,7 +299,7 @@ void AvHAlienTurret::Shoot(const Vector &inOrigin, const Vector &inToEnemy, cons
 	VectorCopy(theInitialVelocity, theSpike->pev->velocity);
 
 	// Set amount of damage it will do
-	theSpike->SetDamage(BALANCE_IVAR(kOffenseChamberDamage));
+	theSpike->SetDamage(BALANCE_VAR(kOffenseChamberDamage));
 
 	// Take into account network precision
 	Vector theNetworkDirToEnemy;

@@ -18,7 +18,7 @@
 #ifndef CL_UTIL_H
 #define CL_UTIL_H
 
-#include "cvardef.h"
+#include "common/cvardef.h"
 #include "common/vector_util.h"
 #include "vgui_Panel.h"
 #include "types.h"

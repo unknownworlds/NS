@@ -9,7 +9,11 @@
 
 // for FindFirst and FindNext
 #include <windows.h>
-#include "fmoddyn.h"
+#pragma warning(push)
+#pragma warning(disable: 311)
+#include <fmoddyn.h>
+#include <fmod_errors.h>
+#pragma warning(pop)
 
 using namespace vgui;
 
@@ -189,7 +193,7 @@ bool UIHud::PickRandomSong(string& outRelativeSongName) const
 	HANDLE				theFileHandle;
 	StringList			theSongList;
 	bool				theFoundSong = false;
-	int					theNumSongs;
+	size_t				theNumSongs;
 
 	// Find random song in directory
 	string thePath;
@@ -221,7 +225,7 @@ bool UIHud::PickRandomSong(string& outRelativeSongName) const
 	theNumSongs = theSongList.size();
 	if(theNumSongs > 0)
 	{
-		int theSongOffset = gEngfuncs.pfnRandomLong( 0, theNumSongs -1 );
+		int theSongOffset = gEngfuncs.pfnRandomLong( 0, (long)theNumSongs -1 );
 		outRelativeSongName = string(theSongList[theSongOffset]);
 		theFoundSong = true;
 	}
@@ -298,8 +302,6 @@ bool UIHud::PlaySong(string& inSongName, int& ioVolume, bool inLooping, FSOUND_S
 		    }
 		    else
 		    {
-			    //MessageBox(NULL, "Error.  Cannot start song", "Playing a song", MB_ICONHAND|MB_OK|MB_SYSTEMMODAL);
-			    int a = 0;
 		    }
 	    }
 	    else

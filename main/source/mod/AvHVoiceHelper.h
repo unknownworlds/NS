@@ -4,7 +4,7 @@
 #include "util/nowarnings.h"
 #include "dlls/extdll.h"
 #include "dlls/util.h"
-#include "cbase.h"
+#include "dlls/cbase.h"
 #include "game_shared/voice_gamemgr.h"
 
 class AvHVoiceHelper : public IVoiceGameMgrHelper

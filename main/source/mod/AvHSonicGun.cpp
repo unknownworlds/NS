@@ -101,7 +101,7 @@ void V_PunchAxis( int axis, float punch );
 void AvHSonicGun::Init()
 {
 	this->mRange = kSGRange;
-	this->mDamage = BALANCE_IVAR(kSGDamage);
+	this->mDamage = BALANCE_VAR(kSGDamage);
 }
 
 int	AvHSonicGun::GetBarrelLength() const
@@ -111,7 +111,7 @@ int	AvHSonicGun::GetBarrelLength() const
 
 float AvHSonicGun::GetRateOfFire() const
 {
-	return BALANCE_FVAR(kSGROF);
+	return BALANCE_VAR(kSGROF);
 }
 
 int	AvHSonicGun::GetDamageType() const
@@ -210,7 +210,7 @@ void AvHSonicGun::FireProjectiles(void)
 	
     // Fire the bullets and apply damage
 	//this->m_pPlayer->FireBullets(kSGBulletsPerShot, vecSrc, vecAiming, this->GetProjectileSpread(), this->mRange, 0, 0, theDamage);
-	this->m_pPlayer->FireBulletsPlayer(BALANCE_IVAR(kSGBulletsPerShot), vecSrc, vecAiming, this->GetProjectileSpread(), this->mRange, BULLET_PLAYER_BUCKSHOT, 0, theDamage);
+	this->m_pPlayer->FireBulletsPlayer(BALANCE_VAR(kSGBulletsPerShot), vecSrc, vecAiming, this->GetProjectileSpread(), this->mRange, BULLET_PLAYER_BUCKSHOT, 0, theDamage);
 }
 
 bool AvHSonicGun::GetHasMuzzleFlash() const
@@ -258,15 +258,7 @@ void AvHSonicGun::Precache()
 	AvHMarineWeapon::Precache();
 	
 	PRECACHE_UNMODIFIED_MODEL(kSGEjectModel);
-	
 	PRECACHE_UNMODIFIED_SOUND(kSGFireSound1);
-	
-	#ifdef AVH_UPGRADE_SOUNDS
-	PRECACHE_UNMODIFIED_SOUND(kSGFireSound2);
-	PRECACHE_UNMODIFIED_SOUND(kSGFireSound3);
-	PRECACHE_UNMODIFIED_SOUND(kSGFireSound4);
-	#endif
-
 	PRECACHE_UNMODIFIED_SOUND(kSGReloadSound);
 	PRECACHE_UNMODIFIED_SOUND(kSGCockSound);
 	
@@ -282,7 +274,7 @@ void AvHSonicGun::Spawn()
 	Precache();
 	
 	this->m_iId = AVH_WEAPON_SONIC;
-	this->m_iDefaultAmmo = BALANCE_IVAR(kSGMaxClip);
+	this->m_iDefaultAmmo = BALANCE_VAR(kSGMaxClip);
 	
     // Set our class name
 	this->pev->classname = MAKE_STRING(kwsShotGun);

@@ -726,12 +726,6 @@ bool AvHBasePlayerWeapon::ProcessValidAttack(void)
 						theAttackIsValid = true;
 					}
 				}
-				else
-				{
-					// Does this ever happen?
-					int a = 0;
-				}
-
 			}
 			else
 			{
@@ -772,11 +766,6 @@ bool AvHBasePlayerWeapon::ProcessValidAttack(void)
 		{
 			theAttackIsValid = true;
 		}
-	}
-	else
-	{
-		//ALERT(at_console, "Can't attack %d\n", enabledState);
-		int a = 0;	
 	}
 
     return theAttackIsValid;
@@ -1081,10 +1070,6 @@ void AvHBasePlayerWeapon::SendWeaponAnim(int inAnimation, int skiplocal, int bod
 
 		this->PlaybackEvent(this->mWeaponAnimationEvent, inAnimation);
 	}
-	else
-	{
-		int a = 0;
-	}
 }
 
 void AvHBasePlayerWeapon::SecondaryAttack(void)
@@ -1212,10 +1197,6 @@ void AvHBasePlayerWeapon::UpdateInventoryEnabledState(int inNumActiveHives)
 			// Disable it
 			theEnabledState = 0;
 		}
-		else
-		{
-			int a = 0;
-		}
 	}
 	
 	// puzl: 497 save the state for when we send the CurWeapon message
@@ -1229,16 +1210,13 @@ void AvHBasePlayerWeapon::KeyValue(KeyValueData* pkvd)
 	
 	if(FStrEq(pkvd->szKeyName, "teamchoice"))
 	{
-		//this->mTeam = (AvHTeamNumber)(atoi(pkvd->szValue));
 		this->pev->team = (AvHTeamNumber)(atoi(pkvd->szValue));
-		
 		pkvd->fHandled = TRUE;
 	}
 	else if(FStrEq(pkvd->szKeyName, "angles"))
 	{
 		// TODO: Insert code here
 		//pkvd->fHandled = TRUE;
-		int a = 0;
 	}
 	else if(FStrEq(pkvd->szKeyName, "lifetime"))
 	{

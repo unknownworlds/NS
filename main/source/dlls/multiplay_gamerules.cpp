@@ -25,19 +25,17 @@
 #include	"skill.h"
 #include	"game.h"
 #include	"items.h"
-#include	"voice_gamemgr.h"
+#include	"game_shared/voice_gamemgr.h"
 #include	"mod/AvHServerUtil.h"
-#include	"hltv.h"
-#include	"mod/UPPUtil.h"
+#include	"common/hltv.h"
+#include	"mod/AvHNetworkMessages.h"
 
 extern DLL_GLOBAL CGameRules	*g_pGameRules;
 extern DLL_GLOBAL BOOL	g_fGameOver;
-extern int gmsgDeathMsg;	// client dll messages
-extern int gmsgScoreInfo;
-extern int gmsgMOTD;
-extern int gmsgServerName;
 
 extern int g_teamplay;
+
+std::string GetLogStringForPlayer( edict_t *pEntity ); //defined in client.cpp
 
 #define ITEM_RESPAWN_TIME	30
 #define WEAPON_RESPAWN_TIME	20
@@ -406,58 +404,14 @@ BOOL CHalfLifeMultiplay :: ClientConnected( edict_t *pEntity, const char *pszNam
 	return TRUE;
 }
 
-extern int gmsgGameMode;
-
-void CHalfLifeMultiplay :: UpdateGameMode( CBasePlayer *pPlayer )
-{
-	MESSAGE_BEGIN( MSG_ONE, gmsgGameMode, NULL, pPlayer->edict() );
-		WRITE_BYTE( 0 );  // game mode none
-	MESSAGE_END();
-}
-
 void CHalfLifeMultiplay :: InitHUD( CBasePlayer *pl )
 {
 	// notify other clients of player joining the game
 	UTIL_ClientPrintAll( HUD_PRINTNOTIFY, UTIL_VarArgs( "%s has joined the game\n", 
 		( pl->pev->netname && STRING(pl->pev->netname)[0] != 0 ) ? STRING(pl->pev->netname) : "unconnected" ) );
 	
-	// team match?
-	if ( g_teamplay )
-	{
-		UTIL_LogPrintf( "\"%s<%i><%s><%s>\" entered the game\n",  
-			STRING( pl->pev->netname ), 
-			GETPLAYERUSERID( pl->edict() ),
-#ifdef USE_UPP
-			UPPUtil_GetNetworkID(pl->edict()).c_str(),
-#else
-			AvHSUGetPlayerAuthIDString( pl->edict() ).c_str(),
-#endif
-			AvHSUGetTeamName(pl->pev->team));
-	}
-	else
-	{
-		UTIL_LogPrintf( "\"%s<%i><%s><%i>\" entered the game\n",  
-			STRING( pl->pev->netname ), 
-			GETPLAYERUSERID( pl->edict() ),
-#ifdef USE_UPP
-			UPPUtil_GetNetworkID(pl->edict()).c_str(),
-#else
-			AvHSUGetPlayerAuthIDString( pl->edict() ).c_str(),
-#endif
-			GETPLAYERUSERID( pl->edict() ) );
-	}
+	UTIL_LogPrintf( "%s entered the game\n", GetLogStringForPlayer( pl->edict() ).c_str() );
 	
-	UpdateGameMode( pl );
-	
-	// sending just one score makes the hud scoreboard active;  otherwise
-	// it is just disabled for single play
-	//MESSAGE_BEGIN( MSG_ONE, gmsgScoreInfo, NULL, pl->edict() );
-	//WRITE_BYTE( ENTINDEX(pl->edict()) );
-	//WRITE_SHORT( 0 );
-	//WRITE_SHORT( 0 );
-	//WRITE_SHORT( 0 );
-	//WRITE_SHORT( 0 );
-	//MESSAGE_END();
 	pl->EffectivePlayerClassChanged();
 	
 	SendMOTDToClient( pl->edict() );
@@ -470,14 +424,6 @@ void CHalfLifeMultiplay :: InitHUD( CBasePlayer *pl )
 		
 		if ( plr )
 		{
-//			MESSAGE_BEGIN( MSG_ONE, gmsgScoreInfo, NULL, pl->edict() );
-//			WRITE_BYTE( i );	// client number
-//			WRITE_SHORT( plr->pev->frags );
-//			WRITE_SHORT( plr->m_iDeaths );
-//			WRITE_SHORT( plr->GetEffectivePlayerClass() );
-//			WRITE_SHORT( GetTeamIndex( plr->TeamID() ) );
-//			MESSAGE_END();
-
 			plr->EffectivePlayerClassChanged();
 		}
 	}
@@ -501,31 +447,7 @@ void CHalfLifeMultiplay :: ClientDisconnected( edict_t *pClient )
 		{
 			FireTargets( "game_playerleave", pPlayer, pPlayer, USE_TOGGLE, 0 );
 			
-			// team match?
-			if ( g_teamplay )
-			{
-				UTIL_LogPrintf( "\"%s<%i><%s><%s>\" disconnected\n",  
-					STRING( pPlayer->pev->netname ), 
-					GETPLAYERUSERID( pPlayer->edict() ),
-#ifdef USE_UPP
-					UPPUtil_GetNetworkID(pPlayer->edict()).c_str(),
-#else
-					AvHSUGetPlayerAuthIDString( pPlayer->edict() ).c_str(),
-#endif
-					AvHSUGetTeamName(pPlayer->pev->team));
-			}
-			else
-			{
-				UTIL_LogPrintf( "\"%s<%i><%s><%i>\" disconnected\n",  
-					STRING( pPlayer->pev->netname ), 
-					GETPLAYERUSERID( pPlayer->edict() ),
-#ifdef USE_UPP
-					UPPUtil_GetNetworkID(pPlayer->edict()).c_str(),
-#else
-					AvHSUGetPlayerAuthIDString( pPlayer->edict() ).c_str(),
-#endif
-					GETPLAYERUSERID( pPlayer->edict() ) );
-			}
+			UTIL_LogPrintf( "%s disconnected\n", GetLogStringForPlayer( pPlayer->edict() ).c_str() );
 			
 			pPlayer->RemoveAllItems( TRUE );// destroy all of the players weapons and items
 		}
@@ -660,13 +582,6 @@ void CHalfLifeMultiplay :: PlayerKilled( CBasePlayer *pVictim, entvars_t *pKille
 
 	// update the scores
 	// killed scores
-//	MESSAGE_BEGIN( MSG_ALL, gmsgScoreInfo );
-//		WRITE_BYTE( ENTINDEX(pVictim->edict()) );
-//		WRITE_SHORT( pVictim->pev->frags );
-//		WRITE_SHORT( pVictim->m_iDeaths );
-//		WRITE_SHORT( pVictim->GetEffectivePlayerClass() );
-//		WRITE_SHORT( GetTeamIndex( pVictim->TeamID() ) );
-//	MESSAGE_END();
 	pVictim->EffectivePlayerClassChanged();
 
 	// killers score, if it's a player
@@ -675,13 +590,6 @@ void CHalfLifeMultiplay :: PlayerKilled( CBasePlayer *pVictim, entvars_t *pKille
 	{
 		CBasePlayer *PK = (CBasePlayer*)ep;
 
-//		MESSAGE_BEGIN( MSG_ALL, gmsgScoreInfo );
-//			WRITE_BYTE( ENTINDEX(PK->edict()) );
-//			WRITE_SHORT( PK->pev->frags );
-//			WRITE_SHORT( PK->m_iDeaths );
-//			WRITE_SHORT( PK->GetEffectivePlayerClass() );
-//			WRITE_SHORT( GetTeamIndex( PK->TeamID()) );
-//		MESSAGE_END();
 		PK->EffectivePlayerClassChanged();
 
 		// let the killer paint another decal as soon as he'd like.
@@ -747,11 +655,7 @@ void CHalfLifeMultiplay::DeathNotice( CBasePlayer *pVictim, entvars_t *pKiller, 
 	else if ( strncmp( killer_weapon_name, "func_", 5 ) == 0 )
 		killer_weapon_name += 5;
 
-	MESSAGE_BEGIN( MSG_ALL, gmsgDeathMsg );
-		WRITE_BYTE( killer_index );						// the killer
-		WRITE_BYTE( ENTINDEX(pVictim->edict()) );		// the victim
-		WRITE_STRING( killer_weapon_name );		// what they were killed by (should this be a string?)
-	MESSAGE_END();
+	NetMsg_DeathMsg( killer_index, ENTINDEX( pVictim->edict() ), string( killer_weapon_name ) );
 
 	// replace the code names with the 'real' names
 	if ( !strcmp( killer_weapon_name, "egon" ) )
@@ -759,115 +663,21 @@ void CHalfLifeMultiplay::DeathNotice( CBasePlayer *pVictim, entvars_t *pKiller, 
 	else if ( !strcmp( killer_weapon_name, "gauss" ) )
 		killer_weapon_name = tau;
 
-	if ( pVictim->pev == pKiller )  
+	if ( pVictim->pev == pKiller ) //killed self
 	{
-		// killed self
-
-		// team match?
-		if ( g_teamplay )
-		{
-			UTIL_LogPrintf( "\"%s<%i><%s><%s>\" committed suicide with \"%s\"\n",  
-				STRING( pVictim->pev->netname ), 
-				GETPLAYERUSERID( pVictim->edict() ),
-#ifdef USE_UPP
-				UPPUtil_GetNetworkID(pVictim->edict()).c_str(),
-#else
-				AvHSUGetPlayerAuthIDString( pVictim->edict() ).c_str(),
-#endif
-				AvHSUGetTeamName(pVictim->pev->team),
-				killer_weapon_name );		
-		}
-		else
-		{
-			UTIL_LogPrintf( "\"%s<%i><%s><%i>\" committed suicide with \"%s\"\n",  
-				STRING( pVictim->pev->netname ), 
-				GETPLAYERUSERID( pVictim->edict() ),
-#ifdef USE_UPP
-				UPPUtil_GetNetworkID(pVictim->edict()).c_str(),
-#else
-				AvHSUGetPlayerAuthIDString( pVictim->edict() ).c_str(),
-#endif
-				GETPLAYERUSERID( pVictim->edict() ),
-				killer_weapon_name );		
-		}
+		UTIL_LogPrintf( "%s committed suicide with \"%s\"\n", GetLogStringForPlayer( pVictim->edict() ).c_str(), killer_weapon_name);
 	}
-	else if ( pKiller->flags & FL_CLIENT )
+	else if ( pKiller->flags & FL_CLIENT ) //killed by client
 	{
-		// team match?
-		if ( g_teamplay )
-		{
-			UTIL_LogPrintf( "\"%s<%i><%s><%s>\" killed \"%s<%i><%s><%s>\" with \"%s\"\n",  
-				STRING( pKiller->netname ),
-				GETPLAYERUSERID( ENT(pKiller) ),
-#ifdef USE_UPP
-				UPPUtil_GetNetworkID(ENT(pKiller)).c_str(),
-#else
-				AvHSUGetPlayerAuthIDString( ENT(pKiller) ).c_str(),
-#endif
-				AvHSUGetTeamName(pKiller->team),
-				STRING( pVictim->pev->netname ),
-				GETPLAYERUSERID( pVictim->edict() ),
-#ifdef USE_UPP
-				UPPUtil_GetNetworkID(pVictim->edict()).c_str(),
-#else
-				AvHSUGetPlayerAuthIDString( pVictim->edict() ).c_str(),
-#endif
-				AvHSUGetTeamName(pVictim->pev->team),
-				killer_weapon_name );
-		}
-		else
-		{
-			UTIL_LogPrintf( "\"%s<%i><%s><%i>\" killed \"%s<%i><%s><%i>\" with \"%s\"\n",  
-				STRING( pKiller->netname ),
-				GETPLAYERUSERID( ENT(pKiller) ),
-#ifdef USE_UPP
-				UPPUtil_GetNetworkID(ENT(pKiller)).c_str(),
-#else
-				AvHSUGetPlayerAuthIDString( ENT(pKiller) ).c_str(),
-#endif
-				GETPLAYERUSERID( ENT(pKiller) ),
-				STRING( pVictim->pev->netname ),
-				GETPLAYERUSERID( pVictim->edict() ),
-#ifdef USE_UPP
-				UPPUtil_GetNetworkID(pVictim->edict()).c_str(),
-#else
-				AvHSUGetPlayerAuthIDString( pVictim->edict() ).c_str(),
-#endif
-				GETPLAYERUSERID( pVictim->edict() ),
-				killer_weapon_name );
-		}
+		UTIL_LogPrintf( "%s killed %s with \"%s\"\n", 
+			GetLogStringForPlayer( ENT(pKiller) ).c_str(), 
+			GetLogStringForPlayer( pVictim->edict() ).c_str(), 
+			killer_weapon_name 
+		);
 	}
-	else
+	else //killed by world
 	{ 
-		// killed by the world
-
-		// team match?
-		if ( g_teamplay )
-		{
-			UTIL_LogPrintf( "\"%s<%i><%s><%s>\" committed suicide with \"%s\" (world)\n",
-				STRING( pVictim->pev->netname ), 
-				GETPLAYERUSERID( pVictim->edict() ), 
-#ifdef USE_UPP
-				UPPUtil_GetNetworkID(pVictim->edict()).c_str(),
-#else
-				AvHSUGetPlayerAuthIDString( pVictim->edict() ).c_str(),
-#endif
-				AvHSUGetTeamName(pVictim->pev->team),
-				killer_weapon_name );		
-		}
-		else
-		{
-			UTIL_LogPrintf( "\"%s<%i><%s><%i>\" committed suicide with \"%s\" (world)\n",
-				STRING( pVictim->pev->netname ), 
-				GETPLAYERUSERID( pVictim->edict() ), 
-#ifdef USE_UPP
-				UPPUtil_GetNetworkID(pVictim->edict()).c_str(),
-#else
-				AvHSUGetPlayerAuthIDString( pVictim->edict() ).c_str(),
-#endif
-				GETPLAYERUSERID( pVictim->edict() ),
-				killer_weapon_name );		
-		}
+		UTIL_LogPrintf( "%s committed suicide with \"%s\" (world)\n", GetLogStringForPlayer( pVictim->edict() ).c_str(), killer_weapon_name);
 	}
 
 	MESSAGE_BEGIN( MSG_SPEC, SVC_DIRECTOR );
@@ -1763,9 +1573,7 @@ void CHalfLifeMultiplay :: SendMOTDToClient( edict_t *client )
 	char *aFileList = pFileList = (char*)LOAD_FILE_FOR_ME( (char *)CVAR_GET_STRING( "motdfile" ), &length );
 
 	// send the server name
-	MESSAGE_BEGIN( MSG_ONE, gmsgServerName, NULL, client );
-	WRITE_STRING( CVAR_GET_STRING("hostname") );
-	MESSAGE_END();
+	NetMsg_ServerName( &client->v, string( CVAR_GET_STRING( "hostname" ) ) );
 	
 	// Send the message of the day
 	// read it chunk-by-chunk,  and send it in parts
@@ -1790,10 +1598,7 @@ void CHalfLifeMultiplay :: SendMOTDToClient( edict_t *client )
 		else
 			*pFileList = 0;
 		
-		MESSAGE_BEGIN( MSG_ONE, gmsgMOTD, NULL, client );
-		WRITE_BYTE( *pFileList ? FALSE : TRUE );	// FALSE means there is still more message to come
-		WRITE_STRING( chunk );
-		MESSAGE_END();
+		NetMsg_MOTD( &client->v, *pFileList ? false : true, string( chunk ) );
 	}
 	
 	FREE_FILE( aFileList );

@@ -317,29 +317,16 @@ bool AvHHud::ProcessGeneralHelp()
 
 	int theTimeSinceGameStarted = this->GetGameTime();
 	bool theDisplayedTooltip = false;
-	AvHTeamNumber theEnemyTeamNumber = (this->GetHUDTeam() == TEAM_ONE) ? TEAM_TWO : TEAM_ONE;
 	
 	if(!theDisplayedTooltip && this->AddTooltipOnce(kHelpTextPopupMenu))
 	{
 		theDisplayedTooltip = true;
 	}
-//	else if(theEnemyTeam && (theEnemyTeam->GetTeamType() == AVH_CLASS_TYPE_ALIEN) && this->AddTooltipOnce(kObjectivesVsAliens))
-//	{
-//		theDisplayedTooltip = true;
-//	}
-//	else if(theEnemyTeam && (theEnemyTeam->GetTeamType() == AVH_CLASS_TYPE_MARINE) && this->AddTooltipOnce(kObjectivesVsMarines))
-//	{
-//		theDisplayedTooltip = true;
-//	}
-	// Don't sent these messages until the game has been going for a bit...don't want to overwhelm players
+	// Don't send these messages until the game has been going for a bit...don't want to overwhelm players
 	else if(!theDisplayedTooltip && this->GetIsAlien() && (theTimeSinceGameStarted > kTimeBeforeLifeformHelp) && this->AddTooltipOnce(kHelpTextBuyLifeform))
 	{
 		theDisplayedTooltip = true;
 	}
-	//else if(!theDisplayedTooltip && this->GetIsAlien() && (theTimeSinceGameStarted > kTimeBeforeUpgradeHelp) && this->AddTooltipOnce(kHelpTextBuyUpgrade))
-	//{
-	//	theDisplayedTooltip = true;
-	//}
 	else if(this->GetHasJetpack() && !this->GetIsInTopDownMode() && this->AddTooltipOnce(kHelpTextJetpacks))
 	{
 		theDisplayedTooltip = true;
@@ -357,12 +344,9 @@ bool AvHHud::ProcessGeneralHelp()
 		theDisplayedTooltip = true;
 	}
 	// Else if we have an order
-	else if(this->GetDoesPlayerHaveOrder())
+	else if(this->GetDoesPlayerHaveOrder() && this->AddTooltipOnce(kHelpTextOrder))
 	{
-		if(this->AddTooltipOnce(kHelpTextOrder))
-		{
-			theDisplayedTooltip = true;
-		}
+		theDisplayedTooltip = true;
 	}
 	
 	return theDisplayedTooltip;

@@ -30,8 +30,6 @@
 #include "mod/AvHParticleConstants.h"
 
 extern AvHParticleTemplateListServer	gParticleTemplateList;
-extern int gmsgCreateTempParticleSystem;
-extern int gmsgDestroyTempParticleSystem;
 
 uint32 AvHParticleSystemEntity::sCurrentHandle = 1;
 const float kDefaultParticleSystemThinkRate = 0.05f;

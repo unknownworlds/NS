@@ -2,7 +2,7 @@
 #define HUD_SERVERS_PRIVH
 #pragma once
 
-#include "netadr.h"
+#include "common/netadr.h"
 
 class CHudServers
 {

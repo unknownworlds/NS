@@ -25,8 +25,8 @@
 #endif
 
 #ifdef AVH_SERVER
-#include "extdll.h"
-#include "util.h"
+#include "dlls/extdll.h"
+#include "dlls/util.h"
 #include "common/vector_util.h"
 #endif
 

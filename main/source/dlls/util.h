@@ -18,7 +18,6 @@
 #ifndef UTIL_H
 #define UTIL_H
 
-#include "build.h"
 #include <string.h>
 
 #ifndef ACTIVITY_H
@@ -37,7 +36,15 @@ extern globalvars_t				*gpGlobals;
 
 // Use this instead of ALLOC_STRING on constant strings
 #define STRING(offset)		(const char *)(gpGlobals->pStringBase + (int)offset)
-#define MAKE_STRING(str)	((int)str - (int)STRING(0))
+// #define MAKE_STRING(str)	((int)str - (int)STRING(0))
+
+#pragma warning(push)
+#pragma warning(disable: 311)
+inline string_t MAKE_STRING(const char* offset)
+{
+	return ((string_t)offset - (string_t)STRING(0));
+}
+#pragma warning(pop)
 
 inline edict_t *FIND_ENTITY_BY_CLASSNAME(edict_t *entStart, const char *pszName) 
 {

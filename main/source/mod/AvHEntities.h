@@ -44,8 +44,8 @@
 #define AVH_ENTITIES_H
 
 #include "util/nowarnings.h"
-#include "extdll.h"
-#include "util.h"
+#include "dlls/extdll.h"
+#include "dlls/util.h"
 #include "dlls/cbase.h"
 #include "mod/AvHConstants.h"
 #include "dlls/func_break.h"
@@ -307,9 +307,9 @@ public:
 
 	int				GetMarineRespawnCost() const;
 
-	AvHClassType	GetTeamOneType() const;
+	AvHClassType	GetTeamAType() const;
 		
-	AvHClassType	GetTeamTwoType() const;
+	AvHClassType	GetTeamBType() const;
 
 	virtual void	KeyValue( KeyValueData* pkvd );
 
@@ -319,8 +319,8 @@ public:
 	
 private:
 
-	AvHClassType	mTeamOneType;
-	AvHClassType	mTeamTwoType;
+	AvHClassType	mTeamAType;
+	AvHClassType	mTeamBType;
 	
 	int				mInitialHives;
 
@@ -405,8 +405,8 @@ private:
 	bool			mPlayersDontActivate;
 	bool			mMonstersDontActivate;
 	bool			mPushablesDontActivate;
-	bool			mTeamOneOnly;
-	bool			mTeamTwoOnly;
+	bool			mTeamAOnly;
+	bool			mTeamBOnly;
 
 	float			mTimeBeforeLeave;
 	float			mMomentaryOpenTime;

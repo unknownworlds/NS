@@ -324,12 +324,12 @@ void AvHMine::Spawn()
 
 	FallInit();// get ready to fall down.
 
-    int theNumMines = BALANCE_IVAR(kMineMaxAmmo);
+    int theNumMines = BALANCE_VAR(kMineMaxAmmo);
     
     #ifdef AVH_SERVER
     if(GetGameRules()->GetIsCombatMode())
     {
-        theNumMines = BALANCE_IVAR(kMineMaxAmmoCombat);
+        theNumMines = BALANCE_VAR(kMineMaxAmmoCombat);
     }
     #endif
 

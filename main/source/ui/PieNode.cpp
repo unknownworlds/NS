@@ -1098,7 +1098,7 @@ void PieNode::Update(float theCurrentTime)
     }
 }
 
-void PieNode::UpdateMenuFromTech(const AvHTechNodes& inMenuCosts, int inPurchaseLevel)
+void PieNode::UpdateMenuFromTech(const AvHTechTree& inMenuCosts, int inPurchaseLevel)
 {
 	// Set our next text
 	//string theNewText = this->mBaseText;
@@ -1411,7 +1411,7 @@ void PieNodeList::Update(float inTime)
     this->mRoot->Update(inTime);
 }
 
-void PieNodeList::UpdateMenuFromTech(const AvHTechNodes& inMenuCosts, int inPurchaseLevel)
+void PieNodeList::UpdateMenuFromTech(const AvHTechTree& inMenuCosts, int inPurchaseLevel)
 {
 	this->mRoot->UpdateMenuFromTech(inMenuCosts, inPurchaseLevel);
 }

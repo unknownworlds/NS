@@ -108,12 +108,12 @@ bool AvHWebProjectile::CreateWeb()
 					ASSERT(thePlayer);
 
 					int theNumStrands = theTeam->GetNumWebStrands();
-					if(theNumStrands < BALANCE_IVAR(kMaxTeamStrands))
+					if(theNumStrands < BALANCE_VAR(kMaxTeamStrands))
 					{
 						// Finally, make sure there aren't too many strands in our immediate area, to prevent visibility problems.
 						// Note that it doesn't care if they are enemy or friendly web strands, so this may be a problem for alien vs. alien
-						int theNumWebsNearby = UTIL_CountEntitiesInSphere(theNewPoint, BALANCE_IVAR(kBuildingVisibilityRadius), kesTeamWebStrand);
-						if(theNumWebsNearby < BALANCE_IVAR(kNumWebsAllowedInRadius))
+						int theNumWebsNearby = UTIL_CountEntitiesInSphere(theNewPoint, BALANCE_VAR(kBuildingVisibilityRadius), kesTeamWebStrand);
+						if(theNumWebsNearby < BALANCE_VAR(kNumWebsAllowedInRadius))
 						{
 							// Add new web strand
 							AvHWebStrand* theWebStrand = GetClassPtr((AvHWebStrand*)NULL);
@@ -272,7 +272,7 @@ int	AvHWebSpinner::GetBarrelLength() const
 
 float AvHWebSpinner::GetRateOfFire() const
 {
-	return BALANCE_FVAR(kWebSpinnerROF);
+	return BALANCE_VAR(kWebSpinnerROF);
 }
 
 int AvHWebSpinner::GetDeployAnimation() const

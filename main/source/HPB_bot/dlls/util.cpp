@@ -21,8 +21,8 @@
 // util.cpp
 //
 
-#include "extdll.h"
-#include "util.h"
+#include "dlls/extdll.h"
+#include "dlls/util.h"
 #include "HPB_bot/engine/engine.h"
 #include "dlls/cbase.h"
 #include "dlls/player.h"

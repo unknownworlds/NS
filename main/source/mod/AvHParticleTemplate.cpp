@@ -450,7 +450,7 @@ AvHParticleTemplateList::CreateTemplateFromIndex(int inBaseIndex)
 	}
 
 	this->mTemplateList.push_back(theNewTemplate);
-	int theNewIndex = this->mTemplateList.size() - 1;
+	int theNewIndex = (int)this->mTemplateList.size() - 1;
 		
 	return theNewIndex;
 }
@@ -505,6 +505,6 @@ AvHParticleTemplateList::GetTemplateIndexWithName(const string& inName, uint32& 
 uint32
 AvHParticleTemplateList::GetNumberTemplates() const
 {
-	return this->mTemplateList.size();
+	return (uint32)this->mTemplateList.size();
 }
 

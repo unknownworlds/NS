@@ -5,16 +5,12 @@
 
 #ifdef AVH_SERVER
 #include "dlls/extdll.h"
-#include "util.h"
+#include "dlls/util.h"
 #include "dlls/cbase.h"
 #include "engine/shake.h"
 #include "dlls/decals.h"
 #include "dlls/gamerules.h"
 #include "mod/AvHServerUtil.h"
-#endif
-
-#ifdef AVH_CLIENT
-#include "cl_dll/parsemsg.h"
 #endif
 
 AvHMapExtents::AvHMapExtents()
@@ -154,42 +150,5 @@ void AvHMapExtents::SetTopDownCullDistance(float inCullDistance)
 	ASSERT(inCullDistance > 0);
 	this->mTopDownCullDistance = inCullDistance;
 }
-
-
-void AvHMapExtents::SendToNetworkStream() const
-{
-	WRITE_COORD(this->mMinViewHeight);
-	WRITE_COORD(this->mMaxViewHeight);
-	
-	WRITE_COORD(this->mMinMapX);
-	WRITE_COORD(this->mMinMapY);
-	WRITE_COORD(this->mMaxMapX);
-	WRITE_COORD(this->mMaxMapY);
-	
-	WRITE_BYTE(this->mDrawMapBG);
-}
 #endif
-
-#ifdef AVH_CLIENT
-int	AvHMapExtents::ReceiveFromNetworkStream()
-{
-	int theBytesRead = 0;
-
-	this->mMinViewHeight = READ_COORD();
-	this->mMaxViewHeight = READ_COORD();
-
-	this->mMinMapX = READ_COORD();
-	this->mMinMapY = READ_COORD();
-
-	this->mMaxMapX = READ_COORD();
-	this->mMaxMapY = READ_COORD();
-	theBytesRead += 2*6;
-	
-	this->mDrawMapBG = READ_BYTE();
-	theBytesRead++;
-	
-	return theBytesRead;
-}
-#endif
-
 

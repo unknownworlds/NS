@@ -187,30 +187,6 @@ private:
 //
 //-----------------------------------------------------
 //
-// REMOVED: Vgui has replaced this.
-//
-/*
-class CHudMOTD : public CHudBase
-{
-public:
-	int Init( void );
-	int VidInit( void );
-	int Draw( float flTime );
-	void Reset( void );
-
-	int MsgFunc_MOTD( const char *pszName, int iSize, void *pbuf );
-
-protected:
-	static int MOTD_DISPLAY_TIME;
-	char m_szMOTD[ MAX_MOTD_LENGTH ];
-	float m_flActiveRemaining;
-	int m_iLines;
-};
-*/
-
-//
-//-----------------------------------------------------
-//
 class CHudStatusBar : public CHudBase
 {
 public:
@@ -243,43 +219,7 @@ protected:
 	float *m_pflNameColors[MAX_STATUSBAR_LINES];
 };
 
-
-//
-//-----------------------------------------------------
-//
-// REMOVED: Vgui has replaced this.
-//
-/*
-class CHudScoreboard: public CHudBase
-{
-public:
-	int Init( void );
-	void InitHUDData( void );
-	int VidInit( void );
-	int Draw( float flTime );
-	int DrawPlayers( int xoffset, float listslot, int nameoffset = 0, char *team = NULL ); // returns the ypos where it finishes drawing
-	void UserCmd_ShowScores( void );
-	void UserCmd_HideScores( void );
-	int MsgFunc_ScoreInfo( const char *pszName, int iSize, void *pbuf );
-	int MsgFunc_TeamInfo( const char *pszName, int iSize, void *pbuf );
-	int MsgFunc_TeamScore( const char *pszName, int iSize, void *pbuf );
-	void DeathMsg( int killer, int victim );
-
-	int m_iNumTeams;
-
-	int m_iLastKilledBy;
-	int m_fLastKillTime;
-	int m_iPlayerNum;
-	int m_iShowscoresHeld;
-
-	void GetAllPlayersInfo( void );
-private:
-	struct cvar_s *cl_showpacketloss;
-
-};
-*/
-
-#define CUSTOM_ICON_LENGTH 32
+class ScoreboardIcon;
 
 struct extra_player_info_t
 {
@@ -292,9 +232,7 @@ struct extra_player_info_t
 	short playerclass;
 	short teamnumber;
 	char teamname[MAX_TEAM_NAME];
-	short auth;
-	short color;
-	char customicon[CUSTOM_ICON_LENGTH + 3]; //last 3 characters is the color.
+	ScoreboardIcon* icon;
 };
 
 struct team_info_t 
@@ -524,7 +462,6 @@ public:
 	int VidInit( void );
 	void Reset( void );
 	int Draw(float flTime);
-	int MsgFunc_StatusIcon(const char *pszName, int iSize, void *pbuf);
 	
 	enum { 
 		MAX_ICONSPRITENAME_LENGTH = MAX_SPRITE_NAME_LENGTH,

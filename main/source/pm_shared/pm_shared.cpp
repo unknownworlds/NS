@@ -73,9 +73,9 @@
 //
 //===============================================================================
 #include <assert.h>
-#include "mathlib.h"
-#include "const.h"
-#include "usercmd.h"
+#include "common/mathlib.h"
+#include "common/const.h"
+#include "common/usercmd.h"
 #include "pm_defs.h"
 #include "pm_shared.h"
 #include "pm_movevars.h"
@@ -100,6 +100,7 @@
 #include "mod/AvHMovementUtil.h"
 #include "mod/AvHMapExtents.h"
 #include "mod/AvHSharedMovementInfo.h"
+#include "util/Balance.h"
 
 
 
@@ -108,8 +109,6 @@
 #include "common/mathlib.h"
 
 #include "mod/CollisionUtil.h"
-#include "mod/AvHBalance.h"
-
 #include "engine/studio.h"
 
 
@@ -2215,8 +2214,8 @@ float PM_SetStepInterval()
 
     int theMaxSpeed = kMaxGroundPlayerSpeed;//pmove->clientmaxspeed;
 
-//  int kFastestFootstepInterval = BALANCE_IVAR(kFootstepFastInterval);
-//  int kSlowestFootstepInterval = BALANCE_IVAR(kFootstepSlowInterval);
+//  int kFastestFootstepInterval = BALANCE_VAR(kFootstepFastInterval);
+//  int kSlowestFootstepInterval = BALANCE_VAR(kFootstepSlowInterval);
 //
 //  if(pmove->iuser3 == AVH_USER3_ALIEN_PLAYER5)
 //  {
@@ -2236,27 +2235,27 @@ float PM_SetStepInterval()
     case AVH_USER3_MARINE_PLAYER:
         if(GetHasUpgrade(pmove->iuser4, MASK_UPGRADE_13))
         {
-            theScalar = BALANCE_IVAR(kFootstepHeavyScalar);
+            theScalar = BALANCE_VAR(kFootstepHeavyScalar);
         }
         else
         {
-            theScalar = BALANCE_IVAR(kFootstepMarineScalar);
+            theScalar = BALANCE_VAR(kFootstepMarineScalar);
         }
         break;
     case AVH_USER3_ALIEN_PLAYER1:
-        theScalar = BALANCE_IVAR(kFootstepSkulkScalar);
+        theScalar = BALANCE_VAR(kFootstepSkulkScalar);
         break;
     case AVH_USER3_ALIEN_PLAYER2:
-        theScalar = BALANCE_IVAR(kFootstepGorgeScalar);
+        theScalar = BALANCE_VAR(kFootstepGorgeScalar);
         break;
     case AVH_USER3_ALIEN_PLAYER3:
-        theScalar = BALANCE_IVAR(kFootstepLerkScalar);
+        theScalar = BALANCE_VAR(kFootstepLerkScalar);
         break;
     case AVH_USER3_ALIEN_PLAYER4:
-        theScalar = BALANCE_IVAR(kFootstepFadeScalar);
+        theScalar = BALANCE_VAR(kFootstepFadeScalar);
         break;
     case AVH_USER3_ALIEN_PLAYER5:
-        theScalar = BALANCE_IVAR(kFootstepOnosScalar);
+        theScalar = BALANCE_VAR(kFootstepOnosScalar);
         break;
     }
 
@@ -3057,10 +3056,6 @@ void PM_WalkMove ()
         {
             SetUpgradeMask(&pmove->iuser4, MASK_ALIEN_MOVEMENT, true);
 
-            if(fmove)
-            {
-                int a = 0;
-            }
             // Modify fmove?
             fmove = 500;
         }
@@ -4810,7 +4805,7 @@ void PM_PreventMegaBunnyJumping(bool inAir)
     if(inAir)
     {
         // Allow flyers, leapers, and JPers to go faster in the air, but still capped
-        maxscaledspeed = BALANCE_FVAR(kAirspeedMultiplier)*pmove->maxspeed;
+        maxscaledspeed = BALANCE_VAR(kAirspeedMultiplier)*pmove->maxspeed;
     }
     
     // Don't divide by zero
@@ -4997,8 +4992,8 @@ void PM_Jump (void)
                 theSpeedUpgradeLevel = 3;
             }
         }
-		int theAdjustment=theSpeedUpgradeLevel * BALANCE_FVAR(kAlienCelerityBonus);
-		float theAscendMax=BALANCE_FVAR(kLerkBaseAscendSpeedMax) + theAdjustment;
+		int theAdjustment=theSpeedUpgradeLevel * BALANCE_VAR(kAlienCelerityBonus);
+		float theAscendMax=BALANCE_VAR(kLerkBaseAscendSpeedMax) + theAdjustment;
 		static float maxVelocity=0;
 		maxVelocity=max(maxVelocity, pmove->velocity[2]); 
 		if ( pmove->velocity[2] > theAscendMax ) {
@@ -5269,7 +5264,7 @@ void PM_CheckFalling( void )
         if ((pmove->onground != -1) && !pmove->dead)
         {
             // Slow marines down on landing after a jump
-            const int theFallPenaltyThreshold = pmove->maxspeed;//BALANCE_IVAR(kUnencumberedPlayerSpeed);
+            const int theFallPenaltyThreshold = pmove->maxspeed;//BALANCE_VAR(kUnencumberedPlayerSpeed);
             if(pmove->flFallVelocity > theFallPenaltyThreshold)
             {
                 if(pmove->iuser3 == AVH_USER3_MARINE_PLAYER)
@@ -5724,11 +5719,6 @@ bool PM_TopDown()
 
         theInTopDownMode = true;
 
-        if(pmove->cmd.buttons & ( IN_ATTACK ))
-        {
-            int a = 0;
-        }
-        
         const AvHMapExtents& theMapExtents = GetMapExtents();
             
         float theMinX = theMapExtents.GetMinMapX();
@@ -5810,18 +5800,6 @@ bool PM_TopDown()
             // If player moved mouse wheel, move camera up and down if we didn't just move over a view entity
             qboolean theFoundEntity = false;
             //float theDesiredHeight = PM_GetDesiredTopDownCameraHeight(theFoundEntity);
-            if(pmove->cmd.forwardmove != 0)
-            {
-                int a = 0;
-            }
-            if(pmove->cmd.sidemove != 0)
-            {
-                int a = 0;
-            }
-            if(pmove->cmd.upmove != 0)
-            {
-                int a = 0;
-            }
             
 //          gHeightLevel += (pmove->cmd.forwardmove/300.0f);
 //          float theDesiredHeight = theMaxViewHeight + gHeightLevel;
@@ -5961,10 +5939,6 @@ bool PM_TopDown()
             //gTopDownHeight = theMaxCommanderHeight;
             #endif
             
-            if(theMaxCommanderHeight < pmove->origin[2])
-            {
-                int a = 0;
-            }
             pmove->view_ofs[2] = theMaxCommanderHeight - pmove->origin[2];
 
             //pmove->Con_Printf("PMTopDown(): up: %f, side: %f, forward: %f, impulse: %d, velocity: %f\n", pmove->cmd.upmove, pmove->cmd.sidemove, pmove->cmd.forwardmove, pmove->cmd.impulse, Length(pmove->velocity));
@@ -6035,13 +6009,13 @@ void PM_Jetpack()
 
             const float kBaseScalar = .6f;
 
-            int theMinMarineSpeed = BALANCE_IVAR(kBasePlayerSpeed);
+            int theMinMarineSpeed = BALANCE_VAR(kBasePlayerSpeed);
             if(theMinMarineSpeed == 0)
             {
                 theMinMarineSpeed = 150;
             }
 
-            int theMaxMarineSpeed = BALANCE_IVAR(kUnencumberedPlayerSpeed);
+            int theMaxMarineSpeed = BALANCE_VAR(kUnencumberedPlayerSpeed);
             if(theMaxMarineSpeed == 0)
             {
                 theMaxMarineSpeed = 220;
@@ -6118,10 +6092,6 @@ void PM_PlayerMove ( qboolean server )
         // Convert view angles to vectors
         AngleVectors (pmove->angles, pmove->forward, pmove->right, pmove->up);
     }
-    else
-    {
-        int a = 0;
-    }
 
     //if(pmove->cmd.impulse == COMMANDER_MOUSECOORD)
 //  if(pmove->iuser3 == AVH_USER3_VIS_SPECIAL_TOPDOWN)
@@ -6138,11 +6108,6 @@ void PM_PlayerMove ( qboolean server )
     //pmove->Con_Printf("Using hull: %d\n", pmove->usehull);
 
     //PM_ShowClipBox();
-
-    if(pmove->cmd.impulse == COMMANDER_SCROLL)
-    {
-        int a = 0;
-    }
 
     // Clear movement when building, giving orders, or anything other than scrolling
     if(GetHasUpgrade(pmove->iuser4, MASK_TOPDOWN))

@@ -54,19 +54,18 @@
 #include "engine/cdll_int.h"
 #include "common/event_api.h"
 #include "common/cl_entity.h"
-#include "particles/particledefs.h"
-#include "particles/p_vector.h"
-#include "particles/papi.h"
-#include "usercmd.h"
-#include "pm_defs.h"
-#include "pm_shared.h"
-#include "pm_movevars.h"
-#include "pm_debug.h"
+#include <particledefs.h>
+#include <p_vector.h>
+#include <papi.h>
+#include "common/usercmd.h"
+#include "pm_shared/pm_defs.h"
+#include "pm_shared/pm_shared.h"
+#include "pm_shared/pm_movevars.h"
+#include "pm_shared/pm_debug.h"
 
 #include "mod/AvHParticleSystemManager.h"
 #include "mod/AvHHudConstants.h"
 #include "cl_dll/ev_hldm.h"
-#include "cl_dll/parsemsg.h"
 #include "cl_dll/hud.h"
 #include "util/STLUtil.h"
 
@@ -126,28 +125,6 @@ void AvHVisibleBlipList::Draw(const pVector& inView, int kDefaultStatus)
 				pVector sV2 = V2;
 				pVector sV3 = V3;
 			
-//				SPR_Set(this->mSprite, 255, 255, 255);
-//			
-//				// Only draw if not behind viewer
-//				vec3_t theWorldPos, theScreenPos;
-//				theWorldPos[0] = this->mBlipPositions[theCurrentBlip][0];
-//				theWorldPos[1] = this->mBlipPositions[theCurrentBlip][1];
-//				theWorldPos[2] = this->mBlipPositions[theCurrentBlip][2];
-//			
-//				if(!gEngfuncs.pTriAPI->WorldToScreen(theWorldPos, theScreenPos))
-//				{
-//					theScreenPos[0] = XPROJECT(theScreenPos[0]);
-//					theScreenPos[1] = YPROJECT(theScreenPos[1]);
-//			
-//					if(theScreenPos[0] >= 0 && theScreenPos[0] < ScreenWidth)
-//					{
-//						if(theScreenPos[1] >= 0 && theScreenPos[1] < ScreenHeight)
-//						{
-//							SPR_DrawAdditive(theFrame, theScreenPos[0], theScreenPos[1], NULL);
-//						}
-//					}
-//				}
-				
 				gEngfuncs.pTriAPI->CullFace( TRI_NONE );
 				
 				gEngfuncs.pTriAPI->Begin( TRI_TRIANGLE_STRIP );
@@ -185,7 +162,7 @@ void AvHVisibleBlipList::Draw(const pVector& inView, int kDefaultStatus)
 #endif
 
 #ifdef AVH_SERVER
-#include "extdll.h"
+#include "dlls/extdll.h"
 #include "dlls/util.h"
 #endif
 
@@ -217,6 +194,19 @@ void AvHVisibleBlipList::AddBlip(float inX, float inY, float inZ, int8 inStatus,
 	}
 }
 
+void AvHVisibleBlipList::AddBlipList(const AvHVisibleBlipList& other)
+{
+	for(int copy_index = 0; copy_index < other.mNumBlips; copy_index++)
+	{
+		this->AddBlip( 
+			other.mBlipPositions[copy_index][0],
+			other.mBlipPositions[copy_index][1],
+			other.mBlipPositions[copy_index][2],
+			other.mBlipStatus[copy_index],
+			other.mBlipInfo[copy_index]
+		);
+	}
+}
 
 void AvHVisibleBlipList::Clear()
 {
@@ -244,51 +234,27 @@ void AvHVisibleBlipList::VidInit()
 }
 #endif
 
-
+#define CHECK_EQUAL(x) (this->##x == inList.##x)
 bool AvHVisibleBlipList::operator==(const AvHVisibleBlipList& inList)
 {
-	bool theAreEqual = false;
+	bool theAreEqual = CHECK_EQUAL(mNumBlips);
+#ifdef AVH_CLIENT
+	theAreEqual = theAreEqual && CHECK_EQUAL(mTimeBlipsReceived)
+		&& !memcmp(this->mSprite, inList.mSprite, kNumBlipTypes*sizeof(int));
+#endif
 
-	if(this->mNumBlips == inList.mNumBlips)
+	for( int index = 0; theAreEqual && index < this->mNumBlips; ++index )
 	{
-#ifdef AVH_CLIENT
-		if(!memcmp(this->mSprite, inList.mSprite, kNumBlipTypes*sizeof(int)))
-		{
-			if(this->mTimeBlipsReceived == inList.mTimeBlipsReceived)
-			{
-#endif
-				theAreEqual = true;
-					
-				for(int i = 0; i < this->mNumBlips; i++)
-				{
-					for(int j = 0; j < 3; j++)
-					{
-						if(this->mBlipPositions[i][j] != inList.mBlipPositions[i][j])
-						{
-							theAreEqual = false;
-							break;
-						}
-				
-					}
-					if(this->mBlipStatus[i] != inList.mBlipStatus[i])
-					{
-						theAreEqual = false;
-						break;
-					}
-					if(this->mBlipInfo[i] != inList.mBlipInfo[i])
-					{
-						theAreEqual = false;
-						break;
-					}
-				}
-#ifdef AVH_CLIENT
-			}
-		}
-#endif
+		theAreEqual = CHECK_EQUAL(mBlipPositions[index][0])
+			&& CHECK_EQUAL(mBlipPositions[index][1])
+			&& CHECK_EQUAL(mBlipPositions[index][2])
+			&& CHECK_EQUAL(mBlipStatus[index])
+			&& CHECK_EQUAL(mBlipInfo[index]);
 	}
 
 	return theAreEqual;
 }
+#undef CHECK_EQUAL
 
 bool AvHVisibleBlipList::operator!=(const AvHVisibleBlipList& inList)
 {

@@ -230,7 +230,7 @@ public:
 	// allow engine to allocate instance data
     void *operator new( size_t stAllocateBlock, entvars_t *pev )
 	{
-		return (void *)ALLOC_PRIVATE(ENT(pev), stAllocateBlock);
+		return (void *)ALLOC_PRIVATE(ENT(pev), (int)stAllocateBlock);
 	};
 
 	// don't use this.
@@ -299,6 +299,9 @@ public:
 //#endif // _WIN32
 	}
 
+#pragma warning(push)
+#pragma warning(disable: 312)
+
 	BASEPTR	ThinkSet( BASEPTR func, char *name ) 
 	{ 
 		m_pfnThink = func; 
@@ -323,6 +326,8 @@ public:
 		FunctionCheck( (void *)*((int *)((char *)this + ( offsetof(CBaseEntity,m_pfnBlocked)))), name ); 
 		return func;
 	}
+
+#pragma 
 
 #endif
 

@@ -28,6 +28,7 @@
 #include "mod/AvHMarineWeapon.h"
 #include "mod/AvHMarineWeaponConstants.h"
 #include "mod/AvHSpecials.h"
+#include "util/Balance.h"
 
 bool AvHMarineWeapon::GetAllowedForUser3(AvHUser3 inUser3)
 {
@@ -63,7 +64,7 @@ float AvHMarineWeapon::ComputeAttackInterval() const
     // Speed attack if in range of primal scream
     if(GetHasUpgrade(theUser4, MASK_BUFFED))
     {
-        float theCatalystROFFactor = 1.0f + BALANCE_FVAR(kCatalystROFFactor);
+        float theCatalystROFFactor = 1.0f + BALANCE_VAR(kCatalystROFFactor);
         theROF /= theCatalystROFFactor;
     }
 

@@ -54,13 +54,12 @@
 #include "common/const.h"
 #include "engine/progdefs.h"
 #include "cl_dll/ev_hldm.h"
-#include "cl_dll/parsemsg.h"
 #include "common/vector_util.h"
 #endif
 
 #ifdef AVH_SERVER
-#include "extdll.h"
-#include "util.h"
+#include "dlls/extdll.h"
+#include "dlls/util.h"
 #include "common/vector_util.h"
 #endif
 

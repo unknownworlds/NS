@@ -71,7 +71,6 @@
 #include "common/vector_util.h"
 #include "mod/AvHMarineWeapons.h"
 #include "dlls/util.h"
-#include "mod/AvHBalance.h"
 
 LINK_ENTITY_TO_CLASS(kwMachineGun, AvHMachineGun);
 void V_PunchAxis( int axis, float punch );
@@ -79,7 +78,7 @@ void V_PunchAxis( int axis, float punch );
 void AvHMachineGun::Init()
 {
 	this->mRange = kMGRange;
-	this->mDamage = BALANCE_IVAR(kMGDamage);
+	this->mDamage = BALANCE_VAR(kMGDamage);
 }
 
 int	AvHMachineGun::GetBarrelLength() const
@@ -89,7 +88,7 @@ int	AvHMachineGun::GetBarrelLength() const
 
 float AvHMachineGun::GetRateOfFire() const
 {
-	return BALANCE_FVAR(kMGROF);
+	return BALANCE_VAR(kMGROF);
 }
 
 int	AvHMachineGun::GetDamageType() const
@@ -152,12 +151,6 @@ void AvHMachineGun::Precache()
 	PRECACHE_UNMODIFIED_SOUND(kMGFireSound1);
 	PRECACHE_UNMODIFIED_SOUND(kMGReloadSound);
 	
-	#ifdef AVH_UPGRADE_SOUNDS
-	PRECACHE_UNMODIFIED_SOUND(kMGFireSound2);
-	PRECACHE_UNMODIFIED_SOUND(kMGFireSound3);
-	PRECACHE_UNMODIFIED_SOUND(kMGFireSound4);
-	#endif
-
 	PRECACHE_UNMODIFIED_MODEL(kGenericWallpuff);
 	
 	this->mEvent = PRECACHE_EVENT(1, kMGEventName);
@@ -171,7 +164,7 @@ void AvHMachineGun::Spawn()
 	Precache();
 
 	this->m_iId = AVH_WEAPON_MG;
-	this->m_iDefaultAmmo = BALANCE_IVAR(kMGMaxClip)*BALANCE_IVAR(kMarineSpawnClips);
+	this->m_iDefaultAmmo = BALANCE_VAR(kMGMaxClip)*BALANCE_VAR(kMarineSpawnClips);
 
     // Set our class name
 	this->pev->classname = MAKE_STRING(kwsMachineGun);

@@ -20,6 +20,10 @@
 #include "cl_dll/hud.h"
 #include "common/vec_op.h"
 #include <stdlib.h>
+#pragma warning(push)
+#pragma warning(disable: 311)
+#include <fmoddyn.h>
+#pragma warning(pop)
 #include "cl_dll/cl_util.h"
 
 AvHAmbientSound::AvHAmbientSound(const string& inRelativeSoundName, int inVolume, int inFadeDistance, bool inLooping, const Vector& inPosition, int inEntIndex, float inTimeElapsed)

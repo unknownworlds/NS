@@ -25,24 +25,19 @@
 #include "cbase.h"
 #include "saverestore.h"
 #include <time.h>
-#include "shake.h"
+#include "engine/shake.h"
 #include "decals.h"
 #include "player.h"
 #include "weapons.h"
 #include "gamerules.h"
 #include "mod/AvHServerUtil.h"
+#include "mod/AvHNetworkMessages.h"
 //#include "mod/AvHSharedUtil.h"
 //#include "mod/AvHGamerules.h"
 
-extern int gmsgHudText2;
-
 float UTIL_WeaponTimeBase( void )
 {
-#if defined( CLIENT_WEAPONS )
 	return 0.0;
-#else
-	return gpGlobals->time;
-#endif
 }
 
 static unsigned int glSeed = 0; 
@@ -722,13 +717,7 @@ void UTIL_ScreenShake( const Vector &center, float amplitude, float frequency, f
 		{
 			shake.amplitude = FixedUnsigned16( localAmplitude, 1<<12 );		// 4.12 fixed
 			
-			MESSAGE_BEGIN( MSG_ONE, gmsgShake, NULL, pPlayer->edict() );		// use the magic #1 for "one client"
-				
-				WRITE_SHORT( shake.amplitude );				// shake amount
-				WRITE_SHORT( shake.duration );				// shake lasts this long
-				WRITE_SHORT( shake.frequency );				// shake noise frequency
-
-			MESSAGE_END();
+			NetMsg_Shake( pPlayer->pev, shake );
 		}
 	}
 }
@@ -758,17 +747,7 @@ void UTIL_ScreenFadeWrite( const ScreenFade &fade, CBaseEntity *pEntity )
 	if ( !pEntity || !pEntity->IsNetClient() )
 		return;
 
-	MESSAGE_BEGIN( MSG_ONE, gmsgFade, NULL, pEntity->edict() );		// use the magic #1 for "one client"
-		
-		WRITE_SHORT( fade.duration );		// fade lasts this long
-		WRITE_SHORT( fade.holdTime );		// fade lasts this long
-		WRITE_SHORT( fade.fadeFlags );		// fade type (in / out)
-		WRITE_BYTE( fade.r );				// fade red
-		WRITE_BYTE( fade.g );				// fade green
-		WRITE_BYTE( fade.b );				// fade blue
-		WRITE_BYTE( fade.a );				// fade blue
-
-	MESSAGE_END();
+	NetMsg_Fade( pEntity->pev, fade );
 }
 
 
@@ -855,41 +834,26 @@ void UTIL_HudMessageAll( const hudtextparms_t &textparms, const char *pMessage )
 }
 
 					 
-extern int gmsgTextMsg, gmsgSayText;
 void UTIL_ClientPrintAll( int msg_dest, const char *msg_name, const char *param1, const char *param2, const char *param3, const char *param4 )
 {
-	MESSAGE_BEGIN( MSG_ALL, gmsgTextMsg );
-		WRITE_BYTE( msg_dest );
-		WRITE_STRING( msg_name );
-
-		if ( param1 )
-			WRITE_STRING( param1 );
-		if ( param2 )
-			WRITE_STRING( param2 );
-		if ( param3 )
-			WRITE_STRING( param3 );
-		if ( param4 )
-			WRITE_STRING( param4 );
-
-	MESSAGE_END();
+	vector<string> message;
+	message.push_back( msg_name );
+	if( param1 ) message.push_back( param1 );
+	if( param2 ) message.push_back( param2 );
+	if( param3 ) message.push_back( param3 );
+	if( param4 ) message.push_back( param4 );
+	NetMsg_TextMsg( msg_dest, message );
 }
 
 void ClientPrint( entvars_t *client, int msg_dest, const char *msg_name, const char *param1, const char *param2, const char *param3, const char *param4 )
 {
-	MESSAGE_BEGIN( MSG_ONE, gmsgTextMsg, NULL, client );
-		WRITE_BYTE( msg_dest );
-		WRITE_STRING( msg_name );
-
-		if ( param1 )
-			WRITE_STRING( param1 );
-		if ( param2 )
-			WRITE_STRING( param2 );
-		if ( param3 )
-			WRITE_STRING( param3 );
-		if ( param4 )
-			WRITE_STRING( param4 );
-
-	MESSAGE_END();
+	vector<string> message;
+	message.push_back( msg_name );
+	if( param1 ) message.push_back( param1 );
+	if( param2 ) message.push_back( param2 );
+	if( param3 ) message.push_back( param3 );
+	if( param4 ) message.push_back( param4 );
+	NetMsg_TextMsg( client, msg_dest, message );
 }
 
 void UTIL_SayText( const char *pText, CBaseEntity *pEntity, int inEntIndex)
@@ -912,11 +876,7 @@ void UTIL_SayText( const char *pText, CBaseEntity *pEntity, int inEntIndex)
 		}
 	}
 
-	MESSAGE_BEGIN( MSG_ONE, gmsgSayText, NULL, pEntity->edict() );
-		WRITE_BYTE( inEntIndex );
-		WRITE_STRING( pText );
-		WRITE_STRING( theLocation.c_str() );
-	MESSAGE_END();
+	NetMsg_SayText( pEntity->pev, inEntIndex, string( pText ), theLocation );
 }
 
 void UTIL_SayTextAll( const char *pText, CBaseEntity *pEntity, int inEntIndex)
@@ -936,11 +896,7 @@ void UTIL_SayTextAll( const char *pText, CBaseEntity *pEntity, int inEntIndex)
 		}
 	}
 
-	MESSAGE_BEGIN( MSG_ALL, gmsgSayText, NULL );
-		WRITE_BYTE( inEntIndex );
-		WRITE_STRING( pText );
-		WRITE_STRING(theLocation.c_str());
-	MESSAGE_END();
+	NetMsg_SayText( inEntIndex, string( pText ), theLocation );
 }
 
 void UTIL_Tutorial( CBaseEntity *pEntity, const char *pMessage )
@@ -1027,9 +983,7 @@ void UTIL_ShowMessage( const char *pString, CBaseEntity *pEntity)
 	if ( !pEntity || !pEntity->IsNetClient() )
 		return;
 
-	MESSAGE_BEGIN( MSG_ONE, gmsgHudText, NULL, pEntity->edict() );
-		WRITE_STRING( pString );
-	MESSAGE_END();
+	NetMsg_HudText( pEntity->pev, string( pString ) );
 }
 
 void UTIL_ShowMessage2( const char *pString, CBaseEntity *pEntity, bool inIsAutoHelp)
@@ -1037,10 +991,7 @@ void UTIL_ShowMessage2( const char *pString, CBaseEntity *pEntity, bool inIsAuto
 	if ( !pEntity || !pEntity->IsNetClient() )
 		return;
 	
-	MESSAGE_BEGIN( MSG_ONE, gmsgHudText2, NULL, pEntity->edict() );
-		WRITE_STRING( pString );
-		WRITE_BYTE(inIsAutoHelp);
-	MESSAGE_END();
+	NetMsg_HudText2( pEntity->pev, string( pString ), inIsAutoHelp ? 1 : 0 );
 }
 
 
@@ -1194,7 +1145,12 @@ char* UTIL_VarArgs( char *format, ... )
 	static char		string[1024];
 	
 	va_start (argptr, format);
+#ifdef WIN32
+   //overflow protection in MS version of function...
+   _vsnprintf( string, 1023, format, argptr );
+#else
 	vsprintf (string, format,argptr);
+#endif
 	va_end (argptr);
 
 	return string;	
@@ -1711,7 +1667,12 @@ void UTIL_LogPrintf( char *fmt, ... )
 	static char		string[1024];
 	
 	va_start ( argptr, fmt );
+#ifdef WIN32
+   //overflow protection in MS version of function...
+   _vsnprintf( string, 1023, fmt, argptr );
+#else
 	vsprintf ( string, fmt, argptr );
+#endif
 	va_end   ( argptr );
 
 	// Print to server console

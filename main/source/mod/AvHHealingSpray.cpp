@@ -76,7 +76,7 @@ LINK_ENTITY_TO_CLASS(kwHealingSpray, AvHHealingSpray);
 void AvHHealingSpray::Init()
 {
 	this->mRange = kHealingSprayRange;
-	this->mDamage = BALANCE_IVAR(kHealingSprayDamage);
+	this->mDamage = BALANCE_VAR(kHealingSprayDamage);
 }
 
 int	AvHHealingSpray::GetBarrelLength() const
@@ -86,7 +86,7 @@ int	AvHHealingSpray::GetBarrelLength() const
 
 float AvHHealingSpray::GetRateOfFire() const
 {
-	return BALANCE_FVAR(kHealingSprayROF);
+	return BALANCE_VAR(kHealingSprayROF);
 }
 
 int	AvHHealingSpray::GetDamageType() const
@@ -202,11 +202,11 @@ void AvHHealingSpray::FireProjectiles(void)
 						{
 							// Players and buildables heal armor too
 							AvHBaseBuildable* theBuildable = dynamic_cast<AvHBaseBuildable*>(theCurrentEntity);
-							const int theBuildableHealingSprayScalar = BALANCE_IVAR(kHealingSprayBuildableScalar);
+							const int theBuildableHealingSprayScalar = BALANCE_VAR(kHealingSprayBuildableScalar);
 							if(thePlayer)
 							{
 								// Players heal by base amount, plus percentage of health
-								float thePercentage = BALANCE_IVAR(kHealingSprayPlayerPercent)/100.0f;
+								float thePercentage = BALANCE_VAR(kHealingSprayPlayerPercent)/100.0f;
 								theDamage += thePercentage*theCurrentEntity->pev->max_health;
 								thePlayer->Heal(theDamage, true);
 							}
@@ -222,7 +222,7 @@ void AvHHealingSpray::FireProjectiles(void)
                                         AvHPlayer* theHealsprayingPlayer = dynamic_cast<AvHPlayer*>(this->m_pPlayer);
                                         if(theHealsprayingPlayer && (theHealsprayingPlayer->pev->team == theBuildable->pev->team))
                                         {
-                                            float theCombatHealExperienceScalar = BALANCE_FVAR(kCombatHealExperienceScalar);
+                                            float theCombatHealExperienceScalar = BALANCE_VAR(kCombatHealExperienceScalar);
                                             theHealsprayingPlayer->AwardExperienceForObjective(theAmount*theCombatHealExperienceScalar, theBuildable->GetMessageID());
                                         }
                                     }

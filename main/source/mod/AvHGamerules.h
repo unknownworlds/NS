@@ -118,8 +118,9 @@ public:
 	AvHMessageID	mUpgrade;
 };
 
-typedef vector< pair<string, string> >					AuthIDListType;
-typedef map<AvHPlayerAuthentication, AuthIDListType>	AuthMaskListType;
+typedef vector< pair <string, int> >	MapVoteListType;
+typedef map< int, int >					PlayerMapVoteListType;
+typedef map< int, float >				PlayerVoteTimeType;
 
 class AvHGamerules : public CHalfLifeTeamplay //public CHalfLifeMultiplay/*, public AvHCOCRuleset*/
 {
@@ -136,35 +137,22 @@ public:
 	virtual void		ClientUserInfoChanged( CBasePlayer *pPlayer, char *infobuffer );
 	virtual const char* GetGameDescription(void);
 
-#ifndef USE_UPP    
-	virtual BOOL		GetIsClientAuthorizedToPlay(edict_t* inEntity, bool inDisplayMessage, bool inForcePending = false) const;
-	virtual bool		PerformHardAuthorization(AvHPlayer* inPlayer) const;
-#endif
-
 	virtual int			WeaponShouldRespawn( CBasePlayerItem *pWeapon );
 	virtual void		DeathNotice( CBasePlayer *pVictim, entvars_t *pKiller, entvars_t *pInflictor);
 
 	virtual BOOL		FShouldSwitchWeapon(CBasePlayer* inPlayer, CBasePlayerItem* inWeapon);
 
-#ifndef USE_UPP
-	virtual int			GetAuthenticationMask(const string& inAuthID) const;
-#endif
     virtual bool        GetCountdownStarted(void) const;
     virtual bool        GetGameStarted(void) const;
 	virtual int			GetGameTime() const;
 	virtual void		SetGameStarted(bool inGameStarted);
 	AvHEntityHierarchy& GetEntityHierarchy(AvHTeamNumber inTeam);
 	bool				GetIsPlayerSelectableByPlayer(AvHPlayer* inTargetPlayer, AvHPlayer* inByPlayer);
-	const AuthIDListType&	GetServerOpList() const;
 	virtual int			IPointsForKill(CBasePlayer *pAttacker, CBasePlayer *pKilled);
 	void				ProcessTeamUpgrade(AvHMessageID inUpgrade, AvHTeamNumber inNumber, int inEntity, bool inGive = true);
 
-	#ifdef AVH_PLAYTEST_BUILD
 	// Playtest functionality
 	void				BalanceChanged();
-	int					GetBalanceInt(const string& inName) const;
-	float				GetBalanceFloat(const string& inName) const;
-	#endif
 
     // This isn't called yet, add in hooks?
     void                ClientKill( edict_t *pEntity );
@@ -222,7 +210,6 @@ public:
 	float				GetFirstScanThinkTime() const;
 	bool				GetDrawInvisibleEntities() const;
 	bool				GetEntityExists(const char* inName) const;
-	bool				GetIsMapperBuild() const;
 	bool				GetIsTesting(void) const;
 	bool				GetIsValidFutureTeam(AvHPlayer inPlayer, int inTeamNumber) const;
 	bool				GetCanJoinTeamInFuture(AvHPlayer* inPlayer, AvHTeamNumber theTeamNumber, string& outString) const;
@@ -235,7 +222,11 @@ public:
 	int					GetWeightForItemAndAmmo(AvHWeaponID inWeapon, int inNumRounds) const;
 	bool				AttemptToJoinTeam(AvHPlayer* inPlayer, AvHTeamNumber theTeamNumber, bool inDisplayErrorMessage = true);
 	const AvHTeam*		GetTeam(AvHTeamNumber inTeamNumber) const;
+	const AvHTeam*		GetTeamA() const;
+	const AvHTeam*		GetTeamB() const;
 	AvHTeam*			GetTeam(AvHTeamNumber inTeamNumber);
+	AvHTeam*			GetTeamA();
+	AvHTeam*			GetTeamB();
     AvHMapMode			GetMapMode(void) const;
 	int					GetServerTick() const;
 	AvHTeamNumber		GetVictoryTeam() const;
@@ -247,7 +238,6 @@ public:
 	void				PreWorldPrecacheReset();
 	void				RegisterSpawnPoint(const string& inClassName, const Vector& inOrigin, const Vector& inAngles, const AvHTeamNumber& inTeamNumber);
 	void				RespawnPlayer(AvHPlayer* inPlayer);
-	void				UpdateUplink();
 
 	void				TriggerAlert(AvHTeamNumber inTeamNumber, AvHAlertType inAlertType, int inEntIndex, AvHMessageID inMessageID = MESSAGE_NULL);
 	bool				GetIsEntityUnderAttack(int inEntityIndex) const;
@@ -260,7 +250,6 @@ public:
 	virtual AvHTeamNumber	GetCombatAttackingTeamNumber() const;
     virtual bool		GetIsNSMode(void) const;
 	virtual bool		GetIsTrainingMode(void) const;
-	virtual void		UpdateGameMode(CBasePlayer* inPlayer);
 
 	int					GetBaseHealthForMessageID(AvHMessageID inMessageID) const;
 	int					GetBuildTimeForMessageID(AvHMessageID inMessageID) const;
@@ -283,11 +272,6 @@ public:
     bool                GetMapVoteStrings(StringList& outMapVoteList);
 	void				RemovePlayerFromVotemap(int inPlayerIndex);
 
-#ifdef AVH_PLAYTEST_BUILD
-	const BalanceIntListType&	GetBalanceInts() const;
-	const BalanceFloatListType&	GetBalanceFloats() const;
-#endif
-
 protected:
 	void				AutoAssignPlayer(AvHPlayer* inPlayer);
 	void				PerformMapValidityCheck();
@@ -297,9 +281,6 @@ protected:
 	virtual void		SendMOTDToClient( edict_t *client );
 
 private:
-#ifndef USE_UPP
-	void				AddAuthStatus(AvHPlayerAuthentication inAuthMask, const string& inWONID, const string& inSteamID);
-#endif
 	void				AwardExperience(AvHPlayer* inPlayer, int inTargetLevel, bool inAwardFriendliesInRange = true);
 	void				CalculateMapExtents();
 	void				CalculateMapGamma();
@@ -307,12 +288,8 @@ private:
     void                JoinTeam(AvHPlayer* inPlayer, AvHTeamNumber theTeamNumber, bool inDisplayErrorMessage, bool inForce);
 	void				PreWorldPrecacheInitParticles();
 	void				PostWorldPrecacheInitParticles();
-#ifndef USE_UPP
-	void				DisplayVersioning();
-	void				InitializeAuthentication();
-#endif
     void                InitializeMapVoteList();
-    int                 GetVotesNeededForMapChange();
+    int                 GetVotesNeededForMapChange() const;
 	void				InitializeTechNodes();
 	void				InternalResetGameRules();
 	int					GetNumberOfPlayers() const;
@@ -352,13 +329,10 @@ private:
 	bool				mStartedCountdown;
 	bool				mSentCountdownMessage;
 	bool				mVictoryDraw;
-	AvHTeam				mTeamOne;
-	AvHTeam				mTeamTwo;
+	AvHTeam				mTeamA;
+	AvHTeam				mTeamB;
 	float				mVictoryTime;
     AvHMapMode			mMapMode;
-#ifndef USE_UPP
-	bool				mUpdatedUplink;
-#endif
 
 	float				mLastParticleUpdate;
 	float				mLastNetworkUpdate;
@@ -376,8 +350,8 @@ private:
 	TeamPurchaseListType			mPendingTeamUpgrades;
 
 	// Potentially marines vs. marines
-	AvHEntityHierarchy	mTeamOneEntityHierarchy;
-	AvHEntityHierarchy	mTeamTwoEntityHierarchy;
+	AvHEntityHierarchy	mTeamAEntityHierarchy;
+	AvHEntityHierarchy	mTeamBEntityHierarchy;
 
 	AvHGameplay			mGameplay;
 
@@ -397,31 +371,17 @@ private:
 
 	float				mSavedTimeCountDownStarted;
 
-	AuthIDListType		mServerOpList;
-
 	SpawnListType				mSpawnList;
 	mutable CBaseEntity*		mSpawnEntity;
 
-	// Balancing stuff
-	#ifdef AVH_PLAYTEST_BUILD
-	void						ReadBalanceData();
-	void						RecordBalanceData();
-
-	BalanceIntListType			mBalanceInts;
-	BalanceFloatListType		mBalanceFloats;
-	#endif
-
     // Map voting
-    typedef vector< pair <string, int> >	MapVoteListType;
-    MapVoteListType                         mMapVoteList;
-	typedef map< int, int >					PlayerMapVoteListType;
-	PlayerMapVoteListType					mPlayersVoted;
-	map< int, float >						mPlayersVoteTime; 
+    MapVoteListType				mMapVoteList;
+	PlayerMapVoteListType		mPlayersVoted;
+	PlayerVoteTimeType			mPlayersVoteTime; 
 
-    std::vector<std::string> mServerVariableList;
+    std::vector<std::string>	mServerVariableList;
 
 	AvHTeamNumber				mCombatAttackingTeamNumber;
-
 };
 
 AvHGamerules* GetGameRules();

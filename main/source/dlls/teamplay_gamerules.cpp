@@ -26,13 +26,15 @@
 #include	"mod/AvHConstants.h"
 #include	"mod/AvHServerVariables.h"
 #include	"mod/AvHServerUtil.h"
-#include	"mod/UPPUtil.h"
+#include	"mod/AvHNetworkMessages.h"
 
 static char team_names[MAX_TEAMS][MAX_TEAMNAME_LENGTH];
 static int team_scores[MAX_TEAMS];
 static int num_teams = 0;
 
 extern DLL_GLOBAL BOOL		g_fGameOver;
+
+std::string GetLogStringForPlayer( edict_t *pEntity ); //defined in client.cpp
 
 CHalfLifeTeamplay :: CHalfLifeTeamplay()
 {
@@ -73,7 +75,7 @@ CHalfLifeTeamplay :: CHalfLifeTeamplay()
 
 extern cvar_t timeleft, fragsleft;
 
-#include "voice_gamemgr.h"
+#include "game_shared/voice_gamemgr.h"
 extern CVoiceGameMgr	g_VoiceGameMgr;
 
 void CHalfLifeTeamplay :: Think ( void )
@@ -170,19 +172,6 @@ BOOL CHalfLifeTeamplay :: ClientCommand( CBasePlayer *pPlayer, const char *pcmd 
 	return FALSE;
 }
 
-extern int gmsgGameMode;
-extern int gmsgTeamInfo;
-extern int gmsgTeamNames;
-extern int gmsgScoreInfo;
-
-void CHalfLifeTeamplay :: UpdateGameMode( CBasePlayer *pPlayer )
-{
-	MESSAGE_BEGIN( MSG_ONE, gmsgGameMode, NULL, pPlayer->edict() );
-		WRITE_BYTE( 1 );  // game mode teamplay
-	MESSAGE_END();
-}
-
-
 const char *CHalfLifeTeamplay::SetDefaultPlayerTeam( CBasePlayer *pPlayer )
 {
 	// copy out the team name from the model
@@ -218,62 +207,20 @@ const char *CHalfLifeTeamplay::SetDefaultPlayerTeam( CBasePlayer *pPlayer )
 //=========================================================
 void CHalfLifeTeamplay::InitHUD( CBasePlayer *pPlayer )
 {
-	int i;
-
 	SetDefaultPlayerTeam( pPlayer );
 	CHalfLifeMultiplay::InitHUD( pPlayer );
 
-	// Send down the team names
-	MESSAGE_BEGIN( MSG_ONE, gmsgTeamNames, NULL, pPlayer->edict() );  
-		WRITE_BYTE( num_teams );
+	StringList team_name_list;
+	for( int counter = 0; counter < num_teams; counter++ )
+	{ team_name_list.push_back( string("#") + string(team_names[counter]) ); }
 
-		for ( i = 0; i < num_teams; i++ )
-		{
-			char theTeamName[256];
-			strcpy(theTeamName, team_names[i]);
-
-			// If the team name isn't empty, append # so team name is translated on client
-			if(strcmp(theTeamName, ""))
-			{
-				sprintf(theTeamName, "#%s", team_names[i]);
-			}
-			
-			WRITE_STRING(theTeamName);
-		}
-	MESSAGE_END();
+	NetMsg_TeamNames( pPlayer->pev, team_name_list );
 
 	RecountTeams();
-
-//	char *mdls = g_engfuncs.pfnInfoKeyValue( g_engfuncs.pfnGetInfoKeyBuffer( pPlayer->edict() ), "model" );
-//	// update the current player of the team he is joining
-//	char text[1024];
-//	if ( !strcmp( mdls, pPlayer->m_szTeamName ) )
-//	{
-//		sprintf( text, "* you are on team \'%s\'\n", pPlayer->m_szTeamName );
-//	}
-//	else
-//	{
-//		sprintf( text, "* assigned to team %s\n", pPlayer->m_szTeamName );
-//	}
 
 	ChangePlayerTeam( pPlayer, pPlayer->TeamID(), FALSE, FALSE );
-//	UTIL_SayText( text, pPlayer );
 	int clientIndex = pPlayer->entindex();
 	RecountTeams();
-
-//	// update this player with all the other players team info
-//	// loop through all active players and send their team info to the new client
-//	for ( i = 1; i <= gpGlobals->maxClients; i++ )
-//	{
-//		CBasePlayer *plr = (CBasePlayer*)UTIL_PlayerByIndex( i );
-//		if ( plr && IsValidTeam( plr->TeamID() ) )
-//		{
-//			MESSAGE_BEGIN( MSG_ONE, gmsgTeamInfo, NULL, pPlayer->edict() );
-//				WRITE_BYTE( plr->entindex() );
-//				WRITE_STRING( plr->TeamID() );
-//			MESSAGE_END();
-//		}
-//	}
 
 	pPlayer->NeedsTeamUpdate();
 }
@@ -306,30 +253,12 @@ void CHalfLifeTeamplay::ChangePlayerTeam( CBasePlayer *pPlayer, const char *pTea
 		m_DisableDeathPenalty = FALSE;
 	}
 
-	// copy out the team name from the model
-	//strncpy( pPlayer->m_szTeamName, pTeamName, TEAM_NAME_LENGTH );
 	pPlayer->SetTeamID(pTeamName);
 
-    // Don't assume team and model are linked
-	//g_engfuncs.pfnSetClientKeyValue( clientIndex, g_engfuncs.pfnGetInfoKeyBuffer( pPlayer->edict() ), "model", pPlayer->m_szTeamName );
 	g_engfuncs.pfnSetClientKeyValue( clientIndex, g_engfuncs.pfnGetInfoKeyBuffer( pPlayer->edict() ), "team", pPlayer->TeamID());
 
 	// notify everyone's HUD of the team change
-//	MESSAGE_BEGIN( MSG_ALL, gmsgTeamInfo );
-//		WRITE_BYTE( clientIndex );
-//		//WRITE_STRING( pPlayer->m_szTeamName );
-//		WRITE_STRING( pPlayer->TeamID() );
-//	MESSAGE_END();
 	pPlayer->SendTeamUpdate();
-
-//	MESSAGE_BEGIN( MSG_ALL, gmsgScoreInfo );
-//		WRITE_BYTE( clientIndex );
-//		WRITE_SHORT( pPlayer->pev->frags );
-//		WRITE_SHORT( pPlayer->m_iDeaths );
-//		WRITE_SHORT( pPlayer->GetEffectivePlayerClass() );
-//		//WRITE_SHORT( g_pGameRules->GetTeamIndex( pPlayer->m_szTeamName ) + 1 );
-//		WRITE_SHORT( g_pGameRules->GetTeamIndex( pPlayer->TeamID() ) );
-//	MESSAGE_END();
 
 	pPlayer->EffectivePlayerClassChanged();
 }
@@ -374,23 +303,12 @@ void CHalfLifeTeamplay::ClientUserInfoChanged( CBasePlayer *pPlayer, char *infob
 	sprintf( text, "* %s has changed to team \'%s\'\n", STRING(pPlayer->pev->netname), mdls );
 	UTIL_SayTextAll( text, pPlayer );
 
-	UTIL_LogPrintf( "\"%s<%i><%s><%s>\" joined team \"%s\"\n", 
-		STRING(pPlayer->pev->netname),
-		GETPLAYERUSERID( pPlayer->edict() ),
-#ifdef USE_UPP
-				UPPUtil_GetNetworkID(pPlayer->edict()).c_str(),
-#else
-				AvHSUGetPlayerAuthIDString( pPlayer->edict() ).c_str(),
-#endif
-		pPlayer->TeamID(),
-		mdls );
+	UTIL_LogPrintf( "%s joined team \"%s\"\n", GetLogStringForPlayer( pPlayer->edict() ).c_str(), mdls );
 
 	ChangePlayerTeam( pPlayer, mdls, TRUE, TRUE );
 	// recound stuff
 	RecountTeams();
 }
-
-extern int gmsgDeathMsg;
 
 //=========================================================
 // Deathnotice. 
@@ -408,11 +326,7 @@ void CHalfLifeTeamplay::DeathNotice( CBasePlayer *pVictim, entvars_t *pKiller, e
 		{
 			if ( (pk != pVictim) && (PlayerRelationship( pVictim, pk ) == GR_TEAMMATE) )
 			{
-				MESSAGE_BEGIN( MSG_ALL, gmsgDeathMsg );
-					WRITE_BYTE( ENTINDEX(ENT(pKiller)) );		// the killer
-					WRITE_BYTE( ENTINDEX(pVictim->edict()) );	// the victim
-					WRITE_STRING( "teammate" );		// flag this as a teammate kill
-				MESSAGE_END();
+				NetMsg_DeathMsg( ENTINDEX(ENT(pKiller)), ENTINDEX(pVictim->edict()), string("teammate") );
 				return;
 			}
 		}

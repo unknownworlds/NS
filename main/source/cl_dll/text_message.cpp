@@ -24,7 +24,7 @@
 #include "cl_util.h"
 #include <string.h>
 #include <stdio.h>
-#include "parsemsg.h"
+#include "mod/AvHNetworkMessages.h"
 
 #include "vgui_TeamFortressViewport.h"
 
@@ -130,7 +130,7 @@ char *CHudTextMessage::LookupString( const char *msg, int *msg_dest )
 
 void StripEndNewlineFromString( char *str )
 {
-	int s = strlen( str ) - 1;
+	int s = (int)strlen( str ) - 1;
 	if ( str[s] == '\n' || str[s] == '\r' )
 		str[s] = 0;
 }
@@ -159,53 +159,37 @@ char* ConvertCRtoNL( char *str )
 // the next (optional) one to four strings are parameters for that string (which can also be message names if they begin with '#')
 int CHudTextMessage::MsgFunc_TextMsg( const char *pszName, int iSize, void *pbuf )
 {
-	BEGIN_READ( pbuf, iSize );
-
-	int msg_dest = READ_BYTE();
-
-	static char szBuf[6][128];
-	char *msg_text = LookupString( READ_STRING(), &msg_dest );
-	msg_text = strcpy( szBuf[0], msg_text );
-
-	// keep reading strings and using C format strings for subsituting the strings into the localised text string
-	char *sstr1 = LookupString( READ_STRING() );
-	sstr1 = strcpy( szBuf[1], sstr1 );
-	StripEndNewlineFromString( sstr1 );  // these strings are meant for subsitution into the main strings, so cull the automatic end newlines
-	char *sstr2 = LookupString( READ_STRING() );
-	sstr2 = strcpy( szBuf[2], sstr2 );
-	StripEndNewlineFromString( sstr2 );
-	char *sstr3 = LookupString( READ_STRING() );
-	sstr3 = strcpy( szBuf[3], sstr3 );
-	StripEndNewlineFromString( sstr3 );
-	char *sstr4 = LookupString( READ_STRING() );
-	sstr4 = strcpy( szBuf[4], sstr4 );
-	StripEndNewlineFromString( sstr4 );
-	char *psz = szBuf[5];
+	int destination;
+	StringList message;
+	NetMsg_TextMsg( pbuf, iSize, destination, message );
 
 	if ( gViewPort && gViewPort->AllowedToPrintText() == FALSE )
 		return 1;
 
-	switch ( msg_dest )
+	while( message.size() < 5 )
+	{ message.push_back( string("") ); }
+	char psz[1024];
+
+	char* origin = psz;
+	if( destination == HUD_PRINTNOTIFY )
+	{ 
+		psz[0] = 1;
+		origin = psz + 1;
+	}
+	sprintf( origin, message[0].c_str(), message[1].c_str(), message[2].c_str(), message[3].c_str(), message[4].c_str() );
+	ConvertCRtoNL(psz);
+
+	switch ( destination )
 	{
-	case HUD_PRINTCENTER:
-		sprintf( psz, msg_text, sstr1, sstr2, sstr3, sstr4 );
-		CenterPrint( ConvertCRtoNL( psz ) );
-		break;
-
 	case HUD_PRINTNOTIFY:
-		psz[0] = 1;  // mark this message to go into the notify buffer
-		sprintf( psz+1, msg_text, sstr1, sstr2, sstr3, sstr4 );
-		ConsolePrint( ConvertCRtoNL( psz ) );
-		break;
-
-	case HUD_PRINTTALK:
-		sprintf( psz, msg_text, sstr1, sstr2, sstr3, sstr4 );
-		gHUD.m_SayText.SayTextPrint( ConvertCRtoNL( psz ), 128 );
-		break;
-
 	case HUD_PRINTCONSOLE:
-		sprintf( psz, msg_text, sstr1, sstr2, sstr3, sstr4 );
-		ConsolePrint( ConvertCRtoNL( psz ) );
+		ConsolePrint(psz);
+		break;
+	case HUD_PRINTCENTER:
+		CenterPrint(psz);
+		break;
+	case HUD_PRINTTALK:
+		gHUD.m_SayText.SayTextPrint(psz, 1024);
 		break;
 	}
 

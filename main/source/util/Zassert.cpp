@@ -4,6 +4,8 @@
 // Code may be used and distributed freely as long as all
 // changes are noted appropriately.
 
+#pragma warning(disable: 244 267 311 312)
+
 #ifdef WIN32
 	#include "windows.h"
 #else

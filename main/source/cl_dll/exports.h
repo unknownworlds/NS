@@ -1,6 +1,4 @@
 
-#include "build.h"
-
 #if defined( FINAL_VAC_BUILD )
 #define CL_DLLEXPORT
 #else

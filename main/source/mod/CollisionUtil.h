@@ -5,7 +5,7 @@ extern const float AVH_INFINITY;
 extern const float AVH_EPSILON;
 
 #include <vector>
-#include "pm_defs.h"
+#include "pm_shared/pm_defs.h"
 #include "CollisionChecker.h"
 
 /**

@@ -81,8 +81,8 @@
 //===============================================================================
 
 #ifdef AVH_SERVER
-#include "extdll.h"
-#include "util.h"
+#include "dlls/extdll.h"
+#include "dlls/util.h"
 #include "types.h"
 #endif
 
@@ -459,42 +459,42 @@ int AvHSHUGetDrawRangeForUser3(AvHUser3 inUser3)
 	switch(inUser3)
 	{
 	case AVH_USER3_COMMANDER_STATION:
-		theRange = BALANCE_IVAR(kCommandStationBuildDistance);
+		theRange = BALANCE_VAR(kCommandStationBuildDistance);
 		break;
 
 	case AVH_USER3_FUNC_RESOURCE:
-		theRange = BALANCE_IVAR(kResourceTowerBuildDistanceTolerance);
+		theRange = BALANCE_VAR(kResourceTowerBuildDistanceTolerance);
 		break;
 
 	case AVH_USER3_TURRET_FACTORY:
 	case AVH_USER3_ADVANCED_TURRET_FACTORY:
-		theRange = BALANCE_IVAR(kTurretFactoryBuildDistance);
+		theRange = BALANCE_VAR(kTurretFactoryBuildDistance);
 		break;
 
 	case AVH_USER3_ARMORY:
 	case AVH_USER3_ADVANCED_ARMORY:
-		theRange = BALANCE_IVAR(kArmoryBuildDistance);
+		theRange = BALANCE_VAR(kArmoryBuildDistance);
 		break;
 
 	case AVH_USER3_TURRET:
-		theRange = BALANCE_IVAR(kTurretRange);
+		theRange = BALANCE_VAR(kTurretRange);
 		break;
 
 	case AVH_USER3_SIEGETURRET:
 		// TODO: Figure out a way to return minimum range also?
-		theRange = BALANCE_IVAR(kSiegeTurretRange);
+		theRange = BALANCE_VAR(kSiegeTurretRange);
 		break;
 
 	case AVH_USER3_PROTOTYPE_LAB:
-		theRange = BALANCE_IVAR(kArmorDropRange);
+		theRange = BALANCE_VAR(kArmorDropRange);
 		break;
 
 	case AVH_USER3_OBSERVATORY:
-		theRange = BALANCE_IVAR(kObservatoryXYDetectionRadius);
+		theRange = BALANCE_VAR(kObservatoryXYDetectionRadius);
 		break;
 
 	case AVH_USER3_SENSORY_CHAMBER:
-		theRange = BALANCE_IVAR(kSensoryChamberRange);
+		theRange = BALANCE_VAR(kSensoryChamberRange);
 		break;
 	}
 
@@ -882,11 +882,11 @@ void AvHSHUGetMinBuildRadiusViolations(AvHMessageID inMessageID, vec3_t& inLocat
 					// in the same way as buildings to prevent this exploit.
  					float theMinMarineBuildDistance;
                		if (theUser3 == AVH_USER3_MARINE_PLAYER) {
-						theMinMarineBuildDistance = BALANCE_FVAR(kMinMarinePlayerBuildDistance);
+						theMinMarineBuildDistance = BALANCE_VAR(kMinMarinePlayerBuildDistance);
 					}
 					else
 					{
-						theMinMarineBuildDistance = BALANCE_FVAR(kMinMarineBuildDistance);
+						theMinMarineBuildDistance = BALANCE_VAR(kMinMarineBuildDistance);
 					}
 					// :joev
                     if (theDistance < theMinMarineBuildDistance + theMaxRadius1 + theMaxRadius2)
@@ -2639,10 +2639,6 @@ bool AvHSHUGetEntitiesBlocking(Vector& inOrigin, Vector& inMinSize, Vector& inMa
 			{
 				theEntList.push_back(make_pair(theEntity->pev->iuser3, theEntity->pev->origin));
 			}
-			else
-			{
-				int a = 0;
-			}
 		}
 	}
 	#endif
@@ -2715,7 +2711,7 @@ bool AvHSHUGetEntitiesBlocking(Vector& inOrigin, Vector& inMinSize, Vector& inMa
 void AvHSHUMakeViewFriendlyKillerName(string& ioKillerName)
 {
 	string theOutputName = ioKillerName;
-	int theStrLen = ioKillerName.length();
+	int theStrLen = (int)ioKillerName.length();
 
 	if(!strncmp(ioKillerName.c_str(), "weapon_", 7))
 	{
@@ -3092,10 +3088,6 @@ bool AvHSUServerTraceTangible(const vec3_t& inStartPos, const vec3_t& inEndPos, 
 			AvHWeldable* theWeldable = dynamic_cast<AvHWeldable*>(theEntityHit);
 
 			AvHBasePlayerWeapon* theWeapon = dynamic_cast<AvHBasePlayerWeapon*>(theEntityHit);
-			if(theWeapon)
-			{
-				int a = 0;
-			}
 
 			if(AvHSUGetIsDebugging())
 			{
@@ -3739,39 +3731,6 @@ bool AvHSHUTraceVerticalTangible(float inX, float inY, float inZ, int& outUserTh
 		outHeight = theEndLocation.z;
 		ASSERT(outHeight <= inZ);
 	}
-
-	//	#ifdef AVH_CLIENT
-	//	extern DebugPointListType				gSquareDebugLocations;
-	//
-	//	if(theSuccess && theDrawDebug/*&& ((rand() % 500) == 0)*/)
-	//	{
-	//		if(!thePlayerHit && (outUserThree == AVH_USER3_WAYPOINT))
-	//		{
-	//			DebugPoint theEndPoint;
-	//			theEndPoint.x = theEndLocation.x;
-	//			theEndPoint.y = theEndLocation.y;
-	//			theEndPoint.z = theEndLocation.z;
-	//			//theEndPoint.z = theStartPos.z - 20.0f;
-	//
-	//			if((theEndPoint.x == theStartPos.x) && (theEndPoint.y == theStartPos.y))
-	//			{
-	//				if((theEndPoint.x == theEndPos.x) && (theEndPoint.y == theEndPos.y))
-	//				{
-	//					//gTriDebugLocations.push_back(theEndPoint);
-	//					gSquareDebugLocations.push_back(theEndPoint);
-	//				}
-	//				else
-	//				{
-	//					int a = 0;
-	//				}
-	//			}
-	//			else
-	//			{
-	//				int a = 0;
-	//			}
-	//		}
-	//	}
-	//	#endif
 
 	return theSuccess;
 }

@@ -88,6 +88,9 @@ private:
 	vgui::BitmapTGA *m_pVeteranIcon;
 	vector< pair <vgui::BitmapTGA *, string> > m_CustomIconList;
 
+	unsigned int	m_iIconFrame;
+	unsigned int	m_iLastFrameIncrementTime;
+
 public:
 	
 	int				m_iNumTeams;
@@ -105,6 +108,8 @@ public:
 	ScorePanel(int x,int y,int wide,int tall);
 
 	void Update( void );
+	
+	int GetIconFrame(void);
 
 	void SortTeams( void );
 	void SortActivePlayers(char* inTeam, bool inSortByEntityIndex = false);

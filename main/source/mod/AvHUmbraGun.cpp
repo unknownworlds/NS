@@ -93,7 +93,7 @@ void AvHUmbraCloud::Spawn(void)
 	this->pev->effects |= EF_NODRAW;
 
 	SetThink(&AvHUmbraCloud::SUB_Remove);
-	this->pev->nextthink = gpGlobals->time + BALANCE_IVAR(kUmbraCloudDuration);
+	this->pev->nextthink = gpGlobals->time + BALANCE_VAR(kUmbraCloudDuration);
 }
 
 
@@ -158,7 +158,7 @@ int	AvHUmbraGun::GetBarrelLength() const
 
 float AvHUmbraGun::GetRateOfFire() const
 {
-	return BALANCE_FVAR(kUmbraROF);
+	return BALANCE_VAR(kUmbraROF);
 }
 
 int	AvHUmbraGun::GetDeployAnimation() const

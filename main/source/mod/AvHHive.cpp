@@ -241,7 +241,7 @@ int AvHHive::GetTakeDamageAnimation() const
 
 int	AvHHive::GetPointValue(void) const
 {
-	return BALANCE_IVAR(kScoringHiveValue);
+	return BALANCE_VAR(kScoringHiveValue);
 }
 
 int	AvHHive::GetSpawnAnimation() const
@@ -380,7 +380,7 @@ void AvHHive::ProcessHealing()
 {
 	// Regenerate nearby friendly aliens
 	CBaseEntity* theEntity = NULL;
-	const int theHiveHealRadius = BALANCE_IVAR(kHiveHealRadius);
+	const int theHiveHealRadius = BALANCE_VAR(kHiveHealRadius);
 
 	while((theEntity = UTIL_FindEntityInSphere(theEntity, this->pev->origin, theHiveHealRadius)) != NULL)
 	{
@@ -390,7 +390,7 @@ void AvHHive::ProcessHealing()
 			if(thePlayer->GetIsRelevant() && (thePlayer->GetTeam() == this->GetTeamNumber()) && !thePlayer->GetIsBeingDigested())
 			{
                 // Hive heals percentage of player health
-                float theRegenPercentage = BALANCE_FVAR(kHiveRegenerationPercentage);
+                float theRegenPercentage = BALANCE_VAR(kHiveRegenerationPercentage);
                 int theMaxHealth = AvHPlayerUpgrade::GetMaxHealth(thePlayer->pev->iuser4, (AvHUser3)thePlayer->pev->iuser3, thePlayer->GetExperienceLevel());
                 float theRegenAmount = (theRegenPercentage*theMaxHealth);
                 thePlayer->Heal(theRegenAmount, true);
@@ -404,8 +404,8 @@ void AvHHive::ProcessHealing()
 	// If we aren't at full health, heal health
 	if(this->pev->health < this->mMaxHitPoints)
 	{
-        float theHiveRegenAmount = BALANCE_IVAR(kHiveRegenerationAmount);
-        float theCombatModeScalar = /*GetGameRules()->GetIsCombatMode() ? (1.0f/BALANCE_FVAR(kCombatModeTimeScalar)) :*/ 1.0f;
+        float theHiveRegenAmount = BALANCE_VAR(kHiveRegenerationAmount);
+        float theCombatModeScalar = /*GetGameRules()->GetIsCombatMode() ? (1.0f/BALANCE_VAR(kCombatModeTimeScalar)) :*/ 1.0f;
 
 		this->pev->health = min(this->mMaxHitPoints, this->pev->health + theHiveRegenAmount*theCombatModeScalar);
 		theDidHeal = true;
@@ -830,7 +830,7 @@ void AvHHive::CueRespawnEffect(AvHPlayer* inPlayer)
 
 float AvHHive::GetReinforceTime() const
 {
-	const float kMaxRespawnTime = BALANCE_IVAR(kAlienRespawnTime);
+	const float kMaxRespawnTime = BALANCE_VAR(kAlienRespawnTime);
 
 	float theRespawnTime = (kMaxRespawnTime - kMaxRespawnTime*this->mEnergy);
 
@@ -844,12 +844,12 @@ float AvHHive::GetReinforceTime() const
 	AvHTeam* theTeam = GetGameRules()->GetTeam(GetTeamNumber());
 	ASSERT(theTeam);
 
-	int thePlayerModifier = theTeam->GetPlayerCount() - BALANCE_IVAR(kAlienRespawnPlayerModifier);
+	int thePlayerModifier = theTeam->GetPlayerCount() - BALANCE_VAR(kAlienRespawnPlayerModifier);
 	int theHiveCount = GetGameRules()->GetNumActiveHives(GetTeamNumber());
 	
 	if ( thePlayerModifier > 0 && theHiveCount < 3 ) 
 	{
-		float theTimeModifier = BALANCE_FVAR(kAlienRespawnTimeModifier);
+		float theTimeModifier = BALANCE_VAR(kAlienRespawnTimeModifier);
 
 		// For one hive double the modifier
 		if ( theHiveCount == 1 ) 

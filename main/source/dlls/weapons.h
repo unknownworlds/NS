@@ -43,7 +43,6 @@
 //#include	"dlls/weapons.h"
 
 class CBasePlayer;
-extern int gmsgWeapPickup;
 
 void DeactivateSatchels( CBasePlayer *pOwner );
 
@@ -303,9 +302,6 @@ public:
 	int			iMaxClip( void )	{ return ItemInfoArray[ m_iId ].iMaxClip; }
 	int			iWeight( void )		{ return ItemInfoArray[ m_iId ].iWeight; }
 	int			iFlags( void )		{ return ItemInfoArray[ m_iId ].iFlags; }
-
-	// int		m_iIdPrimary;										// Unique Id for primary ammo
-	// int		m_iIdSecondary;										// Unique Id for secondary ammo
 };
 
 
@@ -378,8 +374,7 @@ public:
 	int		m_iSecondaryAmmoType;								// "secondary" ammo index into players m_rgAmmo[]
 	int		m_iClip;											// number of shots left in the primary weapon clip, -1 it not used
 	int		m_iClientClip;										// the last version of m_iClip sent to hud dll
-	int		m_iClientWeaponState;								// the last version of the weapon state sent to hud dll (is current weapon, is on target)
-	int		m_iClientEnableState;								// puzl: 497 the last version of the weapon enabled state sent to the hud dll
+	int		m_iClientWeaponState;								// the last version of the weapon state sent to hud dll (is current weapon, is on target, is enabled)
 	int		m_fInReload;										// Are we in the middle of a reload;
 	int		m_iEnabled;											// Is the weapon enabled
     
@@ -512,11 +507,7 @@ public:
 
 	virtual BOOL UseDecrement( void )
 	{ 
-#if defined( CLIENT_WEAPONS )
 		return TRUE;
-#else
-		return FALSE;
-#endif
 	}
 
 private:
@@ -547,11 +538,7 @@ public:
 
 	virtual BOOL UseDecrement( void )
 	{ 
-#if defined( CLIENT_WEAPONS )
 		return TRUE;
-#else
-		return FALSE;
-#endif
 	}
 private:
 	unsigned short m_usCrowbar;
@@ -577,11 +564,7 @@ public:
 
 	virtual BOOL UseDecrement( void )
 	{ 
-#if defined( CLIENT_WEAPONS )
 		return TRUE;
-#else
-		return FALSE;
-#endif
 	}
 
 private:
@@ -608,11 +591,7 @@ public:
 
 	virtual BOOL UseDecrement( void )
 	{ 
-#if defined( CLIENT_WEAPONS )
 		return TRUE;
-#else
-		return FALSE;
-#endif
 	}
 
 private:
@@ -642,11 +621,7 @@ public:
 
 	virtual BOOL UseDecrement( void )
 	{ 
-#if defined( CLIENT_WEAPONS )
 		return TRUE;
-#else
-		return FALSE;
-#endif
 	}
 
 private:
@@ -682,11 +657,7 @@ public:
 
 	virtual BOOL UseDecrement( void )
 	{ 
-#if defined( CLIENT_WEAPONS )
 		return TRUE;
-#else
-		return FALSE;
-#endif
 	}
 
 private:
@@ -742,11 +713,7 @@ public:
 
 	virtual BOOL UseDecrement( void )
 	{ 
-#if defined( CLIENT_WEAPONS )
 		return TRUE;
-#else
-		return FALSE;
-#endif
 	}
 
 private:
@@ -809,11 +776,7 @@ public:
 
 	virtual BOOL UseDecrement( void )
 	{ 
-#if defined( CLIENT_WEAPONS )
 		return TRUE;
-#else
-		return FALSE;
-#endif
 	}
 
 private:
@@ -868,11 +831,7 @@ public:
 
 	virtual BOOL UseDecrement( void )
 	{ 
-#if defined( CLIENT_WEAPONS )
 		return TRUE;
-#else
-		return FALSE;
-#endif
 	}
 
 	unsigned short m_usEgonStop;
@@ -910,11 +869,7 @@ public:
 
 	virtual BOOL UseDecrement( void )
 	{ 
-#if defined( CLIENT_WEAPONS )
 		return TRUE;
-#else
-		return FALSE;
-#endif
 	}
 private:
 	unsigned short m_usHornetFire;
@@ -938,11 +893,7 @@ public:
 	
 	virtual BOOL UseDecrement( void )
 	{ 
-#if defined( CLIENT_WEAPONS )
 		return TRUE;
-#else
-		return FALSE;
-#endif
 	}
 };
 
@@ -974,11 +925,7 @@ public:
 	
 	virtual BOOL UseDecrement( void )
 	{ 
-#if defined( CLIENT_WEAPONS )
 		return TRUE;
-#else
-		return FALSE;
-#endif
 	}
 };
 
@@ -1008,11 +955,7 @@ public:
 //
 //	virtual BOOL UseDecrement( void )
 //	{ 
-//#if defined( CLIENT_WEAPONS )
 //		return TRUE;
-//#else
-//		return FALSE;
-//#endif
 //	}
 //
 //private:
@@ -1037,11 +980,7 @@ public:
 
 	virtual BOOL UseDecrement( void )
 	{ 
-#if defined( CLIENT_WEAPONS )
 		return TRUE;
-#else
-		return FALSE;
-#endif
 	}
 
 private:

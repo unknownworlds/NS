@@ -24,14 +24,13 @@
 
 #include "hud.h"
 #include "cl_util.h"
-#include "parsemsg.h"
 #include <string.h>
 #include "mod/AvHHudConstants.h"
 #include "mod/AvHPlayerUpgrade.h"
+#include "mod/AvHNetworkMessages.h"
 
 DECLARE_MESSAGE(m_Health, Health )
 DECLARE_MESSAGE(m_Health, Damage )
-//DECLARE_MESSAGE(m_Health, ClCorpse );
 
 #define PAIN_NAME "sprites/%d_pain.spr"
 #define DAMAGE_NAME "sprites/%d_dmg.spr"
@@ -103,13 +102,10 @@ int CHudHealth::VidInit(void)
 
 int CHudHealth:: MsgFunc_Health(const char *pszName,  int iSize, void *pbuf )
 {
-	int theBytesRead = 0;
+	int x;
+	NetMsg_Health( pbuf, iSize, x );
 
 	// TODO: update local health data
-	BEGIN_READ( pbuf, iSize );
-	int x = READ_SHORT();
-	theBytesRead += 2;
-
 	m_iFlags |= HUD_ACTIVE;
 
 	// Only update the fade if we've changed health
@@ -120,22 +116,21 @@ int CHudHealth:: MsgFunc_Health(const char *pszName,  int iSize, void *pbuf )
 		m_iHealth = x;
 	}
 
-	return theBytesRead;
+	return 2;
 }
 
 
 int CHudHealth:: MsgFunc_Damage(const char *pszName,  int iSize, void *pbuf )
 {
-	BEGIN_READ( pbuf, iSize );
-
-	int armor = READ_BYTE();	// armor
-	int damageTaken = READ_BYTE();	// health
-	long bitsDamage = READ_LONG(); // damage bits
+	int armor, damageTaken;
+	long bitsDamage;
+	float origin[3];
+	NetMsg_Damage( pbuf, iSize, armor, damageTaken, bitsDamage, origin );
 
 	vec3_t vecFrom;
 
 	for ( int i = 0 ; i < 3 ; i++)
-		vecFrom[i] = READ_COORD();
+		vecFrom[i] = origin[i];
 
 	UpdateTiles(gHUD.m_flTime, bitsDamage);
 
@@ -489,36 +484,3 @@ void CHudHealth::UpdateTiles(float flTime, long bitsDamage)
 
 
 void CreateCorpse ( Vector vOrigin, Vector vAngles, const char *pModel, float flAnimTime, int iSequence, int iBody );
-
-//int CHudHealth::MsgFunc_ClCorpse( const char *pszName, int iSize, void *pbuf )
-//{
-//	BEGIN_READ( pbuf, iSize );
-//
-//	char szModel[64];
-//	Vector vOrigin;
-//	Vector vAngles;
-//	float flAnimTime = 0;
-//	int iSequence = 0;
-//	int iBody = 0;
-//
-//	char *pModel = READ_STRING();
-//
-//	sprintf ( szModel, "models/player/%s/%s.mdl", pModel, pModel );
-//
-//	vOrigin.x = READ_LONG(); vOrigin.x /= 128.0f;
-//	vOrigin.y = READ_LONG(); vOrigin.y /= 128.0f;
-//	vOrigin.z = READ_LONG(); vOrigin.z /= 128.0f;
-//
-//	vAngles.x = READ_COORD();
-//	vAngles.y = READ_COORD();
-//	vAngles.z = READ_COORD();
-//
-//	flAnimTime = ((float)READ_LONG()/100.0f) + gEngfuncs.GetClientTime();
-//	
-//	iSequence = READ_BYTE();
-//	iBody = READ_BYTE();
-//
-//	CreateCorpse ( vOrigin, vAngles, szModel, flAnimTime, iSequence, iBody );
-//
-//	return 1;
-//}

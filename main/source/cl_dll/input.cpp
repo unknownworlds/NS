@@ -38,9 +38,9 @@ extern "C"
 {
 #include "kbutton.h"
 }
-#include "cvardef.h"
-#include "usercmd.h"
-#include "const.h"
+#include "common/cvardef.h"
+#include "common/usercmd.h"
+#include "common/const.h"
 #include "camera.h"
 #include "in_defs.h"
 #include "view.h"
@@ -58,7 +58,7 @@ extern "C"
 #include "mod/AvHCommanderModeHandler.h"
 #include "Util/Mat3.h"
 
-#include "APIProxy.h"
+#include "engine/APIProxy.h"
 #include "Exports.h"
 
 extern int g_iAlive;
@@ -497,7 +497,7 @@ bool AvHContainsBlockedCommands(const char* inInput)
     
     if (theCommandEnd == NULL)
     {
-        theCommandLength = strlen(inInput);
+        theCommandLength = (int)strlen(inInput);
     }
     else
     {
@@ -756,17 +756,7 @@ void IN_SpeedDown(void) {KeyDown(&in_speed);}
 void IN_SpeedUp(void) {KeyUp(&in_speed);}
 void IN_StrafeDown(void) {KeyDown(&in_strafe);}
 void IN_StrafeUp(void) {KeyUp(&in_strafe);}
-
-// needs capture by hud/vgui also
-extern void __CmdFunc_InputPlayerSpecial(void);
-
-void IN_Attack2Down(void) 
-{
-	KeyDown(&in_attack2);
-	__CmdFunc_InputPlayerSpecial();
-	//gHUD.m_Spectator.HandleButtonsDown( IN_ATTACK2 );
-}
-
+void IN_Attack2Down(void) {KeyDown(&in_attack2);}
 void IN_Attack2Up(void) {KeyUp(&in_attack2);}
 void IN_UseDown (void)
 {
@@ -1016,31 +1006,6 @@ void CL_DLLEXPORT CL_CreateMove ( float frametime, struct usercmd_s *cmd, int ac
 		VectorAdd(viewangles,theRotationDeltas,viewangles);
 		CL_AdjustAngles ( frametime, viewangles );
 
-#ifdef SKULK_VIEW_ROTATION
-		//note : this code uses an older view angle tracking system 
-		//and won't compile without changes
-		cl_entity_t* ent = gEngfuncs.GetLocalPlayer();
-		if (ent->curstate.iuser3 == AVH_USER3_ALIEN_PLAYER1)
-		{
-
-			// Transform the view angles from the local space of the entity into
-			// the world space.
-
-			Mat3 objectMatrix(gPlayerAngles);
-			Mat3 viewMatrix(gPlayerViewAngles);
-
-			(objectMatrix * viewMatrix).GetEulerAngles(viewangles);
-
-			// Since we've updated the local coordinate frame to align with the view,
-			// reset the local view angles.
-
-			gPlayerViewAngles[YAW]  = 90;
-			gPlayerViewAngles[ROLL] = 0;
-		
-		}
-		else
-#endif
-
 		gEngfuncs.SetViewAngles( (float *)viewangles );
 		VectorCopy (viewangles,gWorldViewAngles);
 
@@ -1119,11 +1084,6 @@ void CL_DLLEXPORT CL_CreateMove ( float frametime, struct usercmd_s *cmd, int ac
 					cmd->upmove += kCommanderMoveSpeed * theScrollY;
 					cmd->sidemove += kCommanderMoveSpeed * theScrollX;
 					cmd->forwardmove += kCommanderMoveSpeed * theScrollZ;
-					if(theScrollZ != 0)
-					{
-						int a = 0;
-					}
-					//cmd->forwardmove += 0;//cl_forwardspeed->value * theScrollZ;
 
 					cmd->impulse = COMMANDER_SCROLL;
 					theOverrideImpulse = true;
@@ -1311,55 +1271,6 @@ void CL_DLLEXPORT CL_CreateMove ( float frametime, struct usercmd_s *cmd, int ac
 			}
 		}
 	}
-
-    ///////////////////////////////
-	// Begin Max's Code
-	///////////////////////////////		
-
-	// If the entity is a Skulk then transform the move from local space to
-    // world space.
-
-
-#ifdef SKULK_VIEW_ROTATION	
-    cl_entity_t* ent = gEngfuncs.GetLocalPlayer();
-	if (ent->curstate.iuser3 == AVH_USER3_ALIEN_PLAYER1 && cl_rotateview->value != 0)
-	{
-
-        vec3_t forward;
-        vec3_t right;
-        vec3_t up;
-
-        AngleVectors(gWorldViewAngles, forward, right, up);
-
-        VectorScale(forward, cmd->forwardmove, forward);
-        VectorScale(right, cmd->sidemove, right);
-        VectorScale(up, cmd->upmove, up);
-
-        vec3_t normalForward;
-        vec3_t normalRight;
-        vec3_t normalUp;
-        
-        AngleVectors(ent->angles, normalForward, normalRight, normalUp);
-        
-        cmd->forwardmove = DotProduct(normalForward, forward) +
-                           DotProduct(normalForward, right) +
-                           DotProduct(normalForward, up);
-
-        cmd->sidemove    = DotProduct(normalRight, forward) +
-                           DotProduct(normalRight, right) +
-                           DotProduct(normalRight, up);
-     
-        cmd->upmove      = DotProduct(normalUp, forward) +
-                           DotProduct(normalUp, right) +
-                           DotProduct(normalUp, up);
-
-	}
-
-#endif
-
-	///////////////////////////////
-	// End Max's Code
-	///////////////////////////////		
 	
 	gEngfuncs.GetViewAngles( (float *)viewangles );
 

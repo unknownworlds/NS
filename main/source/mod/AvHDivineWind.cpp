@@ -82,7 +82,7 @@ BOOL AvHDivineWind::CanHolster(void)
 void AvHDivineWind::Init()
 {
 	this->mRange = kDivineWindRange;
-	this->mDamage = BALANCE_IVAR(kDivineWindDamage);
+	this->mDamage = BALANCE_VAR(kDivineWindDamage);
 	this->mPrimed = false;
 }
 
@@ -93,7 +93,7 @@ int	AvHDivineWind::GetBarrelLength() const
 
 float AvHDivineWind::GetRateOfFire() const
 {
-	return BALANCE_FVAR(kDivineWindROF);
+	return BALANCE_VAR(kDivineWindROF);
 }
 
 int	AvHDivineWind::GetDeployAnimation() const
@@ -157,7 +157,7 @@ void AvHDivineWind::Explode(void)
         }
 
 		float theForceScalar = .05f*theDamage;
-        int theRadius = BALANCE_IVAR(kDivineWindRadius);
+        int theRadius = BALANCE_VAR(kDivineWindRadius);
 		AvHSUExplosiveForce(this->pev->origin, theRadius, theForceScalar, thePlayer);
 
 		// Make sure weapon team is the same as player team so we don't damage friends when friendly fire is off

@@ -29,9 +29,9 @@
 //
 //===============================================================================
 #include "mod/AvHSoundListManager.h"
-#include "extdll.h"
+#include "dlls/extdll.h"
 #include "dlls/util.h"
-#include "cbase.h"
+#include "dlls/cbase.h"
 #include "mod/AvHConstants.h"
 #include "util/STLUtil.h"
 

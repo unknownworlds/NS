@@ -33,7 +33,7 @@ int	AvHBlinkGun::GetBarrelLength() const
 
 float AvHBlinkGun::GetRateOfFire() const
 {
-	return BALANCE_FVAR(kBlinkROF);
+	return BALANCE_VAR(kBlinkROF);
 }
 
 BOOL AvHBlinkGun::Deploy()

@@ -20,7 +20,7 @@
 
 #include "hud.h"
 #include "cl_util.h"
-#include "parsemsg.h"
+#include "mod/AvHNetworkMessages.h"
 
 #include <string.h>
 #include <stdio.h>
@@ -72,25 +72,14 @@ int CHudFlashlight::VidInit(void)
 
 int CHudFlashlight:: MsgFunc_FlashBat(const char *pszName,  int iSize, void *pbuf )
 {
-
-	
-	BEGIN_READ( pbuf, iSize );
-	int x = READ_BYTE();
-	m_iBat = x;
-	m_flBat = ((float)x)/100.0;
-
-	return 1;
+	//this message is a lame duck in NS
+	return 0;
 }
 
 int CHudFlashlight:: MsgFunc_Flashlight(const char *pszName,  int iSize, void *pbuf )
 {
-
-	BEGIN_READ( pbuf, iSize );
-	m_fOn = READ_BYTE();
-	int x = READ_BYTE();
-	m_iBat = x;
-	m_flBat = ((float)x)/100.0;
-
+	NetMsg_Flashlight( pbuf, iSize, m_fOn, m_iBat );
+	m_flBat = ((float)m_iBat)/100.0;
 	return 1;
 }
 

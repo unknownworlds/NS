@@ -20,9 +20,9 @@
 #include "cl_util.h"
 #include "com_weapons.h"
 
-#include "const.h"
-#include "entity_state.h"
-#include "r_efx.h"
+#include "common/const.h"
+#include "common/entity_state.h"
+#include "common/r_efx.h"
 
 // g_runfuncs is true if this is the first time we've "predicated" a particular movement/firing
 //  command.  If it is 1, then we should play events/sounds etc., otherwise, we just will be
@@ -58,7 +58,12 @@ void COM_Log( char *pszFile, char *fmt, ...)
 	}
 
 	va_start (argptr,fmt);
+#ifdef WIN32
+   //overflow protection in MS version of function...
+   _vsnprintf( string, 1023, fmt, argptr );
+#else
 	vsprintf (string, fmt,argptr);
+#endif
 	va_end (argptr);
 
 	fp = fopen( pfilename, "a+t");

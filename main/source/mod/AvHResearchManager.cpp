@@ -147,19 +147,11 @@ void AvHResearchManager::AddTechNode(AvHMessageID inMessageID, AvHTechID inTechI
 	AvHTechNode theTechNode(inMessageID, inTechID, inPrereq1, inPrereq2, inPointCost, inBuildTime, inResearched);
 	if(inAllowMultiples)
 	{
-		theTechNode.SetAllowMultiples();
+		theTechNode.setAllowMultiples();
 	}
 
-	this->mTechNodes.AddTechNode(theTechNode);
+	this->mTechNodes.InsertNode(&theTechNode);
 }
-
-#ifdef AVH_PLAYTEST_BUILD
-void AvHResearchManager::BalanceChanged()
-{
-	// Run through our tech nodes and update cost and build time
-	this->mTechNodes.BalanceChanged();
-}
-#endif
 
 bool AvHResearchManager::GetResearchInfo(AvHMessageID inTech, bool& outIsResearchable, int& outCost, float& outTime) const
 {
@@ -174,12 +166,12 @@ bool AvHResearchManager::GetResearchInfo(AvHMessageID inTech, bool& outIsResearc
 	return theFoundIt;
 }
 
-const AvHTechNodes&	AvHResearchManager::GetTechNodes() const
+const AvHTechTree&	AvHResearchManager::GetTechNodes() const
 {
 	return this->mTechNodes;
 }
 
-AvHTechNodes& AvHResearchManager::GetTechNodes()
+AvHTechTree& AvHResearchManager::GetTechNodes()
 {
 	return this->mTechNodes;
 }
@@ -356,9 +348,9 @@ bool AvHResearchManager::GetIsMessageAvailable(AvHMessageID& inMessageID) const
 	return theIsAvailable;
 }
 
-TechNodeListType AvHResearchManager::GetResearchNodesDependentOn(AvHTechID inTechID) const
+TechNodeMap AvHResearchManager::GetResearchNodesDependentOn(AvHTechID inTechID) const
 {
-	TechNodeListType theTechNodes;
+	TechNodeMap theTechNodes;
 
 	this->mTechNodes.GetResearchNodesDependentOn(inTechID, theTechNodes);
 	

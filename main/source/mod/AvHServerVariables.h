@@ -84,6 +84,8 @@ extern cvar_t	avh_tournamentmode;
 #define kvTeamSizeHandicapping		"mp_teamsizehandicapping"
 #define kvTeam1DamagePercent        "mp_team1damagepercent"
 #define kvTeam2DamagePercent        "mp_team2damagepercent"
+#define kvTeam3DamagePercent        "mp_team3damagepercent"
+#define kvTeam4DamagePercent        "mp_team4damagepercent"
 #define kvSpawnInvulnerableTime		"mp_spawninvulnerabletime"
 #define kvVoteCastTime				"mp_votecasttime"
 #define kvVoteDownTime				"mp_votedowntime"

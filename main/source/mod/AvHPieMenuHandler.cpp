@@ -42,7 +42,7 @@
 #include "mod/AvHMessage.h"
 #include "mod/AvHClientVariables.h"
 #include "mod/AvHCommandConstants.h"
-#include "cdll_int.h"
+#include "engine/cdll_int.h"
 #include "types.h"
 #include <string>
 using std::string;
@@ -380,11 +380,7 @@ void AvHPieMenuHandler::mouseReleased(MouseCode code, Panel* inPanel)
 		if(theNode)
 		{
 			// Don't close menu if they released over the root node and it was really quick
-			if(thePieMenu && (theNode == thePieMenu->GetRootNode()) && ((theCurrentTime -  sTimeMenuOpened) < .3f))
-			{
-				int a = 0;
-			}
-			else
+			if(!thePieMenu || !(theNode == thePieMenu->GetRootNode()) || !((theCurrentTime -  sTimeMenuOpened) < .3f))
 			{
 				NodeChosen(theNode->GetNodeName(), theNode->GetMessageID());
 			}

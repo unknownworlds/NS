@@ -21,7 +21,7 @@
 
 #include "vgui_Panel.h"
 #include "ui/UIComponents.h"
-#include "mod/AvHTechNodes.h"
+#include "mod/AvHTechTree.h"
 #include "ui/StaticLabel.h"
 
 const int kNumActionButtonRows = 3;
@@ -37,13 +37,13 @@ public:
 	string				GetHelpText() const;
 	bool				GetTechEnabled() const;
 	AvHMessageID		GetMessageID() const;
-	void				Localize(const AvHTechNodes& inTechNodes);
+	void				Localize(const AvHTechTree& inTechNodes);
 	void				SetBusy(bool inBusy);
 	void				SetButtonIndex(int inButtonIndex);
 	void				SetEnabledState(bool inEnabledState);
 	void				SetMessageID(AvHMessageID inMessageID);
 	void				UpdateEnabledState(int inCurrentPoints, int inEnergy);
-	void				UpdateEnabledAndResearchState(const AvHTechNodes& inTechNodes);
+	void				UpdateEnabledAndResearchState(const AvHTechTree& inTechNodes);
 	
 	static bool			GetLabelForMessage(AvHMessageID inMessageID, string& outLabel);
 
@@ -101,7 +101,7 @@ public:
 	void				SetBusy(bool inBusy);
 	void				SetEnabledState(int inButtonOffset, bool inEnabledState);
 
-	void				SetTechNodes(const AvHTechNodes& inTechNodes);
+	void				SetTechNodes(const AvHTechTree& inTechNodes);
 	void				SetResources(int inResources);
 	void				SetEnergy(int inEnergy);
 	void				UpdateEnabledState();
@@ -115,7 +115,7 @@ protected:
 	TextImage			mTextImage;
 	Font*				mTechFont;
 	ActionButton**		mButtonArray;
-	AvHTechNodes		mTechNodes;
+	AvHTechTree			mTechNodes;
 	int					mResources;
 	int					mEnergy;
 	bool				mBusy;

@@ -78,16 +78,15 @@
 #include "cl_util.h"
 #include "camera.h"
 #include "kbutton.h"
-#include "cvardef.h"
-#include "usercmd.h"
-#include "const.h"
+#include "common/cvardef.h"
+#include "common/usercmd.h"
+#include "common/const.h"
 #include "camera.h"
 #include "in_defs.h"
-#include "parsemsg.h"
-#include "pm_shared.h"
+#include "pm_shared/pm_shared.h"
 #include "../engine/keydefs.h"
 #include "demo.h"
-#include "demo_api.h"
+#include "common/demo_api.h"
 
 #include "vgui_int.h"
 #include "vgui_TeamFortressViewport.h"
@@ -100,8 +99,9 @@
 #include "mod/AvHPieMenuHandler.h"
 #include "mod/AvHSharedUtil.h"
 #include "mod/AvHCommandConstants.h"
-#include "mod/AvHBalanceAnalysis.h"
-#include "mod/ChatPanel.h"
+#include "ui/ChatPanel.h"
+#include "mod/AvHNetworkMessages.h"
+#include "util/STLUtil.h"
 
 extern int g_iVisibleMouse;
 class CCommandMenu;
@@ -524,21 +524,6 @@ void CCommandMenu::RecalculatePositions( int iYOffset )
 // Make this menu and all menus above it in the chain visible
 void CCommandMenu::MakeVisible( CCommandMenu *pChildMenu )
 {
-/*
-	// Push down the button leading to the child menu
-	for (int i = 0; i < m_iButtons; i++)
-	{
-		if ( (pChildMenu != NULL) && (m_aButtons[i]->GetSubMenu() == pChildMenu) )
-		{
-			m_aButtons[i]->setArmed( true );
-		}
-		else
-		{
-			m_aButtons[i]->setArmed( false );
-		}
-	}
-*/
-
 	setVisible(true);
 	if (m_pParentMenu)
 		m_pParentMenu->MakeVisible( this );
@@ -648,12 +633,6 @@ TeamFortressViewport::TeamFortressViewport(int x,int y,int wide,int tall) : Pane
 	mOptionsScreen = NULL;
 	mOptionsButtons = new CommandButton*[kNumOptionsButtons];
 	
-	#ifdef AVH_PLAYTEST_BUILD
-	mPlaytestVariables = new CListBox();
-	memset(this->mOptionsButtons, NULL, sizeof(CommandButton*)*kNumOptionsButtons);
-	mPlaytestAnalysis = new CListBox();
-	#endif
-
 	m_pSpectatorPanel = NULL;
 	m_pCurrentMenu = NULL;
 	m_pCurrentCommandMenu = NULL;
@@ -753,10 +732,6 @@ void TeamFortressViewport::Initialize( void )
 		m_pScoreBoard->Initialize();
 		HideScoreBoard();
 	}
-//	if(mOptionsScreen)
-//	{
-//		mOptionsScreen->Initialize();
-//	}
 	if (m_pSpectatorPanel)
 	{
 		// Spectator menu doesn't need initializing
@@ -784,10 +759,6 @@ void TeamFortressViewport::Initialize( void )
 		m_iValidClasses[i] = 0;
 		strcpy(m_sTeamNames[i], "");
 	}
-
-	#ifdef AVH_PLAYTEST_BUILD
-	this->mBalanceChanged = false;
-	#endif
 
 	App::getInstance()->setCursorOveride( App::getInstance()->getScheme()->getCursor(Scheme::SchemeCursor::scu_none) );
 }
@@ -1524,284 +1495,9 @@ void TeamFortressViewport::ShowOptionsMenu()
 			}
 		}
 
-		#ifdef AVH_PLAYTEST_BUILD
-		this->mNSLogoLabel->setVisible(true);
-
-		// Only create control if server sent them down
-		const BalanceIntListType& theBalanceInts = gHUD.GetBalanceInts();
-		int theNumBalanceInts = theBalanceInts.size();
-		if(this->mPlaytestVariables && (theNumBalanceInts > 0))
-		{
-			// Clear out existing entries
-			this->mPlaytestVariables->Init();
-
-			// Populate playtest info
-			this->mPlaytestVariableRow = 0;
-			for(BalanceIntListType::const_iterator theIter = theBalanceInts.begin(); theIter != theBalanceInts.end(); theIter++)
-			{
-				this->AddBalanceVariable(theIter->first);
-			}
-
-			const BalanceFloatListType& theBalanceFloats = gHUD.GetBalanceFloats();
-			for(BalanceFloatListType::const_iterator theFloatIter = theBalanceFloats.begin(); theFloatIter != theBalanceFloats.end(); theFloatIter++)
-			{
-				this->AddBalanceVariable(theFloatIter->first);
-			}
-
-			this->mPlaytestVariables->setSize(this->mPlaytestVariableWidth, this->mPlaytestVariableHeight);
-			this->mPlaytestVariables->setVisible(true);
-		}
-
-		if(this->mPlaytestAnalysis)
-		{
-			this->mPlaytestAnalysis->setSize(this->mPlaytestAnalysisWidth, this->mPlaytestAnalysisHeight);
-			this->mPlaytestAnalysis->setVisible(true);
-		}
-
-		this->mPlaytestVariableValue->addInputSignal(&this->mPlaytestInputSignal);
-		this->mPlaytestVariableValue->setSize(kButtonWidth*ScreenWidth(), kButtonHeight*ScreenHeight());
-		this->mPlaytestVariableValue->setParent(this->mOptionsScreen);
-//		this->mPlaytestVariableValue->setFont(Scheme::sf_primary1);
-		this->mPlaytestVariableValue->setVisible(true);
-		this->mPlaytestVariableValue->setText(this->mPlaytestVariableValueBeforeHide.c_str(), this->mPlaytestVariableValueBeforeHide.length());
-
-		this->mPlaytestVariableName.setVisible(true);
-		#endif
-
-		//this->mOptionsEscapeButton->setVisible(true);
 		gHUD.GetManager().SetMouseVisibility(true);
 	}
 }
-
-#ifdef AVH_PLAYTEST_BUILD
-
-Color kPlaytestEntryLabelBGColor(0, 0, 0, 50);
-Color kPlaytestEntryLabelFGColor(255, 255, 255, 70);
-Color kPlaytestEntryLabelSelectedBGColor(0, 0, 0, 50);
-Color kPlaytestEntryLabelSelectedFGColor(255, 255, 255, 0);
-
-void TeamFortressViewport::AddAnalysisLine(const string& inAnalysisLine)
-{
-	// Add entry
-	vgui::Label* theCurrentLabel = this->mPlaytestAnalysisLabels + this->mPlaytestAnalysisRow;
-	string theLabelText = inAnalysisLine;
-	theCurrentLabel->setText(theLabelText.c_str());
-	theCurrentLabel->setVisible(true);
-	theCurrentLabel->setSize(this->mPlaytestAnalysisWidth, kButtonHeight*ScreenHeight());
-	theCurrentLabel->setParent(this->mOptionsScreen);
-	//theCurrentLabel->addInputSignal(&this->mPlaytestInputSignal);
-	
-	int theR, theG, theB, theA;
-	kPlaytestEntryLabelFGColor.getColor(theR, theG, theB, theA);
-	theCurrentLabel->setFgColor(theR, theG, theB, theA);
-	theCurrentLabel->setBgColor(kPlaytestEntryLabelBGColor);
-	
-	theCurrentLabel->setFont(Scheme::sf_primary1);
-	theCurrentLabel->setContentAlignment(vgui::Label::a_west);
-	
-	this->mPlaytestAnalysis->AddItem(this->mPlaytestAnalysisLabels + this->mPlaytestAnalysisRow);
-	
-	this->mPlaytestAnalysisRow++;
-}
-
-void TeamFortressViewport::RecomputeAnalysis()
-{
-	if(this->mPlaytestAnalysis)
-	{
-		//this->mPlaytestAnalysis->setVisible(false);
-
-		this->mPlaytestAnalysis->Init();
-		this->mPlaytestAnalysisRow = 0;
-		
-		// Fetch list of balance strings
-		StringList theBalanceAnalyses;
-		AvHBAComputeAnalysis(theBalanceAnalyses);
-		
-		// Add them
-		for(StringList::const_iterator theIter = theBalanceAnalyses.begin(); theIter != theBalanceAnalyses.end(); theIter++)
-		{
-			this->AddAnalysisLine(*theIter);
-		}
-		
-		//this->mPlaytestAnalysis->setVisible(true);
-	}
-}
-
-
-void TeamFortressViewport::AddBalanceVariable(const	string& inVariableName)
-{
-	// Add entry
-	vgui::Label* theCurrentLabel = this->mPlaytestEntryLabels + this->mPlaytestVariableRow;
-	string theLabelText = inVariableName;
-	theCurrentLabel->setText(theLabelText.c_str());
-	theCurrentLabel->setVisible(true);
-	theCurrentLabel->setSize(this->mPlaytestVariableWidth, kButtonHeight*ScreenHeight());
-	theCurrentLabel->setParent(this->mOptionsScreen);
-	theCurrentLabel->addInputSignal(&this->mPlaytestInputSignal);
-	
-	int theR, theG, theB, theA;
-	kPlaytestEntryLabelFGColor.getColor(theR, theG, theB, theA);
-	theCurrentLabel->setFgColor(theR, theG, theB, theA);
-	theCurrentLabel->setBgColor(kPlaytestEntryLabelBGColor);
-
-	theCurrentLabel->setFont(Scheme::sf_primary1);
-	theCurrentLabel->setContentAlignment(vgui::Label::a_west);
-	
-	this->mPlaytestVariables->AddItem(this->mPlaytestEntryLabels + this->mPlaytestVariableRow);
-
-	this->mPlaytestVariableRow++;
-}
-
-// Input signal for playtest labels in options menu
-void OptionsScreenInputSignal::SelectLabel(Panel* inPanel)
-{
-	SmartLabel* theLabel = dynamic_cast<SmartLabel*>(inPanel);
-	
-	if(theLabel)
-	{
-		// Look up variable name
-		string theString = theLabel->getText();
-		
-		float theValue = 0.0f;
-		bool theFoundValue = false;
-		bool theFoundFloat = false;
-		
-		const BalanceIntListType& theBalanceInts = gHUD.GetBalanceInts();
-		for(BalanceIntListType::const_iterator theIter = theBalanceInts.begin(); theIter != theBalanceInts.end(); theIter++)
-		{
-			if(theIter->first == theString)
-			{
-				theValue = theIter->second;
-				theFoundValue = true;
-				break;
-			}
-		}
-		
-		if(!theFoundValue)
-		{
-			const BalanceFloatListType& theBalanceFloats = gHUD.GetBalanceFloats();
-			for(BalanceFloatListType::const_iterator theIter = theBalanceFloats.begin(); theIter != theBalanceFloats.end(); theIter++)
-			{
-				if(theIter->first == theString)
-				{
-					theValue = theIter->second;
-					theFoundValue = true;
-					theFoundFloat = true;
-					break;
-				}
-			}
-		}
-		
-		if(theFoundValue)
-		{
-			const char* theSound = AvHSHUGetCommonSoundName(gHUD.GetIsAlien(), WEAPON_SOUND_MOVE_SELECT);
-			gHUD.PlayHUDSound(theSound, kHUDSoundVolume);
-
-			// Read value from this label
-			gViewPort->mPlaytestVariableName.setText(theString.length(), theString.c_str());
-			
-			// Set text entry value
-			char theReadableValue[1024];
-			if(theFoundFloat)
-			{
-				sprintf(theReadableValue, "%.2f", theValue);
-			}
-			else
-			{
-				sprintf(theReadableValue, "%d", (int)theValue);
-			}
-			
-			gViewPort->mPlaytestVariableValue->setText(theReadableValue, strlen(theReadableValue));
-		}
-	}
-}
-
-
-void OptionsScreenInputSignal::cursorMoved(int x,int y,Panel* panel)
-{
-}
-
-void OptionsScreenInputSignal::cursorEntered(Panel* inPanel)
-{
-	SmartLabel* theCurrentLabel = dynamic_cast<SmartLabel*>(inPanel);
-	if(theCurrentLabel)
-	{
-		int theR, theG, theB, theA;
-		kPlaytestEntryLabelSelectedFGColor.getColor(theR, theG, theB, theA);
-		theCurrentLabel->setFgColor(theR, theG, theB, theA);
-		
-		theCurrentLabel->setBgColor(kPlaytestEntryLabelSelectedBGColor);
-	}
-}
-
-void OptionsScreenInputSignal::cursorExited(Panel* inPanel)
-{
-	SmartLabel* theCurrentLabel = dynamic_cast<SmartLabel*>(inPanel);
-	if(theCurrentLabel)
-	{
-		int theR, theG, theB, theA;
-		kPlaytestEntryLabelFGColor.getColor(theR, theG, theB, theA);
-		theCurrentLabel->setFgColor(theR, theG, theB, theA);
-		
-		theCurrentLabel->setBgColor(kPlaytestEntryLabelBGColor);
-	}
-}
-
-void OptionsScreenInputSignal::mousePressed(MouseCode code,Panel* panel)
-{
-	if(code == MOUSE_LEFT)
-	{
-		this->SelectLabel(panel);
-	}
-}
-
-void OptionsScreenInputSignal::mouseDoublePressed(MouseCode code,Panel* panel)
-{
-}
-
-void OptionsScreenInputSignal::mouseReleased(MouseCode code,Panel* panel)
-{
-}
-
-void OptionsScreenInputSignal::mouseWheeled(int delta,Panel* panel)
-{
-}
-
-void OptionsScreenInputSignal::keyPressed(KeyCode code,Panel* panel)
-{
-}
-
-void OptionsScreenInputSignal::keyTyped(KeyCode code, Panel* panel)
-{
-	if((panel == gViewPort->mPlaytestVariableValue) && (code == KEY_ENTER))
-	{
-		// Read variable name
-		string theVariableName = gViewPort->mPlaytestVariableName.getText();
-		
-		// Read variable value out of text entry
-		char theBuff[256];
-		gViewPort->mPlaytestVariableValue->getText(0, theBuff, 256);
-		string theValue(theBuff);
-
-		// Emit console command to change this value
-		string theConsoleCommand = string(kcSetBalanceVar) + " " + theVariableName + " " + theValue;
-
-		char theBuff2[256];
-		sprintf(theBuff2, "%s", theConsoleCommand.c_str());
-		gEngfuncs.pfnClientCmd(theBuff2);
-	}
-}
-
-void OptionsScreenInputSignal::keyReleased(KeyCode code,Panel* panel)
-{
-}
-
-void OptionsScreenInputSignal::keyFocusTicked(Panel* panel)
-{
-}
-#endif
-
-
 
 void TeamFortressViewport::HideOptionsMenu()
 {
@@ -1818,40 +1514,6 @@ void TeamFortressViewport::HideOptionsMenu()
 				this->mOptionsButtons[i]->setVisible(false);
 			}
 		}
-		
-		#ifdef AVH_PLAYTEST_BUILD
-		this->mNSLogoLabel->setVisible(false);
-
-		if(this->mPlaytestVariables)
-		{
-			this->mPlaytestVariables->setVisible(false);
-			this->mPlaytestVariables->setBgColor(128, 128, 128, 10);
-			this->mPlaytestVariables->setFgColor(128, 128, 128, 40);
-		}
-
-		if(this->mPlaytestAnalysis)
-		{
-			this->mPlaytestAnalysis->setVisible(false);
-			this->mPlaytestAnalysis->setBgColor(128, 128, 128, 10);
-			this->mPlaytestAnalysis->setFgColor(128, 128, 128, 40);
-		}
-
-		this->mPlaytestVariableValue->setVisible(false);
-		this->mPlaytestVariableValue->removeInputSignal(&this->mPlaytestInputSignal);
-
-		// Save text of the value so we can restore it when the screen comes back up (can't figure out way to turn off input)
-		char theText[1024];
-		this->mPlaytestVariableValue->getText(0, theText, 1024);
-		this->mPlaytestVariableValueBeforeHide = "";
-		if(theText[0] != '\0')
-		{
-			this->mPlaytestVariableValueBeforeHide = string(theText);
-		}
-
-		this->mPlaytestVariableValue->requestFocusNext(); 
-
-		this->mPlaytestVariableName.setVisible(false);
-		#endif
 
 		gHUD.GetManager().SetMouseVisibility(false);
 
@@ -1869,32 +1531,6 @@ bool TeamFortressViewport::IsOptionsMenuVisible()
 	}
 
 	return theIsVisible;
-}
-
-
-//-----------------------------------------------------------------------------
-// Purpose: Activate's the player special ability
-//			called when the player hits their "special" key
-//-----------------------------------------------------------------------------
-void TeamFortressViewport::InputPlayerSpecial( void )
-{
-	if (!m_iInitialized)
-		return;
-
-	if ( g_iPlayerClass == PC_ENGINEER || g_iPlayerClass == PC_SPY )
-	{
-		ShowCommandMenu( gViewPort->m_StandardMenu );
-
-		if ( m_pCurrentCommandMenu )
-		{
-			m_pCurrentCommandMenu->KeyInput( '7' );
-		}
-	}
-	else
-	{
-		// if it's any other class, just send the command down to the server
-		ClientCmd( "_special" );
-	}
 }
 
 // Set the submenu of the Command Menu
@@ -2054,15 +1690,6 @@ void TeamFortressViewport::UpdateSpectatorPanel()
 
 	}
 
-	// If balance has changed, recompute balance
-	#ifdef AVH_PLAYTEST_BUILD
-	if(this->mBalanceChanged && this->IsOptionsMenuVisible())
-	{
-		this->RecomputeAnalysis();
-		this->mBalanceChanged = false;
-	}
-	#endif
-
 	m_flSpectatorPanelLastUpdated = gHUD.m_flTime + 1.0; // update every seconds
 }
 
@@ -2098,62 +1725,6 @@ void TeamFortressViewport::CreateOptionsMenu()
 
 	int theScreenWidth = ScreenWidth();
 	int theScreenHeight = ScreenHeight();
-
-	// Populate playtest info
-	#ifdef AVH_PLAYTEST_BUILD
-	this->mPlaytestVariables->setVisible(false);
-	this->mPlaytestVariables->setParent(this->mOptionsScreen);
-	int thePlaytestX = (xInset /*+ kButtonWidth + kButtonHorizontalSpacing*/)*ScreenWidth();
-	int thePlaytestY = yInset*ScreenHeight();
-	this->mPlaytestVariables->setPos(thePlaytestX, thePlaytestY);
-
-	this->mPlaytestVariableWidth = kButtonWidth*2.1f*ScreenWidth();
-	this->mPlaytestVariableHeight = kButtonHeight*10.0f*ScreenHeight();
-	int theColumnTwoX = thePlaytestX + this->mPlaytestVariableWidth + xInset*ScreenWidth();
-
-	this->mPlaytestAnalysis->setVisible(false);
-	this->mPlaytestAnalysis->setParent(this->mOptionsScreen);
-	this->mPlaytestAnalysis->setPos(.4f*ScreenWidth(), .6*ScreenHeight());
-	this->mPlaytestAnalysisWidth = .4*ScreenWidth();
-	this->mPlaytestAnalysisHeight = .3*ScreenHeight();
-
-	this->mNSLogoBitmap = vgui_LoadTGANoInvertAlpha("gfx/vgui/ns-logo.tga");
-	this->mNSLogoBitmap->setColor(Color(255, 255, 255, 0));
-	int theBitmapWidth, theBitmapHeight;
-	this->mNSLogoBitmap->getSize(theBitmapWidth, theBitmapHeight);
-	this->mNSLogoLabel = new vgui::Label("", theColumnTwoX, thePlaytestY, theBitmapWidth, theBitmapHeight);
-	this->mNSLogoLabel->setParent(this->mOptionsScreen);
-	this->mNSLogoLabel->setImage(this->mNSLogoBitmap);
-	//this->mNSLogoLabel->setFgColorAsImageColor(false);
-
-	Color thePlaytestBGColor(0, 0, 0, 0);
-	Color thePlaytestFGColor(128, 128, 128, 128);
-
-	this->mPlaytestVariableName.setParent(this);
-	int thePlaytestVariableNameY = thePlaytestY + theBitmapHeight + yInset*ScreenHeight();
-	this->mPlaytestVariableName.setPos(theColumnTwoX, thePlaytestVariableNameY);//= new vgui::Label("", kPlaytestVariableXOffset*theScreenWidth, kPlaytestVariableYOffset*theScreenHeight, kButtonWidth, kButtonHeight);
-	this->mPlaytestVariableName.setSize(kButtonWidth, kButtonHeight);
-	this->mPlaytestVariableName.setBgColor(thePlaytestBGColor);
-	this->mPlaytestVariableName.setFgColor(Scheme::sc_white);
-
-	this->mPlaytestVariableValue = new TextEntry("", theColumnTwoX, thePlaytestVariableNameY + yInset*theScreenHeight, kButtonWidth, kButtonHeight/2.0f);
-	this->mPlaytestVariableValue->setBgColor(thePlaytestBGColor);
-	this->mPlaytestVariableValue->setFgColor(Scheme::sc_white);
-
-	for(int i = 0; i < kNumOptionsButtons; i++)
-	{
-		const char* theLabel = kOptionsButtons[i*2];
-		char* theCommand = kOptionsButtons[i*2 + 1];
-		//CommandButton* theCurrentCommandButton = this->mOptionsButtons[i];
-		
-		this->mOptionsButtons[i] = new CommandButton(CHudTextMessage::BufferedLocaliseTextString(theLabel), theColumnTwoX + theBitmapWidth + xInset*theScreenWidth, yInset*theScreenHeight + (float)i*(kButtonHeight+kButtonVerticalSpacing)*ScreenHeight(), kButtonWidth*theScreenWidth, kButtonHeight*theScreenHeight);
-		this->mOptionsButtons[i]->setParent(this->mOptionsScreen);
-		this->mOptionsButtons[i]->setBgColor(128, 128, 128, 40);
-		this->mOptionsButtons[i]->addActionSignal(new COptionsScreen_StringCommand(theCommand));
-		this->mOptionsButtons[i]->setVisible(false);
-		this->mOptionsButtons[i]->setFont(Scheme::sf_primary1);
-	}
-	#endif
 }
 
 void TeamFortressViewport::CreateServerBrowser( void )
@@ -2812,29 +2383,17 @@ int	TeamFortressViewport::KeyInput( int down, int keynum, const char *pszCurrent
 	{
         m_chatPanel->setVisible(true);
         m_chatPanel->requestFocus();
-        m_chatPanel->SetChatMode("say");
+		m_chatPanel->SetChatMode(ChatPanel::chatModeAll);
         return 0;
 	}
     else if (down && pszCurrentBinding && !strcmp(pszCurrentBinding,  kcTeamChat))
 	{
         m_chatPanel->setVisible(true);
         m_chatPanel->requestFocus();
-        m_chatPanel->SetChatMode("say_team");
+		m_chatPanel->SetChatMode(ChatPanel::chatModeTeam);
 		return 0;
 	}
-
-  
-	// Enter gets out of Spectator Mode by bringing up the Team Menu
-//	if (m_iUser1 && gEngfuncs.Con_IsVisible() == false )
-//	{
-//		//if ( down && (keynum == K_ENTER || keynum == K_KP_ENTER) )
-//		if ( down && keynum == K_F1 )
-//		{
-//			//ShowVGUIMenu( MENU_TEAM );
-//			gEngfuncs.pfnClientCmd(kcReadyRoom);
-//		}
-//	}
-
+ 
 	// Open Text Window?
 	if (m_pCurrentMenu && gEngfuncs.Con_IsVisible() == false)
 	{
@@ -2918,104 +2477,30 @@ ChatPanel* TeamFortressViewport::GetChatPanel()
 
 //================================================================
 // Message Handlers
-int TeamFortressViewport::MsgFunc_ValClass(const char *pszName, int iSize, void *pbuf )
-{
-	BEGIN_READ( pbuf, iSize );
-	
-	for (int i = 0; i < 5; i++)
-		m_iValidClasses[i] = READ_SHORT();
-
-	// Force the menu to update
-	UpdateCommandMenu( m_StandardMenu );
-
-	return 1;
-}
-
 int TeamFortressViewport::MsgFunc_TeamNames(const char *pszName, int iSize, void *pbuf )
 {
-	BEGIN_READ( pbuf, iSize );
-	
-	m_iNumberOfTeams = READ_BYTE();
+	StringList team_names;
+	NetMsg_TeamNames( pbuf, iSize, team_names );
 
-	for (int i = 0; i < m_iNumberOfTeams; i++)
+	char team_translated[128];
+	strcpy(team_translated, gHUD.m_TextMessage.LookupString(kTeamTitle));
+
+	char team_name_translated[MAX_TEAMNAME_SIZE];
+	for( int team_number = 0; team_number < team_names.size(); team_number++ )
 	{
-		//int teamNum = i + 1;
-		int teamNum = i;
+		gHUD.m_TextMessage.LocaliseTextString( team_names[team_number].c_str(), team_name_translated, MAX_TEAMNAME_SIZE );
 
-		// Build team title
-		gHUD.m_TextMessage.LocaliseTextString( READ_STRING(), m_sTeamNames[teamNum], MAX_TEAMNAME_SIZE );
-
-		// Don't append "Team: 0" or "Team: Spectators", only for higher teams 
-		if((i >= 1) && (i < m_iNumberOfTeams-1))
+		team_names[team_number] = "";
+		if( team_number != 0 && team_number < (m_iNumberOfTeams-1) ) //don't prepend information for spectators or team 0
 		{
-			char theTeamTranslation[128];
-			strcpy(theTeamTranslation, gHUD.m_TextMessage.LookupString(kTeamTitle));
-			
-			char theFullTeamName[256];
-			sprintf(theFullTeamName, "%s %d: %s", theTeamTranslation, i, m_sTeamNames[teamNum]);
-
-			strcpy(m_sTeamNames[teamNum], theFullTeamName);
+			team_names[team_number] += team_translated;
+			team_names[team_number] += " ";
+			team_names[team_number] += MakeStringFromInt( team_number );
+			team_names[team_number] += ": ";
 		}
-		
-		// Set the team name buttons
-		if (m_pTeamButtons[i])
-			m_pTeamButtons[i]->setText( m_sTeamNames[teamNum] );
-
-		// range check this value...m_pDisguiseButtons[5];
-		if ( teamNum < 5 )
-		{
-			// Set the disguise buttons
-			if ( m_pDisguiseButtons[teamNum] )
-				m_pDisguiseButtons[teamNum]->setText( m_sTeamNames[teamNum] );
-		}
+		team_names[team_number] += team_name_translated;
+		strcpy(m_sTeamNames[team_number], team_names[team_number].c_str());
 	}
-
-	// Update the Team Menu
-	if (m_pTeamMenu)
-		m_pTeamMenu->Update();
-
-	return 1;
-}
-
-int TeamFortressViewport::MsgFunc_Feign(const char *pszName, int iSize, void *pbuf )
-{
-	BEGIN_READ( pbuf, iSize );
-	
-	m_iIsFeigning = READ_BYTE();
-
-	// Force the menu to update
-	UpdateCommandMenu( m_StandardMenu );
-
-	return 1;
-}
-
-int TeamFortressViewport::MsgFunc_Detpack(const char *pszName, int iSize, void *pbuf )
-{
-	BEGIN_READ( pbuf, iSize );
-
-	m_iIsSettingDetpack = READ_BYTE();
-
-	// Force the menu to update
-	UpdateCommandMenu( m_StandardMenu );
-
-	return 1;
-}
-
-int TeamFortressViewport::MsgFunc_VGUIMenu(const char *pszName, int iSize, void *pbuf )
-{
-	BEGIN_READ( pbuf, iSize );
-
-	int iMenu = READ_BYTE();
-
-	// Map briefing includes the name of the map (because it's sent down before the client knows what map it is)
-	if (iMenu == MENU_MAPBRIEFING)
-	{
-		strncpy( m_sMapName, READ_STRING(), sizeof(m_sMapName) );
-		m_sMapName[ sizeof(m_sMapName) - 1 ] = '\0';
-	}
-
-	// Bring up the menu6
-	ShowVGUIMenu( iMenu );
 
 	return 1;
 }
@@ -3025,110 +2510,54 @@ int TeamFortressViewport::MsgFunc_MOTD( const char *pszName, int iSize, void *pb
 	if (m_iGotAllMOTD)
 		m_szMOTD[0] = 0;
 
-	BEGIN_READ( pbuf, iSize );
+	string MOTD;
+	bool is_finished;
+	NetMsg_MOTD( pbuf, iSize, is_finished, MOTD );
 
-	m_iGotAllMOTD = READ_BYTE();
+	m_iGotAllMOTD = is_finished ? 1 : 0;
 
-	int roomInArray = sizeof(m_szMOTD) - strlen(m_szMOTD) - 1;
+	int roomInArray = (int)max( 0, sizeof(m_szMOTD) - strlen(m_szMOTD) - 1);
 
-	strncat( m_szMOTD, READ_STRING(), roomInArray >= 0 ? roomInArray : 0 );
+	strncat( m_szMOTD, MOTD.c_str(), roomInArray );
 	m_szMOTD[ sizeof(m_szMOTD)-1 ] = '\0';
-
-	// don't show MOTD for HLTV spectators
-	if ( m_iGotAllMOTD && !gEngfuncs.IsSpectateOnly() )
-	{
-		//ShowVGUIMenu( MENU_INTRO );
-		//gHUD.GetManager().SetMouseVisibility(true);
-		//ShowOptionsMenu();
-//		gHUD.AddTooltip(m_szMOTD, false, kMOTDToolTipMaxWidth);
-	}
-
-	return 1;
-}
-
-int TeamFortressViewport::MsgFunc_BuildSt( const char *pszName, int iSize, void *pbuf )
-{
-	BEGIN_READ( pbuf, iSize );
-
-	m_iBuildState = READ_BYTE();
-
-	// Force the menu to update
-	UpdateCommandMenu( m_StandardMenu );
-
-	return 1;
-}
-
-int TeamFortressViewport::MsgFunc_RandomPC( const char *pszName, int iSize, void *pbuf )
-{
-	BEGIN_READ( pbuf, iSize );
-
-	m_iRandomPC = READ_BYTE();
 
 	return 1;
 }
 
 int TeamFortressViewport::MsgFunc_ServerName( const char *pszName, int iSize, void *pbuf )
 {
-	BEGIN_READ( pbuf, iSize );
+	string name;
+	NetMsg_ServerName( pbuf, iSize, name );
 
 	memset(this->m_szServerName, 0, MAX_SERVERNAME_LENGTH);
 
-	strncpy( m_szServerName, READ_STRING(), MAX_SERVERNAME_LENGTH );
+	strncpy( m_szServerName, name.c_str(), MAX_SERVERNAME_LENGTH );
 
 	return 1;
 }
 
 int TeamFortressViewport::MsgFunc_ScoreInfo( const char *pszName, int iSize, void *pbuf )
 {
-	BEGIN_READ( pbuf, iSize );
-	short cl = READ_BYTE();
-    short score = READ_SHORT();
-	short frags = READ_SHORT();
-	short deaths = READ_SHORT();
-	short playerclass = READ_BYTE();
-	short auth = READ_SHORT();
-	bool is_upp = (auth & PLAYERAUTH_UPP_MODE);
-	short teamnumber = READ_SHORT();
-	short color = 0;
-	
-	if(is_upp)
-	{
-		color = READ_BYTE();
-	}
-	else if(auth & PLAYERAUTH_CUSTOM)
-	{
-		//clear the string (I dont think this array is reset anywhere else (since everything is set when the score info message is sent anyways)
-		//so just memset it here to prevent any possible problems.
-		memset(&g_PlayerExtraInfo[cl].customicon, 0, sizeof(g_PlayerExtraInfo[cl].customicon));
+	ScoreInfo info;
+	NetMsg_ScoreInfo( pbuf, iSize, info );
 
-		// Read custom icon
-		char* theString = READ_STRING();
-
-		if(theString && strlen(theString) >= 4 && strlen(theString) <= CUSTOM_ICON_LENGTH+2)//make sure the string is within the right size.
-			strncpy(g_PlayerExtraInfo[cl].customicon, theString, sizeof(g_PlayerExtraInfo[cl].customicon)-1);
-	}
-
-	if ( cl > 0 && cl <= MAX_PLAYERS )
+	if ( info.player_index > 0 && info.player_index <= MAX_PLAYERS )
 	{
         // Update score, but show + or - indicator on scoreboard when it changes
-		g_PlayerExtraInfo[cl].lastScore = g_PlayerExtraInfo[cl].score;
-        g_PlayerExtraInfo[cl].score = score;
-		if(g_PlayerExtraInfo[cl].score != g_PlayerExtraInfo[cl].lastScore)
+		g_PlayerExtraInfo[info.player_index].lastScore = g_PlayerExtraInfo[info.player_index].score;
+        g_PlayerExtraInfo[info.player_index].score = info.score;
+		if(g_PlayerExtraInfo[info.player_index].score != g_PlayerExtraInfo[info.player_index].lastScore)
 		{
-			g_PlayerExtraInfo[cl].timeOfLastScoreChange = gHUD.GetTimeOfLastUpdate();
+			g_PlayerExtraInfo[info.player_index].timeOfLastScoreChange = gHUD.GetTimeOfLastUpdate();
 		}
 
         // Update other info
-        g_PlayerExtraInfo[cl].frags = frags;
-		g_PlayerExtraInfo[cl].deaths = deaths;
-		g_PlayerExtraInfo[cl].playerclass = playerclass;
-		g_PlayerExtraInfo[cl].teamnumber = teamnumber;
-		g_PlayerExtraInfo[cl].auth = auth;
-		g_PlayerExtraInfo[cl].color = color;
+        g_PlayerExtraInfo[info.player_index].frags = info.frags;
+		g_PlayerExtraInfo[info.player_index].deaths = info.deaths;
+		g_PlayerExtraInfo[info.player_index].playerclass = info.player_class;
+		g_PlayerExtraInfo[info.player_index].teamnumber = max( info.team, 0 );
 
-		// Don't go below 0!
-		if ( g_PlayerExtraInfo[cl].teamnumber < 0 )
-			 g_PlayerExtraInfo[cl].teamnumber = 0;
+		// Icon is now handled through the ProfileInfo update
 
 		UpdateOnPlayerInfo();
 	}
@@ -3144,23 +2573,24 @@ int TeamFortressViewport::MsgFunc_ScoreInfo( const char *pszName, int iSize, voi
 // if this message is never received, then scores will simply be the combined totals of the players.
 int TeamFortressViewport::MsgFunc_TeamScore( const char *pszName, int iSize, void *pbuf )
 {
-	BEGIN_READ( pbuf, iSize );
-	char *TeamName = READ_STRING();
+	string team_name;
+	int score, deaths;
+	NetMsg_TeamScore( pbuf, iSize, team_name, score, deaths );
 
 	// find the team matching the name
 	for ( int i = 1; i <= m_pScoreBoard->m_iNumTeams; i++ )
 	{
-		if ( !stricmp( TeamName, g_TeamInfo[i].name ) )
+		if ( !stricmp( team_name.c_str(), g_TeamInfo[i].name ) )
 			break;
 	}
 
 	if ( i > m_pScoreBoard->m_iNumTeams )
 		return 1;
 
-	// use this new score data instead of combined player scoresw
+	// use this new score data instead of combined player scores
 	g_TeamInfo[i].scores_overriden = TRUE;
-	g_TeamInfo[i].frags = READ_SHORT();
-	g_TeamInfo[i].deaths = READ_SHORT();
+	g_TeamInfo[i].frags = score;
+	g_TeamInfo[i].deaths = deaths;
 
 	return 1;
 }
@@ -3174,13 +2604,14 @@ int TeamFortressViewport::MsgFunc_TeamInfo( const char *pszName, int iSize, void
 	if (!m_pScoreBoard)
 		return 1;
 
-	BEGIN_READ( pbuf, iSize );
-	short cl = READ_BYTE();
+	int player_index;
+	string team_id;
+	NetMsg_TeamInfo( pbuf, iSize, player_index, team_id );
 	
-	if ( cl > 0 && cl <= MAX_PLAYERS )
+	if ( player_index > 0 && player_index <= MAX_PLAYERS )
 	{  
 		// set the players team
-		strncpy( g_PlayerExtraInfo[cl].teamname, READ_STRING(), MAX_TEAM_NAME );
+		strncpy( g_PlayerExtraInfo[player_index].teamname, team_id.c_str(), MAX_TEAM_NAME );
 	}
 
 	// rebuild the list of teams
@@ -3193,33 +2624,3 @@ void TeamFortressViewport::DeathMsg( int killer, int victim )
 {
 	m_pScoreBoard->DeathMsg(killer,victim);
 }
-
-int TeamFortressViewport::MsgFunc_Spectator( const char *pszName, int iSize, void *pbuf )
-{
-	BEGIN_READ( pbuf, iSize );
-
-	short cl = READ_BYTE();
-	if ( cl > 0 && cl <= MAX_PLAYERS )
-	{
-		g_IsSpectator[cl] = READ_BYTE();
-	}
-
-	return 1;
-}
-
-int TeamFortressViewport::MsgFunc_AllowSpec( const char *pszName, int iSize, void *pbuf )
-{
-	BEGIN_READ( pbuf, iSize );
-
-	m_iAllowSpectators = READ_BYTE();
-
-	// Force the menu to update
-	UpdateCommandMenu( m_StandardMenu );
-
-	// If the team menu is up, update it too
-	if (m_pTeamMenu)
-		m_pTeamMenu->Update();
-
-	return 1;
-}
-

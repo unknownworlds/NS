@@ -116,11 +116,11 @@
 #include "soundent.h"
 #include "gamerules.h"
 #include "game.h"
-#include "customentity.h"
+#include "engine/customentity.h"
 #include "weapons.h"
-#include "weaponinfo.h"
-#include "usercmd.h"
-#include "netadr.h"
+#include "common/weaponinfo.h"
+#include "common/usercmd.h"
+#include "common/netadr.h"
 #include "util/nowarnings.h"
 #include "mod/AvHPlayer.h"
 #include "mod/AvHSoundListManager.h"
@@ -143,17 +143,13 @@
 #include "mod/AvHServerUtil.h"
 #include "mod/AvHCloakable.h"
 #include "mod/AvHAlienAbilityConstants.h"
-#include "mod/UPPUtil.h"
+#include "mod/AvHNetworkMessages.h"
+#include "mod/AvHNexusServer.h"
 
-#include "voice_gamemgr.h"
+#include "game_shared/voice_gamemgr.h"
 extern CVoiceGameMgr	g_VoiceGameMgr;
 
 extern AvHSoundListManager				gSoundListManager;
-//edict_t *EntSelectSpawnPoint( CBaseEntity *pPlayer );
-extern int gmsgSetParticleTemplates;
-//extern int gServerTick;
-//extern int gUpdateEntitiesTick;
-
 
 extern DLL_GLOBAL ULONG		g_ulModelIndexPlayer;
 extern DLL_GLOBAL BOOL		g_fGameOver;
@@ -161,11 +157,7 @@ extern DLL_GLOBAL int		g_iSkillLevel;
 extern DLL_GLOBAL ULONG		g_ulFrameCount;
 
 extern void CopyToBodyQue(entvars_t* pev);
-extern int giPrecacheGrunt;
-extern int gmsgShowMenu;
 extern int g_teamplay;
-
-void LinkUserMessages( void );
 
 /*
  * used by kill command and disconnect command
@@ -176,13 +168,35 @@ void set_suicide_frame(entvars_t* pev)
 	if (!FStrEq(STRING(pev->model), "models/player.mdl"))
 		return; // allready gibbed
 
-//	pev->frame		= $deatha11;
 	pev->solid		= SOLID_NOT;
 	pev->movetype	= MOVETYPE_TOSS;
 	pev->deadflag	= DEAD_DEAD;
 	pev->nextthink	= -1;
 }
 
+
+/*
+===========
+LogStringForPlayer
+
+generates string for player event logging - KGP
+============
+*/
+std::string GetLogStringForPlayer( edict_t *pEntity )
+{
+	// outputs "netname<userid><networkid><team>" if g_teamplay
+	// or "netname<userid><networkid><userid>" if not g_teamplay
+	std::string result = "\"";
+	result += STRING( pEntity->v.netname );
+	result += "<";
+	result += MakeStringFromInt( GETPLAYERUSERID( pEntity ) );
+	result += "><";
+	result += AvHNexus::getNetworkID( pEntity ).c_str();
+	result += "><";
+	result += AvHSUGetTeamName( pEntity->v.team );
+	result += ">\"";
+	return result;
+}
 
 /*
 ===========
@@ -241,14 +255,6 @@ void ClientDisconnect( edict_t *pEntity )
 
 	//voogru: If this isnt set, clients around this player will crash.
 	pEntity->v.effects |= EF_NODRAW;
-
-//	CBaseEntity* theEntity = CBaseEntity::Instance(ENT(pEntity));
-//	AvHPlayer* thePlayer = dynamic_cast<AvHPlayer*>(theEntity);
-//	if(thePlayer)
-//	{
-//		thePlayer->SetLeftServer();
-//	}
-	//UTIL_Remove(theEntity);
 }
 
 
@@ -386,27 +392,24 @@ void Host_Say( edict_t *pEntity, int teamonly )
 		{
 			p = (char *)CMD_ARGS();
 
-			if(GetGameRules()->GetIsTournamentMode())
+			if(GetGameRules()->GetIsTournamentMode() && !GetGameRules()->GetGameStarted())
 			{
-				if(!GetGameRules()->GetGameStarted())
+				if(!strcmp(CMD_ARGV(1), kReadyNotification))
 				{
-					if(!strcmp(CMD_ARGV(1), kReadyNotification))
+					// Team is ready
+					AvHTeam* theTeam = GetGameRules()->GetTeam((AvHTeamNumber)(pEntity->v.team));
+					if(theTeam && !theTeam->GetIsReady())
 					{
-						// Team is ready
-						AvHTeam* theTeam = GetGameRules()->GetTeam((AvHTeamNumber)(pEntity->v.team));
-						if(theTeam && !theTeam->GetIsReady())
-						{
-							theTeam->SetIsReady();
-						}
+						theTeam->SetIsReady();
 					}
-					else if (!strcmp(CMD_ARGV(1), kNotReadyNotification))
+				}
+				else if (!strcmp(CMD_ARGV(1), kNotReadyNotification))
+				{
+					// Team is no longer ready
+					AvHTeam* theTeam = GetGameRules()->GetTeam((AvHTeamNumber)(pEntity->v.team));
+					if(theTeam && theTeam->GetIsReady())
 					{
-						// Team is no longer ready
-						AvHTeam* theTeam = GetGameRules()->GetTeam((AvHTeamNumber)(pEntity->v.team));
-						if(theTeam && theTeam->GetIsReady())
-						{
-							theTeam->SetIsReady(false);
-						}
+						theTeam->SetIsReady(false);
 					}
 				}
 			}
@@ -530,36 +533,7 @@ void Host_Say( edict_t *pEntity, int teamonly )
 	else
 		temp = "say";
 	
-	// team match?
-	if ( g_teamplay )
-	{
-		UTIL_LogPrintf( "\"%s<%i><%s><%s>\" %s \"%s\"\n", 
-			STRING( pEntity->v.netname ), 
-			GETPLAYERUSERID( pEntity ),
-#ifdef USE_UPP
-			UPPUtil_GetNetworkID(pEntity).c_str(),
-#else
-			AvHSUGetPlayerAuthIDString( pEntity ).c_str(),
-#endif
-			//g_engfuncs.pfnInfoKeyValue( g_engfuncs.pfnGetInfoKeyBuffer( pEntity ), "model" ),
-			AvHSUGetTeamName(pEntity->v.team),
-			temp,
-			p );
-	}
-	else
-	{
-		UTIL_LogPrintf( "\"%s<%i><%s><%i>\" %s \"%s\"\n", 
-			STRING( pEntity->v.netname ), 
-			GETPLAYERUSERID( pEntity ),
-#ifdef USE_UPP
-			UPPUtil_GetNetworkID(pEntity).c_str(),
-#else
-			AvHSUGetPlayerAuthIDString( pEntity ).c_str(),
-#endif
-			GETPLAYERUSERID( pEntity ),
-			temp,
-			p );
-	}
+	UTIL_LogPrintf( "%s %s \"%s\"\n", GetLogStringForPlayer( pEntity ).c_str(), temp, p );
 }
 
 
@@ -639,20 +613,6 @@ void ClientCommand( edict_t *pEntity )
 		    GetClassPtr((CBasePlayer *)pev)->SelectItem(pcmd);
         }
 	}
-//	else if (FStrEq(pcmd, "lastinv" ))
-//	{
-//      if (thePlayerCanAct)
-//      {
-//		    GetClassPtr((CBasePlayer *)pev)->SelectLastItem();
-//      }
-//	}
-//	else if ( FStrEq( pcmd, "spectate" ) && (pev->flags & FL_PROXY) )	// added for proxy support
-//	{
-//		CBasePlayer * pPlayer = GetClassPtr((CBasePlayer *)pev);
-//
-//		edict_t *pentSpawnSpot = g_pGameRules->GetPlayerSpawnSpot( pPlayer );
-//		pPlayer->StartObserver( pev->origin, VARS(pentSpawnSpot)->angles);
-//	}
 	else if ( g_pGameRules->ClientCommand( GetClassPtr((CBasePlayer *)pev), pcmd ) )
 	{
 		// MenuSelect returns true only if the command is properly handled,  so don't print a warning
@@ -770,33 +730,7 @@ void ClientUserInfoChanged( edict_t *pEntity, char *infobuffer )
 
 			UTIL_SayTextAll(text, CBaseEntity::Instance(ENT(pEntity)));
 			
-			// team match?
-			if ( g_teamplay )
-			{
-				UTIL_LogPrintf( "\"%s<%i><%s><%s>\" changed name to \"%s\"\n", 
-					STRING( pEntity->v.netname ), 
-					GETPLAYERUSERID( pEntity ), 
-#ifdef USE_UPP
-					UPPUtil_GetNetworkID(pEntity).c_str(),
-#else
-					AvHSUGetPlayerAuthIDString( pEntity ).c_str(),
-#endif
-					g_engfuncs.pfnInfoKeyValue( infobuffer, "model" ), 
-					g_engfuncs.pfnInfoKeyValue( infobuffer, "name" ) );
-			}
-			else
-			{
-				UTIL_LogPrintf( "\"%s<%i><%s><%i>\" changed name to \"%s\"\n", 
-					STRING( pEntity->v.netname ), 
-					GETPLAYERUSERID( pEntity ), 
-#ifdef USE_UPP
-					UPPUtil_GetNetworkID(pEntity).c_str(),
-#else
-					AvHSUGetPlayerAuthIDString( pEntity ).c_str(),
-#endif
-					GETPLAYERUSERID( pEntity ), 
-					g_engfuncs.pfnInfoKeyValue( infobuffer, "name" ) );
-			}
+			UTIL_LogPrintf( "%s changed name to \"%s\"\n", GetLogStringForPlayer( pEntity ).c_str(), g_engfuncs.pfnInfoKeyValue( infobuffer, "name" ) );
 		}
 	}
 
@@ -850,8 +784,7 @@ void ServerActivate( edict_t *pEdictList, int edictCount, int clientMax )
 		}
 	}
 
-	// Link user messages here to make sure first client can get them...
-	LinkUserMessages();
+	Net_InitializeMessages();
 }
 
 
@@ -905,12 +838,7 @@ void ParmsChangeLevel( void )
 
 void ShowMenu(entvars_s *pev, int ValidSlots, int DisplayTime, BOOL ShowLater, char Menu[500])
 {
-	MESSAGE_BEGIN(MSG_ONE, gmsgShowMenu, NULL, pev);	// Begin our message to the client dll
-		WRITE_SHORT(ValidSlots);	// Which are the valid slots
-		WRITE_CHAR(DisplayTime);	// For how long? (0 = until selection)
-		WRITE_BYTE(ShowLater);	// Show later? (TRUE or FALSE)
-		WRITE_STRING(Menu);	// And our menu
-	MESSAGE_END();	// End the message
+	NetMsg_ShowMenu( pev, ValidSlots, DisplayTime, ShowLater ? 1 : 0, string(Menu) );
 }
 
 //
@@ -924,35 +852,16 @@ void StartFrame( void )
 	if ( g_fGameOver )
 		return;
 
-// New SDK changes
-//	gpGlobals->teamplay = CVAR_GET_FLOAT("teamplay");
-//	gpGlobals->deathmatch = CVAR_GET_FLOAT("deathmatch");
-//	g_iSkillLevel = CVAR_GET_FLOAT("skill");
 	gpGlobals->teamplay = teamplay.value;
 
 	g_ulFrameCount++;
 }
-
-//void PrecacheFootsteps(const char* inBaseName, int inNumber, bool inPrecacheAlienAlso = true)
-//{
-//	string theBaseString = kFootstepDirectory + kConcreteBaseName;
-//
-//	for(int i = 1; i <= inNumber; i++)
-//	{
-//		char theFilename[128];
-//		sprintf(theFilename, "%s%d.wav", theBaseString.c_str(), i);
-//
-//	}
-//	//PRECACHE_SOUND("player/pl_step1.wav");		// walk on concrete
-//	
-//}
 
 void ClientPrecache( void )
 {
 	// Precache sound lists for all player types
 	gSoundListManager.Clear();
 
-	#ifndef AVH_MAPPER_BUILD
 	for(int i = ((int)AVH_USER3_NONE + 1); i < (int)AVH_USER3_ALIEN_EMBRYO; i++)
 	{
 		char theSoundListName[256];
@@ -1058,7 +967,6 @@ void ClientPrecache( void )
 	PRECACHE_UNMODIFIED_SOUND(kWingFlapSound3);
 	PRECACHE_UNMODIFIED_SOUND(kSiegeHitSound1);
 	PRECACHE_UNMODIFIED_SOUND(kSiegeHitSound2);
-	#endif
 	
 	// setup precaches always needed
 	PRECACHE_UNMODIFIED_SOUND("player/sprayer.wav");			// spray paint sound for PreAlpha
@@ -1227,10 +1135,6 @@ void ClientPrecache( void )
 	PRECACHE_UNMODIFIED_MODEL("sprites/umbra.spr"); 
 	PRECACHE_UNMODIFIED_MODEL("sprites/umbra2.spr"); 
 	PRECACHE_UNMODIFIED_MODEL("sprites/webstrand.spr"); 
-	
-	if (giPrecacheGrunt)
-		UTIL_PrecacheOther("monster_human_grunt");
-
 }
 
 /*
@@ -1444,7 +1348,7 @@ void SetupVisibility( edict_t *pViewEntity, edict_t *pClient, unsigned char **pv
 	}
 }
 
-#include "entity_state.h"
+#include "common/entity_state.h"
 
 //CachedEntity	gCachedEntities[kMaxPlayers][kMaxEntities];
 //
@@ -1551,7 +1455,7 @@ bool GetTimeToRecompute( int clientnum, int entitynum, float currenttime, bool& 
 
 	bool theTimeToRecompute = false;
 
-	int theUseCaching = BALANCE_IVAR(kDebugServerCaching);
+	int theUseCaching = BALANCE_VAR(kDebugServerCaching);
 	if(theUseCaching)
 	{
 		// Always recompute players?
@@ -1585,7 +1489,7 @@ bool CheckEntityRecentlyInPVS( int clientnum, int entitynum, float currenttime )
 	PLAYERPVSSTATUS *pvs = &g_PVSStatus[ clientnum ];
 	ENTITYPVSSTATUS *es = &pvs->m_Status[ entitynum ];
  
-	int theUseCaching = BALANCE_IVAR(kDebugServerCaching);
+	int theUseCaching = BALANCE_VAR(kDebugServerCaching);
 	if(!theUseCaching)
 	{
 		return false;
@@ -2006,7 +1910,6 @@ void RegisterEncoders( void )
 
 int GetWeaponData( struct edict_s *player, struct weapon_data_s *info )
 {
-#if defined( CLIENT_WEAPONS )
 	int i;
 	weapon_data_t *item;
 	entvars_t *pev = &player->v;
@@ -2071,9 +1974,6 @@ int GetWeaponData( struct edict_s *player, struct weapon_data_s *info )
 			}
 		}
 	}
-#else
-	memset( info, 0, 32 * sizeof( weapon_data_t ) );
-#endif
 	return 1;
 }
 
@@ -2133,7 +2033,6 @@ void UpdateClientData ( const struct edict_s *ent, int sendweapons, struct clien
 	// Added for extra player info for first-person spectating
 	cd->vuser4          = ent->v.vuser4;
 
-#if defined( CLIENT_WEAPONS )
 	if ( sendweapons )
 	{
 		entvars_t *pev = (entvars_t *)&ent->v;
@@ -2179,7 +2078,6 @@ void UpdateClientData ( const struct edict_s *ent, int sendweapons, struct clien
 			}
 		}
 	}
-#endif
 }
 
 /*
@@ -2885,7 +2783,7 @@ int AddToFullPack( struct entity_state_s *state, int e, edict_t *ent, edict_t *h
 			// VectorSubtract(theReceivingPlayer->pev->origin, ent->v.origin, theDistanceVec);
 
 			// int theDistance = theDistanceVec[0] * theDistanceVec[0] + theDistanceVec[1] * theDistanceVec[1] + theDistanceVec[2] * theDistanceVec[2];
-			// int theRange = BALANCE_IVAR(kAlienFlashlightRange);
+			// int theRange = BALANCE_VAR(kAlienFlashlightRange);
 			// marineGlow = (theDistance < ( theRange * theRange));
 			marineGlow = true;
 		}

@@ -73,8 +73,8 @@ void V_PunchAxis( int axis, float punch );
 
 void AvHBite::Init()
 {
-	this->mRange = BALANCE_IVAR(kBiteRange);
-	this->mDamage = BALANCE_IVAR(kBiteDamage);
+	this->mRange = BALANCE_VAR(kBiteRange);
+	this->mDamage = BALANCE_VAR(kBiteDamage);
 }
 
 int	AvHBite::GetBarrelLength() const
@@ -89,7 +89,7 @@ bool AvHBite::GetIsGunPositionValid() const
     
 float AvHBite::GetRateOfFire() const
 {
-	return BALANCE_FVAR(kBiteROF);
+	return BALANCE_VAR(kBiteROF);
 }
 
 char* AvHBite::GetBiteSound() const

@@ -53,7 +53,7 @@
 #include "util/nowarnings.h"
 #include "VGUI_Panel.h"
 #include "cl_dll/chud.h"
-#include "cdll_int.h"
+#include "engine/cdll_int.h"
 #include "cl_dll/cl_util.h"
 #include "mod/AvHCommanderModeHandler.h"
 #include "mod/AvHConstants.h"
@@ -339,7 +339,7 @@ void AvHCommanderModeHandler::RecalculateMenus()
 	float theFuser1 = 0;
 
 	// If we have only one thing selected, it can be a building
-	int theNumUnits = this->mSelected.size();
+	int theNumUnits = (int)this->mSelected.size();
 	if(theNumUnits > 0)
 	{
 		// Assumes all of selected is of same type
@@ -524,7 +524,6 @@ void AvHCommanderModeHandler::SetMenuFromTechSlots(const AvHTechSlots& inTechSlo
 		// if recycling, draw nothing (check if something is selected, as otherwise inUser3 could be MENU_ something and MASK_RECYCLING won't make sense)
 		if(!theDisplayingSpecialMenu && (this->mSelected.size() > 0) && GetHasUpgrade(inUser4, MASK_RECYCLING))
 		{
-			int a = 0;
 		}
 		// else if we're placing a building or researching, don't display anything but cancel
 		else if((gHUD.GetGhostBuilding() != MESSAGE_NULL) || (theIsResearching && !theIsBuilding))
@@ -580,7 +579,7 @@ bool AvHCommanderModeHandler::GetIsPointInPanel(Panel* inPanel, int x, int y) co
 
 }
 
-void AvHCommanderModeHandler::Update(const AvHTechNodes& inTechNodes, int inNumPoints)
+void AvHCommanderModeHandler::Update(const AvHTechTree& inTechNodes, int inNumPoints)
 {
 	AvHActionButtons* theActionButtons = NULL;
 	if(gHUD.GetManager().GetVGUIComponentNamed(kActionButtonsComponents, theActionButtons))
@@ -621,29 +620,6 @@ void AvHCommanderModeHandler::Update(const AvHTechNodes& inTechNodes, int inNumP
 		// Update prereqs and things, they could've changed if research just completed
 		theActionButtons->Localize();
 		
-		// Look at the current selection
-//		if(this->mSelected.size() > 0)
-//		{
-//			int theEntityIndex = *this->mSelected.begin();
-//			cl_entity_s* theEntity = gEngfuncs.GetEntityByIndex(theEntityIndex);
-//			if(theEntity)
-//			{
-//				bool theIsBuilding, theIsResearching;
-//				float thePercentage;
-//				
-//				// If it's building or researching, disable it temporarily
-//				AvHSHUGetBuildResearchState(theEntity->curstate.iuser3, theEntity->curstate.fuser1, theIsBuilding, theIsResearching, thePercentage);
-//				if(theIsResearching)
-//				{
-//					this->SetResearchingMenu();
-//				}
-//				else if(theIsBuilding)
-//				{
-//					this->SetBaseMenu();
-//				}
-//				//theActionButtons->SetBusy(true);
-//			}
-//		}
 		this->RecalculateMenus();
 	}
 }
@@ -653,27 +629,8 @@ void AvHCommanderModeHandler::cursorMoved(int x, int y, Panel* inPanel)
 	
     bool theFoundTechNode = false;
 
-//	char theDebugString[128];
-//	sprintf(theDebugString, "norm X/Y: %f, %f", (float)x/ScreenWidth, (float)y/ScreenHeight);
-//	CenterPrint(theDebugString);
-
 	this->mLastMouseX = x;
 	this->mLastMouseY = y;
-
-	// Show help text for every research node
-//	AvHTechButtons* theTechButtons = dynamic_cast<AvHTechButtons*>(inPanel);
-//	if(theTechButtons)
-//	{
-//		AvHTechNode theTechNode;
-//		if(theTechButtons->GetTechNodeAtPos(x, y, theTechNode))
-//		{
-//			this->mTechHelpText = theTechNode.GetHelpText();
-//			theFoundTechNode = true;
-//
-//			this->mLastTechNodeMouseX = x;
-//			this->mLastTechNodeMouseY = y;
-//		}
-//	}
 
     if (!gHUD.GetIsSelecting())
     {
@@ -718,12 +675,6 @@ void AvHCommanderModeHandler::cursorMoved(int x, int y, Panel* inPanel)
 	    }
     
     }
-	
-	//	// Clear help text otherwise
-	//	if(!theFoundTechNode)
-	//	{
-	//		this->mTechHelpText = "";
-	//	}
 }
 
 void AvHCommanderModeHandler::cursorEntered(Panel* inPanel)
@@ -760,7 +711,6 @@ void AvHCommanderModeHandler::cursorExited(Panel* inPanel)
 
 void AvHCommanderModeHandler::mousePressed(MouseCode code, Panel* inPanel)
 {
-
     // Capture the mouse input so that we receive the mouseRelease event even
     // if the cursor is no longer on the panel.
     App::getInstance()->setMouseCapture(inPanel);

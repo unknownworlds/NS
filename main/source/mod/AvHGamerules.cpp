@@ -158,13 +158,12 @@
 // - Post-crash checkin.  Restored @Backup from around 4/16.  Contains changes for last four weeks of development.
 //
 //===============================================================================
-#include "build.h"
 #include "util/nowarnings.h"
-#include "extdll.h"
+#include "dlls/extdll.h"
 #include "dlls/util.h"
-#include "cbase.h"
-#include "player.h"
-#include "weapons.h"
+#include "dlls/cbase.h"
+#include "dlls/player.h"
+#include "dlls/weapons.h"
 #include "mod/AvHGamerules.h"
 #include "mod/AvHConstants.h"
 #include "mod/AvHAlienEquipmentConstants.h"
@@ -199,16 +198,10 @@
 #include "mod/AvHAlert.h"
 #include "mod/AvHParticleConstants.h"
 #include "util/MathUtil.h"
-#include "mod/UPPUtil.h"
+#include "mod/AvHNetworkMessages.h"
+#include "mod/AvHNexusServer.h"
 
 AvHSoundListManager						gSoundListManager;
-extern int								gmsgUpdateCountdown;
-extern int								gmsgSetGammaRamp;
-extern int								gmsgServerName;
-extern int								gmsgGameStatus;
-extern int								gmsgGameMode;
-extern int                              gmsgServerVar;
-extern int                              gmsgTeamInfo;
 extern AvHVoiceHelper					gVoiceHelper;
 CVoiceGameMgr							g_VoiceGameMgr;
 extern cvar_t							allow_spectators;
@@ -217,21 +210,13 @@ extern cvar_t							avh_limitteams;
 //extern cvar_t							avh_teamsizehandicapping;
 extern cvar_t							avh_team1damagepercent;
 extern cvar_t							avh_team2damagepercent;
+extern cvar_t							avh_team3damagepercent;
+extern cvar_t							avh_team4damagepercent;
 extern cvar_t							avh_drawinvisible;
 extern cvar_t							avh_uplink;
 extern cvar_t							avh_gametime;
 extern cvar_t							avh_ironman;
 extern cvar_t                           avh_mapvoteratio;
-
-#ifndef USE_UPP
-AuthMaskListType						gAuthMaskList;
-#endif
-
-extern const char* kSteamIDPending;
-extern const char* kSteamIDLocal;
-extern const char* kSteamIDBot;
-extern const char* kSteamIDInvalidID;
-extern const char* kSteamIDDefault;
 
 BOOL IsSpawnPointValid( CBaseEntity *pPlayer, CBaseEntity *pSpot );
 inline int FNullEnt( CBaseEntity *ent ) { return (ent == NULL) || FNullEnt( ent->edict() ); }
@@ -267,6 +252,8 @@ extern cvar_t avh_performance;
 int kProfileRunConfig = 0xFFFFFFFF;
 #endif
 
+std::string GetLogStringForPlayer( edict_t *pEntity );
+
 const AvHMapExtents& GetMapExtents()
 {
 	return GetGameRules()->GetMapExtents();
@@ -277,40 +264,11 @@ void InstallGameRules( void )
 	SERVER_COMMAND( "exec game.cfg\n" );
 	SERVER_EXECUTE( );
 
-    // TODO: Add in check for tourny rules here
-
-	//	if ( !gpGlobals->deathmatch )
-	//	{
-	//		// generic half-life
-	//		return new CHalfLifeRules;
-	//	}
-	//	else
-	//	{
-	//		if ( CVAR_GET_FLOAT( "mp_teamplay" ) > 0 )
-	//		{
-	//			// teamplay
-	//			return new CHalfLifeTeamplay;
-	//		}
-	//		if ((int)gpGlobals->deathmatch == 1)
-	//		{
-	//			// vanilla deathmatch
-	//			return new CHalfLifeMultiplay;
-	//		}
-	//		else
-	//		{
-	//			// vanilla deathmatch??
-	//			return new CHalfLifeMultiplay;
-	//		}
-	//	}
-
     AvHGamerules* theNewGamerules = new AvHGamerules;
 	SetGameRules(theNewGamerules);
 }
 
 static AvHGamerules* sGameRules = NULL;
-
-// Global initializer, because we don't want it to be reset when game rules are recreated
-unsigned int gTimeLastUpdatedUplink = 0;
 
 AvHGamerules* GetGameRules()
 {
@@ -334,13 +292,13 @@ void SetGameRules(AvHGamerules* inGameRules)
 	g_pGameRules = inGameRules;
 }
 
-AvHGamerules::AvHGamerules() : mTeamOne(TEAM_ONE), mTeamTwo(TEAM_TWO)
+AvHGamerules::AvHGamerules() : mTeamA(TEAM_ONE), mTeamB(TEAM_TWO)
 {
 	this->mGameStarted = false;
 	this->mPreserveTeams = false;
 
-	this->mTeamOne.SetTeamType(AVH_CLASS_TYPE_MARINE);
-	this->mTeamTwo.SetTeamType(AVH_CLASS_TYPE_ALIEN);
+	this->mTeamA.SetTeamType(AVH_CLASS_TYPE_MARINE);
+	this->mTeamB.SetTeamType(AVH_CLASS_TYPE_ALIEN);
 
 	this->mVictoryTime = -1;
 	this->mMapMode = MAP_MODE_UNDEFINED;
@@ -359,16 +317,14 @@ AvHGamerules::AvHGamerules() : mTeamOne(TEAM_ONE), mTeamTwo(TEAM_TWO)
 	RegisterServerVariable(kvTournamentMode);
     RegisterServerVariable(kvTeam1DamagePercent);
     RegisterServerVariable(kvTeam2DamagePercent);
+    RegisterServerVariable(kvTeam3DamagePercent);
+    RegisterServerVariable(kvTeam4DamagePercent);
     RegisterServerVariable("sv_cheats");
 
 	g_VoiceGameMgr.Init(&gVoiceHelper, gpGlobals->maxClients);
 
 	#ifdef DEBUG
 	avh_drawinvisible.value = 1;
-	#endif
-
-	#ifdef AVH_PLAYTEST_BUILD
-	this->ReadBalanceData();
 	#endif
 
 	this->ResetGame();
@@ -390,31 +346,6 @@ int	AvHGamerules::WeaponShouldRespawn(CBasePlayerItem *pWeapon)
 	return GR_WEAPON_RESPAWN_NO;
 }
 
-#ifndef USE_UPP //players are authorized by UPP now.
-bool AvHGamerules::PerformHardAuthorization(AvHPlayer* inPlayer) const
-{
-	bool theAuthorized = true;
-
-	#ifdef AVH_SECURE_PRERELEASE_BUILD
-	if(!this->GetIsClientAuthorizedToPlay(inPlayer->edict(), false, true))
-	{
-		char* theMessage = UTIL_VarArgs(
-			"%s<%s> is not authorized to play on beta NS servers.\n",
-			STRING(inPlayer->pev->netname),
-			AvHSUGetPlayerAuthIDString(inPlayer->edict()).c_str()
-			);
-		ALERT(at_logged, theMessage);
-
-		// Boot player off server
-		inPlayer->Kick();
-
-		theAuthorized = false;
-	}
-	#endif
-
-	return theAuthorized;
-}
-#endif
 // Sets the player up to join the team, though they may not respawn in immediately depending
 // on the ruleset and the state of the game.  Assumes 1 or a 2 for team number
 bool AvHGamerules::AttemptToJoinTeam(AvHPlayer* inPlayer, AvHTeamNumber inTeamToJoin, bool inDisplayErrorMessage)
@@ -422,37 +353,20 @@ bool AvHGamerules::AttemptToJoinTeam(AvHPlayer* inPlayer, AvHTeamNumber inTeamTo
 	bool theSuccess = false;
 	string theErrorString;
 
-    if(inPlayer->pev->flags & FL_FAKECLIENT)
-    {
-        int a = 0;
-    }
-    else
-    {
-        int a = 0;
-    }
-
 	// Check authorization in secure build
-#ifdef USE_UPP
-	if(!inPlayer->GetAuthorized())
+	if(!inPlayer->GetIsAuthorized(AUTH_ACTION_JOIN_TEAM,inTeamToJoin))
 	{
-		UPPUtil_HandleUnauthorizedJoinTeamAttempt(inPlayer,inTeamToJoin);
+		AvHNexus::handleUnauthorizedJoinTeamAttempt(inPlayer->edict(),inTeamToJoin);
 	}
 	else
-#else
-	if(this->PerformHardAuthorization(inPlayer))
-#endif
 	{
-		AvHTeamNumber theOtherTeam = TEAM_IND;
-		if(inTeamToJoin == TEAM_ONE)
+		int teamA = this->mTeamA.GetTeamNumber();
+		int teamB = this->mTeamB.GetTeamNumber();
+		if( inTeamToJoin != teamA && inTeamToJoin != teamB && inTeamToJoin != TEAM_IND )
 		{
-			theOtherTeam = TEAM_TWO;
+			theErrorString = kTeamNotAvailable;
 		}
-		else if(inTeamToJoin == TEAM_TWO)
-		{
-			theOtherTeam = TEAM_ONE;
-		}
-
-		if(inPlayer->GetTeam() != TEAM_IND)
+		else if(inPlayer->GetTeam() != TEAM_IND)
 		{
 			theErrorString = kAlreadyOnTeam;
 		}
@@ -464,7 +378,6 @@ bool AvHGamerules::AttemptToJoinTeam(AvHPlayer* inPlayer, AvHTeamNumber inTeamTo
 		else if(this->GetCanJoinTeamInFuture(inPlayer, inTeamToJoin, theErrorString))
 		{
             this->JoinTeam(inPlayer, inTeamToJoin, inDisplayErrorMessage, false);
-
 			this->MarkDramaticEvent(kJoinTeamPriority, inPlayer->entindex());
 			theSuccess = true;
 		}
@@ -490,7 +403,7 @@ bool AvHGamerules::AttemptToJoinTeam(AvHPlayer* inPlayer, AvHTeamNumber inTeamTo
 				}
 				char* theMessage = UTIL_VarArgs("%s has joined the %s\n",STRING(inPlayer->pev->netname),theTeam->GetTeamPrettyName());
 				UTIL_ClientPrintAll(HUD_PRINTTALK, theMessage);
-				UTIL_LogPrintf(theMessage);
+				UTIL_LogPrintf( "%s joined team \"%s\"\n", GetLogStringForPlayer( inPlayer->edict() ).c_str(), AvHSUGetTeamName(inPlayer->pev->team) );
 			}
 			// :joev
 		}
@@ -502,29 +415,22 @@ bool AvHGamerules::AttemptToJoinTeam(AvHPlayer* inPlayer, AvHTeamNumber inTeamTo
 // If both teams have the same number of player, pick a team randomly
 void AvHGamerules::AutoAssignPlayer(AvHPlayer* inPlayer)
 {
-	int theTeamNumber = 0;
-	int theTeamOneCount = this->mTeamOne.GetPlayerCount();
-	int theTeamTwoCount = this->mTeamTwo.GetPlayerCount();
+	int theTeamACount = this->mTeamA.GetPlayerCount();
+	int theTeamBCount = this->mTeamB.GetPlayerCount();
+	
+	bool joinTeamA = (theTeamACount < theTeamBCount) || ( (theTeamACount == theTeamBCount) && RANDOM_LONG(0,1) );
 
-	if(theTeamOneCount > theTeamTwoCount)
-		theTeamNumber = 2;
-
-	if(theTeamTwoCount > theTeamOneCount)
-		theTeamNumber = 1;
-
-	if(theTeamNumber == 0)
-		theTeamNumber = 1 + RANDOM_LONG(0,1);
-
-	AvHTeamNumber theTeam = (theTeamNumber == 1 ? TEAM_ONE : TEAM_TWO);
+	AvHTeamNumber theTeam = (joinTeamA ? this->mTeamA.GetTeamNumber() : this->mTeamB.GetTeamNumber());
 
 	// Try to join the first team, but don't emit an error if it fails
 	if(!this->AttemptToJoinTeam(inPlayer, theTeam, false))
 	{
 		// If it failed, try the other team and emit an error if it too fails
-		theTeam = (theTeam == TEAM_ONE ? TEAM_TWO : TEAM_ONE);
+		theTeam = (joinTeamA ? this->mTeamB.GetTeamNumber() : this->mTeamA.GetTeamNumber());
 		this->AttemptToJoinTeam(inPlayer, theTeam, true);
 	}
 }
+
 void AvHGamerules::RewardPlayerForKill(AvHPlayer* inPlayer, CBaseEntity* inTarget, entvars_t* inInflictor)
 {
 	ASSERT(inPlayer);
@@ -542,8 +448,8 @@ void AvHGamerules::RewardPlayerForKill(AvHPlayer* inPlayer, CBaseEntity* inTarge
 			if(!this->GetIsCombatMode())
 			{
 				int theResourceValue = 0;
-				int theMin = BALANCE_IVAR(kKillRewardMin);
-				int theMax = BALANCE_IVAR(kKillRewardMax);
+				int theMin = BALANCE_VAR(kKillRewardMin);
+				int theMax = BALANCE_VAR(kKillRewardMax);
 				theResourceValue = RANDOM_LONG(theMin, theMax);
 
 				if(theResourceValue > 0)
@@ -553,22 +459,10 @@ void AvHGamerules::RewardPlayerForKill(AvHPlayer* inPlayer, CBaseEntity* inTarge
 					if(theClassType == AVH_CLASS_TYPE_MARINE)
 					{
 						inPlayer->SendMessageOnce(kMarinePointsAwarded, true);
-
-						// Play particle effect as nanites "reclaim" energy
-						//AvHSUPlayParticleEvent(kpsPhaseIn, inTarget->edict(), inTarget->pev->origin);
-
-						//				// Tell commander, if any
-						//				AvHPlayer* theCommander = inPlayer->GetCommander();
-						//				if(theCommander)
-						//				{
-						//					theCommander->SendMessage(kMarinePointsAwardedToCommander);
-						//				}
 					}
 					else if(theClassType == AVH_CLASS_TYPE_ALIEN)
 					{
 						inPlayer->SendMessageOnce(kAlienPointsAwarded, true);
-
-						//inPlayer->AddPoints(thePointReward, TRUE);
 					}
 
 					// Increment resource score in tourny mode
@@ -638,17 +532,6 @@ void AvHGamerules::BuildableBuilt(AvHBuildable* inBuildable)
 
 void AvHGamerules::BuildableKilled(AvHBuildable* inBuildable)
 {
-	// Get player owner from buildable
-	//edict_t* theEdict = g_engfuncs.pfnPEntityOfEntIndex(inBuildable->GetBuilder());
-	//if(theEdict != NULL)
-	//{
-	//	CBaseEntity* theEntity = CBaseEntity::Instance(theEdict);
-	//	AvHPlayer* thePlayer = dynamic_cast<AvHPlayer*>(theEntity);
-	//	if(thePlayer)
-	//	{
-	//		thePlayer->AddPoints(-1, TRUE);
-	//	}
-	//}
 }
 
 void AvHGamerules::BuildMiniMap(AvHPlayer* inPlayer)
@@ -662,20 +545,7 @@ void AvHGamerules::BuildMiniMap(AvHPlayer* inPlayer)
 
 BOOL AvHGamerules::CanHaveAmmo( CBasePlayer *pPlayer, const char *pszAmmoName, int iMaxCarry )
 {
-	BOOL theCanHaveIt = false;
-
-	// Check if ammo isn't special ammo name
-	//if(!strcmp(pszAmmoName, kwsGenericAmmo))
-	//{
-   	//	// Are we carrying at least one weapon without full ammo?
-   	//	AvHPlayer* inPlayer = dynamic_cast<AvHPlayer*>(pPlayer);
-   	//	ASSERT(inPlayer);
-   	//	theCanHaveIt = inPlayer->CanHaveAmmoCannister();
-   	//}
-   	//else
-   	//{
-	theCanHaveIt = CHalfLifeTeamplay::CanHaveAmmo(pPlayer, pszAmmoName, iMaxCarry);
-    //}
+	BOOL theCanHaveIt = CHalfLifeTeamplay::CanHaveAmmo(pPlayer, pszAmmoName, iMaxCarry);
 	return theCanHaveIt;
 }
 
@@ -739,8 +609,6 @@ void AvHGamerules::CalculateMapGamma()
 	// Set defaults
 	this->mCalculatedMapGamma = kDefaultMapGamma;
 
-	//AvHSUPrintDevMessage("Calculating map gamma \n");
-
 	// Fetch from map extents entity if the map has one
 	FOR_ALL_ENTITIES(kwsGammaClassName, AvHGamma*)
 		this->mMapGamma = theEntity->GetGamma();
@@ -749,112 +617,16 @@ void AvHGamerules::CalculateMapGamma()
 	this->mCalculatedMapGamma = true;
 }
 
-#ifndef USE_UPP
-BOOL AvHGamerules::GetIsClientAuthorizedToPlay(edict_t* inEntity, bool inDisplayMessage, bool inForcePending) const
-{
-	BOOL theIsAuthorized = false;
-
-	#ifndef AVH_SECURE_PRERELEASE_BUILD
-	theIsAuthorized = true;
-	#endif
-
-	#ifdef AVH_SECURE_PRERELEASE_BUILD
-	string theAuthID = AvHSUGetPlayerAuthIDString(inEntity);
-	const char* thePlayerName = STRING(inEntity->v.netname);
-	if(!strcmp(thePlayerName, ""))
-	{
-		thePlayerName = "unknown";
-	}
-
-    // Allow only select players to play
-	int theSecurityMask = PLAYERAUTH_DEVELOPER | PLAYERAUTH_PLAYTESTER  |  PLAYERAUTH_CONTRIBUTOR;
-
-	// If any of these bits are set, allow them to play
-    int theAuthMask = 0;
-
-    // Get the auth mask the cheap way if possible
-    AvHPlayer* thePlayer = dynamic_cast<AvHPlayer*>(CBaseEntity::Instance(inEntity));
-    if(thePlayer)
-    {
-        theAuthMask = thePlayer->GetAuthenticationMask();
-    }
-    else
-    {
-        theAuthMask = GetGameRules()->GetAuthenticationMask(theAuthID);
-    }
-
-	if(theAuthMask & theSecurityMask)
-	{
-		if(inDisplayMessage)
-		{
-			char theAuthenticateString[512];
-			sprintf(theAuthenticateString, "Player (%s -> %s) authenticated as privileged player.\r\n", thePlayerName, theAuthID.c_str());
-			ALERT(at_logged, theAuthenticateString);
-		}
-
-		theIsAuthorized = true;
-	}
-	// Pending
-	else if(theAuthID == kSteamIDPending)
-	{
-		if(!inForcePending)
-		{
-			// The player is authorized
-			theIsAuthorized = true;
-		}
-	}
-	// Local players or bots are always allowed
-	else if((theAuthID == kSteamIDLocal) || (theAuthID == kSteamIDBot))
-	{
-		theIsAuthorized = true;
-	}
-
-	// Display message on failure
-	if(!theIsAuthorized && inDisplayMessage)
-	{
-		char theAuthenticateString[512];
-		sprintf(theAuthenticateString, "Player (%s -> %s) failed authentication.\r\n", thePlayerName, theAuthID.c_str());
-		ALERT(at_logged, theAuthenticateString);
-	}
-
-	#endif
-
-	return theIsAuthorized;
-}
-#endif
-
 BOOL AvHGamerules::ClientConnected( edict_t *pEntity, const char *pszName, const char *pszAddress, char szRejectReason[ 128 ] )
 {
-	bool theAllowedToConnect = true;
 	BOOL theSuccess = false;
 
-	#ifdef AVH_SECURE_PRERELEASE_BUILD
-	this->UpdateUplink();
-	#endif
+	g_VoiceGameMgr.ClientConnected(pEntity);
 
-#ifdef USE_UPP
-	UPPUtil_ConnectPlayer(pEntity,pszName,pszAddress);
-#endif
+	// Play connect sound
+	EMIT_SOUND(pEntity, CHAN_AUTO, kConnectSound, 0.8, ATTN_NORM);
 
-	#ifdef AVH_SECURE_PRERELEASE_BUILD
-	theAllowedToConnect = false;
-	theAllowedToConnect = this->GetIsClientAuthorizedToPlay(pEntity, true, false);
-	#endif
-
-	if(theAllowedToConnect)
-	{
-		g_VoiceGameMgr.ClientConnected(pEntity);
-
-		// Play connect sound
-		EMIT_SOUND(pEntity, CHAN_AUTO, kConnectSound, 0.8, ATTN_NORM);
-
-		theSuccess = CHalfLifeTeamplay::ClientConnected(pEntity, pszName, pszAddress, szRejectReason);
-	}
-	else
-	{
-		sprintf(szRejectReason, "Only privileged players can join beta NS servers.\n");
-	}
-
+	theSuccess = CHalfLifeTeamplay::ClientConnected(pEntity, pszName, pszAddress, szRejectReason);
 	return theSuccess;
 }
 
@@ -872,19 +644,8 @@ void AvHGamerules::ClientDisconnected( edict_t *pClient )
 	AvHPlayer* theAvHPlayer = dynamic_cast<AvHPlayer*>(theEntity);
 	if(theAvHPlayer)
 	{
-		#ifdef USE_UPP
-			UPP::reportPlayerExited(UPPUtil_GetPlayerInfo(theAvHPlayer));
-		#endif
 		theAvHPlayer->ClientDisconnected();
 	}
-
-#ifdef AVH_PLAYTEST_BUILD
-	// If server is shutting down, write out balance data
-	if(this->GetNumberOfPlayers() == 1)
-	{
-		this->RecordBalanceData();
-	}
-#endif
 
 	// trigger a votemap check
 	this->RemovePlayerFromVotemap(theEntity->entindex());
@@ -896,52 +657,7 @@ void AvHGamerules::ClientKill( edict_t *pEntity )
 
 void AvHGamerules::ClientUserInfoChanged(CBasePlayer *pPlayer, char *infobuffer)
 {
-	// NOTE: Not currently calling down to parent CHalfLifeTeamplay //
-	//	char text[1024];
-
-	// prevent skin/color/model changes
-	//char *mdls = g_engfuncs.pfnInfoKeyValue( infobuffer, "model" );
-
-//	char* theModelName = dynamic_cast<AvHPlayer*>(pPlayer)->GetPlayerModel();
-//
-//	//if(!stricmp( mdls, theModelName))
-//	//	return;
-//
-//	char* theInfoBuffer = g_engfuncs.pfnGetInfoKeyBuffer(pPlayer->edict());
-//	g_engfuncs.pfnSetClientKeyValue(pPlayer->entindex(), theInfoBuffer, "model", theModelName);
-
-	//if ( defaultteam.value )
-	//{
-	//	int clientIndex = pPlayer->entindex();
-	//
-	//	g_engfuncs.pfnSetClientKeyValue( clientIndex, g_engfuncs.pfnGetInfoKeyBuffer( pPlayer->edict() ), "model", pPlayer->TeamID() );
-	//	g_engfuncs.pfnSetClientKeyValue( clientIndex, g_engfuncs.pfnGetInfoKeyBuffer( pPlayer->edict() ), "team", pPlayer->TeamID() );
-	//	sprintf( text, "* Not allowed to change teams in this game!\n" );
-	//	UTIL_SayText( text, pPlayer );
-	//	return;
-	//}
-
-//	if ( defaultteam.value || !IsValidTeam( mdls ) )
-//	{
-//		int clientIndex = pPlayer->entindex();
-//
-//		g_engfuncs.pfnSetClientKeyValue( clientIndex, g_engfuncs.pfnGetInfoKeyBuffer( pPlayer->edict() ), "model", pPlayer->TeamID() );
-//		sprintf( text, "* Can't change team to \'%s\'\n", mdls );
-//		UTIL_SayText( text, pPlayer );
-//		sprintf( text, "* Server limits teams to \'%s\'\n", m_szTeamList );
-//		UTIL_SayText( text, pPlayer );
-//		return;
-//	}
-
-	// notify everyone of the team change
-//	sprintf( text, "* %s has changed to team \'%s\'\n", STRING(pPlayer->pev->netname), mdls );
-//	UTIL_SayTextAll( text, pPlayer );
-//
-//	UTIL_LogPrintf( "\"%s<%i>\" changed to team %s\n", STRING( pPlayer->pev->netname ), GETPLAYERUSERID( pPlayer->edict() ), mdls );
-
-//	ChangePlayerTeam( pPlayer, mdls, TRUE, TRUE );
-//	// recound stuff
-//	RecountTeams();
+	// NOTE: Not currently calling down to parent CHalfLifeTeamplay 
 }
 
 void AvHGamerules::ChangePlayerTeam( CBasePlayer *pPlayer, const char *pTeamName, BOOL bKill, BOOL bGib )
@@ -978,7 +694,7 @@ void AvHGamerules::DeathNotice(CBasePlayer* pVictim, entvars_t* pKiller, entvars
 void AvHGamerules::DeleteAndResetEntities()
 {
 	// Print reset message at console
-	char theResetString[256];
+	char theResetString[128];
 
 	sprintf(theResetString, "Game reset started.\n");
 	ALERT(at_logged, theResetString);
@@ -1090,58 +806,6 @@ BOOL AvHGamerules::FPlayerCanRespawn( CBasePlayer *pPlayer )
 {
 	bool theCanRespawn = false;
 
-//	AvHPlayer* thePlayer = dynamic_cast<AvHPlayer*>(pPlayer);
-//	AvHTeam* theTeam = thePlayer->GetTeamPointer();
-//	if(theTeam)
-//	{
-//		AvHClassType theTeamType = theTeam->GetTeamType();
-//
-//		if(theTeamType == AVH_CLASS_TYPE_MARINE)
-//		{
-//			if(theTeam->GetReinforcements() > 0)
-//			{
-//				theCanRespawn = true;
-//			}
-//		}
-//		else if(theTeamType == AVH_CLASS_TYPE_ALIEN)
-//		{
-//			// If there are are any eggs for this team
-//			FOR_ALL_ENTITIES(kwsEggClassName, AvHEgg*)
-//			if(theEntity->pev->team == pPlayer->pev->team)
-//			{
-//				theCanRespawn = true;
-//				break;
-//			}
-//			END_FOR_ALL_ENTITIES(kwsEggClassName)
-//
-//			if(!theCanRespawn)
-//			{
-//				// OR, if there is at least one hive, and we have enough points
-//				int theRespawnCost = thePlayer->GetRespawnCost();
-//				if(thePlayer->GetResources() >= theRespawnCost)
-//				{
-//					int theNumActiveHives = 0;
-//
-//					AvHTeam* theTeamPointer = thePlayer->GetTeamPointer();
-//					if(theTeamPointer)
-//					{
-//						theNumActiveHives = theTeamPointer->GetNumActiveHives();
-//					}
-//
-//					if(theNumActiveHives > 0)
-//					{
-//						theCanRespawn = true;
-//					}
-//				}
-//			}
-//		}
-//	}
-//	else
-//	{
-//		// This only happens when there aren't enough spawns, so players die in the ready room.  Fix?
-//		theCanRespawn = true;
-//	}
-
 	return theCanRespawn;
 }
 
@@ -1215,7 +879,7 @@ bool AvHGamerules::CanEntityDoDamageTo(const CBaseEntity* inAttacker, const CBas
 		if(theAttackerIsMine)
 		{
 			// Check if teams are the same
-			if( (inAttacker->pev->team == inReceiver->pev->team) )
+			if( inAttacker->pev->team == inReceiver->pev->team )
 			{
 				theCanDoDamage = false;
 			}
@@ -1319,47 +983,47 @@ bool AvHGamerules::GetCanJoinTeamInFuture(AvHPlayer* inPlayer, AvHTeamNumber inT
 
 	// You can always join before the game has started
 	// Don't allow team switching once the game has started, or ever in tourny mode
-	else if((inPlayer->GetTeam() != inTeamNumber) /*&& (inPlayer->GetTeam() != TEAM_IND)*/)
+	else if(inPlayer->GetTeam() != inTeamNumber)
 	{
-		// Server ops can always switch teams
-		if(inPlayer->GetAuthenticationMask() & PLAYERAUTH_SERVEROP)
+		// Server ops can ignore team balance
+		if( inPlayer->GetIsMember(PLAYERAUTH_SERVEROP) )
         {
             theCanJoinTeam = true;
         }
         else
 		{
 			// Check to see if teams are wildly unbalanced
+			AvHTeamNumber teamA = this->mTeamA.GetTeamNumber();
+			AvHTeamNumber teamB = this->mTeamB.GetTeamNumber();
+			AvHTeamNumber theOtherTeamNumber = (inTeamNumber == teamA) ? teamB : teamA;
+
 			const AvHTeam* theTeam = this->GetTeam(inTeamNumber);
-			if(theTeam)
+			const AvHTeam* theOtherTeam = this->GetTeam(theOtherTeamNumber);
+
+			if( theTeam && theOtherTeam )
 			{
 				int theWouldBeNumPlayersOnTeam = theTeam->GetPlayerCount() + 1;
+				int theWouldBeNumPlayersOnOtherTeam = theOtherTeam->GetPlayerCount();
 
-				AvHTeamNumber theOtherTeamNumber = (inTeamNumber == TEAM_ONE) ? TEAM_TWO : TEAM_ONE;
-				const AvHTeam* theOtherTeam = this->GetTeam(theOtherTeamNumber);
-				if(theOtherTeam)
+				// Subtract ourselves off
+				if(inPlayer->GetTeam() == theOtherTeamNumber)
 				{
-					int theWouldBeNumPlayersOnOtherTeam = theOtherTeam->GetPlayerCount();
+					theWouldBeNumPlayersOnOtherTeam--;
+				}
 
-					// Subtract ourselves off
-					if(AvHTeamNumber(inPlayer->pev->team) == theOtherTeam->GetTeamNumber())
-					{
-						theWouldBeNumPlayersOnTeam--;
-					}
-
-					int theDiscrepancyAllowed = max(1, avh_limitteams.value);
-					if(((theWouldBeNumPlayersOnTeam - theWouldBeNumPlayersOnOtherTeam) <= theDiscrepancyAllowed) || this->GetIsTournamentMode() || this->GetCheatsEnabled())
-					{
-						// tankefugl: 0000953
-						if (!(this->GetCheatsEnabled()) && !(inPlayer->JoinTeamCooledDown(BALANCE_FVAR(kJoinTeamCooldown))))
-							outString = kJoinTeamTooFast;
-						else
-						// :tankefugl
-							theCanJoinTeam = true;
-					}
+				int theDiscrepancyAllowed = max(1, avh_limitteams.value);
+				if(((theWouldBeNumPlayersOnTeam - theWouldBeNumPlayersOnOtherTeam) <= theDiscrepancyAllowed) || this->GetIsTournamentMode() || this->GetCheatsEnabled())
+				{
+					// tankefugl: 0000953
+					if (!(this->GetCheatsEnabled()) && !(inPlayer->JoinTeamCooledDown(BALANCE_VAR(kJoinTeamCooldown))))
+						outString = kJoinTeamTooFast;
 					else
-					{
-						outString = kTooManyPlayersOnTeam;
-					}
+					// :tankefugl
+						theCanJoinTeam = true;
+				}
+				else
+				{
+					outString = kTooManyPlayersOnTeam;
 				}
 			}
 		}
@@ -1486,17 +1150,6 @@ const AvHGameplay& AvHGamerules::GetGameplay() const
 	return this->mGameplay;
 }
 
-bool AvHGamerules::GetIsMapperBuild() const
-{
-	bool theIsMapperBuild = false;
-
-	#ifdef AVH_MAPPER_BUILD
-	theIsMapperBuild = true;
-	#endif
-
-	return theIsMapperBuild;
-}
-
 bool AvHGamerules::GetIsTesting(void) const
 {
 	return CVAR_GET_FLOAT(kvTesting) > 0;
@@ -1551,19 +1204,19 @@ const AvHMapExtents& AvHGamerules::GetMapExtents()
 
 AvHEntityHierarchy& AvHGamerules::GetEntityHierarchy(AvHTeamNumber inTeam)
 {
-	if(inTeam == TEAM_ONE)
+	if(inTeam == this->mTeamA.GetTeamNumber())
 	{
-		return this->mTeamOneEntityHierarchy;
+		return this->mTeamAEntityHierarchy;
 	}
-	else if(inTeam == TEAM_TWO)
+	else if(inTeam == this->mTeamB.GetTeamNumber())
 	{
-		return this->mTeamTwoEntityHierarchy;
+		return this->mTeamBEntityHierarchy;
 	}
 	else
 	{
 		ASSERT(false);
 	}
-	return this->mTeamOneEntityHierarchy;
+	return this->mTeamAEntityHierarchy;
 }
 
 bool AvHGamerules::GetIsPlayerSelectableByPlayer(AvHPlayer* inTargetPlayer, AvHPlayer* inByPlayer)
@@ -1585,11 +1238,6 @@ bool AvHGamerules::GetIsPlayerSelectableByPlayer(AvHPlayer* inTargetPlayer, AvHP
 	}
 
 	return thePlayerIsSelectable;
-}
-
-const AuthIDListType& AvHGamerules::GetServerOpList() const
-{
-	return this->mServerOpList;
 }
 
 int	AvHGamerules::GetServerTick() const
@@ -1620,33 +1268,6 @@ const char*	AvHGamerules::GetSpawnEntityName(AvHPlayer* inPlayer) const
 		{
 			theSpawnEntityName = kesTeamStart;
 		}
-//		// Player has requested a team but is currently in spectator mode OR
-//		// the player is in the ready room and has walked through a door to choose team
-//		else if(inPlayer->IsObserver() || theClassType == AVH_CLASS_TYPE_UNDEFINED)
-//		{
-//			// Look at class type to determine spawn entity name
-//			if(theClassType == AVH_CLASS_TYPE_MARINE)
-//			{
-//				theSpawnEntityName = kesTeamOneStart;
-//			}
-//			else if(theClassType == AVH_CLASS_TYPE_ALIEN)
-//			{
-//				theSpawnEntityName = kesTeamTwoStart;
-//			}
-//		}
-//		// Player just died and is coming back normally
-//		else
-//		{
-//			// Use current class type to determine spawn entity name
-//			if(theClassType == AVH_CLASS_TYPE_MARINE)
-//			{
-//				theSpawnEntityName = kesTeamOneStart;
-//			}
-//			else if(theClassType == AVH_CLASS_TYPE_ALIEN)
-//			{
-//				theSpawnEntityName = kesTeamTwoStart;
-//			}
-//		}
 	}
 	else if(this->mMapMode == MAP_MODE_CS)
 	{
@@ -1711,39 +1332,41 @@ const AvHTeam* AvHGamerules::GetTeam(AvHTeamNumber inTeamNumber) const
 {
 	const AvHTeam* theTeam = NULL;
 
-	ASSERT((inTeamNumber == TEAM_IND) || (inTeamNumber == TEAM_ONE) || (inTeamNumber == TEAM_TWO));
-
-	if(inTeamNumber == TEAM_ONE)
-	{
-		theTeam = &this->mTeamOne;
-	}
-	else if(inTeamNumber == TEAM_TWO)
-	{
-		theTeam = &this->mTeamTwo;
-	}
-	else
-	{
-		// TODO: emit error?
-	}
+	if( this->mTeamA.GetTeamNumber() == inTeamNumber )
+	{ theTeam = &this->mTeamA; }
+	if( this->mTeamB.GetTeamNumber() == inTeamNumber )
+	{ theTeam = &this->mTeamB; }
 	return theTeam;
+}
+
+const AvHTeam* AvHGamerules::GetTeamA(void) const
+{
+	return &this->mTeamA;
+}
+
+const AvHTeam* AvHGamerules::GetTeamB(void) const
+{
+	return &this->mTeamB;
 }
 
 AvHTeam* AvHGamerules::GetTeam(AvHTeamNumber inTeamNumber)
 {
 	AvHTeam* theTeam = NULL;
-	if(inTeamNumber == TEAM_ONE)
-	{
-		theTeam = &this->mTeamOne;
-	}
-	else if(inTeamNumber == TEAM_TWO)
-	{
-		theTeam = &this->mTeamTwo;
-	}
-	else
-	{
-		// TODO: emit error?
-	}
+
+	if( this->mTeamA.GetTeamNumber() == inTeamNumber )
+	{ theTeam = &this->mTeamA; }
+	if( this->mTeamB.GetTeamNumber() == inTeamNumber )
+	{ theTeam = &this->mTeamB; }
 	return theTeam;
+}
+AvHTeam* AvHGamerules::GetTeamA(void)
+{
+	return &this->mTeamA;
+}
+
+AvHTeam* AvHGamerules::GetTeamB(void)
+{
+	return &this->mTeamB;
 }
 
 AvHTeamNumber AvHGamerules::GetVictoryTeam() const
@@ -1881,9 +1504,6 @@ void AvHGamerules::InitHUD( CBasePlayer *pPlayer )
 {
 	// Call down to base class first (this may need to be changed later but make sure to update spectator cam)
 	CHalfLifeTeamplay::InitHUD(pPlayer);
-#ifdef USE_UPP
-	UPPUtil_InitializePlayer(pPlayer);
-#endif
 	// notify other clients of player joining the game
 	UTIL_ClientPrintAll( HUD_PRINTNOTIFY, UTIL_VarArgs( "%s has joined the game\n", ( pPlayer->pev->netname && STRING(pPlayer->pev->netname)[0] != 0 ) ? STRING(pPlayer->pev->netname) : "unconnected" ) );
 }
@@ -1964,7 +1584,7 @@ void AvHGamerules::PlayerGotWeapon(CBasePlayer *pPlayer, CBasePlayerItem *pWeapo
 				if(theWeapon->UsesAmmo() && theWeapon->GetItemInfo(&theItemInfo) && theWeapon->GetCanBeResupplied())
 				{
 					//int theMaxPrimary = theItemInfo.iMaxAmmo1;
-					int theStartAmmo = theItemInfo.iMaxClip*BALANCE_IVAR(kCombatSpawnClips);
+					int theStartAmmo = theItemInfo.iMaxClip*BALANCE_VAR(kCombatSpawnClips);
 
 					// Add some to primary store
 					pPlayer->m_rgAmmo[theWeapon->m_iPrimaryAmmoType] = theStartAmmo;
@@ -2000,8 +1620,8 @@ void AvHGamerules::PerformMapValidityCheck()
 {
 	// Perform check to see that we have enough of all the entities
 	int theNumReadyRoomSpawns = 0;
-	int theNumTeamOneSpawns = 0;
-	int theNumTeamTwoSpawns = 0;
+	int theNumTeamASpawns = 0;
+	int theNumTeamBSpawns = 0;
 //	CBaseEntity* theSpawn = NULL;
 //	while((theSpawn = UTIL_FindEntityByClassname(theSpawn, kesReadyRoomStart)) != NULL)
 //	{
@@ -2014,23 +1634,23 @@ void AvHGamerules::PerformMapValidityCheck()
 		{
 			theNumReadyRoomSpawns++;
 		}
-		else if(theIter->GetTeamNumber() == TEAM_ONE)
+		else if(theIter->GetTeamNumber() == this->mTeamA.GetTeamNumber())
 		{
-			theNumTeamOneSpawns++;
+			theNumTeamASpawns++;
 		}
-		else if(theIter->GetTeamNumber() == TEAM_TWO)
+		else if(theIter->GetTeamNumber() == this->mTeamB.GetTeamNumber())
 		{
-			theNumTeamTwoSpawns++;
+			theNumTeamBSpawns++;
 		}
 	}
 
 	int theNumDesiredReadyRoomSpawns = 32;
-	int theNumDesiredTeamOneSpawns = this->mTeamOne.GetDesiredSpawnCount();
-	int theNumDesiredTeamTwoSpawns = this->mTeamTwo.GetDesiredSpawnCount();
+	int theNumDesiredTeamASpawns = this->mTeamA.GetDesiredSpawnCount();
+	int theNumDesiredTeamBSpawns = this->mTeamB.GetDesiredSpawnCount();
 
-	if((theNumReadyRoomSpawns < theNumDesiredReadyRoomSpawns) || (theNumTeamOneSpawns < theNumDesiredTeamOneSpawns) || (theNumTeamTwoSpawns < theNumDesiredTeamTwoSpawns))
+	if((theNumReadyRoomSpawns < theNumDesiredReadyRoomSpawns) || (theNumTeamASpawns < theNumDesiredTeamASpawns) || (theNumTeamBSpawns < theNumDesiredTeamBSpawns))
 	{
-		ALERT(at_logged, "Map validity check failure: %d/%d ready room spawns, %d/%d team one spawns, %d/%d team two spawns.\n", theNumReadyRoomSpawns, theNumDesiredReadyRoomSpawns, theNumTeamOneSpawns, theNumDesiredTeamOneSpawns, theNumTeamTwoSpawns, theNumDesiredTeamTwoSpawns);
+		ALERT(at_logged, "Map validity check failure: %d/%d ready room spawns, %d/%d team A spawns, %d/%d team B spawns.\n", theNumReadyRoomSpawns, theNumDesiredReadyRoomSpawns, theNumTeamASpawns, theNumDesiredTeamASpawns, theNumTeamBSpawns, theNumDesiredTeamBSpawns);
 	}
 	else
 	{
@@ -2093,65 +1713,43 @@ void AvHGamerules::TallyVictoryStats() const
 		thePrintableMapName = theMapName;
 	}
 
-	const AvHTeam* theVictoryTeam = &this->mTeamOne;
-	const AvHTeam* theLosingTeam = &this->mTeamTwo;
+	const AvHTeam* theVictoryTeam = &this->mTeamA;
+	const AvHTeam* theLosingTeam = &this->mTeamB;
 
-	if(this->mVictoryTeam == TEAM_TWO)
+	if(this->mVictoryTeam == this->mTeamB.GetTeamNumber())
 	{
-		theVictoryTeam = &this->mTeamTwo;
-		theLosingTeam = &this->mTeamOne;
+		theVictoryTeam = &this->mTeamB;
+		theLosingTeam = &this->mTeamA;
 	}
 
-	ALERT(at_logged, "Team \"%d\" scored \"%d\" with \"%d\" players\n", TEAM_ONE, (int)this->mTeamOne.GetTotalResourcesGathered(), (int)this->mTeamOne.GetPlayerCount());
-	ALERT(at_logged, "Team \"%d\" scored \"%d\" with \"%d\" players\n", TEAM_TWO, (int)this->mTeamTwo.GetTotalResourcesGathered(), (int)this->mTeamTwo.GetPlayerCount());
+	ALERT(at_logged, "Team \"%d\" scored \"%d\" with \"%d\" players\n", this->mTeamA.GetTeamNumber(), this->mTeamA.GetTotalResourcesGathered(), this->mTeamA.GetPlayerCount());
+	ALERT(at_logged, "Team \"%d\" scored \"%d\" with \"%d\" players\n", this->mTeamB.GetTeamNumber(), this->mTeamB.GetTotalResourcesGathered(), this->mTeamB.GetPlayerCount());
 
 	if(!this->mVictoryDraw)
 	{
-		ALERT(at_logged, "(map_name \"%s\") (game_version \"%s\") (game_time \"%02d:%02d\") (victory_team \"%s\") (losing_team \"%s\") (winning_teamsize \"%d\") (losing_teamsize \"%d\")\n",
-			thePrintableMapName,
-			AvHSUGetGameVersionString(),
-			theGameLengthMinutes,
-			theGameLengthSeconds,
-			theVictoryTeam->GetTeamTypeString(),
-			theLosingTeam->GetTeamTypeString(),
-			theVictoryTeam->GetPlayerCount(),
-			theLosingTeam->GetPlayerCount());
+		ALERT(at_logged, "(map_name \"%s\") (game_version \"%s\") (game_time \"%02d:%02d\") (victory_team \"%s\") (losing_team \"%s\") (winning_teamsize \"%d\") (losing_teamsize \"%d\")\n", thePrintableMapName, AvHSUGetGameVersionString(), theGameLengthMinutes, theGameLengthSeconds, theVictoryTeam->GetTeamTypeString(), theLosingTeam->GetTeamTypeString(), theVictoryTeam->GetPlayerCount(), theLosingTeam->GetPlayerCount());
 	}
 	else
 	{
-		ALERT(at_logged, "(map_name \"%s\") (game_version \"%s\") (game_time \"%02d:%02d\") (victory_team \"draw\") (losing_team \"draw\")\n",
-			thePrintableMapName,
-			AvHSUGetGameVersionString(),
-			theGameLengthMinutes,
-			theGameLengthSeconds);
+		ALERT(at_logged, "(map_name \"%s\") (game_version \"%s\") (game_time \"%02d:%02d\") (victory_team \"draw\") (losing_team \"draw\")\n", thePrintableMapName, AvHSUGetGameVersionString(), theGameLengthMinutes, theGameLengthSeconds);
 	}
-
-	//sprintf(theVictoryString, "%d?%s?%d?%d?%s?%s?%d?%d", this->mVictoryTeam, theTeamTypeString.c_str(), theNumTeamOnePlayers, theNumTeamTwoPlayers, thePrintableMapName, kGameVersion, theGameMinutes, theExtraSeconds, kGameVersion);
-	//this->PostVictoryStatsToWeb(string(theVictoryString));
 }
 
 void AvHGamerules::InitializeTechNodes()
 {
-	this->mTeamOne.InitializeTechNodes();
-	this->mTeamTwo.InitializeTechNodes();
+	this->mTeamA.InitializeTechNodes();
+	this->mTeamB.InitializeTechNodes();
 }
 
 void AvHGamerules::PlayerDeathEnd(AvHPlayer* inPlayer)
 {
 	ASSERT(inPlayer);
 
-//	if(!this->FPlayerCanRespawn(inPlayer))
-//	{
 	if(inPlayer->GetPlayMode() == PLAYMODE_PLAYING)
 	{
 		inPlayer->pev->nextthink = -1;
 		inPlayer->SetPlayMode(PLAYMODE_AWAITINGREINFORCEMENT, true);
 	}
-	//	}
-//	else
-//	{
-//		this->RespawnPlayer(inPlayer);
-//	}
 }
 
 void AvHGamerules::PlayerKilled( CBasePlayer *pVictim, entvars_t *pKiller, entvars_t *pInflictor )
@@ -2191,14 +1789,6 @@ void AvHGamerules::PlayerSpawn( CBasePlayer *pPlayer )
 		addDefault = FALSE;
 	}
 
-	// Old-school spawn effect
-//	MESSAGE_BEGIN(MSG_BROADCAST, SVC_TEMPENTITY);
-//	WRITE_BYTE(TE_TELEPORT);
-//	WRITE_COORD(pPlayer->pev->origin.x);
-//	WRITE_COORD(pPlayer->pev->origin.y);
-//	WRITE_COORD(pPlayer->pev->origin.z);
-//	MESSAGE_END();
-
 	if ( addDefault )
 	{
 		theAvHPlayer->pev->team = theAvHPlayer->GetTeam();
@@ -2218,12 +1808,8 @@ void AvHGamerules::PlayerThink( CBasePlayer *pPlayer )
 // Reset all players, remove weapons off the ground, etc.
 void AvHGamerules::PostWorldPrecacheReset(bool inNewMap)
 {
-	#ifdef AVH_PLAYTEST_BUILD
-	this->ReadBalanceData();
-	#endif
-
-    EntityListType theJoinedTeamOne;
-    EntityListType theJoinedTeamTwo;
+    EntityListType theJoinedTeamA;
+    EntityListType theJoinedTeamB;
     EntityListType theSpectating;
 
 	// If we're preserving teams
@@ -2233,13 +1819,13 @@ void AvHGamerules::PostWorldPrecacheReset(bool inNewMap)
 		FOR_ALL_ENTITIES(kAvHPlayerClassName, AvHPlayer*)
 			int theEntityIndex = theEntity->entindex();
 
-			if(theEntity->pev->team == TEAM_ONE)
+			if(theEntity->pev->team == this->mTeamA.GetTeamNumber())
 			{
-				theJoinedTeamOne.push_back(theEntityIndex);
+				theJoinedTeamA.push_back(theEntityIndex);
 			}
-			else if(theEntity->pev->team == TEAM_TWO)
+			else if(theEntity->pev->team == this->mTeamB.GetTeamNumber())
 			{
-				theJoinedTeamTwo.push_back(theEntityIndex);
+				theJoinedTeamB.push_back(theEntityIndex);
 			}
 			else if(theEntity->pev->team == TEAM_IND)
 			{
@@ -2271,33 +1857,35 @@ void AvHGamerules::PostWorldPrecacheReset(bool inNewMap)
 		this->mGameplay = *theEntity;
 	END_FOR_ALL_ENTITIES(kwsMapInfoClassName)
 
-	this->mTeamOne.ResetGame();
-	this->mTeamTwo.ResetGame();
+	this->mTeamA.ResetGame();
+	this->mTeamB.ResetGame();
 
-	this->mTeamOneEntityHierarchy.Clear();
-	this->mTeamTwoEntityHierarchy.Clear();
+	this->mTeamAEntityHierarchy.Clear();
+	this->mTeamBEntityHierarchy.Clear();
 
 	// Set up both sides
-	this->mTeamOne.SetTeamType(this->mGameplay.GetTeamOneType());
-	this->mTeamTwo.SetTeamType(this->mGameplay.GetTeamTwoType());
+	this->mTeamA.SetTeamType(this->mGameplay.GetTeamAType());
+	this->mTeamB.SetTeamType(this->mGameplay.GetTeamBType());
 
 	// Set team numbers differently if teams are the same, so their colors change
 	// Marines vs. marines will be team 1 vs, team 3, aliens vs. aliens will be team 2 vs. team 4
-	if(this->mTeamOne.GetTeamType() == this->mTeamTwo.GetTeamType())
+	if(this->mTeamA.GetTeamType() == this->mTeamB.GetTeamType())
 	{
-		if(this->mTeamOne.GetTeamType() == AVH_CLASS_TYPE_MARINE)
+		if(this->mTeamA.GetTeamType() == AVH_CLASS_TYPE_MARINE)
 		{
-			this->mTeamOne.SetTeamNumber(TEAM_ONE);
-			this->mTeamTwo.SetTeamNumber(TEAM_THREE);
-			this->mTeamTwo.SetTeamName(kMarine2Team);
-			this->mTeamTwo.SetTeamPrettyName(kMarinePrettyName);
+			this->mTeamA.SetTeamNumber(TEAM_ONE);
+			this->mTeamB.SetTeamNumber(TEAM_THREE);
+			this->mTeamB.SetTeamName(kMarine2Team);
+			this->mTeamB.SetTeamPrettyName(kMarinePrettyName);
 		}
 		else
 		{
-			this->mTeamOne.SetTeamNumber(TEAM_TWO);
-			this->mTeamTwo.SetTeamNumber(TEAM_FOUR);
-			this->mTeamTwo.SetTeamName(kAlien2Team);
-			this->mTeamTwo.SetTeamPrettyName(kAlienPrettyName);
+			this->mTeamA.SetTeamNumber(TEAM_TWO);
+			this->mTeamA.SetTeamName(kAlien1Team);
+			this->mTeamA.SetTeamPrettyName(kAlienPrettyName);
+			this->mTeamB.SetTeamNumber(TEAM_FOUR);
+			this->mTeamB.SetTeamName(kAlien2Team);
+			this->mTeamB.SetTeamPrettyName(kAlienPrettyName);
 		}
 	}
 
@@ -2367,28 +1955,30 @@ void AvHGamerules::PostWorldPrecacheReset(bool inNewMap)
 	bool theJustResetGameAtCountdownStart = false;
 
 	// Now tell those players to all join again
-	for(EntityListType::iterator theIter = theJoinedTeamOne.begin(); theIter != theJoinedTeamOne.end(); theIter++)
+	EntityListType::iterator theIter, end = theJoinedTeamA.end();
+	for(theIter = theJoinedTeamA.begin(); theIter != end; ++theIter)
 	{
 		AvHPlayer* thePlayer = dynamic_cast<AvHPlayer*>(CBaseEntity::Instance(g_engfuncs.pfnPEntityOfEntIndex(*theIter)));
 		if(thePlayer)
 		{
-			GetGameRules()->JoinTeam(thePlayer, TEAM_ONE, false, true);
+			GetGameRules()->JoinTeam(thePlayer, this->mTeamA.GetTeamNumber(), false, true);
 		}
 		theJustResetGameAtCountdownStart = true;
 	}
-	theJoinedTeamOne.clear();
+	theJoinedTeamA.clear();
 
 	// Now tell those players to all join again
-	for(theIter = theJoinedTeamTwo.begin(); theIter != theJoinedTeamTwo.end(); theIter++)
+	end = theJoinedTeamB.end();
+	for(theIter = theJoinedTeamB.begin(); theIter != end; ++theIter)
 	{
 		AvHPlayer* thePlayer = dynamic_cast<AvHPlayer*>(CBaseEntity::Instance(g_engfuncs.pfnPEntityOfEntIndex(*theIter)));
 		if(thePlayer)
 		{
-			GetGameRules()->JoinTeam(thePlayer, TEAM_TWO, false, true);
+			GetGameRules()->JoinTeam(thePlayer, this->mTeamB.GetTeamNumber(), false, true);
 		}
 		theJustResetGameAtCountdownStart = true;
 	}
-	theJoinedTeamTwo.clear();
+	theJoinedTeamB.clear();
 
 	// Rejoin spectators
 	for(theIter = theSpectating.begin(); theIter != theSpectating.end(); theIter++)
@@ -2414,10 +2004,6 @@ void AvHGamerules::PostWorldPrecacheReset(bool inNewMap)
 void AvHGamerules::JoinTeam(AvHPlayer* inPlayer, AvHTeamNumber inTeamToJoin, bool inDisplayErrorMessage, bool inForce)
 {
     // Report new player status
-	#ifdef USE_UPP
-		UPP::reportPlayerChangingTeams(UPPUtil_GetPlayerInfo(inPlayer),inTeamToJoin);
-	#endif
-
 	int thePrevTeam = inPlayer->pev->team;
 	inPlayer->pev->team = inTeamToJoin;
 
@@ -2447,12 +2033,7 @@ void AvHGamerules::JoinTeam(AvHPlayer* inPlayer, AvHTeamNumber inTeamToJoin, boo
 
 	if(inTeamToJoin != TEAM_IND)
 	{
-		UTIL_LogPrintf("\"%s<%d><%s>\" joined team \"%s\"\n",
-			STRING(inPlayer->pev->netname),
-			GETPLAYERUSERID(inPlayer->edict()),
-			AvHSUGetPlayerAuthIDString(inPlayer->edict()).c_str(),
-			AvHSUGetTeamName(inPlayer->pev->team));
-
+		UTIL_LogPrintf( "%s joined team \"%s\"\n", GetLogStringForPlayer( inPlayer->edict() ).c_str(), AvHSUGetTeamName(inPlayer->pev->team) );
 		if(theServerPlayerData)
 			theServerPlayerData->SetHasJoinedTeam(true);
 	}
@@ -2474,29 +2055,9 @@ void AvHGamerules::ProcessRespawnCostForPlayer(AvHPlayer* inPlayer)
 		AvHClassType theTeamType = theTeam->GetTeamType();
 		if(theTeamType == AVH_CLASS_TYPE_ALIEN)
 		{
-			// It costs an egg, or points
-			//			AvHEgg* theEgg = this->FindEggForTeam(inPlayer->GetTeam());
-			//			if(!theEgg)
-			//			{
-			//				// Deduct point cost
-			//				int theRespawnCost = inPlayer->GetRespawnCost();
-			//				ASSERT(inPlayer->GetResources() >= theRespawnCost);
-			//				inPlayer->SetResources(inPlayer->GetResources() - theRespawnCost);
-			//
-			//				this->MarkDramaticEvent(kHiveSpawnPriority, inPlayer);
-			//			}
-			//			else
-			//			{
-			//				this->MarkDramaticEvent(kEggSpawnPriority, inPlayer, theEgg);
-			//			}
 		}
 		else if(theTeamType == AVH_CLASS_TYPE_MARINE)
 		{
-			// It costs a reinforcement for a marine
-			//			int theNumReinforcements = theTeam->GetReinforcements();
-			//			ASSERT(theNumReinforcements > 0);
-			//			theTeam->SetReinforcements(theNumReinforcements - 1);
-
 			this->MarkDramaticEvent(kReinforcementsPriority, inPlayer);
 		}
 	}
@@ -2508,8 +2069,6 @@ void AvHGamerules::ProcessTeamUpgrade(AvHMessageID inUpgrade, AvHTeamNumber inNu
 	AvHTeam* theTeam = this->GetTeam(inNumber);
 	if(theTeam && (theTeam->GetTeamType() == AVH_CLASS_TYPE_MARINE))
 	{
-		//AvHSUPrintDevMessage("FOR_ALL_BASEENTITIES: AvHGamerules::ProcessTeamUpgrade\n");
-
 		// Add or remove the upgrade from every entity that's on the team
 		FOR_ALL_BASEENTITIES();
 		if(theBaseEntity->pev->team == inNumber)
@@ -2535,33 +2094,20 @@ bool AvHGamerules::ReadyToStartCountdown()
 {
 	bool theReadyToStartCountdown = false;
 
-	int theTeamOnePlayerCount = this->mTeamOne.GetPlayerCount();
-    int theTeamTwoPlayerCount = this->mTeamTwo.GetPlayerCount();
-
-	bool theAtLeastOneOnTeamOne = theTeamOnePlayerCount > 0;
-	bool theAtLeastOneOnTeamTwo = theTeamTwoPlayerCount > 0;
+	bool theAtLeastOneOnTeamA = this->mTeamA.GetPlayerCount() > 0;
+	bool theAtLeastOneOnTeamB = this->mTeamB.GetPlayerCount() > 0;
 
 	if(this->GetCheatsEnabled())
 	{
-		if(theAtLeastOneOnTeamOne || theAtLeastOneOnTeamTwo)
+		if(theAtLeastOneOnTeamA || theAtLeastOneOnTeamB)
 		{
 			theReadyToStartCountdown = true;
 		}
 	}
-	else
+	else if(theAtLeastOneOnTeamA && theAtLeastOneOnTeamB)
 	{
-		if(this->GetIsTournamentMode())
-		{
-			// Don't start unless both sides are equal and both sides have said their team is ready
-			if(theAtLeastOneOnTeamOne && theAtLeastOneOnTeamTwo /*&& (theTeamOnePlayerCount == theTeamTwoPlayerCount)*/)
-			{
-				if(this->mTeamOne.GetIsReady() && this->mTeamTwo.GetIsReady())
-				{
-					theReadyToStartCountdown = true;
-				}
-			}
-		}
-		else if(theAtLeastOneOnTeamOne && theAtLeastOneOnTeamTwo)
+		//need to ready up for tournament mode; otherwise just need players on each team
+		if( !this->GetIsTournamentMode() || ( this->mTeamA.GetIsReady() && this->mTeamB.GetIsReady() ) )
 		{
 			theReadyToStartCountdown = true;
 		}
@@ -2575,23 +2121,26 @@ void AvHGamerules::RecalculateHandicap()
     const float kHandicapMax = 100.0f;
 
 	// Teams can enforce their own handicaps if they want (cap to valid values)
-	float theBaseTeam1Handicap = max(min(kHandicapMax, avh_team1damagepercent.value), 0.0f);
-	float theBaseTeam2Handicap = max(min(kHandicapMax, avh_team2damagepercent.value), 0.0f);
+	float handicaps[4];
+	handicaps[0] = max(min(kHandicapMax, avh_team1damagepercent.value), 0.0f);
+	handicaps[1] = max(min(kHandicapMax, avh_team2damagepercent.value), 0.0f);
+	handicaps[2] = max(min(kHandicapMax, avh_team3damagepercent.value), 0.0f);
+	handicaps[3] = max(min(kHandicapMax, avh_team4damagepercent.value), 0.0f);
 
     // Set handicap scalars
-	this->mTeamOne.SetHandicap(theBaseTeam1Handicap/kHandicapMax);
-	this->mTeamTwo.SetHandicap(theBaseTeam2Handicap/kHandicapMax);
+	this->mTeamA.SetHandicap(handicaps[this->mTeamA.GetTeamNumber()-1]/kHandicapMax);
+	this->mTeamB.SetHandicap(handicaps[this->mTeamB.GetTeamNumber()-1]/kHandicapMax);
 
-	avh_team1damagepercent.value = theBaseTeam1Handicap;
-	avh_team2damagepercent.value = theBaseTeam2Handicap;
+	avh_team1damagepercent.value = handicaps[0];
+	avh_team2damagepercent.value = handicaps[1];
+	avh_team3damagepercent.value = handicaps[2];
+	avh_team4damagepercent.value = handicaps[3];
 }
 
 // Called when dedicated server exits
 void AvHGamerules::ServerExit()
 {
-	#ifdef USE_UPP
-		UPP::disconnect();
-	#endif
+	AvHNexus::shutdown();
 }
 
 void AvHGamerules::VoteMap(int inPlayerIndex, int inMapIndex)
@@ -2644,7 +2193,7 @@ void AvHGamerules::VoteMap(int inPlayerIndex, int inMapIndex)
             ASSERT(theVotingPlayer);
             char* theMessage = UTIL_VarArgs("%s executed votemap %d (%s %d/%d)\n", STRING(theVotingPlayer->pev->netname), inMapIndex, theIter->first.c_str(), theIter->second, this->GetVotesNeededForMapChange());
             UTIL_ClientPrintAll(HUD_PRINTTALK, theMessage);
-            UTIL_LogPrintf(theMessage);
+			UTIL_LogPrintf( "%s executed votemap %d (%s %d/%d)\n", GetLogStringForPlayer( theVotingPlayer->edict() ).c_str(), inMapIndex, theIter->first.c_str(), theIter->second, this->GetVotesNeededForMapChange());
 
             // Does this map enough votes to change?
             if(theVotes >= this->GetVotesNeededForMapChange())
@@ -2714,7 +2263,7 @@ bool AvHGamerules::GetMapVoteStrings(StringList& outMapVoteList)
     return theSuccess;
 }
 
-int AvHGamerules::GetVotesNeededForMapChange()
+int AvHGamerules::GetVotesNeededForMapChange() const
 {
     int theNumVotes = -1;
 
@@ -2770,11 +2319,6 @@ void AvHGamerules::ResetGame(bool inPreserveTeams)
 	// Reset game rules
 	this->mFirstUpdate = true;
 	this->mPreserveTeams = inPreserveTeams;
-
-	// Reset all players
-//	FOR_ALL_ENTITIES(kAvHPlayerClassName, AvHPlayer*)
-//		theEntity->Reset();
-//	END_FOR_ALL_ENTITIES(kAvHPlayerClassName)
 }
 
 void AvHGamerules::RecalculateMapMode( void )
@@ -2837,7 +2381,9 @@ bool AvHGamerules::RoamingAllowedForPlayer(CBasePlayer* inPlayer) const
 		}
 		else
 		{
-			theTeam = this->GetTeam( (thePlayer->GetTeam() == TEAM_ONE ? TEAM_TWO : TEAM_ONE) );
+			AvHTeamNumber teamA = this->mTeamA.GetTeamNumber();
+			AvHTeamNumber teamB = this->mTeamB.GetTeamNumber();
+			theTeam = this->GetTeam( (thePlayer->GetTeam() == teamA ? teamB : teamA) );
 			if(theTeam)
 			{
 				if(theTeam->GetPlayerCount() == 0)
@@ -2850,21 +2396,6 @@ bool AvHGamerules::RoamingAllowedForPlayer(CBasePlayer* inPlayer) const
 
 	return theRoamingAllowed;
 }
-
-//AvHEgg*	AvHGamerules::FindEggForTeam(AvHTeamNumber inTeamNumber) const
-//{
-//	AvHEgg* theEgg = NULL;
-//
-//	FOR_ALL_ENTITIES(kwsEggClassName, AvHEgg*)
-//	if(theEntity->pev->team == inTeamNumber)
-//	{
-//		theEgg = theEntity;
-//		break;
-//	}
-//	END_FOR_ALL_ENTITIES(kwsEggClassName)
-//
-//	return theEgg;
-//}
 
 BOOL AvHGamerules::FShouldSwitchWeapon(CBasePlayer* inPlayer, CBasePlayerItem* inWeapon)
 {
@@ -2963,7 +2494,6 @@ void AvHGamerules::ResetEntities()
 		if(theObjectCaps & (FCAP_IMPULSE_USE | FCAP_CONTINUOUS_USE | FCAP_ONOFF_USE))
 		{
 			// After playing once, this is no longer zero
-			//ASSERT(theBaseEntity->pev->iuser3 == 0);
 			if(theBaseEntity->pev->iuser3 == 0)
 			{
 				theBaseEntity->pev->iuser3 = AVH_USER3_USEABLE;
@@ -2986,12 +2516,10 @@ void AvHGamerules::ResetEntities()
 
 void AvHGamerules::InternalResetGameRules()
 {
-	#ifdef USE_UPP
-	if(UPP::isRecordingGame())
+	if(AvHNexus::isRecordingGame())
 	{
-		UPP::reportGameCancelled();
+		AvHNexus::cancelGame();
 	}
-	#endif
 	this->mGameStarted = false;
 	this->mTimeCountDownStarted = 0;
 	this->mTimeGameStarted = -1;
@@ -3018,9 +2546,6 @@ void AvHGamerules::InternalResetGameRules()
 	this->mLastWorldEntityUpdate = -1;
 	this->mLastCloakableUpdate = -1;
 	this->mLastVictoryUpdate = -1;
-#ifndef USE_UPP //under UPP, we don't want to reestablish a connection with each new game
-	this->mUpdatedUplink = false;
-#endif
 }
 
 void AvHGamerules::CopyDataToSpawnEntity(const AvHSpawn& inSpawnEntity) const
@@ -3029,8 +2554,6 @@ void AvHGamerules::CopyDataToSpawnEntity(const AvHSpawn& inSpawnEntity) const
 	VectorCopy(inSpawnEntity.GetAngles(), this->mSpawnEntity->pev->angles);
 	VectorCopy(inSpawnEntity.GetAngles(), this->mSpawnEntity->pev->v_angle);
 	this->mSpawnEntity->pev->team = inSpawnEntity.GetTeamNumber();
-//	VectorCopy(g_vecZero, this->mSpawnEntity->pev->v_angle);
-	//this->mSpawnEntity->pev->classname = inSpawnEntity
 }
 
 // Look for spawns in radius
@@ -3102,7 +2625,7 @@ bool AvHGamerules::CanPlayerBeacon(CBaseEntity *inPlayer)
 		if(theClassName == kesTeamStart)
 		{
 			if(theSpawnIter->GetTeamNumber() == thePlayerTeamNumber && 
-				VectorDistance(theSpawnIter->GetOrigin(), inPlayer->pev->origin) < BALANCE_IVAR(kDistressBeaconRange))
+				VectorDistance(theSpawnIter->GetOrigin(), inPlayer->pev->origin) < BALANCE_VAR(kDistressBeaconRange))
 			{
 				result=false;
 			}
@@ -3199,156 +2722,54 @@ void AvHGamerules::UpdateHLTVProxy()
                 CBasePlayer *plr = (CBasePlayer*)UTIL_PlayerByIndex( i );
                 if ( plr && GetGameRules()->IsValidTeam( plr->TeamID() ) )
                 {
-                    MESSAGE_BEGIN(MSG_SPEC, gmsgTeamInfo);
-                        WRITE_BYTE(plr->entindex() );
-                        WRITE_STRING(plr->TeamID() );
-                    MESSAGE_END();
+					NetMsgSpec_TeamInfo( plr->entindex(), plr->TeamID() );
                 }
             }
 
             // Send messages to HLTV viewers
-            float theMapGamma = GetGameRules()->GetMapGamma();
-            MESSAGE_BEGIN(MSG_SPEC, gmsgSetGammaRamp);
-                WRITE_COORD(theMapGamma*kNormalizationNetworkFactor);
-            MESSAGE_END();
+			NetMsgSpec_SetGammaRamp( GetGameRules()->GetMapGamma() );
 
             this->mTimeOfLastHLTVProxyUpdate = gpGlobals->time;
         }
     }
 }
 
-void AvHGamerules::UpdateGameMode(CBasePlayer* inPlayer)
-{
-	// Sort scoreboard
-	MESSAGE_BEGIN( MSG_ONE, gmsgGameMode, NULL, inPlayer->edict() );
-		WRITE_BYTE(1);  // game mode teamplay
-	MESSAGE_END();
-}
-
 void AvHGamerules::UpdatePlaytesting()
 {
 	if(this->GetGameStarted() && !this->GetIsCombatMode())
 	{
-		const int theActiveNodesMessageUpdateTime = BALANCE_IVAR(kActiveNodesMessageUpdateTime);
+		const int theActiveNodesMessageUpdateTime = BALANCE_VAR(kActiveNodesMessageUpdateTime);
 		if((theActiveNodesMessageUpdateTime > 0) && !this->GetIsTournamentMode())
 		{
 			if((this->mTimeOfLastPlaytestUpdate == -1) || (gpGlobals->time > (this->mTimeOfLastPlaytestUpdate + theActiveNodesMessageUpdateTime)))
 			{
-				int theTeamOneTowers = 0;
-				int theTeamTwoTowers = 0;
-
-				//AvHSUPrintDevMessage("FOR_ALL_BASEENTITIES: AvHGamerules::UpdatePlaytesting\n");
+				int theTeamATowers = 0;
+				int theTeamBTowers = 0;
 
 				FOR_ALL_BASEENTITIES();
 				AvHResourceTower* theResourceTower = dynamic_cast<AvHResourceTower*>(theBaseEntity);
 				if(theResourceTower && theResourceTower->GetIsActive())
 				{
-					if(theResourceTower->pev->team == TEAM_ONE)
+					if(theResourceTower->pev->team == this->mTeamA.GetTeamNumber())
 					{
-						theTeamOneTowers++;
+						theTeamATowers++;
 					}
-					else if(theResourceTower->pev->team == TEAM_TWO)
+					else if(theResourceTower->pev->team == this->mTeamB.GetTeamNumber())
 					{
-						theTeamTwoTowers++;
+						theTeamBTowers++;
 					}
 				}
 				END_FOR_ALL_BASEENTITIES();
 
 				// Count how many active towers each team has, and tell the world
-				char* theMessage = UTIL_VarArgs( "Active resource nodes:  Marines: %d  Aliens: %d\n", theTeamOneTowers, theTeamTwoTowers);
+				char* theMessage = UTIL_VarArgs( "Active resource nodes:  TeamA: %d  TeamB: %d\n", theTeamATowers, theTeamBTowers);
 				UTIL_ClientPrintAll(HUD_PRINTTALK, theMessage);
 				UTIL_LogPrintf(theMessage);
 
 				this->mTimeOfLastPlaytestUpdate = gpGlobals->time;
 			}
 		}
-
-/*
-		const int theHandicapUpdateTime = BALANCE_IVAR(kHandicapUpdateTime);
-		if((theHandicapUpdateTime > 0) / *&& this->GetIsTournamentMode()* /)
-		{
-			if((this->mTimeOfLastHandicapUpdate == -1) || (gpGlobals->time > (this->mTimeOfLastHandicapUpdate + theHandicapUpdateTime)))
-			{
-				float theTeamOneHandicap = this->GetTeam(TEAM_ONE)->GetHandicap();
-				float theTeamTwoHandicap = this->GetTeam(TEAM_TWO)->GetHandicap();
-
-				if((theTeamOneHandicap < 1.0f) || (theTeamTwoHandicap < 1.0f))
-				{
-					char theMessage[512];
-					sprintf(theMessage, "Handicap active (damage reduction): Marines: %.2f  Aliens: %.2f\n", theTeamOneHandicap, theTeamTwoHandicap);
-					UTIL_ClientPrintAll(HUD_PRINTNOTIFY, theMessage);
-					UTIL_LogPrintf(theMessage);
-
-					this->mTimeOfLastHandicapUpdate = gpGlobals->time;
-				}
-			}
-		}
-*/
 	}
-}
-
-void AvHGamerules::UpdateUplink()
-{
-#ifdef USE_UPP
-	#ifdef AVH_SECURE_PRERELEASE_BUILD
-	avh_uplink.value = 1;
-	#endif
-
-	UPPUtil_ProcessResponses();
-
-	if(UPP::isConnected() != (avh_uplink.value != 0))
-	{
-		if(avh_uplink.value)
-		{
-			UPPUtil_Connect();
-		}
-		else
-		{
-			UPPUtil_Disconnect();
-		}
-	}
-#else
-	#ifdef AVH_SECURE_PRERELEASE_BUILD
-	avh_uplink.value = 1;
-	#endif
-
-	// If authentication is enabled
-	if(!this->mUpdatedUplink && (avh_uplink.value > 0))
-	{
-		// Only allow it once every day -> 500 servers == num queries per hour = 500*75k =  1,500k per hour -> just over a 1 gig a month
-		unsigned int theCurrentSystemTime = AvHSUTimeGetTime();
-		int theUpdateUplinkInterval = (60*60*1000)*24;
-
-		#ifdef AVH_SECURE_PRERELEASE_BUILD
-		theUpdateUplinkInterval = (60*60*1000)/30; // every 30 minutes or so while testing
-		#endif
-
-        #ifdef DEBUG
-        theUpdateUplinkInterval = 0;
-        #endif
-
-		if((gTimeLastUpdatedUplink == 0) || (theCurrentSystemTime > (gTimeLastUpdatedUplink + theUpdateUplinkInterval)))
-		{
-			// Initialize it
-			ALERT(at_logged, "Contacting www.natural-selection.org...\n");
-			this->InitializeAuthentication();
-			//this->DisplayVersioning();
-		}
-		else
-		{
-			//ALERT(at_logged, "You must wait longer before uplinking again.\n");
-		}
-	}
-
-	// If it just turned off, clear auth masks
-	if(this->mUpdatedUplink && !avh_uplink.value)
-	{
-		gAuthMaskList.clear();
-		ALERT(at_logged, "Authentication disabled.\n");
-	}
-
-	this->mUpdatedUplink = avh_uplink.value;
-#endif
 }
 
 edict_t* AvHGamerules::SelectSpawnPoint(CBaseEntity* inPlayer) const
@@ -3448,9 +2869,7 @@ void AvHGamerules::SetGameStarted(bool inGameStarted)
 	if(!this->mGameStarted && inGameStarted)
 	{
 		FireTargets(ktGameStartedStatus, NULL, NULL, USE_TOGGLE, 0.0f);
-		#ifdef USE_UPP
-			UPP::reportGameStarted(UPPUtil_GetGameInfo());
-		#endif
+		AvHNexus::startGame();
 	}
 	this->mGameStarted = inGameStarted;
 	this->mTimeGameStarted = gpGlobals->time;
@@ -3463,34 +2882,26 @@ void AvHGamerules::SetGameStarted(bool inGameStarted)
 		this->mCombatAttackingTeamNumber = theAttackingTeamNumber;
 	}
 
-	this->mTeamOne.SetGameStarted(inGameStarted);
-	this->mTeamTwo.SetGameStarted(inGameStarted);
+	this->mTeamA.SetGameStarted(inGameStarted);
+	this->mTeamB.SetGameStarted(inGameStarted);
 }
 
 void AvHGamerules::SendMOTDToClient( edict_t *client )
 {
-	// Only send MOTD in valid game for ease of debugging
-	//if(!this->GetCheatsEnabled())
-	//{
-		// read from the MOTD.txt file
-		int				length, char_count = 0;
-		char*			pFileList;
-		char*			aFileList = pFileList = (char*)LOAD_FILE_FOR_ME( kMOTDName, &length );
+	// read from the MOTD.txt file
+	int				length, char_count = 0;
+	char*			pFileList;
+	char*			aFileList = pFileList = (char*)LOAD_FILE_FOR_ME( kMOTDName, &length );
 
-		// send the server name
-		MESSAGE_BEGIN( MSG_ONE, gmsgServerName, NULL, client );
-		WRITE_STRING( CVAR_GET_STRING("hostname") );
-		MESSAGE_END();
+	AvHPlayer*		thePlayer = dynamic_cast<AvHPlayer*>(CBaseEntity::Instance(client));
+	ASSERT(thePlayer);
 
-		AvHPlayer*		thePlayer = dynamic_cast<AvHPlayer*>(CBaseEntity::Instance(client));
-		ASSERT(thePlayer);
-//		thePlayer->SendTeletype(pFileList);
-//		thePlayer->SendMessage(pFileList);
+	// send the server name
+	NetMsg_ServerName( thePlayer->pev, string( CVAR_GET_STRING("hostname") ) );
 
-		UTIL_ShowMessage(pFileList, thePlayer);
+	UTIL_ShowMessage(pFileList, thePlayer);
 
-		FREE_FILE( aFileList );
-	//}
+	FREE_FILE( aFileList );
 }
 
 int AvHGamerules::GetNumberOfPlayers() const
@@ -3532,14 +2943,7 @@ void AvHGamerules::Think(void)
 		strcpy(gLastKnownMapName, theCStrLevelName);
 
 		// Tell all HUDs to reset
-		int theStatus = /*theNewMap ? kGameStatusResetNewMap :*/ kGameStatusReset;
-
-		FOR_ALL_ENTITIES(kAvHPlayerClassName, AvHPlayer*)
-			MESSAGE_BEGIN(MSG_ONE, gmsgGameStatus, NULL, theEntity->pev);
-			WRITE_BYTE(theStatus);
-			WRITE_BYTE(this->mMapMode);
-			MESSAGE_END();
-		END_FOR_ALL_ENTITIES(kAvHPlayerClassName);
+		NetMsg_GameStatus_State( kGameStatusReset, this->mMapMode );
 
 		this->mFirstUpdate = false;
 	}
@@ -3562,9 +2966,8 @@ void AvHGamerules::Think(void)
 	#endif
 
 	PROFILE_START();
+	AvHNexus::processResponses();
 	this->RecalculateHandicap();
-	//this->UpdateScripts();
-	this->UpdateUplink();
 	this->UpdatePlaytesting();
     this->UpdateHLTVProxy();
 	PROFILE_END(kUpdateMisc);
@@ -3603,7 +3006,7 @@ void AvHGamerules::Think(void)
 		}
 
 		#ifdef DEBUG
-		int theUseCaching = BALANCE_IVAR(kDebugServerCaching);
+		int theUseCaching = BALANCE_VAR(kDebugServerCaching);
 		if(theUseCaching)
 		{
 			PROFILE_START()
@@ -3621,15 +3024,10 @@ void AvHGamerules::Think(void)
 				theComputedPercentage = kNumComputed/((float)theReturnTotal);
 			}
 
-			kPVSCoherencyTime = BALANCE_FVAR(kDebugPVSCoherencyTime);
-
-			//sprintf(theMessage, "Num ents: %d, Num humans: %d, Percentage returned: %f (%d/%d), Max E: %d, Server updates: %d, Percentage cached: %f\n", GetGameRules()->GetNumEntities(), AvHSUGetNumHumansInGame(), theNumReturnedPercentage, kNumReturn1, theReturnTotal, kMaxE, kServerFrameRate, theNumCachedPercentage /*, kNumCached, theReturnTotal*/);
-			//sprintf(theMessage, "Percentage cached: %f (%d/%d)\n", theNumCachedPercentage, kNumCached, theReturnTotal);
+			kPVSCoherencyTime = BALANCE_VAR(kDebugPVSCoherencyTime);
 
 			sprintf(theMessage, "Percentage entities propagated: %f (%d/%d) (compute percentage: %f) (pvs time: %f)\n", theNumReturnedPercentage, kNumReturn1, theReturnTotal, theComputedPercentage, kPVSCoherencyTime);
 			UTIL_LogPrintf(theMessage);
-
-			//AvHSUPrintDevMessage(theMessage);
 
 			PROFILE_END(kUpdateDebugShowEntityLog)
 		}
@@ -3688,11 +3086,11 @@ void AvHGamerules::Think(void)
 		    else
 		    {
 			    PROFILE_START()
-			    this->mTeamOne.Update();
+			    this->mTeamA.Update();
 			    PROFILE_END(kTeamOneUpdate)
 
 			    PROFILE_START()
-			    this->mTeamTwo.Update();
+			    this->mTeamB.Update();
 			    PROFILE_END(kTeamTwoUpdate)
 		    }
 
@@ -4097,7 +3495,6 @@ void AvHGamerules::UpdateCountdown(float inTime)
 	{
 		if(!this->GetIsTrainingMode())
 		{
-			#ifndef AVH_MAPPER_BUILD
 			if((this->mTimeLastWontStartMessageSent == 0) || (inTime > (this->mTimeLastWontStartMessageSent + kTimeWontStartInterval)))
 			{
 				const char* theMessage = kGameWontStart;
@@ -4112,7 +3509,6 @@ void AvHGamerules::UpdateCountdown(float inTime)
 
 				this->mTimeLastWontStartMessageSent = inTime;
 			}
-			#endif
 		}
 	}
 
@@ -4121,9 +3517,7 @@ void AvHGamerules::UpdateCountdown(float inTime)
 		if(inTime - this->mTimeCountDownStarted > (avh_countdowntime.value*60 - kSecondsToCountdown) && !this->mSentCountdownMessage)
 		{
 			// Send update to everyone
-			MESSAGE_BEGIN(MSG_ALL, gmsgUpdateCountdown);
-				WRITE_BYTE(kSecondsToCountdown);
-			MESSAGE_END();
+			NetMsg_UpdateCountdown( kSecondsToCountdown );
 
 			this->mTimeSentCountdown = gpGlobals->time;
 			this->mSentCountdownMessage = true;
@@ -4160,18 +3554,8 @@ void AvHGamerules::UpdateEntitiesUnderAttack()
 
 void AvHGamerules::SendGameTimeUpdate(bool inReliable)
 {
-	int theGameTime = this->GetGameTime();
-	int theTimeLimit = this->GetTimeLimit();
-	int theSendMode = inReliable ? MSG_ALL : MSG_BROADCAST;
-
 	//  Send down game time to clients periodically
-	MESSAGE_BEGIN(theSendMode, gmsgGameStatus);
-		WRITE_BYTE(kGameStatusGameTime);
-		WRITE_BYTE(this->mMapMode);
-		WRITE_SHORT(theGameTime);
-		WRITE_SHORT(theTimeLimit);
-		WRITE_BYTE(this->mCombatAttackingTeamNumber);
-	MESSAGE_END();
+	NetMsg_GameStatus_Time( kGameStatusGameTime, this->mMapMode, this->GetGameTime(), this->GetTimeLimit(), this->mCombatAttackingTeamNumber, inReliable );
 
 	this->mTimeOfLastGameTimeUpdate = gpGlobals->time;
 }
@@ -4245,32 +3629,6 @@ void AvHGamerules::UpdateTimeLimit()
 	}
 }
 
-//void AvHGamerules::PutPlayerIntoSpectateMode(AvHPlayer* inPlayer) const
-//{
-//	char text[50];	// Our text to be displayed
-//	if ( allow_spectators.value )
-//	{
-//		if(!inPlayer->IsObserver())
-//		{
-//			// Start at marine start
-//			inPlayer->pev->team = 1;
-//			edict_t* pentSpawnSpot = EntSelectSpawnPoint( inPlayer );
-//			inPlayer->pev->team = 0;
-//
-//			inPlayer->StartObserver( VARS(pentSpawnSpot)->origin, VARS(pentSpawnSpot)->angles);
-//
-//			// TODO: Move observer to observer_start entity
-//
-//			sprintf(text,"Observer mode enabled.");
-//		}
-//	}
-//	else
-//	{
-//		sprintf(text,"Spectating not allowed on this server.");
-//	}
-//	ClientPrint(inPlayer->pev, HUD_PRINTTALK, text);	// Show it to the player
-//}
-
 void AvHGamerules::UpdateVictory()
 {
 	if((gpGlobals->time - this->mVictoryTime) > (kVictoryIntermission + kMaxPlayers/kResetPlayersPerSecond))
@@ -4286,12 +3644,12 @@ void AvHGamerules::UpdateVictoryStatus(void)
 	if((this->mVictoryTeam == TEAM_IND) && this->mGameStarted && theCheckVictoryWithCheats && !this->GetIsTrainingMode())
 	{
 		char* theVictoryMessage = NULL;
-		bool theTeamOneLost = this->mTeamOne.GetHasTeamLost();
-		bool theTeamTwoLost = this->mTeamTwo.GetHasTeamLost();
+		bool theTeamALost = this->mTeamA.GetHasTeamLost();
+		bool theTeamBLost = this->mTeamB.GetHasTeamLost();
 		bool theDrawGame = false;
 
-		int theTeamOnePlayers = this->mTeamOne.GetPlayerCount();
-		int theTeamTwoPlayers = this->mTeamTwo.GetPlayerCount();
+		int theTeamAPlayers = this->mTeamA.GetPlayerCount();
+		int theTeamBPlayers = this->mTeamB.GetPlayerCount();
 
 		bool theTimeLimitHit = false;
 		int theTimeLimitSeconds = this->GetTimeLimit();
@@ -4311,24 +3669,24 @@ void AvHGamerules::UpdateVictoryStatus(void)
 
 		if(this->GetIsCheatEnabled(kcEndGame1))
 		{
-			theTeamTwoLost = true;
+			theTeamBLost = true;
 		}
 		else if(this->GetIsCheatEnabled(kcEndGame2))
 		{
-			theTeamOneLost = true;
+			theTeamALost = true;
 		}
 		else if(this->GetIsCombatMode())
 		{
 			// Alien victory if time limit is hit
 			if(theTimeLimitHit)
 			{
-				if(this->mCombatAttackingTeamNumber == TEAM_ONE)
+				if(this->mCombatAttackingTeamNumber == this->mTeamA.GetTeamNumber())
 				{
-					theTeamOneLost = true;
+					theTeamALost = true;
 				}
-				else if(this->mCombatAttackingTeamNumber == TEAM_TWO)
+				else if(this->mCombatAttackingTeamNumber == this->mTeamB.GetTeamNumber())
 				{
-					theTeamTwoLost = true;
+					theTeamBLost = true;
 				}
 			}
 		}
@@ -4338,15 +3696,15 @@ void AvHGamerules::UpdateVictoryStatus(void)
 			if(theTimeLimitHit)
 			{
 				// Don't count fractional resources.  If it's that close, it was a tie.
-				int theTeamOneResources = this->mTeamOne.GetTotalResourcesGathered();
-				int theTeamTwoResources = this->mTeamTwo.GetTotalResourcesGathered();
-				if(theTeamOneResources > theTeamTwoResources)
+				int theTeamAResources = this->mTeamA.GetTotalResourcesGathered();
+				int theTeamBResources = this->mTeamB.GetTotalResourcesGathered();
+				if(theTeamAResources > theTeamBResources)
 				{
-					theTeamTwoLost = true;
+					theTeamBLost = true;
 				}
-				else if(theTeamTwoResources > theTeamOneResources)
+				else if(theTeamBResources > theTeamAResources)
 				{
-					theTeamOneLost = true;
+					theTeamALost = true;
 				}
 				else
 				{
@@ -4360,29 +3718,29 @@ void AvHGamerules::UpdateVictoryStatus(void)
 			if(theTimeLimitHit)
 			{
 				// Aliens win.  If both teams are the same, it's a draw.
-				if(this->mTeamOne.GetTeamType() == this->mTeamTwo.GetTeamType())
+				if(this->mTeamA.GetTeamType() == this->mTeamB.GetTeamType())
 				{
 					theDrawGame = true;
 				}
 				else
 				{
-					if(this->mTeamOne.GetTeamType() == AVH_CLASS_TYPE_ALIEN)
+					if(this->mTeamA.GetTeamType() == AVH_CLASS_TYPE_ALIEN)
 					{
-						theTeamTwoLost = true;
+						theTeamBLost = true;
 					}
-					else if(this->mTeamTwo.GetTeamType() == AVH_CLASS_TYPE_ALIEN)
+					else if(this->mTeamB.GetTeamType() == AVH_CLASS_TYPE_ALIEN)
 					{
-						theTeamOneLost = true;
+						theTeamALost = true;
 					}
 				}
 			}
-			else if(!this->mTeamOne.GetHasAtLeastOneActivePlayer())
+			else if(!this->mTeamA.GetHasAtLeastOneActivePlayer())
 			{
-				theTeamOneLost = true;
+				theTeamALost = true;
 			}
-			else if(!this->mTeamTwo.GetHasAtLeastOneActivePlayer())
+			else if(!this->mTeamB.GetHasAtLeastOneActivePlayer())
 			{
-				theTeamTwoLost = true;
+				theTeamBLost = true;
 			}
 		}
 		else if(!this->GetIsTournamentMode())
@@ -4391,39 +3749,39 @@ void AvHGamerules::UpdateVictoryStatus(void)
 			const int kAutoConcedeNumPlayers = (int)(avh_autoconcede.value);
 			if(kAutoConcedeNumPlayers > 0)
 			{
-				if((theTeamOnePlayers - theTeamTwoPlayers) >= kAutoConcedeNumPlayers)
+				if((theTeamAPlayers - theTeamBPlayers) >= kAutoConcedeNumPlayers)
 				{
-					theTeamTwoLost = true;
+					theTeamBLost = true;
 				}
-				else if((theTeamTwoPlayers - theTeamOnePlayers) >= kAutoConcedeNumPlayers)
+				else if((theTeamBPlayers - theTeamAPlayers) >= kAutoConcedeNumPlayers)
 				{
-					theTeamOneLost = true;
+					theTeamALost = true;
 				}
 			}
 		}
 
-		if((theTeamOneLost && theTeamTwoLost) || theDrawGame)
+		if((theTeamALost && theTeamBLost) || theDrawGame)
 		{
 			// Draw!
 			this->mVictoryTime = gpGlobals->time;
-			this->mVictoryTeam = TEAM_ONE;
+			this->mVictoryTeam = TEAM_SPECT;
 			this->mVictoryDraw = true;
 			theVictoryMessage = kGameDraw;
 			theDrawGame = true;
 		}
 
-		if(theTeamOneLost)
+		if(theTeamALost)
 		{
 			// If there is a victory, set mVictoryTime and mVictoryTeam
 			this->mVictoryTime = gpGlobals->time;
-			this->mVictoryTeam = TEAM_TWO;
+			this->mVictoryTeam = this->mTeamB.GetTeamNumber();
 			theVictoryMessage = kTeamTwoWon;
 		}
-		else if(theTeamTwoLost)
+		else if(theTeamBLost)
 		{
 			// If there is a victory, set mVictoryTime and mVictoryTeam
 			this->mVictoryTime = gpGlobals->time;
-			this->mVictoryTeam = TEAM_ONE;
+			this->mVictoryTeam = this->mTeamA.GetTeamNumber();
 			theVictoryMessage = kTeamOneWon;
 		}
 
@@ -4431,11 +3789,8 @@ void AvHGamerules::UpdateVictoryStatus(void)
 		if(this->mVictoryTeam != TEAM_IND)
 		{
 			this->TallyVictoryStats();
-			#ifdef USE_UPP
-				UPP::reportGameFinished(UPPUtil_GetGameResultInfo(this->mVictoryTeam));
-			#endif
+			AvHNexus::finishGame();
 
-			// Tell everyone that the game ended
 			FOR_ALL_ENTITIES(kAvHPlayerClassName, AvHPlayer*)
 				AvHTeam* theTeam = theEntity->GetTeamPointer();
 				AvHHUDSound theHUDSound = HUD_SOUND_YOU_LOSE;
@@ -4455,25 +3810,277 @@ void AvHGamerules::UpdateVictoryStatus(void)
 				theEntity->PlayHUDSound(theHUDSound);
 				theEntity->SendMessage(theVictoryMessage);
 
-				// Tell each player that the game ended
-				MESSAGE_BEGIN(MSG_ONE, gmsgGameStatus, NULL, theEntity->pev);
-					WRITE_BYTE(kGameStatusEnded);
-					WRITE_BYTE(this->mMapMode);
-				MESSAGE_END();
-
 				// Final game time update to all clients have same winning time
 				this->SendGameTimeUpdate(true);
 
 				// Send final score to everyone if needed
-				this->mTeamOne.SendResourcesGatheredScore(false);
-				this->mTeamTwo.SendResourcesGatheredScore(false);
+				this->mTeamA.SendResourcesGatheredScore(false);
+				this->mTeamB.SendResourcesGatheredScore(false);
 
 			END_FOR_ALL_ENTITIES(kAvHPlayerClassName)
-
-			#ifdef AVH_PLAYTEST_BUILD
-			this->RecordBalanceData();
-			#endif
+			// Tell everyone that the game ended
+			NetMsg_GameStatus_State( kGameStatusEnded, this->mMapMode );
 		}
 	}
 }
+
+int	AvHGamerules::GetBaseHealthForMessageID(AvHMessageID inMessageID) const
+{
+	int health = 100;
+
+	switch(inMessageID)
+	{
+	case BUILD_INFANTRYPORTAL:			health = BALANCE_VAR(kInfantryPortalHealth); break;
+	case BUILD_RESOURCES:				health = BALANCE_VAR(kResourceTowerHealth); break;
+	case BUILD_TURRET_FACTORY:			health = BALANCE_VAR(kTurretFactoryHealth); break;
+	case TURRET_FACTORY_UPGRADE:		health = BALANCE_VAR(kTurretFactoryHealth); break;
+	case BUILD_ARMSLAB:					health = BALANCE_VAR(kArmsLabHealth); break;
+	case BUILD_PROTOTYPE_LAB:			health = BALANCE_VAR(kArmsLabHealth); break;
+	case BUILD_ARMORY:					health = BALANCE_VAR(kArmoryHealth); break;
+	case ARMORY_UPGRADE:				health = BALANCE_VAR(kAdvArmoryHealth); break;
+	case BUILD_OBSERVATORY:				health = BALANCE_VAR(kObservatoryHealth); break;
+	case BUILD_PHASEGATE:				health = BALANCE_VAR(kPhaseGateHealth); break;
+	case BUILD_TURRET:					health = BALANCE_VAR(kSentryHealth); break;
+	case BUILD_SIEGE:					health = BALANCE_VAR(kSiegeHealth); break;
+	case BUILD_COMMANDSTATION:			health = BALANCE_VAR(kCommandStationHealth); break;
+	case ALIEN_BUILD_RESOURCES:			health = BALANCE_VAR(kAlienResourceTowerHealth); break;
+	case ALIEN_BUILD_OFFENSE_CHAMBER:	health = BALANCE_VAR(kOffenseChamberHealth); break;
+	case ALIEN_BUILD_DEFENSE_CHAMBER:	health = BALANCE_VAR(kDefenseChamberHealth); break;
+	case ALIEN_BUILD_SENSORY_CHAMBER:	health = BALANCE_VAR(kSensoryChamberHealth); break;
+	case ALIEN_BUILD_MOVEMENT_CHAMBER:	health = BALANCE_VAR(kHiveHealth); break;
+	}
+	return health;
+}
+
+
+int	AvHGamerules::GetBuildTimeForMessageID(AvHMessageID inMessageID) const
+{
+	float time = 0.0f;
+	const float CO_Scalar = this->GetIsCombatMode() ? BALANCE_VAR(kCombatModeTimeScalar) : 1.0f;
+	const float CO_GScalar = this->GetIsCombatMode() ? BALANCE_VAR(kCombatModeGestationTimeScalar) : 1.0f;
+
+	switch(inMessageID)
+	{
+		// Marine Research
+		case RESEARCH_ELECTRICAL:		time = BALANCE_VAR(kElectricalUpgradeResearchTime); break;
+		case RESEARCH_ARMOR_ONE:		time = BALANCE_VAR(kArmorOneResearchTime); break;
+		case RESEARCH_ARMOR_TWO:		time = BALANCE_VAR(kArmorTwoResearchTime); break;
+		case RESEARCH_ARMOR_THREE:		time = BALANCE_VAR(kArmorThreeResearchTime); break;
+		case RESEARCH_WEAPONS_ONE:		time = BALANCE_VAR(kWeaponsOneResearchTime); break;
+		case RESEARCH_WEAPONS_TWO:		time = BALANCE_VAR(kWeaponsTwoResearchTime); break;
+		case RESEARCH_WEAPONS_THREE:	time = BALANCE_VAR(kWeaponsThreeResearchTime); break;
+        case RESEARCH_CATALYSTS:		time = BALANCE_VAR(kCatalystResearchTime); break;
+        case RESEARCH_GRENADES:			time = BALANCE_VAR(kGrenadesResearchTime); break;
+		case RESEARCH_JETPACKS:			time = BALANCE_VAR(kJetpacksResearchTime); break;
+		case RESEARCH_HEAVYARMOR:		time = BALANCE_VAR(kHeavyArmorResearchTime); break;
+		case RESEARCH_DISTRESSBEACON:	time = BALANCE_VAR(kDistressBeaconTime); break;
+		case RESEARCH_HEALTH:			time = BALANCE_VAR(kHealthResearchTime); break;
+		case RESEARCH_MOTIONTRACK:		time = BALANCE_VAR(kMotionTrackingResearchTime); break;
+		case RESEARCH_PHASETECH:		time = BALANCE_VAR(kPhaseTechResearchTime); break;
+
+		// Marine Structures
+		case BUILD_INFANTRYPORTAL:		time = BALANCE_VAR(kInfantryPortalBuildTime); break;
+		case BUILD_RESOURCES:			time = BALANCE_VAR(kResourceTowerBuildTime); break;
+		case BUILD_TURRET_FACTORY:		time = BALANCE_VAR(kTurretFactoryBuildTime); break;
+		case BUILD_ARMSLAB:				time = BALANCE_VAR(kArmsLabBuildTime); break;
+		case BUILD_PROTOTYPE_LAB:		time = BALANCE_VAR(kPrototypeLabBuildTime); break;
+		case BUILD_ARMORY:				time = BALANCE_VAR(kArmoryBuildTime); break;
+		case ARMORY_UPGRADE:			time = BALANCE_VAR(kArmoryUpgradeTime); break;
+		case BUILD_OBSERVATORY:			time = BALANCE_VAR(kObservatoryBuildTime); break;
+		case BUILD_PHASEGATE:			time = BALANCE_VAR(kPhaseGateBuildTime); break;
+		case BUILD_TURRET:				time = BALANCE_VAR(kSentryBuildTime); break;
+		case BUILD_SIEGE:				time = BALANCE_VAR(kSiegeBuildTime); break;
+		case BUILD_COMMANDSTATION:		time = BALANCE_VAR(kCommandStationBuildTime); break;
+		case TURRET_FACTORY_UPGRADE:	time = BALANCE_VAR(kTurretFactoryUpgradeTime); break;
+
+		// Scan Duration
+		case BUILD_SCAN:				time = BALANCE_VAR(kScanDuration); break;
+		
+		// Alien Structures
+		case ALIEN_BUILD_RESOURCES:			time = BALANCE_VAR(kAlienResourceTowerBuildTime); break;
+		case ALIEN_BUILD_OFFENSE_CHAMBER:	time = BALANCE_VAR(kOffenseChamberBuildTime); break;
+		case ALIEN_BUILD_DEFENSE_CHAMBER:	time = BALANCE_VAR(kDefenseChamberBuildTime); break;
+		case ALIEN_BUILD_SENSORY_CHAMBER:	time = BALANCE_VAR(kSensoryChamberBuildTime); break;
+		case ALIEN_BUILD_MOVEMENT_CHAMBER:	time = BALANCE_VAR(kMovementChamberBuildTime); break;
+		case ALIEN_BUILD_HIVE:				time = BALANCE_VAR(kHiveBuildTime); break;
+
+		// Alien Evolutions
+		case ALIEN_EVOLUTION_ONE:			time = BALANCE_VAR(kEvolutionGestateTime)*CO_Scalar;	break;
+		case ALIEN_EVOLUTION_TWO:			time = BALANCE_VAR(kEvolutionGestateTime)*CO_Scalar;	break;
+		case ALIEN_EVOLUTION_THREE:			time = BALANCE_VAR(kEvolutionGestateTime)*CO_Scalar;	break;
+		case ALIEN_EVOLUTION_SEVEN:			time = BALANCE_VAR(kEvolutionGestateTime)*CO_Scalar;	break;
+		case ALIEN_EVOLUTION_EIGHT:			time = BALANCE_VAR(kEvolutionGestateTime)*CO_Scalar;	break;
+		case ALIEN_EVOLUTION_NINE:			time = BALANCE_VAR(kEvolutionGestateTime)*CO_Scalar;	break;
+		case ALIEN_EVOLUTION_TEN:			time = BALANCE_VAR(kEvolutionGestateTime)*CO_Scalar;	break;
+		case ALIEN_EVOLUTION_ELEVEN:		time = BALANCE_VAR(kEvolutionGestateTime)*CO_Scalar;	break;
+		case ALIEN_EVOLUTION_TWELVE:		time = BALANCE_VAR(kEvolutionGestateTime)*CO_Scalar;	break;
+        case ALIEN_HIVE_TWO_UNLOCK:			time = BALANCE_VAR(kEvolutionGestateTime)*CO_Scalar;	break;
+        case ALIEN_HIVE_THREE_UNLOCK:		time = BALANCE_VAR(kEvolutionGestateTime)*CO_Scalar;	break;
+	
+		// Alien Lifeforms
+		case ALIEN_LIFEFORM_ONE:		time = BALANCE_VAR(kSkulkGestateTime)*CO_GScalar; break;
+		case ALIEN_LIFEFORM_TWO:		time = BALANCE_VAR(kGorgeGestateTime)*CO_GScalar; break;
+		case ALIEN_LIFEFORM_THREE:		time = BALANCE_VAR(kLerkGestateTime)*CO_GScalar; break;
+		case ALIEN_LIFEFORM_FOUR:		time = BALANCE_VAR(kFadeGestateTime)*CO_GScalar; break;
+		case ALIEN_LIFEFORM_FIVE:		time = BALANCE_VAR(kOnosGestateTime)*CO_GScalar; break;
+	}
+
+	if( time > 0 )
+	{
+		time = max( time, 1.0f ); //for cases where combat scalars would  result in fractional seconds
+	}
+
+	if(this->GetCheatsEnabled() && !this->GetIsCheatEnabled(kcSlowResearch))
+	{
+		time = min( time, 2.0f );
+	}
+
+	return floor( time );
+}
+
+int	AvHGamerules::GetCostForMessageID(AvHMessageID inMessageID) const
+{
+	// This is point cost or energy cost in NS, or number of levels in Combat
+	int	cost = 0;
+
+	if(this->GetIsCombatMode())
+    {
+        switch(inMessageID)
+        {
+		case ALIEN_LIFEFORM_TWO:
+        case ALIEN_EVOLUTION_ONE:
+        case ALIEN_EVOLUTION_TWO:
+        case ALIEN_EVOLUTION_THREE:
+        case ALIEN_EVOLUTION_SEVEN:
+        case ALIEN_EVOLUTION_EIGHT:
+        case ALIEN_EVOLUTION_NINE:
+        case ALIEN_EVOLUTION_TEN:
+        case ALIEN_EVOLUTION_TWELVE:
+        case BUILD_RESUPPLY:
+        case RESEARCH_ARMOR_ONE:
+        case RESEARCH_ARMOR_TWO:
+        case RESEARCH_ARMOR_THREE:
+        case RESEARCH_WEAPONS_ONE:
+        case RESEARCH_WEAPONS_TWO:
+        case RESEARCH_WEAPONS_THREE:
+        case BUILD_CAT:
+        case RESEARCH_MOTIONTRACK:
+        case RESEARCH_GRENADES:
+        case BUILD_SCAN:
+        case BUILD_MINES:
+        case BUILD_WELDER:
+        case BUILD_SHOTGUN:
+        case BUILD_HMG:
+        case BUILD_GRENADE_GUN:
+        case ALIEN_HIVE_TWO_UNLOCK:
+            cost = 1;
+            break;
+
+		case ALIEN_LIFEFORM_THREE:
+        case BUILD_HEAVY:
+        case BUILD_JETPACK:
+        case ALIEN_HIVE_THREE_UNLOCK:
+		case ALIEN_EVOLUTION_ELEVEN:
+            cost = 2;
+            break;
+
+        case ALIEN_LIFEFORM_FOUR:
+			cost = 3;
+			break;
+
+        case ALIEN_LIFEFORM_FIVE:
+			cost = 4;
+			break;
+        }
+    }
+    else
+	{
+		switch(inMessageID)
+		{
+			// Marine Research
+			case RESEARCH_ELECTRICAL:		cost = BALANCE_VAR(kElectricalUpgradeResearchCost); break;
+			case RESEARCH_ARMOR_ONE:		cost = BALANCE_VAR(kArmorOneResearchCost); break;
+			case RESEARCH_ARMOR_TWO:		cost = BALANCE_VAR(kArmorTwoResearchCost); break;
+			case RESEARCH_ARMOR_THREE:		cost = BALANCE_VAR(kArmorThreeResearchCost); break;
+			case RESEARCH_WEAPONS_ONE:		cost = BALANCE_VAR(kWeaponsOneResearchCost); break;
+			case RESEARCH_WEAPONS_TWO:		cost = BALANCE_VAR(kWeaponsTwoResearchCost); break;
+			case RESEARCH_WEAPONS_THREE:	cost = BALANCE_VAR(kWeaponsThreeResearchCost); break;
+            case RESEARCH_CATALYSTS:		cost = BALANCE_VAR(kCatalystResearchCost); break;
+            case RESEARCH_GRENADES:			cost = BALANCE_VAR(kGrenadesResearchCost); break;
+			case TURRET_FACTORY_UPGRADE:	cost = BALANCE_VAR(kTurretFactoryUpgradeCost); break;
+			case RESEARCH_JETPACKS:			cost = BALANCE_VAR(kJetpacksResearchCost); break;
+			case RESEARCH_HEAVYARMOR:		cost = BALANCE_VAR(kHeavyArmorResearchCost); break;
+			case RESEARCH_HEALTH:			cost = BALANCE_VAR(kHealthResearchCost); break;
+			case RESEARCH_MOTIONTRACK:		cost = BALANCE_VAR(kMotionTrackingResearchCost); break;
+			case RESEARCH_PHASETECH:		cost = BALANCE_VAR(kPhaseTechResearchCost); break;
+			case RESEARCH_DISTRESSBEACON:	cost = BALANCE_VAR(kDistressBeaconCost); break;
+		
+			// Marine Structures
+			case BUILD_HEAVY:				cost = BALANCE_VAR(kHeavyArmorCost); break;
+			case BUILD_JETPACK:				cost = BALANCE_VAR(kJetpackCost); break;
+			case BUILD_INFANTRYPORTAL:		cost = BALANCE_VAR(kInfantryPortalCost); break;
+			case BUILD_RESOURCES:			cost = BALANCE_VAR(kResourceTowerCost); break;
+			case BUILD_TURRET_FACTORY:		cost = BALANCE_VAR(kTurretFactoryCost); break;
+			case BUILD_ARMSLAB:				cost = BALANCE_VAR(kArmsLabCost); break;
+			case BUILD_PROTOTYPE_LAB:		cost = BALANCE_VAR(kPrototypeLabCost); break;
+			case BUILD_ARMORY:				cost = BALANCE_VAR(kArmoryCost); break;
+			case ARMORY_UPGRADE:			cost = BALANCE_VAR(kArmoryUpgradeCost); break;
+			case BUILD_OBSERVATORY:			cost = BALANCE_VAR(kObservatoryCost); break;
+			case BUILD_PHASEGATE:			cost = BALANCE_VAR(kPhaseGateCost); break;
+			case BUILD_TURRET:				cost = BALANCE_VAR(kSentryCost); break;
+			case BUILD_SIEGE:				cost = BALANCE_VAR(kSiegeCost); break;
+			case BUILD_COMMANDSTATION:		cost = BALANCE_VAR(kCommandStationCost); break;
+			
+			// Marine Equipment
+			case BUILD_HEALTH:					cost = BALANCE_VAR(kHealthCost); break;
+			case BUILD_AMMO:					cost = BALANCE_VAR(kAmmoCost); break;
+            case BUILD_CAT:						cost = BALANCE_VAR(kCatalystCost); break;
+			case BUILD_MINES:					cost = BALANCE_VAR(kMineCost); break;
+			case BUILD_WELDER:					cost = BALANCE_VAR(kWelderCost); break;
+			case BUILD_SHOTGUN:					cost = BALANCE_VAR(kShotgunCost); break;
+			case BUILD_HMG:						cost = BALANCE_VAR(kHMGCost); break;
+			case BUILD_GRENADE_GUN:				cost = BALANCE_VAR(kGrenadeLauncherCost); break;
+
+			// Alien Structures
+			case ALIEN_BUILD_RESOURCES:			cost = BALANCE_VAR(kAlienResourceTowerCost); break;
+			case ALIEN_BUILD_OFFENSE_CHAMBER:	cost = BALANCE_VAR(kOffenseChamberCost); break;
+			case ALIEN_BUILD_DEFENSE_CHAMBER:	cost = BALANCE_VAR(kDefenseChamberCost); break;
+			case ALIEN_BUILD_SENSORY_CHAMBER:	cost = BALANCE_VAR(kSensoryChamberCost); break;
+			case ALIEN_BUILD_MOVEMENT_CHAMBER:	cost = BALANCE_VAR(kMovementChamberCost); break;
+			case ALIEN_BUILD_HIVE:				cost = BALANCE_VAR(kHiveCost); break;
+
+			// Alien Evolutions
+			case ALIEN_EVOLUTION_ONE:			cost = BALANCE_VAR(kEvolutionCost); break;
+			case ALIEN_EVOLUTION_TWO:			cost = BALANCE_VAR(kEvolutionCost); break;
+			case ALIEN_EVOLUTION_THREE:			cost = BALANCE_VAR(kEvolutionCost); break;
+			case ALIEN_EVOLUTION_SEVEN:			cost = BALANCE_VAR(kEvolutionCost); break;
+			case ALIEN_EVOLUTION_EIGHT:			cost = BALANCE_VAR(kEvolutionCost); break;
+			case ALIEN_EVOLUTION_NINE:			cost = BALANCE_VAR(kEvolutionCost); break;
+			case ALIEN_EVOLUTION_TEN:			cost = BALANCE_VAR(kEvolutionCost); break;
+			case ALIEN_EVOLUTION_ELEVEN:		cost = BALANCE_VAR(kEvolutionCost); break;
+			case ALIEN_EVOLUTION_TWELVE:		cost = BALANCE_VAR(kEvolutionCost); break;
+		
+			// Alien Lifeforms
+			case ALIEN_LIFEFORM_ONE:			cost = BALANCE_VAR(kSkulkCost); break;
+			case ALIEN_LIFEFORM_TWO:			cost = BALANCE_VAR(kGorgeCost); break;
+			case ALIEN_LIFEFORM_THREE:			cost = BALANCE_VAR(kLerkCost); break;
+			case ALIEN_LIFEFORM_FOUR:			cost = BALANCE_VAR(kFadeCost); break;
+			case ALIEN_LIFEFORM_FIVE:			cost = BALANCE_VAR(kOnosCost); break;
+
+			// Energy Costs
+			case BUILD_SCAN:					cost = BALANCE_VAR(kScanEnergyCost); break;
+		}
+	}
+	
+	return cost;
+}
+
+void AvHGamerules::BalanceChanged()
+{
+	// Tell all players to update their weapons
+	FOR_ALL_ENTITIES(kAvHPlayerClassName, AvHPlayer*)
+		theEntity->SendWeaponUpdate();
+	END_FOR_ALL_ENTITIES(kAvHPlayerClassName)
+}
+
 

@@ -113,8 +113,9 @@
 #define AVHHUD_H
 
 #include "ui/UIHud.h"
-#include "mod/AvHSharedTypes.h"
 #include "mod/AvHConstants.h"
+#include "mod/AvHSpecials.h"
+#include "mod/AvHSharedTypes.h"
 #include "mod/AvHParticleSystem.h"
 #include "common/entity_state.h"
 #include "VGUI_ProgressBar.h"
@@ -123,7 +124,7 @@
 #include "mod/AvHOrder.h"
 #include "mod/AvHMessage.h"
 #include "mod/AvHAmbientSound.h"
-#include "mod/AvHTechNodes.h"
+#include "mod/AvHTechTree.h"
 #include "mod/AvHVisibleBlipList.h"
 #include "mod/AvHMapExtents.h"
 #include "mod/AvHSpecials.h"
@@ -131,7 +132,6 @@
 #include "mod/AvHBaseInfoLocation.h"
 #include "mod/AvHTooltip.h"
 #include "mod/AvHTechSlotManager.h"
-#include "mod/AvHBalance.h"
 #include "mod/AvHHudConstants.h"
 #include "mod/AvHOverviewMap.h"
 
@@ -328,7 +328,7 @@ public:
 
 	int				GetLocalUpgrades() const;
 	string			GetNameOfLocation(vec3_t inLocation) const;
-	const AvHTechNodes& GetTechNodes() const;
+	const AvHTechTree& GetTechNodes() const;
 
 	UIMode			GetUIMode() const;
 	bool			SwitchUIMode(UIMode inNewMode);
@@ -379,7 +379,6 @@ public:
 	// Network messages
 	int				AlienInfo(const char* pszName, int iSize, void* pbuf);
 	int				BlipList(const char* pszName, int iSize, void* pbuf);
-	//int				ChangeNode(const char* pszName, int iSize, void* pbuf);
 	int				ClScript(const char *pszName, int iSize, void *pbuf);
 	int				Countdown(const char* pszName, int iSize, void* pbuf);
 	int				DebugCSP(const char* pszName, int iSize, void* pbuf);
@@ -387,37 +386,26 @@ public:
 	int				EntHier(const char *pszName, int iSize, void *pbuf);
 	int				Fog(const char* pszName, int iSize, void* pbuf);
 	int				ListPS(const char* pszName, int iSize, void* pbuf);
-	int				Reinfor(const char* pszName, int iSize, void* pbuf);
     int				Particles(const char *pszName, int iSize, void *pbuf);
     int				SoundNames(const char *pszName, int iSize, void *pbuf);
 	int 			PlayHUDNot(const char* pszName, int iSize, void* pbuf);
-	//int				Research(const char* pszName, int iSize, void* pbuf);
 	
-	#ifdef AVH_PLAYTEST_BUILD
 	int				BalanceVar(const char* pszName, int iSize, void* pbuf);
-	#endif
-
     int             ServerVar(const char* pszName, int iSize, void* pbuf);
 
 	int				GameStatus(const char* pszName, int iSize, void* pbuf);
 	int				MiniMap(const char* pszName, int iSize, void* pbuf);
-	//int				NetSS(const char* pszName, int iSize, void* pbuf);
 	int				Progress(const char* pszName, int iSize, void* pbuf);
 	int				SetGmma(const char* pszName, int iSize, void* pbuf);
 	int				SetSelect(const char* pszName, int iSize, void* pbuf);
+	int				SetRequest(const char* pszName, int iSize, void* pbuf);
 	int				SetOrder(const char* pszName, int iSize, void* pbuf);
-	//int				CplteOrder(const char* pszName, int iSize, void* pbuf);
 	int				SetupMap(const char* pszName, int iSize, void* pbuf);
 	int				SetTopDown(const char* pszName, int iSize, void* pbuf);
 	int				SetTech(const char* pszName, int iSize, void* pbuf);
 	int				TechSlots(const char* pszName, int iSize, void* pbuf);
 
     void            GetSpriteForUser3(AvHUser3 inUser3, int& outSprite, int& outFrame, int& outRenderMode);
-
-#ifdef AVH_PLAYTEST_BUILD
-	const BalanceIntListType&	GetBalanceInts() const;
-	const BalanceFloatListType&	GetBalanceFloats() const;
-#endif
 
     int             GetCurrentSquad() const;
     AvHOverviewMap& GetOverviewMap();
@@ -634,7 +622,7 @@ private:
 	typedef vector<AvHAmbientSound>	AmbientSoundListType;
 	AmbientSoundListType	mAmbientSounds;
 
-	AvHTechNodes			mTechNodes;
+	AvHTechTree				mTechNodes;
 
 	string					mMapName;
 	AvHMapExtents			mMapExtents;
@@ -708,9 +696,7 @@ private:
 	SelectionListType		mSelectionEffects;
 
 
-	//#ifdef AVH_MAPPER_BUILD
 	//HSPRITE					mMappingTechSprite;
-	//#endif
 
 	HSPRITE					mHiveInfoSprite;
 	HSPRITE					mHiveHealthSprite;
@@ -793,11 +779,6 @@ private:
 
 	typedef vector< HUDNotificationType >	StructureHUDNotificationListType;
 	StructureHUDNotificationListType		mStructureNotificationList;
-
-	#ifdef AVH_PLAYTEST_BUILD
-	BalanceIntListType			mBalanceInts;
-	BalanceFloatListType		mBalanceFloats;
-	#endif
 
     int                     mCrosshairShowCount;
     HSPRITE                 mCrosshairSprite;

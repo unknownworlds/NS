@@ -93,7 +93,7 @@ bool AvHGrenade::GetCanBeResupplied() const
 void AvHGrenade::Init()
 {
     this->mRange = kGGRange;
-    this->mDamage = BALANCE_IVAR(kHandGrenadeDamage);
+    this->mDamage = BALANCE_VAR(kHandGrenadeDamage);
 }
 
 int AvHGrenade::GetDeployAnimation() const
@@ -280,7 +280,7 @@ int AvHGrenade::GetEmptyShootAnimation() const
 
 float AvHGrenade::GetWeaponPrimeTime() const
 { 
-    return BALANCE_FVAR(kHandGrenadePrimeTime); 
+    return BALANCE_VAR(kHandGrenadePrimeTime); 
 }
 
 
@@ -374,7 +374,7 @@ void AvHGrenade::CreateProjectile()
 	}
 
 	// How to handle this?  Only generate entity on server, but we should do SOMETHING on the client, no?
-	CGrenade* theGrenade = AvHSUShootServerGrenade(this->m_pPlayer->pev, theStartPosition, theVelocity, BALANCE_IVAR(kGrenDetonateTime), true);
+	CGrenade* theGrenade = AvHSUShootServerGrenade(this->m_pPlayer->pev, theStartPosition, theVelocity, BALANCE_VAR(kGrenDetonateTime), true);
 	ASSERT(theGrenade);
 
 	theGrenade->pev->dmg = this->mDamage;

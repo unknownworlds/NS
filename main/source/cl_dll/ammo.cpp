@@ -20,7 +20,6 @@
 
 #include "hud.h"
 #include "cl_util.h"
-#include "parsemsg.h"
 
 #include <string.h>
 #include <stdio.h>
@@ -29,7 +28,7 @@
 #include "vgui_TeamFortressViewport.h"
 #include "mod/AvHSharedUtil.h"
 #include "mod/AvHScrollHandler.h"
-#include "build.h"
+#include "mod/AvHNetworkMessages.h"
 
 WEAPON *gpActiveSel;	// NULL means off, 1 means just the menu bar, otherwise
 						// this points to the active weapon menu item
@@ -51,7 +50,6 @@ void __CmdFunc_LastInv(void)
 void WeaponsResource::Init(void)
 {
 	memset( rgWeapons, 0, sizeof rgWeapons );
-	lastWeapon = NULL;
 	HOOK_COMMAND("lastinv",LastInv);
 	Reset();
 }
@@ -100,25 +98,10 @@ int WeaponsResource::IsEnabled(WEAPON* p)
 int WeaponsResource::IsSelectable(WEAPON* p)
 {
 	int theIsSelectable = FALSE;
-	if(p != NULL ) 
+	if( p != NULL && HUD_GetWeaponEnabled(p->iId))
 	{
-//		char msg[1024];
-//		sprintf(msg, "Weapon %s: ", p->szName);
-//		ConsolePrint(msg);
-		if ( HUD_GetWeaponEnabled(p->iId))
-		{
-			theIsSelectable = TRUE;
-//			ConsolePrint("Enabled\n");
-		}
-		else 
-		{
-//			ConsolePrint("Not Enabled\n");
-		}
+		theIsSelectable = TRUE;
 	}
-//	else 
-//	{
-//		ConsolePrint("Null Weapon\n");
-//	}
 	return theIsSelectable;
 }
 
@@ -286,7 +269,7 @@ void WeaponsResource::SetCurrentWeapon(WEAPON* newWeapon)
 	WEAPON* currentWeapon = this->GetWeapon(gHUD.GetCurrentWeaponID());
 	// puzl: 497 - Because weapon state can get out of sync, we should allow this even if the weapons are the same 
 	// && newWeapon != currentWeapon 
-	if(newWeapon != NULL )
+	if( newWeapon != NULL )
 	{ 
 		lastWeapon = currentWeapon;
 		//if ( newWeapon != currentWeapon )
@@ -478,15 +461,14 @@ void CHudAmmo::Think(void)
 		}
 	}
 
-	//voogru: This probably isnt a good place to do this for some reason in release mode this crashes aliens.
-	/*if(gHUD.GetIsAlien()) //check for hive death causing loss of current weapon
+	if(gHUD.GetIsAlien()) //check for hive death causing loss of current weapon
 	{
 		WEAPON* currentWeapon = gWR.GetWeapon(gHUD.GetCurrentWeaponID());
 		if(!gWR.IsSelectable(currentWeapon)) //current weapon isn't valid
 		{
 			gWR.SetValidWeapon(); //get best option
 		}
-	}*/
+	}
 
 	if (!gpActiveSel)
 		return;
@@ -608,11 +590,8 @@ void WeaponsResource :: SelectSlot( int iSlot, int fAdvance, int iDirection )
 // 
 int CHudAmmo::MsgFunc_AmmoX(const char *pszName, int iSize, void *pbuf)
 {
-	BEGIN_READ( pbuf, iSize );
-
-	int iIndex = READ_BYTE();
-	int iCount = READ_BYTE();
-
+	int iIndex, iCount;
+	NetMsg_AmmoX( pbuf, iSize, iIndex, iCount );
 	gWR.SetAmmo( iIndex, abs(iCount) );
 
 	return 1;
@@ -620,9 +599,8 @@ int CHudAmmo::MsgFunc_AmmoX(const char *pszName, int iSize, void *pbuf)
 
 int CHudAmmo::MsgFunc_AmmoPickup( const char *pszName, int iSize, void *pbuf )
 {
-	BEGIN_READ( pbuf, iSize );
-	int iIndex = READ_BYTE();
-	int iCount = READ_BYTE();
+	int iIndex, iCount;
+	NetMsg_AmmoPickup( pbuf, iSize, iIndex, iCount );
 
 	// Add ammo to the history
 	gHR.AddToHistory( HISTSLOT_AMMO, iIndex, abs(iCount) );
@@ -632,8 +610,8 @@ int CHudAmmo::MsgFunc_AmmoPickup( const char *pszName, int iSize, void *pbuf )
 
 int CHudAmmo::MsgFunc_WeapPickup( const char *pszName, int iSize, void *pbuf )
 {
-	BEGIN_READ( pbuf, iSize );
-	int iIndex = READ_BYTE();
+	int iIndex;
+	NetMsg_WeapPickup( pbuf, iSize, iIndex );
 
 	// Add the weapon to the history
 	gHR.AddToHistory( HISTSLOT_WEAP, iIndex );
@@ -643,11 +621,11 @@ int CHudAmmo::MsgFunc_WeapPickup( const char *pszName, int iSize, void *pbuf )
 
 int CHudAmmo::MsgFunc_ItemPickup( const char *pszName, int iSize, void *pbuf )
 {
-	BEGIN_READ( pbuf, iSize );
-	const char *szName = READ_STRING();
+	string szName;
+	NetMsg_ItemPickup( pbuf, iSize, szName );
 
 	// Add the weapon to the history
-	gHR.AddToHistory( HISTSLOT_ITEM, szName );
+	gHR.AddToHistory( HISTSLOT_ITEM, szName.c_str() );
 
 	return 1;
 }
@@ -655,9 +633,7 @@ int CHudAmmo::MsgFunc_ItemPickup( const char *pszName, int iSize, void *pbuf )
 
 int CHudAmmo::MsgFunc_HideWeapon( const char *pszName, int iSize, void *pbuf )
 {
-	BEGIN_READ( pbuf, iSize );
-	
-	gHUD.m_iHideHUDDisplay = READ_BYTE();
+	NetMsg_HideWeapon( pbuf, iSize, gHUD.m_iHideHUDDisplay );
 
 	if (gEngfuncs.IsSpectateOnly())
 		return 1;
@@ -684,70 +660,56 @@ int CHudAmmo::MsgFunc_HideWeapon( const char *pszName, int iSize, void *pbuf )
 int CHudAmmo::MsgFunc_CurWeapon(const char *pszName, int iSize, void *pbuf )
 {
 	static wrect_t nullrc;
-	int fOnTarget = FALSE;
 
-	BEGIN_READ( pbuf, iSize );
+	int iState, iId, iClip;
+	NetMsg_CurWeapon( pbuf, iSize, iState, iId, iClip );
 
-	int iState = READ_BYTE();
-	int iId = READ_CHAR();
-	int iClip = READ_CHAR();
-	// puzl: 497 read enable state from the server ( assign it below )
-	int iEnabled = READ_BYTE();
-
-	// detect if we're also on target
-	if ( iState > 1 )
-	{
-		fOnTarget = TRUE;
-	}
-
-	if ( iId < 1 )
+	if ( iId < 1 ) //signal kills crosshairs if this condition is met...
 	{
 		gHUD.SetCurrentCrosshair(0, nullrc, 0, 0, 0);
-		return 0;
+		//previous version had return 0 here, so
+		//check for dead player below would never
+		//be reached.
 	}
+
+	bool bOnTarget = (iState && WEAPON_ON_TARGET);	//used to track autoaim state
+	bool bIsCurrent = (iState && WEAPON_IS_CURRENT);
 
 	if ( g_iUser1 != OBS_IN_EYE )
 	{
-	// Is player dead???
-	if ((iId == -1) && (iClip == -1))
-	{
-		gHUD.m_fPlayerDead = TRUE;
-		gpActiveSel = NULL;
-		return 1;
+		if ( iId == -1 && iClip == -1 )
+		{
+			gHUD.m_fPlayerDead = TRUE;
+			gpActiveSel = NULL;
+			return 1;
+		}
+
+		gHUD.m_fPlayerDead = FALSE; 
 	}
-	gHUD.m_fPlayerDead = FALSE;
-	}
+
+	if( !bIsCurrent )
+	{ return 1; }
 
 	WEAPON *pWeapon = gWR.GetWeapon( iId );
-
-	if ( !pWeapon )
-		return 0;
-
-	pWeapon->iEnabled=iEnabled;
-
-	if ( iClip < -1 )
-		pWeapon->iClip = abs(iClip);
-	else
-		pWeapon->iClip = iClip;
-
-
-	if ( iState == 0 )	// we're not the current weapon, so update no more 
-		return 1;
+	if( pWeapon == NULL ) //don't have the weapon described in our resource list
+	{ return 0; }
 
 	m_pWeapon = pWeapon;
+	m_pWeapon->iEnabled = (iState && WEAPON_IS_ENABLED) ? TRUE : FALSE;
+	m_pWeapon->iClip = abs(iClip);
 
 	if ( !(gHUD.m_iHideHUDDisplay & ( HIDEHUD_WEAPONS | HIDEHUD_ALL )) )
 	{
 		if ( gHUD.m_iFOV >= 90 )
 		{ // normal crosshairs
-			if (fOnTarget && m_pWeapon->hAutoaim)
+			if (bOnTarget && m_pWeapon->hAutoaim)
 				gHUD.SetCurrentCrosshair(m_pWeapon->hAutoaim, m_pWeapon->rcAutoaim, 255, 255, 255);
 			else
 				gHUD.SetCurrentCrosshair(m_pWeapon->hCrosshair, m_pWeapon->rcCrosshair, 255, 255, 255);
 		}
 		else
 		{ // zoomed crosshairs
-			if (fOnTarget && m_pWeapon->hZoomedAutoaim)
+			if (bOnTarget && m_pWeapon->hZoomedAutoaim)
 				gHUD.SetCurrentCrosshair(m_pWeapon->hZoomedAutoaim, m_pWeapon->rcZoomedAutoaim, 255, 255, 255);
 			else
 				gHUD.SetCurrentCrosshair(m_pWeapon->hZoomedCrosshair, m_pWeapon->rcZoomedCrosshair, 255, 255, 255);
@@ -765,34 +727,26 @@ int CHudAmmo::MsgFunc_CurWeapon(const char *pszName, int iSize, void *pbuf )
 //
 int CHudAmmo::MsgFunc_WeaponList(const char *pszName, int iSize, void *pbuf )
 {
+	WeaponList weapon_data;
+	NetMsg_WeaponList( pbuf, iSize, weapon_data );
 
-	BEGIN_READ( pbuf, iSize );
-	
 	WEAPON Weapon;
 
-	strcpy( Weapon.szName, READ_STRING() );
-	Weapon.iAmmoType = (int)READ_CHAR();	
-	
-	Weapon.iMax1 = READ_BYTE();
-	if (Weapon.iMax1 == 255)
-		Weapon.iMax1 = -1;
-
-	Weapon.iAmmo2Type = READ_CHAR();
-	Weapon.iMax2 = READ_BYTE();
-	if (Weapon.iMax2 == 255)
-		Weapon.iMax2 = -1;
-
-	Weapon.iSlot = READ_CHAR();
-	Weapon.iSlotPos = READ_CHAR();
-	Weapon.iId = READ_CHAR();
-	Weapon.iFlags = READ_BYTE();
+	strcpy( Weapon.szName, weapon_data.weapon_name.c_str() );
+	Weapon.iAmmoType = weapon_data.ammo1_type;	
+	Weapon.iMax1 = weapon_data.ammo1_max_amnt == 255 ? -1 : weapon_data.ammo1_max_amnt;
+    Weapon.iAmmo2Type = weapon_data.ammo2_type;
+	Weapon.iMax2 = weapon_data.ammo2_max_amnt == 255 ? -1 : weapon_data.ammo2_max_amnt;
+	Weapon.iSlot = weapon_data.bucket;
+	Weapon.iSlotPos = weapon_data.bucket_pos;
+	Weapon.iId = weapon_data.bit_index;
+	Weapon.iFlags = weapon_data.flags;
 	Weapon.iClip = 0;
 	// puzl: 497 - default value for enable state
 	Weapon.iEnabled = 0;
 
 	gWR.AddWeapon( &Weapon );
 	return 1;
-
 }
 
 //------------------------------------------------------------------------
@@ -867,54 +821,6 @@ void CHudAmmo::UserCmd_Close(void)
 
 		const char* theSound = AvHSHUGetCommonSoundName(gHUD.GetIsAlien(), WEAPON_SOUND_HUD_OFF);
 		gHUD.PlayHUDSound(theSound, kHUDSoundVolume);
-	}
-	else
-	{
-		bool thePotentiallyEnableOptionsScreen = false;
-		bool theOptionsScreenEnabled = false;
-
-		#ifdef DEBUG
-		thePotentiallyEnableOptionsScreen = true;
-		#endif
-
-		#ifdef AVH_PLAYTEST_BUILD
-		thePotentiallyEnableOptionsScreen = true;
-
-		if(thePotentiallyEnableOptionsScreen)
-		{
-			if(!gHUD.GetInTopDownMode())
-			{
-				if(gHUD.GetBalanceInts().size() > 0)
-				{
-					theOptionsScreenEnabled = true;
-				}
-			}
-		}
-		#endif
-
-		if(theOptionsScreenEnabled)
-		{
-			// Toggle game options menu
-			if(gViewPort->IsOptionsMenuVisible())
-			{
-				gViewPort->HideOptionsMenu();
-			}
-			else
-			{
-				gViewPort->ShowOptionsMenu();
-			}
-		}
-		else
-		{
-			if(gHUD.GetInTopDownMode())
-			{
-				gHUD.Cancel();
-			}
-			else
-			{
-				ClientCmd("escape");
-			}
-		}
 	}
 }
 

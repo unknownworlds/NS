@@ -27,7 +27,7 @@
 
 #include "AnimationUtil.h"
 
-#include "pm_defs.h"
+#include "pm_shared/pm_defs.h"
 
 const float AVH_INFINITY = -logf(0);
 const float AVH_EPSILON  = 0.001f;

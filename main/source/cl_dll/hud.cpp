@@ -22,17 +22,17 @@
 #include "cl_util.h"
 #include <string.h>
 #include <stdio.h>
-#include "parsemsg.h"
 #include "hud_servers.h"
 #include "vgui_TeamFortressViewport.h"
 #include "vgui_int.h"
 
 #include "demo.h"
-#include "demo_api.h"
+#include "common/demo_api.h"
 #include "ui/UIComponent.h"
 #include "vgui_scorepanel.h"
 
-#include "mod/ChatPanel.h"
+#include "mod/AvHNetworkMessages.h"
+#include "ui/ChatPanel.h"
 
 class CHLVoiceStatusHelper : public IVoiceStatusHelper
 {
@@ -97,13 +97,6 @@ cvar_t *cl_lw = NULL;
 
 void ShutdownInput (void);
 
-//DECLARE_MESSAGE(m_Logo, Logo)
-int __MsgFunc_Logo(const char *pszName, int iSize, void *pbuf)
-{
-	return gHUD.MsgFunc_Logo(pszName, iSize, pbuf );
-}
-
-//DECLARE_MESSAGE(m_Logo, Logo)
 int __MsgFunc_ResetHUD(const char *pszName, int iSize, void *pbuf)
 {
 	return gHUD.MsgFunc_ResetHUD(pszName, iSize, pbuf );
@@ -112,7 +105,7 @@ int __MsgFunc_ResetHUD(const char *pszName, int iSize, void *pbuf)
 int __MsgFunc_InitHUD(const char *pszName, int iSize, void *pbuf)
 {
 	gHUD.MsgFunc_InitHUD( pszName, iSize, pbuf );
-	return 1;
+	return 0;
 }
 
 int __MsgFunc_ViewMode(const char *pszName, int iSize, void *pbuf)
@@ -126,114 +119,10 @@ int __MsgFunc_SetFOV(const char *pszName, int iSize, void *pbuf)
 	return gHUD.MsgFunc_SetFOV( pszName, iSize, pbuf );
 }
 
-int __MsgFunc_Concuss(const char *pszName, int iSize, void *pbuf)
-{
-	return gHUD.MsgFunc_Concuss( pszName, iSize, pbuf );
-}
-
-int __MsgFunc_GameMode(const char *pszName, int iSize, void *pbuf )
-{
-	return gHUD.MsgFunc_GameMode( pszName, iSize, pbuf );
-}
-
-// TFFree Command Menu
-void __CmdFunc_OpenCommandMenu(void)
-{
-	if ( gViewPort )
-	{
-		gViewPort->ShowCommandMenu(gViewPort->m_StandardMenu);
-	}
-}
-
-// TFC "special" command
-void __CmdFunc_InputPlayerSpecial(void)
-{
-	if ( gViewPort )
-	{
-		gViewPort->InputPlayerSpecial();
-	}
-}
-
-void __CmdFunc_CloseCommandMenu(void)
-{
-	if ( gViewPort )
-	{
-		gViewPort->InputSignalHideCommandMenu();
-	}
-}
-
-void __CmdFunc_ForceCloseCommandMenu( void )
-{
-	if ( gViewPort )
-	{
-		gViewPort->HideCommandMenu();
-	}
-}
-
-void __CmdFunc_ToggleServerBrowser( void )
-{
-	if ( gViewPort )
-	{
-		gViewPort->ToggleServerBrowser();
-	}
-}
-
-void __CmdFunc_NSMessageMode(void)
-{
-	if(gEngfuncs.Cmd_Argc() >= 2)
-	{
-		if(gViewPort)
-		{
-			ChatPanel *theChatPanel = gViewPort->GetChatPanel();
-
-			if(theChatPanel)
-			{
-				theChatPanel->setVisible(true);
-				theChatPanel->requestFocus();
-				theChatPanel->SetChatMode( (string)gEngfuncs.Cmd_Argv(1) );
-			}
-		}
-	}
-}
-
-void __CmdFunc_SpecialDummy(void)
-{
-	return;
-}
-
-// TFFree Command Menu Message Handlers
-int __MsgFunc_ValClass(const char *pszName, int iSize, void *pbuf)
-{
-	if (gViewPort)
-		return gViewPort->MsgFunc_ValClass( pszName, iSize, pbuf );
-	return 0;
-}
-
 int __MsgFunc_TeamNames(const char *pszName, int iSize, void *pbuf)
 {
 	if (gViewPort)
 		return gViewPort->MsgFunc_TeamNames( pszName, iSize, pbuf );
-	return 0;
-}
-
-int __MsgFunc_Feign(const char *pszName, int iSize, void *pbuf)
-{
-	if (gViewPort)
-		return gViewPort->MsgFunc_Feign( pszName, iSize, pbuf );
-	return 0;
-}
-
-int __MsgFunc_Detpack(const char *pszName, int iSize, void *pbuf)
-{
-	if (gViewPort)
-		return gViewPort->MsgFunc_Detpack( pszName, iSize, pbuf );
-	return 0;
-}
-
-int __MsgFunc_VGUIMenu(const char *pszName, int iSize, void *pbuf)
-{
-	if (gViewPort)
-		return gViewPort->MsgFunc_VGUIMenu( pszName, iSize, pbuf );
 	return 0;
 }
 
@@ -244,20 +133,6 @@ int __MsgFunc_MOTD(const char *pszName, int iSize, void *pbuf)
 	return 0;
 }
 
-int __MsgFunc_BuildSt(const char *pszName, int iSize, void *pbuf)
-{
-	if (gViewPort)
-		return gViewPort->MsgFunc_BuildSt( pszName, iSize, pbuf );
-	return 0;
-}
-
-int __MsgFunc_RandomPC(const char *pszName, int iSize, void *pbuf)
-{
-	if (gViewPort)
-		return gViewPort->MsgFunc_RandomPC( pszName, iSize, pbuf );
-	return 0;
-}
- 
 int __MsgFunc_ServerName(const char *pszName, int iSize, void *pbuf)
 {
 	if (gViewPort)
@@ -286,58 +161,26 @@ int __MsgFunc_TeamInfo(const char *pszName, int iSize, void *pbuf)
 	return 0;
 }
 
-int __MsgFunc_Spectator(const char *pszName, int iSize, void *pbuf)
-{
-	if (gViewPort)
-		return gViewPort->MsgFunc_Spectator( pszName, iSize, pbuf );
-	return 0;
-}
-
-int __MsgFunc_AllowSpec(const char *pszName, int iSize, void *pbuf)
-{
-	if (gViewPort)
-		return gViewPort->MsgFunc_AllowSpec( pszName, iSize, pbuf );
-	return 0;
-}
+void __CmdFunc_SpecialDummy(void) {}
 
 // This is called every time the DLL is loaded
 void CHud :: Init( void )
 {
-	HOOK_MESSAGE( Logo );
 	HOOK_MESSAGE( ResetHUD );
-	HOOK_MESSAGE( GameMode );
 	HOOK_MESSAGE( InitHUD );
 	HOOK_MESSAGE( ViewMode );
 	HOOK_MESSAGE( SetFOV );
-	HOOK_MESSAGE( Concuss );
 
-	// TFFree CommandMenu
-	HOOK_COMMAND( "+commandmenu", OpenCommandMenu );
-	HOOK_COMMAND( "-commandmenu", CloseCommandMenu );
-	HOOK_COMMAND( "ForceCloseCommandMenu", ForceCloseCommandMenu );
-	HOOK_COMMAND( "special", InputPlayerSpecial );
-	HOOK_COMMAND( "togglebrowser", ToggleServerBrowser );
-	HOOK_COMMAND( "nsmessagemode", NSMessageMode);
-	HOOK_COMMAND( "_special", SpecialDummy);
+	HOOK_COMMAND( "special", SpecialDummy);
+	HOOK_COMMAND( "_special", SpecialDummy);							//prevent abuse
 
 
-	HOOK_MESSAGE( ValClass );
 	HOOK_MESSAGE( TeamNames );
-	HOOK_MESSAGE( Feign );
-	HOOK_MESSAGE( Detpack );
 	HOOK_MESSAGE( MOTD );
-	HOOK_MESSAGE( BuildSt );
-	HOOK_MESSAGE( RandomPC );
 	HOOK_MESSAGE( ServerName );
 	HOOK_MESSAGE( ScoreInfo );
 	HOOK_MESSAGE( TeamScore );
 	HOOK_MESSAGE( TeamInfo );
-
-	HOOK_MESSAGE( Spectator );
-	HOOK_MESSAGE( AllowSpec );
-
-	// VGUI Menus
-	HOOK_MESSAGE( VGUIMenu );
 
 	CVAR_CREATE( "hud_classautokill", "1", FCVAR_ARCHIVE | FCVAR_USERINFO );		// controls whether or not to suicide immediately on TF class switch
 	CVAR_CREATE( "hud_takesshots", "0", FCVAR_ARCHIVE );		// controls whether or not to automatically take screenshots at the end of a round
@@ -554,16 +397,6 @@ void CHud :: VidInit( void )
 	GetClientVoiceMgr()->VidInit();
 }
 
-int CHud::MsgFunc_Logo(const char *pszName,  int iSize, void *pbuf)
-{
-	BEGIN_READ( pbuf, iSize );
-
-	// update Train data
-	m_iLogo = READ_BYTE();
-
-	return 1;
-}
-
 float g_lastFOV = 0.0;
 
 /*
@@ -576,7 +409,7 @@ void COM_FileBase ( const char *in, char *out)
 {
 	int len, start, end;
 
-	len = strlen( in );
+	len = (int)strlen( in );
 	
 	// scan backward for '.'
 	end = len - 1;
@@ -660,9 +493,8 @@ float HUD_GetFOV( void )
 
 int CHud::MsgFunc_SetFOV(const char *pszName,  int iSize, void *pbuf)
 {
-	BEGIN_READ( pbuf, iSize );
-
-	int newfov = READ_BYTE();
+	int newfov;
+	NetMsg_SetFOV( pbuf, iSize, newfov );
 	int def_fov = CVAR_GET_FLOAT( "default_fov" );
 
 	//Weapon prediction already takes care of changing the fog. ( g_lastFOV ).

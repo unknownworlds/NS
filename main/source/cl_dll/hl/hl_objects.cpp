@@ -16,15 +16,15 @@
 #include "../cl_util.h"
 #include "../demo.h"
 
-#include "demo_api.h"
-#include "const.h"
-#include "entity_state.h"
-#include "cl_entity.h"
+#include "common/demo_api.h"
+#include "common/const.h"
+#include "common/entity_state.h"
+#include "common/cl_entity.h"
 
-#include "pm_defs.h"
-#include "event_api.h"
-#include "entity_types.h"
-#include "r_efx.h"
+#include "pm_shared/pm_defs.h"
+#include "common/event_api.h"
+#include "common/entity_types.h"
+#include "common/r_efx.h"
 
 extern BEAM *pBeam;
 extern BEAM *pBeam2;

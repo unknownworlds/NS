@@ -36,14 +36,8 @@ public:
 	#ifdef AVH_SERVER
 	float				GetTopDownCullDistance() const;
 	void				SetTopDownCullDistance(float inCullDistance);
-
-	void				SendToNetworkStream() const;
 	#endif
 
-	#ifdef AVH_CLIENT
-	int					ReceiveFromNetworkStream();
-	#endif
-	
 private:
 	bool				mCalculatedMapExtents;
 

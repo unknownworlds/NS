@@ -122,8 +122,8 @@
 #include "mod/AvHSharedUtil.h"
 #include "common/event_api.h"
 #include "mod/AvHScriptManager.h"
-#include "particles/p_vector.h"
-#include "particles/papi.h"
+#include <p_vector.h>
+#include <papi.h>
 #include "mod/AvHParticleSystemManager.h"
 #include "mod/AvHTeamHierarchy.h"
 #include "mod/AvHClientUtil.h"
@@ -993,21 +993,17 @@ void AvHHud::DrawOrderIcon(const AvHOrder& inOrder)
 			}
 
 			// Draw icon above pos, text below
-			theWorldPos.z += BALANCE_FVAR(kOrderIconDrawSize);
+			theWorldPos.z += BALANCE_VAR(kOrderIconDrawSize);
 			
-			this->DrawWorldSprite(this->mOrderSprite, kRenderTransAdd, theWorldPos, theCurrentFrame, BALANCE_FVAR(kOrderIconDrawSize));
+			this->DrawWorldSprite(this->mOrderSprite, kRenderTransAdd, theWorldPos, theCurrentFrame, BALANCE_VAR(kOrderIconDrawSize));
 			
 			// If the order is our own order, draw the order indicator around it
 			if((this->GetHUDPlayMode() == PLAYMODE_PLAYING) && this->GetIsMarine() && !this->GetInTopDownMode())
 			{
-				this->DrawWorldSprite(this->mMarineOrderIndicator, kRenderTransAdd, theWorldPos, 0, BALANCE_FVAR(kOrderIconDrawSize));
+				this->DrawWorldSprite(this->mMarineOrderIndicator, kRenderTransAdd, theWorldPos, 0, BALANCE_VAR(kOrderIconDrawSize));
 				//DrawScaledHUDSprite(theSpriteHandle, kRenderNormal, 1, thePosX, thePosY, theWidth, theHeight, theFrame, theStartU, theStartV, theEndU, theEndV);
 				
 			}
-		}
-		else
-		{
-			int a = 0;
 		}
 	}
 }
@@ -1088,10 +1084,6 @@ void AvHHud::DrawOrderText(const AvHOrder& inOrder)
 			
 			// Draw location below it
 			this->DrawHudStringCentered(theBaseX, theBaseY + 2*theStringHeight, ScreenWidth(), theTranslatedLocation.c_str(), theR, theG, theB);
-		}
-		else
-		{
-			int a = 0;
 		}
 	}
 }
@@ -1640,6 +1632,12 @@ float AvHHud::GetHUDHandicap() const
 	case TEAM_TWO:
 		theHandicap = this->GetServerVariableFloat(kvTeam2DamagePercent);
 		break;
+	case TEAM_THREE:
+		theHandicap = this->GetServerVariableFloat(kvTeam3DamagePercent);
+		break;
+	case TEAM_FOUR:
+		theHandicap = this->GetServerVariableFloat(kvTeam4DamagePercent);
+		break;
 	}
 	
 	return theHandicap;
@@ -1700,10 +1698,6 @@ int AvHHud::GetHUDMaxArmor() const
 
 	int theMaxArmor = AvHPlayerUpgrade::GetMaxArmorLevel(theHUDUpgrades, theUser3);
 
-	#ifdef AVH_PLAYTEST_BUILD
-	theMaxArmor = 100;
-	#endif
-
 	return theMaxArmor;
 }
 
@@ -1714,10 +1708,6 @@ int AvHHud::GetHUDMaxHealth()	const
 	int theHUDExperienceLevel = this->GetHUDExperienceLevel();
 
 	int theMaxHealth = AvHPlayerUpgrade::GetMaxHealth(theHUDUpgrades, theUser3, theHUDExperienceLevel);
-
-	#ifdef AVH_PLAYTEST_BUILD
-	theMaxHealth = 100;
-	#endif
 
 	return theMaxHealth;
 }
@@ -2084,7 +2074,7 @@ void AvHHud::DrawHotgroups()
 
 				this->DrawTechTreeSprite(theHotgroupIcon, thePosX, thePosY, theWidth, theHeight, theFrame);
 
-				theTechImpulsePanel->SetVisualNumber(theHotgroup.size());
+				theTechImpulsePanel->SetVisualNumber((int)theHotgroup.size());
 			}
 		}
 	}
@@ -2110,7 +2100,7 @@ void AvHHud::DrawPendingRequests()
 		}
 	}
 
-	int theNumRequestsToDraw = this->mPendingRequests.size();
+	int theNumRequestsToDraw = (int)this->mPendingRequests.size();
 	int theCounter = 0;
 	for(theIterator = this->mPendingRequests.begin(); theIterator != this->mPendingRequests.end(); theIterator++)
 	{
@@ -2182,50 +2172,30 @@ void AvHHud::DrawBuildHealthEffectsForEntity(int inEntityIndex)
 	float theHealthPercentage = 0.0f;
 	double theDistanceToEntity = 0;
 	
-	// Must treat these two cases differently, as rendering with no z-buffering happens in two different ways.  It's an awful hack but hey, I don't have access to the engine so I have to make do.
-//	if(!this->GetInTopDownMode())
-//	{
-//		physent_t* theEntity = gEngfuncs.pEventAPI->EV_GetPhysent(inEntityIndex);
-//		if(theEntity)
-//		{
-//			theUser3 = theEntity->iuser3;
-//			theUser4 = theEntity->iuser4;
-//			theFuser1 = theEntity->fuser1;
-//			theEntityTeam = theEntity->team;
-//			theOrigin = theEntity->origin;
-//			theMins = theEntity->mins;
-//			theMaxs = theEntity->maxs;
-//			theHealthPercentage = theEntity->fuser2/kNormalizationNetworkFactor;
-//			theContinue = true;
-//		}
-//	}
-//	else
-//	{
-		cl_entity_s* theEntity = gEngfuncs.GetEntityByIndex(inEntityIndex);
-		if(theEntity)
+	cl_entity_s* theEntity = gEngfuncs.GetEntityByIndex(inEntityIndex);
+	if(theEntity)
+	{
+		theUser3 = theEntity->curstate.iuser3;
+		theUser4 = theEntity->curstate.iuser4;
+		theFuser1 = theEntity->curstate.fuser1;
+		theEntityTeam = theEntity->curstate.team;
+		
+		//theOrigin = theEntity->curstate.origin;
+		theOrigin = AvHSHUGetRealLocation(theEntity->origin, theEntity->curstate.mins, theEntity->curstate.maxs);
+		if(theEntity->player)
 		{
-			theUser3 = theEntity->curstate.iuser3;
-			theUser4 = theEntity->curstate.iuser4;
-			theFuser1 = theEntity->curstate.fuser1;
-			theEntityTeam = theEntity->curstate.team;
-			
-			//theOrigin = theEntity->curstate.origin;
-			theOrigin = AvHSHUGetRealLocation(theEntity->origin, theEntity->curstate.mins, theEntity->curstate.maxs);
-			if(theEntity->player)
-			{
-				// Subtract half-height to be at feet
-				float theHeight = theEntity->curstate.maxs[2] - theEntity->curstate.mins[2];
-				theOrigin[2] -= theHeight/2.0f;
-			}
-			theDistanceToEntity = VectorDistance(gPredictedPlayerOrigin, theOrigin);
-
-			theMins = theEntity->curstate.mins;
-			theMaxs = theEntity->curstate.maxs;
-			theHealthPercentage = theEntity->curstate.fuser2/kNormalizationNetworkFactor;
-			
-			theContinue = true;
+			// Subtract half-height to be at feet
+			float theHeight = theEntity->curstate.maxs[2] - theEntity->curstate.mins[2];
+			theOrigin[2] -= theHeight/2.0f;
 		}
-//	}
+		theDistanceToEntity = VectorDistance(gPredictedPlayerOrigin, theOrigin);
+
+		theMins = theEntity->curstate.mins;
+		theMaxs = theEntity->curstate.maxs;
+		theHealthPercentage = theEntity->curstate.fuser2/kNormalizationNetworkFactor;
+		
+		theContinue = true;
+	}
 
 	// Get local player
 	cl_entity_s* theLocalPlayer = gEngfuncs.GetLocalPlayer();
@@ -2328,11 +2298,6 @@ void AvHHud::DrawBuildHealthEffectsForEntity(int inEntityIndex)
 			}
 		}
 	}
-	
-	if(!theDrewBuildInProgress)
-	{
-		int a = 0;
-	}
 }
 
 void AvHHud::DrawHUDNumber(int inX, int inY, int inFlags, int inNumber)
@@ -2351,56 +2316,6 @@ void AvHHud::DrawHUDNumber(int inX, int inY, int inFlags, int inNumber)
 
 void AvHHud::DrawSelectionAndBuildEffects()
 {
-//	for(SelectionListType::iterator theIter = this->mSelectionEffects.begin(); theIter != this->mSelectionEffects.end(); theIter++)
-//	{
-//		// Draw selection effect around the entity
-//		int theEntIndex = theIter->mEntIndex;
-//		cl_entity_s* theEntity = gEngfuncs.GetEntityByIndex(theEntIndex);
-//		//physent_t* theEntity = GetEntity(theEntIndex);
-//		if(theEntity)
-//		{
-//			float theRadius = 17;
-//			
-//			// Draw spinning thingie around entity origin
-//			//float theAngle = (theIter->mAngleOffset/(M_PI))*180;
-//			int theAngle = theIter->mAngleOffset;
-//			vec3_t thePosition;
-//			
-//			//VectorCopy(theEntity->origin, thePosition);
-//			thePosition = AvHSHUGetRealLocation(theEntity->origin, theEntity->curstate.mins, theEntity->curstate.maxs);
-//			
-//			if(theEntity->player)
-//			{
-//				// Subtract half-height to be at feet
-//				float theHeight = theEntity->curstate.maxs[2] - theEntity->curstate.mins[2];
-//				thePosition[2] -= theHeight/2.0f;
-//			}
-//			//DrawCircleOnGroundAtPoint(thePosition, 9, theAngle, theRadius, 0, 1, 0, .5f, false, 0.0f);
-//			//DrawSelectionCircleOnGroundAtPoint(thePosition, theRadius);
-//
-//			for(int i = 0; i < 2; i++)
-//			{
-//				// First frame is circle inside, second is outline
-//				// Same opacity as the marquee component in ui.txt.
-//				float theAlpha = (i == 0 ? .2f : .6f);
-//				DrawSpriteOnGroundAtPoint(thePosition, theRadius, this->mSelectionCircleSprite, kRenderNormal, i, theAlpha);
-//			}
-//			
-//			theIter->mAngleOffset = theAngle + 1;
-//			
-//			//gEngfuncs.pEfxAPI->R_SparkShower(theEntity->origin);
-//		}
-//	}
-	
-	//	gEngfuncs.pEventAPI->EV_SetUpPlayerPrediction(false, true);
-	//	
-	//	// Store off the old count
-	//	gEngfuncs.pEventAPI->EV_PushPMStates();
-	//
-	//	// Now add in all of the players.
-	//	gEngfuncs.pEventAPI->EV_SetSolidPlayers(-1);
-	//	gEngfuncs.pEventAPI->EV_SetTraceHull(2);
-	
 	// Draw build effects
 	for(SelectionListType::iterator theSelectIter = this->mSelectionEffects.begin(); theSelectIter != this->mSelectionEffects.end(); theSelectIter++)
 	{
@@ -2415,117 +2330,6 @@ void AvHHud::DrawSelectionAndBuildEffects()
 		int theEntIndex = *theBuildingIter;
 		this->DrawBuildHealthEffectsForEntity(theEntIndex);
 	}
-/*	
-	// Draw range for current ghost building, if applicable
-	EntityListType theEntities;
-	IntList theDistanceRequirements;
-	float theZAdjustment = 0.0f;
-	bool theSnapToLocation = false;
-	bool theDrewGhostRegions = false;
-	
-	AvHSHUGetBuildRegions(this->mGhostBuilding, theEntities, theDistanceRequirements, theZAdjustment, theSnapToLocation);
-
-	// For each entity to draw
-	int theDistanceCounter = 0;
-	for(EntityListType::iterator theRangeIter = theEntities.begin(); theRangeIter != theEntities.end(); theRangeIter++, theDistanceCounter++)
-	{
-		//cl_entity_s* theEntity = gEngfuncs.GetEntityByIndex(*theRangeIter);
-		physent_t* theEntity = gEngfuncs.pEventAPI->EV_GetPhysent(*theRangeIter);
-		if(theEntity)
-		{
-			vec3_t thePosition;
-			thePosition = AvHSHUGetRealLocation(theEntity->origin, theEntity->mins, theEntity->maxs);
-
-			//int theSprite = (theEntity->iuser3 == AVH_USER3_SIEGETURRET) ? this->mSiegeTurretSprite : this->mBuildCircleSprite;
-			int theSprite = this->mBuildCircleSprite;
-
-			int theDistanceRequirement = theDistanceRequirements[theDistanceCounter];
-			DrawSpriteOnGroundAtPoint(thePosition, theDistanceRequirement, theSprite, kRenderTransAdd, 0, .15f);
-
-			theDrewGhostRegions = true;
-		}
-	}
-
-    // Draw selection as well
-	for(EntityListType::iterator theSelectedIter = this->mSelected.begin(); theSelectedIter != this->mSelected.end(); theSelectedIter++)
-	{
-		cl_entity_s* theEntity = gEngfuncs.GetEntityByIndex(*theSelectedIter);
-		//physent_t* theEntity = gEngfuncs.pEventAPI->EV_GetPhysent(*theSelectedIter);
-		if(theEntity)
-		{
-			vec3_t thePosition;
-			thePosition = AvHSHUGetRealLocation(theEntity->curstate.origin, theEntity->curstate.mins, theEntity->curstate.maxs);
-			
-			AvHUser3 theUser3 = (AvHUser3)(theEntity->curstate.iuser3);
-			int theRange = AvHSHUGetDrawRangeForUser3(theUser3);
-			if(theRange > 0)
-			{
-				// Don't draw structures that are recycling and therefore inactive
-				if(!GetHasUpgrade(theEntity->curstate.iuser4, MASK_RECYCLING))
-				{
-					//int theSprite = (theEntity->curstate.iuser3 == AVH_USER3_SIEGETURRET) ? this->mSiegeTurretSprite : this->mBuildCircleSprite;
-					int theSprite = this->mBuildCircleSprite;
-					DrawSpriteOnGroundAtPoint(thePosition, theRange, theSprite, kRenderTransAdd, 0, .15f);
-				}
-				else
-				{
-					int a = 0;
-				}
-			}
-		}
-	}
-*/
-
-//	// Draw an additive circle above every structure
-//	if(this->GetInTopDownMode() /*&& !theDrewGhostRegions*/)
-//	{
-//		EntityListType theEntities;
-//		AvHSHUGetEntities(-1, theEntities);
-//		
-//		for(EntityListType::iterator theEntityIter = theEntities.begin(); theEntityIter != theEntities.end(); theEntityIter++)
-//		{
-//			// If entity is on our team and on-screen, draw a circle above it
-//			physent_t* theEntity = gEngfuncs.pEventAPI->EV_GetPhysent(*theEntityIter);
-//			if(theEntity && (theEntity->team == (int)(this->mTeam)) && !theEntity->player)
-//			{
-//				// Approach #1
-//				this->DrawBuildHealthEffectsForEntity(*theEntityIter);
-//
-//				// Approach #2
-//				AvHMessageID theMessageID = AvHCUUser3ToTechSprite((AvHUser3)theEntity->iuser3);
-//				if(theMessageID != MENU_ORDERS)
-//				{
-//					vec3_t thePosition;
-//					thePosition = AvHSHUGetRealLocation(theEntity->origin, theEntity->mins, theEntity->maxs);
-//
-//					vec3_t theMinSize, theMaxSize;
-//					AvHSHUGetSizeForTech(theMessageID, theMinSize, theMaxSize);
-//					thePosition.z += (theMaxSize.z - theMinSize.z);
-//					
-//					//int theSprite = (theEntity->iuser3 == AVH_USER3_SIEGETURRET) ? this->mSiegeTurretSprite : this->mBuildCircleSprite;
-//					int theSprite = this->mBuildCircleSprite;
-//
-//					float theRingScalar = 1.0f;
-//					if(AvHSHUGetDrawRingsForUser3((AvHUser3)(theEntity->iuser3), theRingScalar))
-//					{
-//						float theMaxX = theMaxSize[0] - theMinSize[0];
-//						float theMaxY = theMaxSize[1] - theMinSize[1];
-//						float theRadius = max(theMaxX, theMaxY)*theRingScalar;
-//						DrawSpriteOnGroundAtPoint(thePosition, (int)theRadius, theSprite, kRenderTransAdd, 0, .10f);
-//					}
-//				}
-//			}
-//		}
-//	}
-
-	// Draw circle for ghost building as well
-	//int theDistance = AvHSHUGetDrawRangeForMessageID(this->mGhostBuilding);
-	//if(theDistance > 0)
-	//{
-	//	DrawSpriteOnGroundAtPoint(this->mGhostWorldLocation, theDistance, this->mBuildCircleSprite, kRenderTransAdd, 0, .07f);
-	//}
-	
-	//	gEngfuncs.pEventAPI->EV_PopPMStates();
 }
 
 
@@ -2645,32 +2449,6 @@ void AvHHud::Render()
 
 void AvHHud::RenderCommonUI()
 {
-
-
-    /*
-    // Draw the crosshair.
-
-    if (mCrosshairShowCount > 0 && mCrosshairSprite)
-    {
-
-        float x1 = mCrosshairRect.left;
-        float y1 = mCrosshairRect.top;
-        float x2 = mCrosshairRect.right;
-        float y2 = mCrosshairRect.bottom;
-
-	    //kRenderNormal,			// src
-	    //kRenderTransColor,		// c*a+dest*(1-a)
-	    //kRenderTransTexture,	// src*a+dest*(1-a)
-	    //kRenderGlow,			// src*a+dest -- No Z buffer checks
-	    //kRenderTransAlpha,		// src*srca+dest*(1-srca)
-	    //kRenderTransAdd,		// src*a+dest
-
-        AvHSpriteSetRenderMode(kRenderTransAlpha);
-        AvHSpriteDraw(mCrosshairSprite, 0, x1, y1, x2, y2, 0, 0, 1, 1);
-
-    }
-    */
-
     if (!mSteamUIActive)
     {
         
@@ -3417,10 +3195,6 @@ void AvHHud::RenderStructureRanges()
 					int theSprite = this->mBuildCircleSprite;
 					RenderStructureRange(thePosition, theRange, theSprite, kRenderTransAdd, 0, theRangeR, theRangeG, theRangeB, theRangeA);
 				}
-				else
-				{
-					int a = 0;
-				}
 			}
 		}
 	}
@@ -3432,7 +3206,7 @@ void AvHHud::RenderStructureRanges()
    
 
 
-	for (EntityListType::iterator theBuildViolationsIter = theBuildViolations.begin(); theBuildViolationsIter != theBuildViolations.end(); theBuildViolationsIter++)
+	for (EntityListType::iterator theBuildViolationsIter = theBuildViolations.begin(); theBuildViolationsIter != theBuildViolations.end(); ++theBuildViolationsIter)
 	{	
 		gEngfuncs.pEventAPI->EV_SetUpPlayerPrediction( false, true );
 		
@@ -3465,11 +3239,11 @@ void AvHHud::RenderStructureRanges()
 			// in the same way as structures, to prevent this exploit.
  			float theMinMarineBuildDistance;
             if (theUser3 == AVH_USER3_MARINE_PLAYER) {
-				theMinMarineBuildDistance = BALANCE_FVAR(kMinMarinePlayerBuildDistance);
+				theMinMarineBuildDistance = BALANCE_VAR(kMinMarinePlayerBuildDistance);
 			}
 			else 
 			{
-				theMinMarineBuildDistance = BALANCE_FVAR(kMinMarineBuildDistance);
+				theMinMarineBuildDistance = BALANCE_VAR(kMinMarineBuildDistance);
 			}
 			// :joev
 			RenderStructureRange(thePosition, theMinMarineBuildDistance + theMaxRadius2, theSprite, kRenderTransAdd, 0, 1, 0, 0, 0.3f);
@@ -3885,12 +3659,6 @@ void AvHHud::RenderAlienUI()
                 int theScreenPosX = mViewport[0] + mViewport[2] - theHiveWidth;
 				int theScreenPosY = mViewport[1] + (kHiveNormScreenY + theHiveIndex*kHiveNormScreenVerticalSpacing + kHiveNormScreenHeight)*ScreenHeight();
 
-				// Hack for nancy, because source is lost
-				if((this->mMapName == "ns_nancy") && (theLocationName == ""))
-				{
-					theLocationName = "nancy_mother";
-				}
-				
 				string theTranslatedLocationName;
 				LocalizeString(theLocationName.c_str(), theTranslatedLocationName);
 			
@@ -3906,10 +3674,6 @@ void AvHHud::RenderAlienUI()
 				}
 			
 				this->DrawHudStringReverse(mViewport[0] + mViewport[2] - 5, theScreenPosY, ScreenWidth(), (char*)theTranslatedLocationName.c_str(), theR, theG, theB);
-			
-				//char theLocationNameCStr[512];
-				//strcpy(theLocationNameCStr, theLocationName.c_str());
-				//this->DrawTranslatedString(theScreenPosX, theScreenPosY, theLocationNameCStr, false, false);
 			}
 		}
 	}
@@ -4156,9 +3920,7 @@ void AvHHud::VidInit(void)
 	this->mMarineOrderIndicator = Safe_SPR_Load(kMarineOrderSprite);
 	this->mMarineUpgradesSprite = Safe_SPR_Load(kMarineUpgradesSprite);
 	
-	//#ifdef AVH_MAPPER_BUILD
 	//this->mMappingTechSprite = Safe_SPR_Load("sprites/ns.spr");
-	//#endif
 
 	this->mAlienBuildSprite = Safe_SPR_Load(kAlienBuildSprite);
 	this->mMarineBuildSprite = Safe_SPR_Load(kMarineBuildSprite);

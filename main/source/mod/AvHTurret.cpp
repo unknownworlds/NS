@@ -110,7 +110,7 @@ char* AvHTurret::GetPingSound() const
 
 int AvHTurret::GetPointValue(void) const
 {
-	return BALANCE_IVAR(kScoringTurretValue);
+	return BALANCE_VAR(kScoringTurretValue);
 }
 
 int AvHTurret::GetSetEnabledAnimation() const
@@ -639,7 +639,7 @@ void AvHTurret::SetEnabledState(bool inState, bool inForce)
 float AvHTurret::GetRateOfFire() const
 {
 	float theVariance = RANDOM_FLOAT(0, 0.2);
-	float theBaseROF = BALANCE_FVAR(kTurretBaseRateOfFire);
+	float theBaseROF = BALANCE_VAR(kTurretBaseRateOfFire);
 	return theBaseROF + theVariance;
 }
 
@@ -650,7 +650,7 @@ void AvHTurret::Setup()
 	this->pev->takedamage = DAMAGE_AIM;
 	this->mNextPingTime = 0;
 	this->m_flFieldOfView = VIEW_FIELD_FULL;
-	this->m_fTurnRate = BALANCE_FVAR(kTurretTrackingRate);
+	this->m_fTurnRate = BALANCE_VAR(kTurretTrackingRate);
 	
 	// This is the visual difference between model origin and gun barrel, it's needed to orient the barrel and hit targets properly
 	this->pev->view_ofs.z = 48;

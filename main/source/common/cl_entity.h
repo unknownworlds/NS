@@ -69,7 +69,7 @@ typedef struct cl_entity_s cl_entity_t;
 #endif
 
 #if !defined( PROGS_H )
-#include "progs.h"
+#include "engine/progs.h"
 #endif
 
 struct cl_entity_s

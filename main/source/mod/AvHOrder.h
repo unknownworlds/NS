@@ -13,7 +13,7 @@
 #endif
 
 #ifdef AVH_SERVER
-#include "extdll.h"
+#include "dlls/extdll.h"
 class CBaseEntity;
 #endif
 
@@ -24,22 +24,17 @@ const int kOrderStatusCancelled = 2;
 class AvHOrder
 {
 public:
-	// Client
-						#ifdef AVH_CLIENT
-	int					ReceiveFromNetworkStream();
-						#endif
-						
-	// Server			
-						#ifdef AVH_SERVER
-	int					SendToNetworkStream();
-	bool				SetReceiver(const EntityInfo& entity);
+
+// Server			
+#ifdef AVH_SERVER
 	bool				Update();
-	bool				operator==(const AvHOrder& inOrder) const;
-	bool				operator!=(const AvHOrder& inOrder) const;
-	void				operator=(const AvHOrder& inOrder);
-						#endif
+	int					GetOrderID() const;
+	void				SetOrderID();
+	float				GetTimeOrderCompleted() const;
+	void				SetTimeOrderCompleted(float inTime);
+#endif
 						
-	// Shared			
+// Shared			
 						AvHOrder();
 	void				ClearReceiver();
 	bool				GetHasReceiver(int inPlayerIndex) const;
@@ -56,21 +51,18 @@ public:
 	bool				GetOrderActive() const;
 	bool				GetOrderCancelled() const;
 	bool				GetOrderCompleted() const;
-	void				SetOrderCompleted();
+	void				SetOrderCompleted(const bool inCompleted = true);
 
+	bool				SetReceiver(const EntityInfo& entity);
 	void				SetTargetIndex(int inTargetIndex);
 	void				SetOrderType(AvHOrderType inType);
 	void				SetOrderTargetType(AvHOrderTargetType inTargetType);
 	void				SetUser3TargetType(AvHUser3 inUser3);
 	void				SetLocation(const vec3_t& inPosition);
 
-	#ifdef AVH_SERVER
-	int					GetOrderID() const;
-	void				SetOrderID();
-
-	float				GetTimeOrderCompleted() const;
-	void				SetTimeOrderCompleted(float inTime);
-	#endif
+	bool				operator==(const AvHOrder& inOrder) const;
+	bool				operator!=(const AvHOrder& inOrder) const;
+	void				operator=(const AvHOrder& inOrder);
 				
 private:
 	EntityInfo			mPlayer;
@@ -84,6 +76,8 @@ private:
 	#ifdef AVH_SERVER
 	float				mTimeOrderCompleted;
 	int					mOrderID;
+	#else
+	bool				mOrderCompleted;
 	#endif
 };
 

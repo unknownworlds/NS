@@ -31,7 +31,7 @@
 
 #include "hud.h"
 #include "vgui_SchemeManager.h"
-#include "cvardef.h"
+#include "common/cvardef.h"
 
 #include <string.h>
 

@@ -119,7 +119,8 @@
 #define kGameDownloadSize 150
 #define kGameHDSpaceNeeded 300
 #define kGameVersionMajor 3
-#define kGameVersionMinor 01
+#define kGameVersionMinor 0
+#define kGameVersionRevision 1
 #define kGestateBaseArmor 150
 #define kGestateHealth 200
 #define kGorgeArmorUpgrade 50

@@ -29,7 +29,7 @@
 #define kArmoryUpgradeCost 30
 #define kArmoryUpgradeTime 180
 #define kArmsLabBuildTime 19
-#define kArmsLabCost 25
+#define kArmsLabCost 20
 #define kArmsLabHealth 2200
 #define kBalanceAverageTeamSize 6
 #define kBalanceFuncResourceTime 15
@@ -205,7 +205,7 @@
 #define kMovementChamberHealth 1000
 #define kMovementChamberThinkInterval 2
 #define kNumInitialAlienPoints 25
-#define kNumInitialMarinePoints 110
+#define kNumInitialMarinePoints 100
 #define kNumSameAlienStructuresAllowedInRadius 8
 #define kNumWebsAllowedInRadius 8
 #define kObservatoryBuildTime 15

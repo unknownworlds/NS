@@ -9719,11 +9719,12 @@ bool AvHPlayer::GetIsAuthorized(AvHAuthAction inAction, int inParameter) const
 			case TEAM_SPECT:
 				return true;
 			default: 
-				// check it's an active team - game theTeam if haven't seen other team information
-				if( theTeam >= TEAM_ACTIVE_BEGIN && inParameter < TEAM_ACTIVE_END ) 
+				// check it's an active team
+				if( theTeam == GetGameRules()->GetTeamA()->GetTeamNumber() || theTeam == GetGameRules()->GetTeamB()->GetTeamNumber() )
 				{
-					if( CVAR_GET_FLOAT("sv_cheats") != 0 ) { return true; }	//cheaters can switch
-					if( this->GetHasBeenSpectator() ) { return false; }		// spectators have seen everybody
+					if( GetGameRules()->GetCheatsEnabled() ) { return true; }	// cheaters can switch
+					if( !GetGameRules()->GetGameStarted() ) { return true; }	// can switch teams before start
+					if( this->GetHasBeenSpectator() ) { return false; }			// spectators have seen everybody
 					for(int counter = TEAM_ACTIVE_BEGIN; counter < TEAM_ACTIVE_END; counter++)
 					{
 						if( theTeam != counter && this->GetHasSeenTeam( (AvHTeamNumber)counter ) )
@@ -9731,7 +9732,7 @@ bool AvHPlayer::GetIsAuthorized(AvHAuthAction inAction, int inParameter) const
 					}
 					return true;	// haven't seen another team, authorized to join
 				}
-				return false;		// unknown team - never grant an unknown permission!
+				return false;		// unknown/inactive team - never grant an unknown permission!
 			}
 		}
 		case AUTH_ACTION_ADJUST_BALANCE:
@@ -9895,7 +9896,7 @@ void AvHPlayer::UpdateBalanceVariables(void)
 			{
 				if( this->mBalanceMessagePending )
 				{
-				NetMsg_BalanceVarChangesPending( this->pev, false );
+					NetMsg_BalanceVarChangesPending( this->pev, false );
 					this->mBalanceMessagePending = false;
 				}
 			}

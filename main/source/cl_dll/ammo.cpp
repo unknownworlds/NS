@@ -670,12 +670,9 @@ int CHudAmmo::MsgFunc_CurWeapon(const char *pszName, int iSize, void *pbuf )
 		return 0;
 	}
 
-	bool bOnTarget = (iState & WEAPON_ON_TARGET) != 0;	//used to track autoaim state
-	bool bIsCurrent = (iState & WEAPON_IS_CURRENT) != 0;
-
 	if ( g_iUser1 != OBS_IN_EYE )
 	{
-		if ( iId == -1 && iClip == -1 )
+		if ( iId == -1 && iClip == -1 ) //this conditional is never true due to iId < 1 check above!
 		{
 			gHUD.m_fPlayerDead = TRUE;
 			gpActiveSel = NULL;
@@ -690,8 +687,10 @@ int CHudAmmo::MsgFunc_CurWeapon(const char *pszName, int iSize, void *pbuf )
 	{ return 0; }
 
 	m_pWeapon = pWeapon;
-	m_pWeapon->iEnabled = (iState & WEAPON_IS_ENABLED) ? TRUE : FALSE;
-	m_pWeapon->iClip = iClip;
+	bool bOnTarget = (iState & WEAPON_ON_TARGET) != 0;	//used to track autoaim state
+	bool bIsCurrent = (iState & WEAPON_IS_CURRENT) != 0;
+	m_pWeapon->iEnabled = (iState & WEAPON_IS_ENABLED) != 0 ? TRUE : FALSE;
+	m_pWeapon->iClip = abs(iClip);
 
 	if( !bIsCurrent )
 	{ return 1; }

@@ -77,7 +77,7 @@ void Net_InitializeMessages(void)
 	g_msgSetOrder = REG_USER_MSG( "SetOrder", -1 );
 	g_msgSetParticleTemplates = REG_USER_MSG( "Particles", -1 );
 	g_msgSetSelect = REG_USER_MSG( "SetSelect", -1 );
-	g_msgSetRequest = REG_USER_MSG( "SetRequest", 3 );
+	g_msgSetRequest = REG_USER_MSG( "SetRequest", 2 );
 	g_msgSetSoundNames = REG_USER_MSG( "SoundNames", -1 );
 	g_msgSetTechNodes = REG_USER_MSG( "SetTech", 9 );
 	g_msgSetTechSlots = REG_USER_MSG( "TechSlots", 1 + kNumTechSlots );

@@ -812,10 +812,6 @@ void CBasePlayer::DestroyAllItems(BOOL removeSuit)
 	for ( i = 0; i < MAX_AMMO_SLOTS;i++)
 		m_rgAmmo[i] = 0;
 
-	// Removed because network messages were being sent before client was fully in the game (some messages weren't going through, like gmsgWeaponList).  
-	// This gets called every tick by AvHPlayer::UpdateClientData() anyways.
-	//UpdateClientData();
-
 	// send Selected Weapon Message to our client
 	NetMsg_CurWeapon( pev, 0, 0, 0 );
 }

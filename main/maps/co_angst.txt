@@ -1,0 +1,58 @@
+=====================================================================
+   Half-Life Map Spec Sheet
+=====================================================================
+------General Information--------------------------------------------
+
+Status          :       Final
+
+Title		:	Angst
+Filename	:	co_angst
+Author		:	ChromeAngel
+Home page	:	http://www.chromeangel.co.uk/
+Description	:	The crew of the froniersman strikeship "Angst" have been revived from suspended animation when the on-board computer notices something is wrong in the drive section
+Previous Maps	:	NS_Next, NS_11th_Hr, NS_Gammu, NS_Thief, NS_AM
+
+------Credits and Thanks---------------------------------------------
+Natural Selection team and all the folks on the NS forums.  HTTP://WWW.Natural-Selection.org
+and Justin Fisher for his nebula skybox
+
+------Play Information-----------------------------------------------
+
+Deathmatch	: 	No
+Single Player	:	No
+Natural Selection :	YES!
+Map Description	: 	Small combat style map acrross 2 floors, lots of connectivity by ladders, doors and vents
+How Many Players:	16 
+
+------Map Information------------------------------------------------
+
+New Models	:	No
+New Textures	:	Yes
+New Sounds	:	No
+
+------Construction---------------------------------------------------
+
+Base		:	From scratch
+Editor(s) used  :       Worldcraft 3.4 and the Valve Hammer
+Compile Machine :       Pentium 4 3.0Ghz, 1 GB RAM
+Compile time	:	~ 5 mins
+
+------Map Instructions-----------------------------------------------
+
+Unzip the files in this archive to your NS directory.
+The zip file should extract to the correct directories otherwise place the following files
+in your half-life/NS/Maps directory, "co_angst.bsp","co_angst.res" and "co_angst.txt".
+Place the minimap "co_angst6.spr" in your half-life/NS/sprites/minimaps directory.
+Place all the files starting "Nebular_" and "readme-jf-nebula_sky.txt" in your gfx/env directory.
+
+------Additional Info------------------------------------------------
+
+This template is available at The radium Half-Life Map Center...
+http://www.planethalflife.com/radium
+
+Natural Selection maps are available from NS World
+http://nsworld.ns-central.co.uk/Main.php
+
+------Copyright-Permissions------------------------------------------
+
+Authors MAY NOT use this level as a base to build additional levels. 

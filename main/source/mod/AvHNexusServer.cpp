@@ -8,7 +8,7 @@ extern int g_msgNexusBytes;
 byte_string BASE64Decode(const string& input);
 Nexus::ServerInfo createServerInfo(void);
 
-//note: we place this here so that we have the possibility of giving out AvHNetworkMessages.
+//note: we place this here so that we have the possibility of giving out AvHNetworkMessages.cpp
 bool AvHNexus::send(entvars_t* const pev, const unsigned char* data, const unsigned int length)
 {
 	if( !pev ) { return false; }

@@ -4,15 +4,21 @@
 #include "dlls/extdll.h"
 #include "dlls/util.h"
 
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 AvHNexus::TunnelToClient::TunnelToClient(void) {}
 AvHNexus::TunnelToClient::~TunnelToClient(void) {}
 Nexus::TunnelToClient* AvHNexus::TunnelToClient::clone(void) const { return new TunnelToClient(); }
+
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 AvHNexus::TunnelToClient* AvHNexus::TunnelToClient::getInstance(void) 
 { 
 	static std::auto_ptr<AvHNexus::TunnelToClient> ptr(new AvHNexus::TunnelToClient());
 	return ptr.get();
 }
+
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 bool AvHNexus::TunnelToClient::insertMessage(const Nexus::ClientID local_id, const byte_string& message)
 {
@@ -21,6 +27,8 @@ bool AvHNexus::TunnelToClient::insertMessage(const Nexus::ClientID local_id, con
 	return true;
 }
 
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 const Nexus::ClientID AvHNexus::TunnelToClient::poll(void) const
 {
 	Nexus::ClientID result = 0;
@@ -28,6 +36,8 @@ const Nexus::ClientID AvHNexus::TunnelToClient::poll(void) const
 	{ result = messages.front().first; }
 	return result;
 }
+
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 bool AvHNexus::TunnelToClient::recv(const Nexus::ClientID local_id, byte_string& data)
 {
@@ -39,7 +49,11 @@ bool AvHNexus::TunnelToClient::recv(const Nexus::ClientID local_id, byte_string&
 	return true;
 }
 
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 bool AvHNexus::TunnelToClient::send(const Nexus::ClientID local_id, const byte_string& data)
 {
 	return AvHNexus::send( VARS(local_id), data.c_str(), data.length() );
 }
+
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

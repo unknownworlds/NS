@@ -19,7 +19,7 @@ namespace AvHNexus
 		virtual bool			send(const Nexus::ClientID local_id, const byte_string& data);
 		virtual bool			recv(const Nexus::ClientID local_id, byte_string& data);
 
-		virtual bool insertMessage(const Nexus::ClientID local_id, const byte_string& message);
+		virtual bool insertMessage(const Nexus::ClientID local_id, const byte_string& message); //inserted into queue of messages from clients
 
 	private:
 		TunnelToClient(void);

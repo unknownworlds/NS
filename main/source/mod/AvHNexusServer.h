@@ -8,8 +8,8 @@ typedef struct entvars_s entvars_t;
 
 namespace AvHNexus
 {
-	bool send(entvars_t* const pev, const unsigned char* data, const unsigned int length);
-	bool recv(entvars_t* const pev, const char* data, const unsigned int length);
+	bool send(entvars_t* const pev, const unsigned char* data, const size_t length);
+	bool recv(entvars_t* const pev, const char* data, const size_t length);
 
 	void handleUnauthorizedJoinTeamAttempt(const edict_t* edict, const unsigned char team_index);
 	string getNetworkID(const edict_t* edict);

@@ -2365,7 +2365,7 @@ AvHPrototypeLab::AvHPrototypeLab() : AvHMarineBaseBuildable(TECH_PROTOTYPE_LAB, 
 
 
 const float kObservatoryThinkTime = 1.0f;
-const float kObservatoryStartEnergy = 25;
+const float kObservatoryStartEnergy = 40;
 
 AvHObservatory::AvHObservatory() : AvHMarineBaseBuildable(TECH_OBSERVATORY, BUILD_OBSERVATORY, kwsObservatory, AVH_USER3_OBSERVATORY)
 {

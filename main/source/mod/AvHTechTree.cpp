@@ -493,7 +493,7 @@ void AvHTechTree::GetDelta(const AvHTechTree& other, MessageIDListType& delta) c
 	while( other_current != other_end )
 	{
 		delta.push_back(other_current->first);
-		++current;
+		++other_current;
 	}
 }
 

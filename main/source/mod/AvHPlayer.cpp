@@ -9532,8 +9532,8 @@ void AvHPlayer::UpdateTechNodes()
 					}
 					else
 					{
-						//send signal to remove the tech node from the client here...
-						this->mClientTechNodes.RemoveNode( Node->getMessageID() );
+						//TODO: send signal to remove the tech node from the client here...
+						this->mClientTechNodes.RemoveNode(*current);
 					}
 				}
 				mClientTechDelta.clear();

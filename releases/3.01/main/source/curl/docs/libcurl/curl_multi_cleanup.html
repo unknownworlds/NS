@@ -1,0 +1,72 @@
+<HTML>
+<BODY>
+<PRE>
+<!-- Manpage converted by man2html 3.0.1 -->
+       curl_multi_cleanup - close down a multi session
+
+
+</PRE>
+<H2>SYNOPSIS</H2><PRE>
+       <B>#include</B> <B>&lt;curl/curl.h&gt;</B>
+
+       <B>CURLMcode</B> <B>curl_multi_cleanup(</B> <B>CURLM</B> <B>*multi_handle</B> <B>);</B>
+
+
+</PRE>
+<H2>DESCRIPTION</H2><PRE>
+       Cleans  up  and  removes  a whole multi stack. It does not
+       free or touch any individual easy handles  in  any  way  -
+       they still need to be closed individually, using the usual
+       curl_easy_cleanup() way.
+
+
+</PRE>
+<H2>RETURN VALUE</H2><PRE>
+       CURLMcode type,  general  libcurl  multi  interface  error
+       code.
+
+
+</PRE>
+<H2>SEE ALSO</H2><PRE>
+       <B>curl_multi_init(3)</B>,<B>curl_easy_cleanup(3)</B>,<B>curl_easy_init(3)</B>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</PRE>
+<HR>
+<ADDRESS>
+Man(1) output converted with
+<a href="http://www.oac.uci.edu/indiv/ehood/man2html.html">man2html</a>
+</ADDRESS>
+</BODY>
+</HTML>

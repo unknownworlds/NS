@@ -667,13 +667,11 @@ int CHudAmmo::MsgFunc_CurWeapon(const char *pszName, int iSize, void *pbuf )
 	if ( iId < 1 ) //signal kills crosshairs if this condition is met...
 	{
 		gHUD.SetCurrentCrosshair(0, nullrc, 0, 0, 0);
-		//previous version had return 0 here, so
-		//check for dead player below would never
-		//be reached.
+		return 0;
 	}
 
-	bool bOnTarget = (iState && WEAPON_ON_TARGET);	//used to track autoaim state
-	bool bIsCurrent = (iState && WEAPON_IS_CURRENT);
+	bool bOnTarget = (iState & WEAPON_ON_TARGET) != 0;	//used to track autoaim state
+	bool bIsCurrent = (iState & WEAPON_IS_CURRENT) != 0;
 
 	if ( g_iUser1 != OBS_IN_EYE )
 	{
@@ -687,16 +685,16 @@ int CHudAmmo::MsgFunc_CurWeapon(const char *pszName, int iSize, void *pbuf )
 		gHUD.m_fPlayerDead = FALSE; 
 	}
 
-	if( !bIsCurrent )
-	{ return 1; }
-
 	WEAPON *pWeapon = gWR.GetWeapon( iId );
 	if( pWeapon == NULL ) //don't have the weapon described in our resource list
 	{ return 0; }
 
 	m_pWeapon = pWeapon;
-	m_pWeapon->iEnabled = (iState && WEAPON_IS_ENABLED) ? TRUE : FALSE;
-	m_pWeapon->iClip = abs(iClip);
+	m_pWeapon->iEnabled = (iState & WEAPON_IS_ENABLED) ? TRUE : FALSE;
+	m_pWeapon->iClip = iClip;
+
+	if( !bIsCurrent )
+	{ return 1; }
 
 	if ( !(gHUD.m_iHideHUDDisplay & ( HIDEHUD_WEAPONS | HIDEHUD_ALL )) )
 	{

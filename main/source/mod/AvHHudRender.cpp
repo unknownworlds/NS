@@ -138,6 +138,7 @@
 #include "mod/AvHServerVariables.h"
 #include "mod/AvHSpriteAPI.h"
 #include "mod/AvHParticleEditorHandler.h"
+#include <list>
 
 void IN_GetMousePos( int *mx, int *my );
 
@@ -2158,7 +2159,9 @@ void AvHHud::DrawPendingRequests()
 }
 
 
-void AvHHud::DrawBuildHealthEffectsForEntity(int inEntityIndex)
+// tankefugl: 0000988 
+void AvHHud::DrawBuildHealthEffectsForEntity(int inEntityIndex, float inAlpha)
+// :tankefugl
 {
 	// Get entity
 	int theUser3 = 0;
@@ -2291,7 +2294,7 @@ void AvHHud::DrawBuildHealthEffectsForEntity(int inEntityIndex)
 					
 					//GetHasUpgrade(this->GetHUDUpgrades(), MASK_PARASITED)
 
-					DrawSpriteOnGroundAtPoint(thePosition, theRadius, theSpriteToUse, kRenderTransAdd, theCurrentFrame);
+					DrawSpriteOnGroundAtPoint(thePosition, theRadius, theSpriteToUse, kRenderTransAdd, theCurrentFrame, inAlpha);
 					
 					theDrewBuildInProgress = true;
 				}
@@ -2316,12 +2319,19 @@ void AvHHud::DrawHUDNumber(int inX, int inY, int inFlags, int inNumber)
 
 void AvHHud::DrawSelectionAndBuildEffects()
 {
+// tankefugl: 0000988 
+	list<int> theSelectedList;
+// :tankefugl
+
 	// Draw build effects
 	for(SelectionListType::iterator theSelectIter = this->mSelectionEffects.begin(); theSelectIter != this->mSelectionEffects.end(); theSelectIter++)
 	{
 		// Draw selection effect around the entity
 		int theEntIndex = theSelectIter->mEntIndex;
 		this->DrawBuildHealthEffectsForEntity(theEntIndex);
+		// tankefugl: 0000988 
+		theSelectedList.push_back(theEntIndex);
+		// :tankefugl
 	}
 	
 	bool theDrawBuildingEffect = false;
@@ -2329,7 +2339,48 @@ void AvHHud::DrawSelectionAndBuildEffects()
 	{
 		int theEntIndex = *theBuildingIter;
 		this->DrawBuildHealthEffectsForEntity(theEntIndex);
+		// tankefugl: 0000988 
+		theSelectedList.push_back(theEntIndex);
+		// :tankefugl
 	}
+
+// tankefugl: 0000988 
+	gEngfuncs.pEventAPI->EV_SetUpPlayerPrediction( false, true );
+	gEngfuncs.pEventAPI->EV_PushPMStates();
+	gEngfuncs.pEventAPI->EV_SetSolidPlayers(-1);
+
+	if (this->GetInTopDownMode()) {
+		int localPlayerIndex = gEngfuncs.GetLocalPlayer()->index;
+		physent_t *thePlayer = gEngfuncs.pEventAPI->EV_GetPhysent(localPlayerIndex);
+//		gEngfuncs.Con_Printf("gEngfuncs.GetLocalPlayer()->index = %d, thePlayer->team = %d\n", gEngfuncs.GetLocalPlayer()->index, thePlayer->team);
+
+		physent_t* theEntity = NULL;
+		int theNumEnts = pmove->numphysent;
+		for (int i = 0; i < theNumEnts; i++)
+		{
+			theEntity = gEngfuncs.pEventAPI->EV_GetPhysent(i);
+			if(theEntity)
+			{
+				if (localPlayerIndex != theEntity->info)
+				{
+					int theEntityIndex = theEntity->info;
+					list<int>::iterator theSelectedIterator = find(theSelectedList.begin(), theSelectedList.end(), theEntityIndex);
+					if (theSelectedIterator == theSelectedList.end()) 
+					{
+						bool theIsPlayer = ((theEntityIndex >= 1) && (theEntityIndex <= gEngfuncs.GetMaxClients()));
+						bool theSameTeam = (theEntity->team == thePlayer->team );
+						
+						if(theIsPlayer || theSameTeam)
+						{
+							this->DrawBuildHealthEffectsForEntity(theEntityIndex, 0.3);
+						}
+					}
+				}
+			}
+		}
+	}
+	gEngfuncs.pEventAPI->EV_PopPMStates();
+// :tankefugl
 }
 
 

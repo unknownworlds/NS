@@ -300,7 +300,9 @@ public:
 	void			SetSelectingWeaponID(int inWeaponID, int inR = -1, int inG = -1, int inB = -1);
 	void			SetTechHelpText(const string& inTechHelpText);
 	void			DrawSelectionCircleOnGroundAtPoint(vec3_t inOrigin, int inRadius);
-	void			DrawBuildHealthEffectsForEntity(int inEntIndex);
+	// tankefugl: 0000988 
+	void			DrawBuildHealthEffectsForEntity(int inEntityIndex, float inAlpha = 1.0f);
+	// :tankefugl
 	void			DrawSelectionAndBuildEffects();
 	void			DrawHUDNumber(int inX, int inY, int inFlags, int inNumber);
 

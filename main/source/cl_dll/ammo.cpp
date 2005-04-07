@@ -686,14 +686,15 @@ int CHudAmmo::MsgFunc_CurWeapon(const char *pszName, int iSize, void *pbuf )
 	if( pWeapon == NULL ) //don't have the weapon described in our resource list
 	{ return 0; }
 
-	m_pWeapon = pWeapon;
 	bool bOnTarget = (iState & WEAPON_ON_TARGET) != 0;	//used to track autoaim state
 	bool bIsCurrent = (iState & WEAPON_IS_CURRENT) != 0;
-	m_pWeapon->iEnabled = (iState & WEAPON_IS_ENABLED) != 0 ? TRUE : FALSE;
-	m_pWeapon->iClip = abs(iClip);
+	pWeapon->iEnabled = (iState & WEAPON_IS_ENABLED) != 0 ? TRUE : FALSE;
+	pWeapon->iClip = abs(iClip);
 
 	if( !bIsCurrent )
 	{ return 1; }
+
+	m_pWeapon = pWeapon;
 
 	if ( !(gHUD.m_iHideHUDDisplay & ( HIDEHUD_WEAPONS | HIDEHUD_ALL )) )
 	{

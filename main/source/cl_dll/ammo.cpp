@@ -271,8 +271,8 @@ void WeaponsResource::SetCurrentWeapon(WEAPON* newWeapon)
 	// && newWeapon != currentWeapon 
 	if( newWeapon != NULL )
 	{ 
-		lastWeapon = currentWeapon;
-		//if ( newWeapon != currentWeapon )
+		if( newWeapon != currentWeapon )
+		{ lastWeapon = currentWeapon; }
 		ServerCmd(newWeapon->szName);
 		g_weaponselect = newWeapon->iId;
 	}

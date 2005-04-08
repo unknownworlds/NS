@@ -3847,7 +3847,8 @@ int	AvHGamerules::GetBaseHealthForMessageID(AvHMessageID inMessageID) const
 	case ALIEN_BUILD_OFFENSE_CHAMBER:	health = BALANCE_VAR(kOffenseChamberHealth); break;
 	case ALIEN_BUILD_DEFENSE_CHAMBER:	health = BALANCE_VAR(kDefenseChamberHealth); break;
 	case ALIEN_BUILD_SENSORY_CHAMBER:	health = BALANCE_VAR(kSensoryChamberHealth); break;
-	case ALIEN_BUILD_MOVEMENT_CHAMBER:	health = BALANCE_VAR(kHiveHealth); break;
+	case ALIEN_BUILD_MOVEMENT_CHAMBER:	health = BALANCE_VAR(kMovementChamberHealth); break;
+	case ALIEN_BUILD_HIVE:				health = BALANCE_VAR(kHiveHealth); break;
 	}
 	return health;
 }

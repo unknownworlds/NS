@@ -1121,12 +1121,8 @@ union float_converter
 		list.Clear();
 		BEGIN_READ( buffer, size );
 			int list_info = READ_BYTE();
-			if( list_info & 0x80 )
-			{
-				list_info &= ~0x80;
-				friendly_blips = true;
-			}
-			blip_count = list_info;
+			friendly_blips = (list_info & 0x80) != 0;
+			blip_count = (list_info & 0x7F);
 			for( int counter = 0; counter < blip_count; counter++ )
 			{
 				X = READ_COORD();
@@ -1143,7 +1139,7 @@ union float_converter
 	{
 		MESSAGE_BEGIN( MSG_ONE_UNRELIABLE, g_msgBlipList, NULL, pev );
 			//pack header - 7 bits for blip count (doesn't go over 40 in practice), 1 bit for Friend or Foe
-			unsigned char list_info = list.mNumBlips | (friendly_blips ? 0 : 0x80);
+			unsigned char list_info = list.mNumBlips | (friendly_blips ? 0x80 : 0);
 			WRITE_BYTE( list_info );
 			//pack each blip - this could be optimized as follows once bit packer is implemented:
 			// convert X, Y to integer values ranging from 0 to 2047 (11 bits each) based on map extents

@@ -2486,11 +2486,13 @@ int	AvHHud::BlipList(const char* pszName, int iSize, void* pbuf)
 	
 	if( friendly_blips )
 	{
+		this->mFriendlyBlips.Clear();
 		this->mFriendlyBlips.AddBlipList(list);
 		this->mFriendlyBlips.SetTimeBlipsReceived(theCurrentTime);
 	}
 	else
 	{
+		this->mEnemyBlips.Clear();
 		this->mEnemyBlips.AddBlipList(list);
 		this->mEnemyBlips.SetTimeBlipsReceived(theCurrentTime);
 	}

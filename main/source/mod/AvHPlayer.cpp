@@ -1208,6 +1208,10 @@ bool AvHPlayer::ExecuteMessage(AvHMessageID inMessageID, bool inInstantaneous, b
 				this->PayPurchaseCost(theCost);
 		}
 
+		// tankefugl: 0000971
+		int theIssuedOrderIcon = -1;
+		// :tankefugl
+
 		if(theIsMarine 
 			&& !theIsInTopDownMode 
 			&& !theIsBeingDigested)
@@ -1250,6 +1254,21 @@ bool AvHPlayer::ExecuteMessage(AvHMessageID inMessageID, bool inInstantaneous, b
 					{
 						switch(inMessageID)
 						{
+						// tankefugl: 0000971
+						// decides whether icon updates should be sent
+						case SAYING_1:
+							theIssuedOrderIcon = TEAMMATE_MARINE_ORDER_FOLLOW;
+							break;
+
+						case SAYING_2:
+							theIssuedOrderIcon = TEAMMATE_MARINE_ORDER_COVER;
+							break;
+
+						case SAYING_8:
+							theIssuedOrderIcon = TEAMMATE_MARINE_ORDER_WELD;
+							break;
+						// :tankefugl
+
 						case SAYING_5:
 							theAlertType = ALERT_SOLDIER_NEEDS_AMMO;
 							theMessageID = COMMANDER_NEXTAMMO;
@@ -1309,6 +1328,74 @@ bool AvHPlayer::ExecuteMessage(AvHMessageID inMessageID, bool inInstantaneous, b
 				theMessageExecuted = true;
 				break;
 			}
+			// tankefugl: 0000971
+			// decides whether icon updates should be sent
+			switch (inMessageID)
+			{
+				case SAYING_1:
+					theIssuedOrderIcon = TEAMMATE_ALIEN_ORDER_FOLLOW;
+					break;
+				case SAYING_2:
+					theIssuedOrderIcon = TEAMMATE_ALIEN_ORDER_COVER;
+					break;
+				case SAYING_4:
+				case SAYING_8:
+					theIssuedOrderIcon = TEAMMATE_ALIEN_ORDER_HEAL;
+					break;
+			}
+			// :tankefugl
+		}
+
+		// tankefugl: 0000971 and 0000992
+		if (theIssuedOrderIcon > -1)
+		{
+			int theOrderTarget = 0;
+
+			vec3_t vecDir;
+			VectorCopy(this->GetAutoaimVector(0.0f), vecDir);
+			VectorNormalize(vecDir);
+
+			FOR_ALL_ENTITIES(kAvHPlayerClassName, AvHPlayer*);
+				float dotResult = 0.0f;
+				float currentResult = 0.0f;
+				float theDistance = 0.0f;
+				vec3_t vecOrigin;
+				vec3_t vecDistance;
+
+				if (theEntity->GetTeam() == this->GetTeam())
+				{
+					VectorSubtract(theEntity->pev->origin, this->pev->origin, vecDistance);
+					theDistance = Length(vecDistance);
+
+					VectorNormalize(vecDistance);
+					dotResult = DotProduct(vecDistance, vecDir);
+					if ((dotResult > 0.8f) && (dotResult > currentResult))
+					{
+						currentResult = dotResult;
+						theOrderTarget = theEntity->entindex();
+					}
+				}
+//				ALERT(at_console, "-------------------\n");
+//				ALERT(at_console, UTIL_VarArgs("vecDir %f %f %f\n", vecDir[0], vecDir[1], vecDir[2]));
+//				ALERT(at_console, UTIL_VarArgs("vecDistance %f %f %f\n", vecDistance[0], vecDistance[1], vecDistance[2]));
+//				ALERT(at_console, UTIL_VarArgs("dotResult %f\n", dotResult));
+//				ALERT(at_console, UTIL_VarArgs("currentResult %f\n", currentResult));
+			END_FOR_ALL_ENTITIES(kAvHPlayerClassName);
+
+//			ALERT(at_console, UTIL_VarArgs("theIssuedOrderIcon %d source %d target %d\n", theIssuedOrderIcon, this->entindex(), theOrderTarget));
+
+			FOR_ALL_ENTITIES(kAvHPlayerClassName, AvHPlayer*);
+				if(theEntity->GetTeam() == this->GetTeam())
+				{
+					NetMsg_IssueOrder(theEntity->pev, theIssuedOrderIcon, this->entindex(), theOrderTarget);
+				}
+			END_FOR_ALL_ENTITIES(kAvHPlayerClassName);
+
+			
+			//		Send icon number only to players on the same team
+			//		TODO 0000992:
+			//			Perform a trace to find nearest player in crosshair
+			//			Send issued order to found player
 		}
 
 		// Common messages here

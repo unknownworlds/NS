@@ -82,6 +82,20 @@ private:
 };
 
 typedef vector<AvHOrder> OrderListType;
+// tankefugl: 0000971
+typedef enum {
+	TEAMMATE_MARINE_ORDER_WELD = 0,
+	TEAMMATE_MARINE_ORDER_FOLLOW,
+	TEAMMATE_MARINE_ORDER_COVER,
+	TEAMMATE_MARINE_ORDER_UNKNOWN,
+	TEAMMATE_ALIEN_ORDER_HEAL,
+	TEAMMATE_ALIEN_ORDER_FOLLOW,
+	TEAMMATE_ALIEN_ORDER_COVER,
+	TEAMMATE_ALIEN_ORDER_UNKNOWN
+} TeammateOrderEnum;
+typedef pair<int, float>	TeammateOrderType;
+typedef map<int, TeammateOrderType>		TeammateOrderListType;
+// :tankefugl
 
 void AvHChangeOrder(OrderListType& inList, const AvHOrder& inOrder);
 //void AvHRemovePlayerFromOrders(OrderListType& inList, int inPlayerIndex);

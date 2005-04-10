@@ -1,0 +1,29 @@
+Map name:	Origin of Species
+BSP name:	ns_origin
+Author:		Cadaver (cadaver@planethalflife.com)
+
+Credits:	Biodome plant models by Psycho-Kinetic Hyper-Geek, animated by Ollj.
+		Thanks to XP-Cagey for the plane optimising tool which allowed the extra detail in this 					map.
+		Holo-Fade and Holo-Lerk models by UKChaos.
+		Additional textures: third nipple of fury, Fam, Cadaver.
+		Sky map by Raven (taken from The Wadfather site: http://www.planethalflife.com/wadfather).
+		Thanks to theiggsta and clan EC for help in playtesting.
+		New Furnace sound by MaDMaXX
+		Thanks to MaDMaXX, Khaim, Immacolata, grepdashv, BoZmAn20, Grendel and Flayra for their valuable feedback which 		helped me improve the map. Thanks also to anyone else who proffered feedback, and sorry for forgetting you!
+
+
+Backstory:	Although the origin of the Kharaa is shrouded in mystery, one of the very first human colonies to succumb to the alien scourge was a mining facility on a moon known as Freya IV. Perhaps the miners dug a little too deep, and released the Kharaa from their ancient sleep; none shall ever know, for those unlucky miners never lived to tell their tales. This lonely outpost became enshrined in TSA literature as "Colony Zero", the epidemiological epi-centre of the alien plague which soon ensued, as a result of bacterial contagion caused by the rash evacuation of the miners without due quarantine controls.
+
+Within weeks, six other planets and moons in the same quadrant as Freya IV became contaminated by the Kharaa; facing the serious possibility of uncontrollable bacterial spread, the TSA unwillingly placed a cordon sanitaire around the affected planets. No-one in, no-one out. The inhabitants of these accursed colonies were condemned to infested tombs.
+
+One year on, unmanned probes, sent in by the TSA to monitor the situation, found something extremely strange - with the human "threat" vanquished, the Kharaa had apparently disappeared - no trace of them, other than organic infestation remains, could be found. Tentatively sending in a human scouting party, the TSA soon realised that the Kharaa were not gone, merely dormant; in the presence of humans, the Kharaa once again awoke. Reporting "chuckling creatures, skulking in the shadows", the scouting party beat a hasty retreat.
+
+For the next 50 years, Freya IV was a strict no-go area. in the intervening time, however, the TSA had not been idle. Having identified the Bacterium as the basis for the Kharaa life-form, the TSA developed a bio-chemical weapon to combat it, dubbed "Nano-Penicillin". This weapon worked on the principle of destroying the Bacterium, and hence the Kharaa. In a symbolic act, Freya IV was chosen as the first infestation site to be cleansed with Nano-Penicillin, blanket-dropped upon the site by aerial probes. The mission was a success - the TSA's monitoring equipment could detect no signs of Bacterium.
+
+As part of the TSA's ongoing Kharaa research, Freya IV became manned once more, as part of efforts to unravel the secrets of the Kharaa by investigating the source. A new science annex was constructed to study the Kharaa and Bacterium under laboratory conditions, safe in the knowledge that Nano-Penicillin could always be used in emergency situations.
+
+Things did not go according to plan, however...
+
+A hive, specially cultivated in the biodome, began giving birth to immense numbers of the gargantuan Onos Kharaa, whose angry roars echoed about the entire station. En masse, they began charging at the containment doors, denting it, buckling it, straining it to its limits. Panicking, the scientists manning the biodome released Nano-Penicillin into the biodome...to no effect. The Bacterium had evolved once more, and had become resistant. At last, the containment doors gave way, and the corridors of the complex on Freya IV seethed with angry Kharaa...
+
+Once more, Freya IV was over-run. The TSA vowed never again to be so foolhardy and reckless as to believe they could confine and contain the Kharaa on human terms. Nevertheless, the scientists on Freya IV made unprecedented headway in Kharaa research, but this research stood to be lost if it could not be retrieved from Freya IV. One last foray was needed - one last journey to the origin of species, this time with a clear objective: search and destroy.

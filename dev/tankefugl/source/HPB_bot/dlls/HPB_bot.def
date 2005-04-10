@@ -1,0 +1,5 @@
+LIBRARY HPB_bot
+EXPORTS
+	GiveFnptrsToDll			@1
+SECTIONS
+	.data READ WRITE

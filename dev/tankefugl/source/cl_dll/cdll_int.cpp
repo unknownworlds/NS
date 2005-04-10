@@ -360,7 +360,7 @@ HUD_VoiceStatus
 void CL_DLLEXPORT HUD_VoiceStatus(int entindex, qboolean bTalking)
 {
 	RecClVoiceStatus(entindex, bTalking);
-	
+
 	GetClientVoiceMgr()->UpdateSpeakerStatus(entindex, bTalking);
 }
 

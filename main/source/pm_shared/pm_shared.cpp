@@ -4075,7 +4075,8 @@ void PM_UnDuck( void )
         
         VectorCopy( pmove->origin, newOrigin );
         
-        if ( pmove->onground != -1 )
+		// tankefugl: remove the jump when pressing and releasing duck quickly
+		if ( pmove->onground != -1 && pmove->flags & FL_DUCKING && pmove->bInDuck == false)
         {
             int theStandingHull = AvHMUGetHull(false, pmove->iuser3);
             int theCrouchingHull = AvHMUGetHull(true, pmove->iuser3);

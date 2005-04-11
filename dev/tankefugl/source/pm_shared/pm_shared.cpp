@@ -4924,7 +4924,10 @@ void PM_Jump (void)
     }
     
     // See if we are waterjumping.  If so, decrement count and return.
-    if ( pmove->waterjumptime )
+	// tankefugl: 0000972 
+	if (pmove->waterjumptime && !(pmove->waterlevel == 0 && pmove->iuser3 == AVH_USER3_ALIEN_PLAYER1))
+	// :tankefugl
+//    if ( pmove->waterjumptime )
     {
         pmove->waterjumptime -= pmove->cmd.msec;
         if (pmove->waterjumptime < 0)
@@ -6355,7 +6358,10 @@ void PM_PlayerMove ( qboolean server )
         }
 
         // If we are leaping out of the water, just update the counters.
-        if ( pmove->waterjumptime )
+		// tankefugl: 0000972 
+		if (pmove->waterjumptime && !(pmove->waterlevel == 0 && pmove->iuser3 == AVH_USER3_ALIEN_PLAYER1))
+		// :tankefugl
+//        if ( pmove->waterjumptime )
         {
             PM_WaterJump();
             PM_FlyMove();

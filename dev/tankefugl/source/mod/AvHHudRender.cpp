@@ -3552,8 +3552,13 @@ void AvHHud::RenderAlienUI()
 	    const float kTextInset = kResourceEnergyBarWidth*.5f;
 	    const int kNumericYOffset = 1.5*this->GetHudStringHeight();
 
-        int theResourceLabelX = mViewport[0] + kTextInset*ScreenWidth();
-	    int theResourceLabelY = theY -  + .05f * ScreenHeight();
+	    // tankefugl: 0000989
+		// moved resource label a bit down
+        //int theResourceLabelX = mViewport[0] + kTextInset*ScreenWidth();
+		//int theResourceLabelY = theY -  + .05f * ScreenHeight();
+        int theResourceLabelX = 10;
+		int theResourceLabelY = .68f * ScreenHeight();
+		// :tankefugl
 	    
 		if(this->mMapMode == MAP_MODE_NS)
 		{

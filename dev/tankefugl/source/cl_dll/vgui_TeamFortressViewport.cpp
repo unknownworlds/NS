@@ -707,7 +707,10 @@ TeamFortressViewport::TeamFortressViewport(int x,int y,int wide,int tall) : Pane
 
 	CreateServerBrowser();
 
-	m_chatPanel = new ChatPanel(10, (ScreenHeight() * 0.75 - 30) / 2, ScreenWidth() - 20, 30);
+	// tankefugl: 0000989:
+	// m_chatPanel = new ChatPanel(10, (ScreenHeight() * 0.75 - 30) / 2, ScreenWidth() - 20, 30);
+	m_chatPanel = new ChatPanel(10, ScreenHeight() * 0.75f - 30, ScreenWidth() - 20, 30);
+	// :tankefugl
     m_chatPanel->setParent(this);
     m_chatPanel->setVisible(false);
 

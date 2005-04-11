@@ -2333,7 +2333,7 @@ int AvHHud::IssueOrder(const char* pszName, int iSize, void* pbuf)
 	if (this->GetInTopDownMode() == false)
 	{
 		cl_entity_s* theLocalPlayer = gEngfuncs.GetLocalPlayer();
-		if (theLocalPlayer->index == ordersource) //ordertarget)
+		if (theLocalPlayer->index == ordertarget)
 		{
 			hud_player_info_t info;
 			memset(&info, 0, sizeof(info));
@@ -2344,33 +2344,6 @@ int AvHHud::IssueOrder(const char* pszName, int iSize, void* pbuf)
 			// fetch from titles.txt
 			sprintf(temp, "TeammateOrder%d", ordertype);
 			LocalizeString(temp.c_str(), nameFormat);
-
-/*			switch (ordertype) {
-				case TEAMMATE_MARINE_ORDER_WELD:
-					nameFormat = "Weld %s";
-					break;
-				case TEAMMATE_MARINE_ORDER_FOLLOW:
-					nameFormat = "Follow %s";
-					break;
-				case TEAMMATE_MARINE_ORDER_COVER:
-					nameFormat = "%s is covering";
-					break;
-				case TEAMMATE_MARINE_ORDER_UNKNOWN:
-					nameFormat = "%s";
-					break;
-				case TEAMMATE_ALIEN_ORDER_HEAL:
-					nameFormat = "Heal %s";
-					break;
-				case TEAMMATE_ALIEN_ORDER_FOLLOW:
-					nameFormat = "Follow %s";
-					break;
-				case TEAMMATE_ALIEN_ORDER_COVER:
-					nameFormat = "%s is covering";
-					break;
-				case TEAMMATE_ALIEN_ORDER_UNKNOWN:
-					nameFormat = "%s";
-					break;
-			}*/
 			sprintf(temp, nameFormat.c_str(), info.name);
 
 			this->SetDisplayOrder(1, ordertype, temp, "", "");
@@ -2382,10 +2355,6 @@ int AvHHud::IssueOrder(const char* pszName, int iSize, void* pbuf)
 			this->mCurrentOrderTime = now;
 		}
 	}
-
-//	char temp[255];
-//	sprintf(temp, "IssueOrder received - type %d source %d target %d at time %f\n", ordertype, ordersource, ordertarget, now);
-//	gEngfuncs.Con_Printf(temp);
 
 	return 1;
 }

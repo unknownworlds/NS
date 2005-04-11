@@ -2333,7 +2333,7 @@ int AvHHud::IssueOrder(const char* pszName, int iSize, void* pbuf)
 	if (this->GetInTopDownMode() == false)
 	{
 		cl_entity_s* theLocalPlayer = gEngfuncs.GetLocalPlayer();
-		if (theLocalPlayer->index == ordertarget)
+		if (theLocalPlayer->index == ordersource) //ordertarget)
 		{
 			hud_player_info_t info;
 			memset(&info, 0, sizeof(info));
@@ -2341,8 +2341,11 @@ int AvHHud::IssueOrder(const char* pszName, int iSize, void* pbuf)
 
 			string temp;
 			string nameFormat;
-			// TODO: fetch from titles.txt
-			switch (ordertype) {
+			// fetch from titles.txt
+			sprintf(temp, "TeammateOrder%d", ordertype);
+			LocalizeString(temp.c_str(), nameFormat);
+
+/*			switch (ordertype) {
 				case TEAMMATE_MARINE_ORDER_WELD:
 					nameFormat = "Weld %s";
 					break;
@@ -2367,7 +2370,7 @@ int AvHHud::IssueOrder(const char* pszName, int iSize, void* pbuf)
 				case TEAMMATE_ALIEN_ORDER_UNKNOWN:
 					nameFormat = "%s";
 					break;
-			}
+			}*/
 			sprintf(temp, nameFormat.c_str(), info.name);
 
 			this->SetDisplayOrder(1, ordertype, temp, "", "");

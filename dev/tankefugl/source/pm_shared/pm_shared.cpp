@@ -1438,6 +1438,13 @@ void NS_UpdateWallsticking()
             
             bool wallsticking = false;
 
+			// tankefugl: fix to allow skulks to climb walls oriented 45 degrees in the x-y plane
+			// it also allows for easier climbing around courners
+			wallsticking |= NS_CheckOffsetFromOrigin(pmove->forward[0], pmove->forward[1], pmove->forward[2], theSurfaceNormal);
+			if (wallsticking)
+				VectorScale(theSurfaceNormal, 5, theSurfaceNormal);
+			// :tankefugl
+
             wallsticking |= NS_CheckOffsetFromOrigin(theMinPoint[0], theMinPoint[1], theMinPoint[2], theSurfaceNormal);
             wallsticking |= NS_CheckOffsetFromOrigin(theMinPoint[0], theMaxPoint[1], theMinPoint[2], theSurfaceNormal);
             wallsticking |= NS_CheckOffsetFromOrigin(theMaxPoint[0], theMinPoint[1], theMinPoint[2], theSurfaceNormal);

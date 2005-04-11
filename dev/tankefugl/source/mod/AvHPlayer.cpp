@@ -1373,6 +1373,9 @@ bool AvHPlayer::ExecuteMessage(AvHMessageID inMessageID, bool inInstantaneous, b
 					if ((dotResult > 0.9f) && (dotResult > currentResult))
 					{
 						TraceResult theTrace;
+						vec3_t vecFrom = AvHSHUGetRealLocation(this->pev->origin, this->pev->mins, this->pev->maxs);
+						vec3_t vecTo = AvHSHUGetRealLocation(theEntity->pev->origin, theEntity->pev->mins, theEntity->pev->maxs);
+
 						UTIL_TraceLine(this->pev->origin, theEntity->pev->origin, dont_ignore_monsters, NULL, &theTrace);
 						if (theTrace.flFraction == 1.0f)
 						{
@@ -1400,11 +1403,6 @@ bool AvHPlayer::ExecuteMessage(AvHMessageID inMessageID, bool inInstantaneous, b
 				}
 			END_FOR_ALL_ENTITIES(kAvHPlayerClassName);
 
-			
-			//		Send icon number only to players on the same team
-			//		TODO 0000992:
-			//			Perform a trace to find nearest player in crosshair
-			//			Send issued order to found player
 		}
 
 		// Common messages here
@@ -3715,7 +3713,12 @@ void AvHPlayer::ValidateClientMoveEvents()
         case SAYING_7:
         case SAYING_8:
         case SAYING_9:
-            if(GetGameRules()->GetCheatsEnabled() || (gpGlobals->time > (this->mTimeOfLastSaying + kMinSayingInterval)))
+// tankefugl: 0000008
+// preventing spamming of request and ack
+		case ORDER_REQUEST:
+        case ORDER_ACK:
+// :tankefugl
+			if(GetGameRules()->GetCheatsEnabled() || (gpGlobals->time > (this->mTimeOfLastSaying + kMinSayingInterval)))
             {
                 theIsValid = true;
             }
@@ -3748,8 +3751,11 @@ void AvHPlayer::ValidateClientMoveEvents()
                     switch(theMessageID)
                     {
                     // Validate orders
-                    case ORDER_REQUEST:
-                    case ORDER_ACK:
+					// tankefugl: 0000008
+					// preventing spamming of request and ack
+                    //case ORDER_REQUEST:
+                    //case ORDER_ACK:
+					// :tankefugl
                         
                     // Validate weapon switches
                     case WEAPON_NEXT:

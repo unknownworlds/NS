@@ -1362,6 +1362,7 @@ bool AvHPlayer::ExecuteMessage(AvHMessageID inMessageID, bool inInstantaneous, b
 				float theDistance = 0.0f;
 				vec3_t vecDistance;
 				int theTraced = 0;
+				vec3_t vecFrom, vecTo;
 
 				if (theEntity->GetTeam() == this->GetTeam())
 				{
@@ -1373,10 +1374,9 @@ bool AvHPlayer::ExecuteMessage(AvHMessageID inMessageID, bool inInstantaneous, b
 					if ((dotResult > 0.9f) && (dotResult > currentResult))
 					{
 						TraceResult theTrace;
-						vec3_t vecFrom = AvHSHUGetRealLocation(this->pev->origin, this->pev->mins, this->pev->maxs);
-						vec3_t vecTo = AvHSHUGetRealLocation(theEntity->pev->origin, theEntity->pev->mins, theEntity->pev->maxs);
-
-						UTIL_TraceLine(this->pev->origin, theEntity->pev->origin, dont_ignore_monsters, NULL, &theTrace);
+						vecFrom = AvHSHUGetRealLocation(this->pev->origin, this->pev->mins, this->pev->maxs);
+						vecTo = AvHSHUGetRealLocation(theEntity->pev->origin, theEntity->pev->mins, theEntity->pev->maxs);
+						UTIL_TraceLine(vecFrom, vecTo, ignore_monsters, this->edict(), &theTrace);
 						if (theTrace.flFraction == 1.0f)
 						{
 							theTraced = 1;
@@ -1385,13 +1385,15 @@ bool AvHPlayer::ExecuteMessage(AvHMessageID inMessageID, bool inInstantaneous, b
 						}
 					}
 				}
-				ALERT(at_console, "-------------------\n");
-				ALERT(at_console, UTIL_VarArgs("vecDir %f %f %f\n", vecDir[0], vecDir[1], vecDir[2]));
-				ALERT(at_console, UTIL_VarArgs("vecDistance %f %f %f\n", vecDistance[0], vecDistance[1], vecDistance[2]));
-				ALERT(at_console, UTIL_VarArgs("dotResult %f\n", dotResult));
-				ALERT(at_console, UTIL_VarArgs("currentResult %f\n", currentResult));
-				ALERT(at_console, UTIL_VarArgs("theTraced %d\n", theTraced));
-				ALERT(at_console, UTIL_VarArgs("theOrderTarget %d\n", theOrderTarget));
+				//ALERT(at_console, "-------------------\n");
+				//ALERT(at_console, UTIL_VarArgs("vecDir %f %f %f\n", vecDir[0], vecDir[1], vecDir[2]));
+				//ALERT(at_console, UTIL_VarArgs("vecDistance %f %f %f\n", vecDistance[0], vecDistance[1], vecDistance[2]));
+				//ALERT(at_console, UTIL_VarArgs("vecFrom %f %f %f\n", vecFrom[0], vecFrom[1], vecFrom[2]));
+				//ALERT(at_console, UTIL_VarArgs("vecTo %f %f %f\n", vecTo[0], vecTo[1], vecTo[2]));
+				//ALERT(at_console, UTIL_VarArgs("dotResult %f\n", dotResult));
+				//ALERT(at_console, UTIL_VarArgs("currentResult %f\n", currentResult));
+				//ALERT(at_console, UTIL_VarArgs("theTraced %d\n", theTraced));
+				//ALERT(at_console, UTIL_VarArgs("theOrderTarget %d\n", theOrderTarget));
 			END_FOR_ALL_ENTITIES(kAvHPlayerClassName);
 
 //			ALERT(at_console, UTIL_VarArgs("theIssuedOrderIcon %d source %d target %d\n", theIssuedOrderIcon, this->entindex(), theOrderTarget));

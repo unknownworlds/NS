@@ -1181,7 +1181,7 @@ void AvHHud::DrawDisplayOrder()
 
 		if (this->mDisplayOrderType == 1)
 		{
-			AvHSpriteDraw(this->mTeammateOrderSprite, this->mDisplayOrderIndex, mIconX1, mIconY1, mIconX2, mIconY2, 0, 0, 1, 1);
+			AvHSpriteDraw(this->mTeammateOrderSprite, this->mDisplayOrderIndex + 8, mIconX1, mIconY1, mIconX2, mIconY2, 0, 0, 1, 1);
 			this->DrawHudStringCentered(mTextX1, mIconY2, ScreenWidth(), this->mDisplayOrderText1.c_str(), r, g, b);
 		}
 		else if (this->mDisplayOrderType == 2)

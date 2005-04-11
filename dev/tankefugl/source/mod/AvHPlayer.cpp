@@ -1355,31 +1355,40 @@ bool AvHPlayer::ExecuteMessage(AvHMessageID inMessageID, bool inInstantaneous, b
 			VectorCopy(this->GetAutoaimVector(0.0f), vecDir);
 			VectorNormalize(vecDir);
 
+			float currentResult = 0.0f;
+
 			FOR_ALL_ENTITIES(kAvHPlayerClassName, AvHPlayer*);
 				float dotResult = 0.0f;
-				float currentResult = 0.0f;
 				float theDistance = 0.0f;
-				vec3_t vecOrigin;
 				vec3_t vecDistance;
+				int theTraced = 0;
 
 				if (theEntity->GetTeam() == this->GetTeam())
 				{
 					VectorSubtract(theEntity->pev->origin, this->pev->origin, vecDistance);
-					theDistance = Length(vecDistance);
+					// theDistance = Length(vecDistance);
 
 					VectorNormalize(vecDistance);
 					dotResult = DotProduct(vecDistance, vecDir);
-					if ((dotResult > 0.8f) && (dotResult > currentResult))
+					if ((dotResult > 0.9f) && (dotResult > currentResult))
 					{
-						currentResult = dotResult;
-						theOrderTarget = theEntity->entindex();
+						TraceResult theTrace;
+						UTIL_TraceLine(this->pev->origin, theEntity->pev->origin, dont_ignore_monsters, NULL, &theTrace);
+						if (theTrace.flFraction == 1.0f)
+						{
+							theTraced = 1;
+							currentResult = dotResult;
+							theOrderTarget = theEntity->entindex();
+						}
 					}
 				}
-//				ALERT(at_console, "-------------------\n");
-//				ALERT(at_console, UTIL_VarArgs("vecDir %f %f %f\n", vecDir[0], vecDir[1], vecDir[2]));
-//				ALERT(at_console, UTIL_VarArgs("vecDistance %f %f %f\n", vecDistance[0], vecDistance[1], vecDistance[2]));
-//				ALERT(at_console, UTIL_VarArgs("dotResult %f\n", dotResult));
-//				ALERT(at_console, UTIL_VarArgs("currentResult %f\n", currentResult));
+				ALERT(at_console, "-------------------\n");
+				ALERT(at_console, UTIL_VarArgs("vecDir %f %f %f\n", vecDir[0], vecDir[1], vecDir[2]));
+				ALERT(at_console, UTIL_VarArgs("vecDistance %f %f %f\n", vecDistance[0], vecDistance[1], vecDistance[2]));
+				ALERT(at_console, UTIL_VarArgs("dotResult %f\n", dotResult));
+				ALERT(at_console, UTIL_VarArgs("currentResult %f\n", currentResult));
+				ALERT(at_console, UTIL_VarArgs("theTraced %d\n", theTraced));
+				ALERT(at_console, UTIL_VarArgs("theOrderTarget %d\n", theOrderTarget));
 			END_FOR_ALL_ENTITIES(kAvHPlayerClassName);
 
 //			ALERT(at_console, UTIL_VarArgs("theIssuedOrderIcon %d source %d target %d\n", theIssuedOrderIcon, this->entindex(), theOrderTarget));

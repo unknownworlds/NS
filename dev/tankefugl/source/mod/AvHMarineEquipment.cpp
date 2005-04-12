@@ -1839,6 +1839,18 @@ int AvHInfantryPortal::GetIdle2Animation() const
 	return 2;
 }	
 
+// tankefugl: 
+int AvHInfantryPortal::GetDeployAnimation() const
+{
+	return 0;
+}
+
+int AvHInfantryPortal::GetSpawnAnimation() const
+{
+	return 1;
+}
+// :tankefugl
+
 const int kCommandStationExitAnimation = 12;
 
 AvHCommandStation::AvHCommandStation() : AvHMarineBaseBuildable(TECH_COMMAND_CENTER, BUILD_COMMANDSTATION, kwsTeamCommand, AVH_USER3_COMMANDER_STATION)

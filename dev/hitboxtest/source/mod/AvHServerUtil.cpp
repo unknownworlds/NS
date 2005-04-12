@@ -1333,7 +1333,7 @@ void AvHGetLineBounds(const Vector& vecStart, const Vector& vecEnd, Vector& outM
 
     outMaxs[0] += kBoundingBoxPadding;
     outMaxs[1] += kBoundingBoxPadding;
-    outMins[2] += kBoundingBoxPadding;
+    outMaxs[2] += kBoundingBoxPadding;
 
 }
 
@@ -1408,14 +1408,14 @@ void AvHSUServerTraceBullets(const Vector& inStart, const Vector& inEnd, IGNORE_
 	outProtected = false;
 
     // This is the old way that doesn't take into account skulk rotation.
-    UTIL_TraceLine(inStart, inEnd, inIgnoreMonsters, /*dont_ignore_glass,*/ inIgnoreEdict, &outTraceResult);
+    // UTIL_TraceLine(inStart, inEnd, inIgnoreMonsters, /*dont_ignore_glass,*/ inIgnoreEdict, &outTraceResult);
     
     // TEMP removed the skulk hitboxes since it's too risky for the LAN.
 	// joev:  0000573
 	// this was commented out meaning that it was just stock tracelines, not using Max M's superb hitbox collision code.
 	// Now *all* hitboxes perform as expected and the crouched fade can be shot pretty much anywhere on the model
 	// (allowing for about a 5% visual disparity) 
-    //AvHTraceLine(inStart, inEnd, inIgnoreMonsters, /*dont_ignore_glass,*/ inIgnoreEdict, &outTraceResult);
+    AvHTraceLine(inStart, inEnd, inIgnoreMonsters, /*dont_ignore_glass,*/ inIgnoreEdict, &outTraceResult);
 	// :joev
 	CBaseEntity* theEntityHit = CBaseEntity::Instance(outTraceResult.pHit);
 	

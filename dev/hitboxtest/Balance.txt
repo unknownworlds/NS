@@ -1,4 +1,4 @@
-// Automatically generated file. Last created 02/07/05, 23:08:45.
+// Automatically generated file. Last created 02/07/05, 23:08:45
 
 // Integer data
 #define kAcidRocketDamage 25

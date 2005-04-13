@@ -649,6 +649,9 @@ void AvHHud::ClearData()
 
 	// tankefugl: 0000971 
 	this->mTeammateOrder.clear();
+	this->mDisplayOrderIndex = 0;
+	this->mDisplayOrderTime = 0;
+	this->mDisplayOrderType = 0;
 	// :tankefugl
 }
 

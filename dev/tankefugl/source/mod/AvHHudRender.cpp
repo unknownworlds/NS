@@ -159,7 +159,6 @@ extern AvHCommanderModeHandler	gCommanderHandler;
 extern AvHParticleEditorHandler	gParticleEditorHandler;
 float kD3DErrorValue = 0.01f;
 
-
 vec3_t GetViewOrigin()
 {
 	vec3_t theOrigin = v_origin;
@@ -2397,8 +2396,11 @@ void AvHHud::DrawBuildHealthEffectsForEntity(int inEntityIndex, float inAlpha)
 				// It's an unfriendly building that's very close OR
 				(!theEntityIsPlayer && (theDistanceToEntity < kDrawEnemyBuildingDistance)) ||
 
-				// It's a friendly entity and we're a builder
-				(theIsOnOurTeam && (this->GetHUDUser3() == AVH_USER3_ALIEN_PLAYER2))
+				// It's a friendly entity and we're a builder OR
+				(theIsOnOurTeam && (this->GetHUDUser3() == AVH_USER3_ALIEN_PLAYER2)) ||
+
+				// welder/healing spray is selected
+				(this->mCurrentWeaponID == 18 || this->mCurrentWeaponID == 27)
 
 				)
 			{
@@ -2521,16 +2523,17 @@ void AvHHud::DrawSelectionAndBuildEffects()
 		// :tankefugl
 	}
 
-// tankefugl: 0000988 
-	gEngfuncs.pEventAPI->EV_SetUpPlayerPrediction( false, true );
-	gEngfuncs.pEventAPI->EV_PushPMStates();
-	gEngfuncs.pEventAPI->EV_SetSolidPlayers(-1);
+	// tankefugl: 0000988 & 0000991
+	bool maintanceWeaponSelected = (this->mCurrentWeaponID == 18 || this->mCurrentWeaponID == 27);
+	bool isCommander = this->GetInTopDownMode();
+	if (isCommander || maintanceWeaponSelected) {		
+		gEngfuncs.pEventAPI->EV_SetUpPlayerPrediction( false, true );
+		gEngfuncs.pEventAPI->EV_PushPMStates();
+		gEngfuncs.pEventAPI->EV_SetSolidPlayers(-1);
 
-	if (this->GetInTopDownMode()) {
 		int localPlayerIndex = gEngfuncs.GetLocalPlayer()->index;
-		physent_t *thePlayer = gEngfuncs.pEventAPI->EV_GetPhysent(localPlayerIndex);
-//		gEngfuncs.Con_Printf("gEngfuncs.GetLocalPlayer()->index = %d, thePlayer->team = %d\n", gEngfuncs.GetLocalPlayer()->index, thePlayer->team);
 
+		physent_t *thePlayer = gEngfuncs.pEventAPI->EV_GetPhysent(localPlayerIndex);
 		physent_t* theEntity = NULL;
 		int theNumEnts = pmove->numphysent;
 		for (int i = 0; i < theNumEnts; i++)
@@ -2547,17 +2550,24 @@ void AvHHud::DrawSelectionAndBuildEffects()
 						bool theIsPlayer = ((theEntityIndex >= 1) && (theEntityIndex <= gEngfuncs.GetMaxClients()));
 						bool theSameTeam = (theEntity->team == thePlayer->team );
 						
-						if(theIsPlayer || theSameTeam)
+						if (isCommander && (theIsPlayer || theSameTeam))
 						{
-							this->DrawBuildHealthEffectsForEntity(theEntityIndex, 0.3);
+							this->DrawBuildHealthEffectsForEntity(theEntityIndex, 0.2);
+						}
+						else if (maintanceWeaponSelected && theSameTeam && !theIsPlayer)
+						{
+							if (AvHTraceLineAgainstWorld(gEngfuncs.GetLocalPlayer()->origin, theEntity->origin) == 1.0f)
+							{
+								this->DrawBuildHealthEffectsForEntity(theEntityIndex, 0.3);
+							}
 						}
 					}
 				}
 			}
 		}
+		gEngfuncs.pEventAPI->EV_PopPMStates();
 	}
-	gEngfuncs.pEventAPI->EV_PopPMStates();
-// :tankefugl
+	// :tankefugl
 }
 
 

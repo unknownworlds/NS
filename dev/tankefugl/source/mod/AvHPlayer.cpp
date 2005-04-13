@@ -1364,7 +1364,7 @@ bool AvHPlayer::ExecuteMessage(AvHMessageID inMessageID, bool inInstantaneous, b
 				int theTraced = 0;
 				vec3_t vecFrom, vecTo;
 
-				if (theEntity->GetTeam() == this->GetTeam())
+				if ((theEntity->entindex() != this->entindex()) && (theEntity->GetTeam() == this->GetTeam()))
 				{
 					VectorSubtract(theEntity->pev->origin, this->pev->origin, vecDistance);
 					// theDistance = Length(vecDistance);

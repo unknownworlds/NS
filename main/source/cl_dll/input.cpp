@@ -1,5 +1,5 @@
 //======== (C) Copyright 2002 Charles G. Cleveland All rights reserved. =========
-//
+//   
 // The copyright to the contents herein is the property of Charles G. Cleveland.
 // The contents may be used and/or copied only with the written permission of
 // Charles G. Cleveland, or in accordance with the terms and conditions stipulated in
@@ -60,10 +60,6 @@ extern "C"
 
 #include "engine/APIProxy.h"
 #include "Exports.h"
-
-// tankefugl: duck toggle
-extern bool g_bDuckToggled;
-// :tankefugl
 
 extern int g_iAlive;
 
@@ -794,12 +790,6 @@ void IN_DuckDown(void)
 }
 
 void IN_DuckUp(void) {KeyUp(&in_duck);}
-// tankefugl: duck toggle
-void IN_DuckToggle(void) 
-{
-	g_bDuckToggled = !g_bDuckToggled;
-}
-// :tankefugl
 void IN_ReloadDown(void) {KeyDown(&in_reload);}
 void IN_ReloadUp(void) {KeyUp(&in_reload);}
 void IN_Alt1Down(void) {KeyDown(&in_alt1);}
@@ -1328,20 +1318,11 @@ int CL_ButtonBits( int bResetState )
 		bits |= IN_ATTACK;
 	}
 	
-	// tankefugl: duck toggle
-	if ( g_bDuckToggled )
-	{
-		if (!(in_duck.state & 3))
-		{
-			bits |= IN_DUCK;
-		}
-	} 
-	else if (in_duck.state & 3)
+	if (in_duck.state & 3)
 	{
 		bits |= IN_DUCK;
 	}
-	// :tankefugl
-
+ 
 	if (in_jump.state & 3)
 	{
 		bits |= IN_JUMP;
@@ -1508,9 +1489,6 @@ void InitInput (void)
 	gEngfuncs.pfnAddCommand ("-jlook", IN_JLookUp);
 	gEngfuncs.pfnAddCommand ("+duck", IN_DuckDown);
 	gEngfuncs.pfnAddCommand ("-duck", IN_DuckUp);
-	// tankefugl: duck toggle
-	gEngfuncs.pfnAddCommand ("toggleduck", IN_DuckToggle);
-	// :tankefugl
 	gEngfuncs.pfnAddCommand ("+reload", IN_ReloadDown);
 	gEngfuncs.pfnAddCommand ("-reload", IN_ReloadUp);
 	gEngfuncs.pfnAddCommand ("+alt1", IN_Alt1Down);

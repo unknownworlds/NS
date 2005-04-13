@@ -3,7 +3,7 @@
 #include "util/MathUtil.h" //for WrapFloat
 #include "util/STLUtil.h" //for MakeBytesFromHexPairs
 #include "cl_dll/parsemsg.h"
-
+  
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // MESSAGE CODES - NEED TO BE INITIALIZED BEFORE CLIENT CONNECTION, OR THEY'D
 // BE LOCAL STATICS INSIDE OF THE FUNCTIONS USING LAZY INSTANTIATION
@@ -22,7 +22,7 @@ int	g_msgAmmoPickup = 0, g_msgAmmoX, g_msgBattery, g_msgCurWeapon, g_msgDamage,	
 	g_msgServerVar, g_msgSetGammaRamp, g_msgSetOrder, g_msgSetParticleTemplates,
 	g_msgSetSelect, g_msgSetRequest, g_msgSetSoundNames, g_msgSetTechNodes, g_msgSetTechSlots,
 	g_msgSetTopDown, g_msgSetupMap, g_msgUpdateCountdown, g_msgUpdateEntityHierarchy,
-	g_msgProfileInfo, g_msgNexusBytes, g_msgIssueOrder;
+	g_msgProfileInfo, g_msgNexusBytes;
 
 void Net_InitializeMessages(void)
 {
@@ -87,9 +87,6 @@ void Net_InitializeMessages(void)
 	g_msgUpdateEntityHierarchy = REG_USER_MSG( "EntHier", -1 );
 	g_msgProfileInfo = REG_USER_MSG( "ProfileInfo", 8 );
 	g_msgNexusBytes = REG_USER_MSG( "NexusBytes", -1 );
-	// tankefugl: 0000971
-	g_msgIssueOrder = REG_USER_MSG( "IssueOrder", 9);
-	// :tankefugl
 }
 #endif
 
@@ -2027,27 +2024,3 @@ const int		kPositionNetworkConstant = 25;
 		}
 	}
 #endif
-
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-// tankefugl: 0000971
-#ifndef AVH_SERVER
-	void NetMsg_IssueOrder( void* const buffer, const int size, int& ordertype, int& ordersource, int& ordertarget )
-	{
-		BEGIN_READ( buffer, size );
-			ordertype = READ_BYTE();
-			ordersource = READ_LONG();
-			ordertarget = READ_LONG();
-		END_READ();
-	}
-#else
-	void NetMsg_IssueOrder( entvars_t* const pev, const int ordertype, const int ordersource, const int ordertarget)
-	{
-		MESSAGE_BEGIN( MSG_ONE, g_msgIssueOrder, NULL, pev );
-			WRITE_BYTE( ordertype );
-			WRITE_LONG( ordersource );
-			WRITE_LONG( ordertarget );
-		MESSAGE_END();
-	}
-#endif
-// :tankefugl

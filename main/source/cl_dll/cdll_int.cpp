@@ -1,5 +1,5 @@
 /***
-*
+*  
 *	Copyright (c) 1999, Valve LLC. All rights reserved.
 *	
 *	This product contains software technology licensed from Id 
@@ -360,7 +360,7 @@ HUD_VoiceStatus
 void CL_DLLEXPORT HUD_VoiceStatus(int entindex, qboolean bTalking)
 {
 	RecClVoiceStatus(entindex, bTalking);
-
+	
 	GetClientVoiceMgr()->UpdateSpeakerStatus(entindex, bTalking);
 }
 

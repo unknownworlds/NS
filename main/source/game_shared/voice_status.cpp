@@ -1,5 +1,5 @@
 //========= Copyright © 1996-2001, Valve LLC, All rights reserved. ============
-//
+//  
 // Purpose: 
 //
 // $NoKeywords: $
@@ -333,10 +333,9 @@ void CVoiceStatus::CreateEntities()
 	int iOutModel = 0;
 	for(int i=0; i < VOICE_MAX_PLAYERS; i++)
 	{
-
 		if(!m_VoicePlayers[i])
 			continue;
-
+		
 		cl_entity_s *pClient = gEngfuncs.GetEntityByIndex(i+1);
 		
 		// Don't show an icon if the player is not in our PVS.
@@ -361,13 +360,7 @@ void CVoiceStatus::CreateEntities()
 		pEnt->baseline.renderamt = 255;
 		pEnt->curstate.renderfx = kRenderFxNoDissipation;
 		pEnt->curstate.framerate = 1;
-		// tankefugl: different sprite for each team
-		if (pClient->curstate.team <= SPR_Frames(m_VoiceHeadModel))
-			pEnt->curstate.frame = pClient->curstate.team;
-		else
-			pEnt->curstate.frame = 0;
-        //pEnt->curstate.frame = 0;
-		// :tankefugl
+		pEnt->curstate.frame = 0;
 		pEnt->model = (struct model_s*)gEngfuncs.GetSpritePointer(m_VoiceHeadModel);
 		pEnt->angles[0] = pEnt->angles[1] = pEnt->angles[2] = 0;
 		pEnt->curstate.scale = 0.5f;
@@ -395,7 +388,6 @@ void CVoiceStatus::UpdateSpeakerStatus(int entindex, qboolean bTalking)
 		gEngfuncs.pfnConsolePrint( msg );
 	}
 
-	gEngfuncs.Con_Printf("\n");
 	// Is it the local player talking?
 	if( entindex == -1 )
 	{
@@ -734,11 +726,9 @@ void CVoiceStatus::RepositionLabels()
 
 		y += bgTall + 2;
 	}
+
 	if( m_pLocalBitmap && m_pAckBitmap && m_pLocalLabel && (m_bTalking || m_bServerAcked) )
 	{
-		if (m_pParentPanel) {
-			int z = 3;
-		}
 		m_pLocalLabel->setParent(*m_pParentPanel);
 		m_pLocalLabel->setVisible( true );
 

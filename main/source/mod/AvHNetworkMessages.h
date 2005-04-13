@@ -1,4 +1,4 @@
-// AvHNetworkMessages
+// AvHNetworkMessages  
 //
 // This shared file contains utility calls to send and recieve 
 // messages between an NS server and an NS client.  Centralizing
@@ -106,7 +106,6 @@
 	void NetMsg_SetupMap_Extents( entvars_t* const pev, const string& name, const float* const min_extents, const float* const max_extents, const bool draw_background );
 	void NetMsg_SetupMap_Location( entvars_t* const pev, const string& name, const float* const min_extents, const float* const max_extents );
 	void NetMsg_UpdateEntityHierarchy( entvars_t* const pev, const MapEntityMap& NewItems, const EntityListType& OldItems );
-	void NetMsg_IssueOrder(entvars_t* const pev, const int ordertype, const int ordersource, const int ordertarget);
 
 	//BROADCAST MESSAGE TRANSMISSION
 	void NetMsg_DeathMsg( const int killer_index, const int victim_index, string& weapon_name );
@@ -196,7 +195,6 @@
 	void NetMsg_SetupMap( void* const buffer, const int size, bool& is_location, string& name, float* min_extents, float* max_extents, bool& draw_background );
 	void NetMsg_UpdateCountdown( void* const buffer, const int size, int& countdown );
 	void NetMsg_UpdateEntityHierarchy( void* const buffer, const int size, MapEntityMap& NewItems, EntityListType& OldItems );
-	void NetMsg_IssueOrder( void* const buffer, const int size, int& ordertype, int& ordersource, int& ordertarget );
 
 #endif //AVH_SERVER
 

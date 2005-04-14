@@ -2354,25 +2354,28 @@ void AvHHud::DrawSelectionAndBuildEffects()
 		physent_t *thePlayer = gEngfuncs.pEventAPI->EV_GetPhysent(localPlayerIndex);
 //		gEngfuncs.Con_Printf("gEngfuncs.GetLocalPlayer()->index = %d, thePlayer->team = %d\n", gEngfuncs.GetLocalPlayer()->index, thePlayer->team);
 
-		physent_t* theEntity = NULL;
-		int theNumEnts = pmove->numphysent;
-		for (int i = 0; i < theNumEnts; i++)
+		if (thePlayer) 
 		{
-			theEntity = gEngfuncs.pEventAPI->EV_GetPhysent(i);
-			if(theEntity)
+			physent_t* theEntity = NULL;
+			int theNumEnts = pmove->numphysent;
+			for (int i = 0; i < theNumEnts; i++)
 			{
-				if (localPlayerIndex != theEntity->info)
+				theEntity = gEngfuncs.pEventAPI->EV_GetPhysent(i);
+				if(theEntity)
 				{
-					int theEntityIndex = theEntity->info;
-					list<int>::iterator theSelectedIterator = find(theSelectedList.begin(), theSelectedList.end(), theEntityIndex);
-					if (theSelectedIterator == theSelectedList.end()) 
+					if (localPlayerIndex != theEntity->info)
 					{
-						bool theIsPlayer = ((theEntityIndex >= 1) && (theEntityIndex <= gEngfuncs.GetMaxClients()));
-						bool theSameTeam = (theEntity->team == thePlayer->team );
-						
-						if(theIsPlayer || theSameTeam)
+						int theEntityIndex = theEntity->info;
+						list<int>::iterator theSelectedIterator = find(theSelectedList.begin(), theSelectedList.end(), theEntityIndex);
+						if (theSelectedIterator == theSelectedList.end()) 
 						{
-							this->DrawBuildHealthEffectsForEntity(theEntityIndex, 0.3);
+							bool theIsPlayer = ((theEntityIndex >= 1) && (theEntityIndex <= gEngfuncs.GetMaxClients()));
+							bool theSameTeam = (theEntity->team == thePlayer->team );
+							
+							if(theIsPlayer || theSameTeam)
+							{
+								this->DrawBuildHealthEffectsForEntity(theEntityIndex, 0.3);
+							}
 						}
 					}
 				}

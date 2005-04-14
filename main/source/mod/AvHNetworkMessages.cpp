@@ -1986,7 +1986,7 @@ const int		kPositionNetworkConstant = 25;
 					MESSAGE_END();
 					MESSAGE_BEGIN( MSG_ONE, g_msgUpdateEntityHierarchy, NULL, pev );
 				}
-				WriteEntHier( new_current->first, new_current->second, false, short_data, long_data );
+				WriteEntHier( new_current->first, new_current->second, true, short_data, long_data );
 				WRITE_SHORT(short_data);
 				WRITE_LONG(long_data);
 			}
@@ -2014,6 +2014,7 @@ const int		kPositionNetworkConstant = 25;
 		case AVH_USER3_ALIEN_PLAYER1: case AVH_USER3_ALIEN_PLAYER2:
 		case AVH_USER3_ALIEN_PLAYER3: case AVH_USER3_ALIEN_PLAYER4:
 		case AVH_USER3_ALIEN_PLAYER5: case AVH_USER3_ALIEN_EMBRYO:
+		case AVH_USER3_HEAVY:
 		{
 			int angle = (WrapFloat(ent.mAngle, 0, 360) / 360.0f) * 16;
 			short_data = (ent.mSquadNumber << 10) | (angle << 6) | (index << 1) | 1;

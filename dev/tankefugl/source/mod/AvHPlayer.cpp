@@ -4217,22 +4217,24 @@ void AvHPlayer::HandleTopDownInput()
 						// puzl
 						this->BuildTech(theMessageID, this->mAttackOnePressedWorldPos);
 						this->mTimeOfLastSignificantCommanderAction = gpGlobals->time;
-	                    
-						// If player(s) selected when something built, give default order to it (assumes that players can't be selected along with other non-players)
-						if(AvHSHUGetIsBuilding(theMessageID))
-						{
-							if(this->mSelected.size() > 0)
-							{
-								int theFirstEntitySelected = *this->mSelected.begin();
-								if((theFirstEntitySelected >= 1) && (theFirstEntitySelected <= gpGlobals->maxClients))
-								{
-									if(!this->GiveOrderToSelection(ORDERTYPEL_DEFAULT, this->mAttackOnePressedWorldPos))
-									{
-										this->SendMessage(kInvalidOrderGiven, true);
-									}
-								}
-							}
-						}
+
+// tankefugl: 0001014	                    
+//						// If player(s) selected when something built, give default order to it (assumes that players can't be selected along with other non-players)
+//						if(AvHSHUGetIsBuilding(theMessageID))
+//						{
+//							if(this->mSelected.size() > 0)
+//							{
+//								int theFirstEntitySelected = *this->mSelected.begin();
+//								if((theFirstEntitySelected >= 1) && (theFirstEntitySelected <= gpGlobals->maxClients))
+//								{
+//									if(!this->GiveOrderToSelection(ORDERTYPEL_DEFAULT, this->mAttackOnePressedWorldPos))
+//									{
+//										this->SendMessage(kInvalidOrderGiven, true);
+//									}
+//								}
+//							}
+//						}
+// :tankefugl
 					}
                 }
             }

@@ -1693,6 +1693,7 @@ char* AvHNuke::GetKilledSound() const
 
 
 const float kInfantryPortalThinkTime = 1.0f;
+#define kInfantryPortalLightEffect EF_LIGHT
 
 AvHInfantryPortal::AvHInfantryPortal() : AvHMarineBaseBuildable(TECH_INFANTRYPORTAL, BUILD_INFANTRYPORTAL, kwsInfantryPortal, AVH_USER3_INFANTRYPORTAL)
 {
@@ -1741,6 +1742,9 @@ void AvHInfantryPortal::SetHasBeenBuilt()
 
 	SetThink(&AvHInfantryPortal::PortalThink);
 	this->pev->nextthink = gpGlobals->time + kInfantryPortalThinkTime; 
+	this->pev->effects |= kInfantryPortalLightEffect;
+	//this->pev->
+
 }
 
 void AvHInfantryPortal::Precache()
@@ -1813,6 +1817,7 @@ void AvHInfantryPortal::ResetReinforcingPlayer(bool inSuccess)
 void AvHInfantryPortal::UpdateOnRecycle(void)
 {
 	this->ResetReinforcingPlayer(false);
+	this->pev->effects &= ~kInfantryPortalLightEffect;
 }
 
 void AvHInfantryPortal::UpdateOnRemove(void)

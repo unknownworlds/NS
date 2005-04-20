@@ -186,11 +186,14 @@ int	AvHBasePlayerWeapon::AddToPlayer( CBasePlayer *pPlayer )
 
 BOOL AvHBasePlayerWeapon::Deploy()
 {
-	char* theDeploySound = this->GetDeploySound();
-	if(theDeploySound)
-	{
-		EMIT_SOUND(ENT(this->pev), CHAN_WEAPON, this->GetDeploySound(), this->GetDeploySoundVolume(), ATTN_NORM);
-	}
+	// tankefugl: 0000938
+	// removed deploy sounds for all weapons, leaving the sounds to the models
+	// char* theDeploySound = this->GetDeploySound();
+	// if(theDeploySound)
+	// {
+	//	EMIT_SOUND(ENT(this->pev), CHAN_WEAPON, this->GetDeploySound(), this->GetDeploySoundVolume(), ATTN_NORM);
+	//}
+	// :tankefugl
 
 	char* theAnimExt = this->GetAnimationExtension();
 

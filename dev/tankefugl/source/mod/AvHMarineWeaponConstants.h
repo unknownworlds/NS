@@ -169,6 +169,7 @@ const float		kSGXPunch			= .8f;
 #define			kSGDeploySound		"weapons/sg-deploy.wav"
 const int		kSGBarrelLength		= 25;
 #define			kSGSpread			VECTOR_CONE_20DEGREES
+#define			kSGInnerSpread		VECTOR_CONE_7DEGREES
 
 // Heavy machine gun
 const int		kHMGRange			= 6000;

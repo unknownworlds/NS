@@ -1,0 +1,2020 @@
+' avh particle systems
+
+start pSystemName ShotgunSmoke
+	' Max number of particles
+	pNumParticles = 1
+
+	' size
+	pSize = 20
+
+	' number of times to loop through an animated texture
+	pAnimationSpeed = 1
+
+	' num frames in sprite
+	pSpriteNumFrames = 10
+
+	' Particle base color
+	pBaseColor = 1 1 1
+
+	' Scale by the lifetime, so it will eventually be pScale*pSize right before it dies
+    pScale = 3
+	
+	' Particle sprite
+	pSprite = sprites/lightsmoke.spr
+
+	' particle max alpha
+	pMaxAlpha = .6
+
+	'1 : "start on"
+	'2 : "particle density"
+	'4 : "fade in"
+	'8 : "fade out"
+	'16 : "use world gravity"
+	'32 : "tri, not quads"
+	'64 : "minimize edges"
+	' flags (fade in, fade out)
+	pSpawnFlags = 12
+
+	' system lifetime
+	pSystemLifetime = .1
+
+	' starting velocity
+	pVelShape = Box
+	
+	' starting velocity parms
+	pVelParams = -2,-2,0,2,2,10,0,0
+
+	' render mode
+	' 0 = kRenderNormal
+	' 1 = kRenderTransColor,		// c*a+dest*(1-a)
+	' 2 = kRenderTransTexture,	// src*a+dest*(1-a)
+	' 3 = kRenderGlow,			// src*a+dest -- No Z buffer checks
+	' 4 = kRenderTransAlpha,		// src*srca+dest*(1-srca)
+	' 5 = kRenderTransAdd,		// src*a+dest
+	pRenderMode = 5
+
+	' particle lifetime
+	pLifetime = 1.0
+
+	' Gen rate
+	pGenRate = 40
+
+	' Gen shape (one of: Point, Line, Triangle, Plane, Box, Cylinder, Cone, Blob, Disc, Rectangle, None)
+	pGenShape = Point
+
+	' Gen params
+	pGenShapeParams = 0,0,0,0,0,0,0,0
+end
+
+start pSystemName WelderLightSmoke
+	' Max number of particles
+	pNumParticles = 1
+
+	' size
+	pSize = 8
+
+	' number of times to loop through an animated texture
+	pAnimationSpeed = 1
+
+	' num frames in sprite
+	pSpriteNumFrames = 11
+
+	' Particle base color
+	pBaseColor = .2 .2 .2
+
+	' Scale by the lifetime, so it will eventually be pScale*pSize right before it dies
+   pScale = 3
+	
+	' Particle sprite
+	pSprite = sprites/weldsmoke.spr
+
+	' system lifetime
+	pSystemLifetime = .1
+
+	' starting velocity
+	pVelShape = Box
+	
+	' starting velocity parms
+	pVelParams = -5,-5,5,5,5,40,0,0
+
+	' render mode
+	' 0 = kRenderNormal
+	' 1 = kRenderTransColor,		// c*a+dest*(1-a)
+	' 2 = kRenderTransTexture,	// src*a+dest*(1-a)
+	' 3 = kRenderGlow,			// src*a+dest -- No Z buffer checks
+	' 4 = kRenderTransAlpha,		// src*srca+dest*(1-srca)
+	' 5 = kRenderTransAdd,		// src*a+dest
+	pRenderMode = 5
+
+	' particle max alpha
+	particleMaxAlpha = .2
+
+	' particle lifetime
+	pLifetime = .5
+
+	'1 : "start on"
+	'2 : "particle density"
+	'4 : "fade in"
+	'8 : "fade out"
+	'16 : "use world gravity"
+	'32 : "tri, not quads"
+	'64 : "minimize edges"
+	' flags (start on, fade in, fade out, triangles)
+	pSpawnFlags = 8
+
+	' Gen rate
+	pGenRate = 40
+
+	' Gen shape (one of: Point, Line, Triangle, Plane, Box, Cylinder, Cone, Blob, Disc, Rectangle, None)
+	pGenShape = Box
+
+	' Gen params
+	pGenShapeParams = -2,-2,-2,2,2,2,0,0
+end
+
+start pSystemName WelderHeavySmoke
+	' Max number of particles
+	pNumParticles = 1
+
+	' size
+	pSize = 8
+
+	' number of times to loop through an animated texture
+	pAnimationSpeed = 1
+
+	' num frames in sprite
+	pSpriteNumFrames = 16
+
+	' Particle base color
+	pBaseColor = 1 1 1
+
+	' Scale by the lifetime, so it will eventually be pScale*pSize right before it dies
+    pScale = .8
+	
+	' Particle sprite
+	pSprite = sprites/steam1.spr
+
+	' system lifetime
+	pSystemLifetime = .1
+
+	' starting velocity
+	pVelShape = Box
+	
+	' starting velocity parms
+	pVelParams = -8,-8,5,8,8,40,0,0
+
+	' render mode
+	' 0 = kRenderNormal
+	' 1 = kRenderTransColor,		// c*a+dest*(1-a)
+	' 2 = kRenderTransTexture,	// src*a+dest*(1-a)
+	' 3 = kRenderGlow,			// src*a+dest -- No Z buffer checks
+	' 4 = kRenderTransAlpha,		// src*srca+dest*(1-srca)
+	' 5 = kRenderTransAdd,		// src*a+dest
+	pRenderMode = 5
+
+	' particle max alpha
+	particleMaxAlpha = .2
+
+	'1 : "start on"
+	'2 : "particle density"
+	'4 : "fade in"
+	'8 : "fade out"
+	'16 : "use world gravity"
+	'32 : "tri, not quads"
+	'64 : "minimize edges"
+	' flags (start on, fade in, fade out, triangles)
+	pSpawnFlags = 8
+
+	' particle lifetime
+	pLifetime = .8
+
+	' Gen rate
+	pGenRate = 40
+
+	' Gen shape (one of: Point, Line, Triangle, Plane, Box, Cylinder, Cone, Blob, Disc, Rectangle, None)
+	pGenShape = Point
+
+	' Gen params
+	pGenShapeParams = 0,0,0,0,0,0,0,0
+end
+
+
+' This plasma just stays still to give that hot blue magma look
+start pSystemName WelderBluePlasma
+	' Max number of particles
+	pNumParticles = 1
+
+	' size
+	pSize = 8
+
+	' number of times to loop through an animated texture
+	pAnimationSpeed = 1
+
+	' num frames in sprite
+	pSpriteNumFrames = 11
+
+	' Particle base color
+	pBaseColor = 1 1 1
+
+	' Scale by the lifetime, so it will eventually be pScale*pSize right before it dies
+    pScale = .5
+	
+	' Particle sprite
+	pSprite = sprites/xspark1.spr
+
+	' system lifetime
+	pSystemLifetime = .5
+
+	' starting velocity
+	pVelShape = Box
+	
+	' starting velocity parms
+	pVelParams = 0,0,0,0,0,0,0,0
+
+	' render mode
+	' 0 = kRenderNormal
+	' 1 = kRenderTransColor,		// c*a+dest*(1-a)
+	' 2 = kRenderTransTexture,	// src*a+dest*(1-a)
+	' 3 = kRenderGlow,			// src*a+dest -- No Z buffer checks
+	' 4 = kRenderTransAlpha,		// src*srca+dest*(1-srca)
+	' 5 = kRenderTransAdd,		// src*a+dest
+	pRenderMode = 5
+
+	'1 : "start on"
+	'2 : "particle density"
+	'4 : "fade in"
+	'8 : "fade out"
+	'16 : "use world gravity"
+	'32 : "tri, not quads"
+	'64 : "minimize edges"
+	' flags (start on, fade in, fade out, triangles)
+	pSpawnFlags = 8
+
+	' particle lifetime
+	pLifetime = 1
+
+	' Gen rate
+	pGenRate = 40
+
+	' Gen shape (one of: Point, Line, Triangle, Plane, Box, Cylinder, Cone, Blob, Disc, Rectangle, None)
+	pGenShape = Box
+
+	' Gen params
+	pGenShapeParams = -2,-2,-2,2,2,2,0,0
+end
+
+start pSystemName WelderBluePlasmaDrops
+	' Max number of particles
+	pNumParticles = 4
+
+	' size
+	pSize = 6
+
+	' number of times to loop through an animated texture
+	pAnimationSpeed = 1
+
+	' num frames in sprite
+	pSpriteNumFrames = 1
+
+	' Particle base color
+	pBaseColor = 1 1 1
+
+	' Scale by the lifetime, so it will eventually be pScale*pSize right before it dies
+    pScale = .5
+	
+	' Particle sprite
+	pSprite = sprites/welddrip.spr
+
+	' system lifetime
+	pSystemLifetime = .5
+
+	' starting velocity
+	pVelShape = Box
+	
+	' starting velocity parms
+	pVelParams = -20,-20,0,20,20,-10,0,0
+
+	' render mode
+	' 0 = kRenderNormal
+	' 1 = kRenderTransColor,		// c*a+dest*(1-a)
+	' 2 = kRenderTransTexture,	// src*a+dest*(1-a)
+	' 3 = kRenderGlow,			// src*a+dest -- No Z buffer checks
+	' 4 = kRenderTransAlpha,		// src*srca+dest*(1-srca)
+	' 5 = kRenderTransAdd,		// src*a+dest
+	pRenderMode = 5
+
+	'1 : "start on"
+	'2 : "particle density"
+	'4 : "fade in"
+	'8 : "fade out"
+	'16 : "use world gravity"
+	'32 : "tri, not quads"
+	'64 : "minimize edges"
+	' flags (start on, fade in, fade out, triangles)
+	pSpawnFlags = 24
+
+	' particle lifetime
+	pLifetime = 1
+
+	' Gen rate
+	pGenRate = 40
+
+	' Gen shape (one of: Point, Line, Triangle, Plane, Box, Cylinder, Cone, Blob, Disc, Rectangle, None)
+	pGenShape = Point
+
+	' Gen params
+	pGenShapeParams = 0,0,0,0,0,0,0,0
+end
+
+start pSystemName HeavyMGSmoke
+	' Max number of particles
+	pNumParticles = 1
+
+	' size
+	pSize = 20
+
+	' number of times to loop through an animated texture
+	pAnimationSpeed = 1
+
+	' num frames in sprite
+	pSpriteNumFrames = 10
+
+	' Particle base color
+	pBaseColor = .5 .5 .5
+
+	' Scale by the lifetime, so it will eventually be pScale*pSize right before it dies
+    pScale = 1
+	
+	' Particle sprite
+	pSprite = sprites/lightsmoke.spr
+
+	' particle max alpha
+	particleMaxAlpha = .4
+
+	'1 : "start on"
+	'2 : "particle density"
+	'4 : "fade in"
+	'8 : "fade out"
+	'16 : "use world gravity"
+	'32 : "tri, not quads"
+	'64 : "minimize edges"
+	' flags (fade in, fade out)
+	pSpawnFlags = 12
+
+	' system lifetime
+	pSystemLifetime = .1
+
+	' starting velocity
+	pVelShape = Box
+	
+	' starting velocity parms
+	pVelParams = -2,-2,0,2,2,3,0,0
+
+	' render mode
+	' 0 = kRenderNormal
+	' 1 = kRenderTransColor,		// c*a+dest*(1-a)
+	' 2 = kRenderTransTexture,	// src*a+dest*(1-a)
+	' 3 = kRenderGlow,			// src*a+dest -- No Z buffer checks
+	' 4 = kRenderTransAlpha,		// src*srca+dest*(1-srca)
+	' 5 = kRenderTransAdd,		// src*a+dest
+	pRenderMode = 5
+
+	' particle lifetime
+	pLifetime = .5
+
+	' Gen rate
+	pGenRate = 40
+
+	' Gen shape (one of: Point, Line, Triangle, Plane, Box, Cylinder, Cone, Blob, Disc, Rectangle, None)
+	pGenShape = Point
+
+	' Gen params
+	pGenShapeParams = 0,0,0,0,0,0,0,0
+end
+
+start pSystemName TeleportEffect
+	' Max number of particles
+	pNumParticles = 60
+
+	' size
+	pSize = 14
+
+	' number of times to loop through an animated texture
+	pAnimationSpeed = 1
+
+	' num frames in sprite
+	pSpriteNumFrames = 1
+
+	' Particle base color
+	pBaseColor = 1 1 1
+
+	' Scale by the lifetime, so it will eventually be pScale*pSize right before it dies
+    pScale = .25
+	
+	' Particle sprite
+	pSprite = sprites/nsteleport.spr
+
+	' system lifetime
+	pSystemLifetime = .5
+
+	' starting velocity
+    pVelShape = Box
+	
+	' starting velocity parms
+    pVelParams = 0,0,150,0,0,-150,0,0
+
+	' render mode
+	' 0 = kRenderNormal
+	' 1 = kRenderTransColor,		// c*a+dest*(1-a)
+	' 2 = kRenderTransTexture,	// src*a+dest*(1-a)
+	' 3 = kRenderGlow,			// src*a+dest -- No Z buffer checks
+	' 4 = kRenderTransAlpha,		// src*srca+dest*(1-srca)
+	' 5 = kRenderTransAdd,		// src*a+dest
+	pRenderMode = 5
+
+
+	'1 : "start on"
+	'2 : "particle density"
+	'4 : "fade in"
+	'8 : "fade out"
+	'16 : "use world gravity"
+	'32 : "tri, not quads"
+	'64 : "minimize edges"
+	'128: "constrain pitch"
+	' flags (start on, fade in, fade out, triangles)
+    pSpawnFlags = 8
+
+	' particle lifetime
+	pLifetime = 1
+
+	' Gen rate
+	pGenRate = 800
+
+	' Gen shape (one of: Point, Line, Triangle, Plane, Box, Cylinder, Cone, Blob, Disc, Rectangle, None)
+	pGenShape = Box
+
+	' Gen params
+    pGenShapeParams = -20,-20,-10,20,20,45,0,0
+end
+
+start pSystemName CommandHack
+
+	' Max number of particles
+	pNumParticles = 30
+
+	' size
+	pSize = 15
+
+	' number of times to loop through an animated texture
+	pAnimationSpeed = 1
+
+	' num frames in sprite
+	pSpriteNumFrames = 1
+
+	' Particle base color
+	pBaseColor = 1 1 1
+
+	' Scale by the lifetime, so it will eventually be pScale*pSize right before it dies
+    pScale = .03
+	
+	' Particle sprite
+	pSprite = sprites/blueball.spr
+
+	' system lifetime
+	pSystemLifetime = .5
+
+	' starting velocity
+	pVelShape = Box
+	
+	' starting velocity parms
+	pVelParams = -10,-10,-10,0,10,10,10,0
+
+	' render mode
+	' 0 = kRenderNormal
+	' 1 = kRenderTransColor,		// c*a+dest*(1-a)
+	' 2 = kRenderTransTexture,	// src*a+dest*(1-a)
+	' 3 = kRenderGlow,			// src*a+dest -- No Z buffer checks
+	' 4 = kRenderTransAlpha,		// src*srca+dest*(1-srca)
+	' 5 = kRenderTransAdd,		// src*a+dest
+	pRenderMode = 5
+
+
+	'1 : "start on"
+	'2 : "particle density"
+	'4 : "fade in"
+	'8 : "fade out"
+	'16 : "use world gravity"
+	'32 : "tri, not quads"
+	'64 : "minimize edges"
+	' flags (start on, fade in, fade out, triangles)
+	pSpawnFlags = 8
+
+	' particle lifetime
+	pLifetime = 2
+
+	' Gen rate
+	pGenRate = 800
+
+	' Gen shape (one of: Point, Line, Triangle, Plane, Box, Cylinder, Cone, Blob, Disc, Rectangle, None)
+	pGenShape = Box
+
+	' Gen params
+	pGenShapeParams = -12,-12,-25,12,12,25,0,0
+end
+
+start pSystemName PhaseInEffect2
+	' Max number of particles
+	pNumParticles = 30
+
+	' size
+	pSize = 10
+
+	' number of times to loop through an animated texture
+	pAnimationSpeed = 1
+
+	' num frames in sprite
+	pSpriteNumFrames = 11
+
+	' Particle base color
+	pBaseColor = 1 1 1
+
+	' Scale by the lifetime, so it will eventually be pScale*pSize right before it dies
+    pScale = 1
+	
+	' Particle sprite
+	pSprite = sprites/xspark4.spr
+
+	' system lifetime
+	pSystemLifetime = .5
+
+	' starting velocity
+	pVelShape = Box
+	
+	' starting velocity parms
+	pVelParams = -15,-15,0,15,15,20,0,0
+
+	' render mode
+	' 0 = kRenderNormal
+	' 1 = kRenderTransColor,		// c*a+dest*(1-a)
+	' 2 = kRenderTransTexture,	// src*a+dest*(1-a)
+	' 3 = kRenderGlow,			// src*a+dest -- No Z buffer checks
+	' 4 = kRenderTransAlpha,		// src*srca+dest*(1-srca)
+	' 5 = kRenderTransAdd,		// src*a+dest
+	pRenderMode = 5
+
+
+	'1 : "start on"
+	'2 : "particle density"
+	'4 : "fade in"
+	'8 : "fade out"
+	'16 : "use world gravity"
+	'32 : "tri, not quads"
+	'64 : "minimize edges"
+	' flags (start on, fade in, fade out, triangles)
+	pSpawnFlags = 8
+
+	' particle lifetime
+	pLifetime = 1.2
+
+	' Gen rate
+	pGenRate = 800
+
+	' Gen shape (one of: Point, Line, Triangle, Plane, Box, Cylinder, Cone, Blob, Disc, Rectangle, None)
+	pGenShape = Box
+
+	' Gen params
+	pGenShapeParams = -15,-15,-25,15,15,25,0,0
+end
+
+start pSystemName SpitHit
+	' Max number of particles
+	pNumParticles = 12
+
+	' size
+	pSize = 5
+
+	' number of times to loop through an animated texture
+	pAnimationSpeed = 3
+
+	' num frames in sprite
+	pSpriteNumFrames = 3
+
+	' Particle base color
+	pBaseColor = 1 1 1
+
+	' Scale by the lifetime, so it will eventually be pScale*pSize right before it dies
+    pScale = .3
+	
+	' Particle sprite
+	pSprite = sprites/bigspit.spr
+
+	' system lifetime
+	pSystemLifetime = .3
+
+	' starting velocity
+	pVelShape = Point
+	
+	' starting velocity parms
+	pVelParams = 0,0,50,0,0,0,0,0
+
+	' render mode
+	' 0 = kRenderNormal
+	' 1 = kRenderTransColor,		// c*a+dest*(1-a)
+	' 2 = kRenderTransTexture,	// src*a+dest*(1-a)
+	' 3 = kRenderGlow,			// src*a+dest -- No Z buffer checks
+	' 4 = kRenderTransAlpha,		// src*srca+dest*(1-srca)
+	' 5 = kRenderTransAdd,		// src*a+dest
+	pRenderMode = 2
+
+
+	'1 : "start on"
+	'2 : "particle density"
+	'4 : "fade in"
+	'8 : "fade out"
+	'16 : "use world gravity"
+	'32 : "tri, not quads"
+	'64 : "minimize edges"
+	' flags (start on, fade in, fade out, triangles)
+	pSpawnFlags = 24
+
+	' particle lifetime
+	pLifetime = .8
+
+	' Gen rate
+	pGenRate = 200
+
+	' Gen shape (one of: Point, Line, Triangle, Plane, Box, Cylinder, Cone, Blob, Disc, Rectangle, None)
+	pGenShape = Box
+
+	' Gen params
+	pGenShapeParams = -20,-5,-5,5,20,16,0,0
+end
+
+
+start pSystemName SpitShoot
+	' Max number of particles
+	pNumParticles = 10
+
+	' size
+	pSize = 2
+
+	' number of times to loop through an animated texture
+	pAnimationSpeed = 3
+
+	' num frames in sprite
+	pSpriteNumFrames = 3
+
+	' Particle base color
+	pBaseColor = 1 1 1
+
+	' Scale by the lifetime, so it will eventually be pScale*pSize right before it dies
+    pScale = 2
+	
+	' Particle sprite
+	pSprite = sprites/bigspit.spr
+
+	' system lifetime
+	pSystemLifetime = .3
+
+	' starting velocity
+	pVelShape = Box
+	
+	' starting velocity parms
+	pVelParams = -10,-10,0,10,10,0,0,0
+
+	' render mode
+	' 0 = kRenderNormal
+	' 1 = kRenderTransColor,		// c*a+dest*(1-a)
+	' 2 = kRenderTransTexture,	// src*a+dest*(1-a)
+	' 3 = kRenderGlow,			// src*a+dest -- No Z buffer checks
+	' 4 = kRenderTransAlpha,		// src*srca+dest*(1-srca)
+	' 5 = kRenderTransAdd,		// src*a+dest
+	pRenderMode = 2
+
+	'1 : "start on"
+	'2 : "particle density"
+	'4 : "fade in"
+	'8 : "fade out"
+	'16 : "use world gravity"
+	'32 : "tri, not quads"
+	'64 : "minimize edges"
+	' flags (start on, fade in, fade out, triangles)
+	pSpawnFlags = 24
+
+	' particle lifetime
+	pLifetime = .8
+
+	' Gen rate
+	pGenRate = 200
+
+	' Gen shape (one of: Point, Line, Triangle, Plane, Box, Cylinder, Cone, Blob, Disc, Rectangle, None)
+	pGenShape = Point
+
+	' Gen params
+	pGenShapeParams = 0,0,0,0,0,0,0,0
+end
+
+start pSystemName SpikeHit
+	' Max number of particles
+	'pNumParticles = 8
+	pNumParticles = 4
+
+	' size
+	pSize = 16
+
+	' number of times to loop through an animated texture
+	pAnimationSpeed = 1
+
+	' num frames in sprite
+	pSpriteNumFrames = 11
+
+	' Particle base color
+	pBaseColor = 1 1 1
+
+	' Scale by the lifetime, so it will eventually be pScale*pSize right before it dies
+    pScale = 2.5
+	
+	' Particle sprite
+	'pSprite = sprites/spithit.spr
+	pSprite = sprites/spikehit.spr
+
+	' system lifetime
+	pSystemLifetime = .3
+
+	' starting velocity
+	pVelShape = Point
+	
+	' starting velocity parms
+	pVelParams = 0,0,0,0,0,0,0,0
+
+	' render mode
+	' 0 = kRenderNormal
+	' 1 = kRenderTransColor,		// c*a+dest*(1-a)
+	' 2 = kRenderTransTexture,	// src*a+dest*(1-a)
+	' 3 = kRenderGlow,			// src*a+dest -- No Z buffer checks
+	' 4 = kRenderTransAlpha,		// src*srca+dest*(1-srca)
+	' 5 = kRenderTransAdd,		// src*a+dest
+	pRenderMode = 5
+
+	' particle max alpha
+	particleMaxAlpha = .2
+
+	'1 : "start on"
+	'2 : "particle density"
+	'4 : "fade in"
+	'8 : "fade out"
+	'16 : "use world gravity"
+	'32 : "tri, not quads"
+	'64 : "minimize edges"
+	' flags (start on, fade in, fade out, triangles)
+	'pSpawnFlags = 24
+	pSpawnFlags = 8
+
+	' particle lifetime
+	pLifetime = .4
+
+	' Gen rate
+	pGenRate = 200
+
+	' Gen shape (one of: Point, Line, Triangle, Plane, Box, Cylinder, Cone, Blob, Disc, Rectangle, None)
+	pGenShape = Box
+
+	' Gen params
+	pGenShapeParams = -10,-10,-15,10,10,10,0,0
+end
+
+start pSystemName SporeShoot
+	' Max number of particles
+	pNumParticles = 10
+
+	' size
+	pSize = 2
+
+	' number of times to loop through an animated texture
+	pAnimationSpeed = 3
+
+	' num frames in sprite
+	pSpriteNumFrames = 9
+
+	' Particle base color
+	pBaseColor = 1 1 1
+
+	' Scale by the lifetime, so it will eventually be pScale*pSize right before it dies
+    pScale = 2
+	
+	' Particle sprite
+	pSprite = sprites/spore.spr
+
+	' system lifetime
+	pSystemLifetime = .3
+
+	' starting velocity
+	pVelShape = Box
+	
+	' starting velocity parms
+	pVelParams = -10,-10,0,10,10,0,0,0
+
+	' render mode
+	' 0 = kRenderNormal
+	' 1 = kRenderTransColor,		// c*a+dest*(1-a)
+	' 2 = kRenderTransTexture,	// src*a+dest*(1-a)
+	' 3 = kRenderGlow,			// src*a+dest -- No Z buffer checks
+	' 4 = kRenderTransAlpha,		// src*srca+dest*(1-srca)
+	' 5 = kRenderTransAdd,		// src*a+dest
+	pRenderMode = 5
+
+	'1 : "start on"
+	'2 : "particle density"
+	'4 : "fade in"
+	'8 : "fade out"
+	'16 : "use world gravity"
+	'32 : "tri, not quads"
+	'64 : "minimize edges"
+	' flags (start on, fade in, fade out, triangles)
+	pSpawnFlags = 24
+
+	' particle lifetime
+	pLifetime = .8
+
+	' Gen rate
+	pGenRate = 200
+
+	' Gen shape (one of: Point, Line, Triangle, Plane, Box, Cylinder, Cone, Blob, Disc, Rectangle, None)
+	pGenShape = Point
+
+	' Gen params
+	pGenShapeParams = 0,0,0,0,0,0,0,0
+end
+
+start pSystemName SporeCloud
+	' Max number of particles
+	pNumParticles = 20
+
+	' size
+	pSize = 45
+
+	' number of times to loop through an animated texture
+	pAnimationSpeed = 6
+
+	' num frames in sprite
+	pSpriteNumFrames = 17
+
+	' Particle base color
+	pBaseColor = 1 1 1
+
+	' Scale by the lifetime, so it will eventually be pScale*pSize right before it dies
+    pScale = 3
+	
+	' Particle sprite
+	pSprite = sprites/spore.spr
+
+	' system lifetime
+	pSystemLifetime = 1.0
+
+	' starting velocity
+	pVelShape = Box
+	
+	' starting velocity parms
+	pVelParams = -5,-5,-5,5,5,5,0,0
+
+	' render mode
+	' 0 = kRenderNormal
+	' 1 = kRenderTransColor,		// c*a+dest*(1-a)
+	' 2 = kRenderTransTexture,	// src*a+dest*(1-a)
+	' 3 = kRenderGlow,			// src*a+dest -- No Z buffer checks
+	' 4 = kRenderTransAlpha,		// src*srca+dest*(1-srca)
+	' 5 = kRenderTransAdd,		// src*a+dest
+	pRenderMode = 5
+
+	'1 : "start on"
+	'2 : "particle density"
+	'4 : "fade in"
+	'8 : "fade out"
+	'16 : "use world gravity"
+	'32 : "tri, not quads"
+	'64 : "minimize edges"
+	' flags (start on, fade in, fade out, triangles)
+	pSpawnFlags = 8
+
+	' particle lifetime
+	pLifetime = 8
+
+	' Gen rate
+	pGenRate = 30
+
+	' Gen shape (one of: Point, Line, Triangle, Plane, Box, Cylinder, Cone, Blob, Disc, Rectangle, None)
+	pGenShape = Box
+
+	' Gen params
+	pGenShapeParams = -125,-125,-125,125,125,125,0,0
+end
+
+
+start pSystemName MeleeDamage
+	' Max number of particles
+	pNumParticles = 8
+
+	' size
+	pSize = 3
+
+	' number of times to loop through an animated texture
+	pAnimationSpeed = 1
+
+	' num frames in sprite
+	pSpriteNumFrames = 1
+
+	' Particle base color
+	pBaseColor = 1 1 1
+
+	' Scale by the lifetime, so it will eventually be pScale*pSize right before it dies
+    pScale = 1
+	
+	' Particle sprite
+	pSprite = sprites/meleehit.spr
+
+	' system lifetime
+	pSystemLifetime = .5
+
+	' starting velocity
+	pVelShape = Box
+	
+	' starting velocity parms
+	pVelParams = -50,-50,-50,50,50,60,0,0
+
+	' render mode
+	' 0 = kRenderNormal
+	' 1 = kRenderTransColor,		// c*a+dest*(1-a)
+	' 2 = kRenderTransTexture,	// src*a+dest*(1-a)
+	' 3 = kRenderGlow,			// src*a+dest -- No Z buffer checks
+	' 4 = kRenderTransAlpha,		// src*srca+dest*(1-srca)
+	' 5 = kRenderTransAdd,		// src*a+dest
+	pRenderMode = 5
+
+	'1 : "start on"
+	'2 : "particle density"
+	'4 : "fade in"
+	'8 : "fade out"
+	'16 : "use world gravity"
+	'32 : "tri, not quads"
+	'64 : "minimize edges"
+	' flags (start on, fade in, fade out, triangles)
+	pSpawnFlags = 24
+
+	' particle lifetime
+	pLifetime = .4
+
+	' Gen rate
+	pGenRate = 40
+
+	' Gen shape (one of: Point, Line, Triangle, Plane, Box, Cylinder, Cone, Blob, Disc, Rectangle, None)
+	pGenShape = Point
+
+	' Gen params
+	pGenShapeParams = 0,0,0,0,0,0,0,0
+end
+
+start pSystemName PhaseGateIdle
+	' Max number of particles
+	pNumParticles = 40
+
+	' size
+	pSize = 20
+
+	' number of times to loop through an animated texture
+	pAnimationSpeed = 2
+
+	' num frames in sprite
+	pSpriteNumFrames = 20
+
+	' Particle base color
+	pBaseColor = 1 1 1
+
+	' Scale by the lifetime, so it will eventually be pScale*pSize right before it dies
+    pScale = .2
+	
+	' Particle sprite
+	pSprite = sprites/flare6.spr
+
+	' system lifetime
+	pSystemLifetime = 1.0
+
+	' starting velocity
+	pVelShape = box
+	
+	' starting velocity parms
+	pVelParams = 0,0,0,0,0,20,0,0
+
+	' render mode
+	' 0 = kRenderNormal
+	' 1 = kRenderTransColor,		// c*a+dest*(1-a)
+	' 2 = kRenderTransTexture,	// src*a+dest*(1-a)
+	' 3 = kRenderGlow,			// src*a+dest -- No Z buffer checks
+	' 4 = kRenderTransAlpha,		// src*srca+dest*(1-srca)
+	' 5 = kRenderTransAdd,		// src*a+dest
+	pRenderMode = 5
+
+	' particle max alpha
+	particleMaxAlpha = 1
+
+	'1 : "start on"
+	'2 : "particle density"
+	'4 : "fade in"
+	'8 : "fade out"
+	'16 : "use world gravity"
+	'32 : "tri, not quads"
+	'64 : "minimize edges"
+	' flags (start on, fade in, fade out, triangles)
+	pSpawnFlags = 12
+
+	' particle lifetime
+	pLifetime = 2
+
+	' Gen rate
+	pGenRate = 20
+
+	' Gen shape (one of: Point, Line, Triangle, Plane, Box, Cylinder, Cone, Blob, Disc, Rectangle, None)
+	pGenShape = Box
+
+	' Gen params
+	pGenShapeParams = -20,-20,-20,20,20,40,0,0
+end
+
+start pSystemName ResourceEmission
+	' Max number of particles
+	pNumParticles = 100
+
+	' size
+	pSize = 6
+
+	' number of times to loop through an animated texture
+	pAnimationSpeed = 1
+
+	' num frames in sprite
+	pSpriteNumFrames = 1
+
+	' Particle base color
+	pBaseColor = 1 1 1
+
+	' Scale by the lifetime, so it will eventually be pScale*pSize right before it dies
+    pScale = 5.0
+	
+	' Particle sprite
+	pSprite = sprites/flare3.spr
+
+	' system lifetime
+	pSystemLifetime = -1
+
+	' starting velocity
+	pVelShape = Box
+	
+	' starting velocity parms
+	pVelParams = -5,-5,20,5,5,80,0,0
+
+	' render mode
+	' 0 = kRenderNormal
+	' 1 = kRenderTransColor,		// c*a+dest*(1-a)
+	' 2 = kRenderTransTexture,	// src*a+dest*(1-a)
+	' 3 = kRenderGlow,			// src*a+dest -- No Z buffer checks
+	' 4 = kRenderTransAlpha,		// src*srca+dest*(1-srca)
+	' 5 = kRenderTransAdd,		// src*a+dest
+	pRenderMode = 5
+
+	' particle max alpha
+	particleMaxAlpha = .4
+
+	'1 : "start on"
+	'2 : "particle density"
+	'4 : "fade in"
+	'8 : "fade out"
+	'16 : "use world gravity"
+	'32 : "tri, not quads"
+	'64 : "minimize edges"
+	' flags (start on, fade in, fade out)
+	pSpawnFlags = 9
+
+	' particle lifetime
+	pLifetime = 1.5
+
+	' Gen rate
+	pGenRate = 20
+
+	' Gen shape (one of: Point, Line, Triangle, Plane, Box, Cylinder, Cone, Blob, Disc, Rectangle, None)
+	pGenShape = Point
+
+	' Gen params
+	pGenShapeParams = 0,0,0,0,0,0,0,0
+end
+
+start pSystemName UmbraCloud
+	' Max number of particles
+	pNumParticles = 20
+
+	' size
+	pSize = 40
+
+	' number of times to loop through an animated texture
+	pAnimationSpeed = 6
+
+	' num frames in sprite
+	pSpriteNumFrames = 17
+
+	' Particle base color
+	pBaseColor = 1 1 1
+
+	' Scale by the lifetime, so it will eventually be pScale*pSize right before it dies
+    pScale = 3
+	
+	' Particle sprite
+	pSprite = sprites/umbra.spr
+
+	' system lifetime
+	pSystemLifetime = 1.0
+
+	' starting velocity
+	pVelShape = Box
+	
+	' starting velocity parms
+	pVelParams = -5,-5,-5,5,5,5,0,0
+
+	' render mode
+	' 0 = kRenderNormal
+	' 1 = kRenderTransColor,		// c*a+dest*(1-a)
+	' 2 = kRenderTransTexture,	// src*a+dest*(1-a)
+	' 3 = kRenderGlow,			// src*a+dest -- No Z buffer checks
+	' 4 = kRenderTransAlpha,		// src*srca+dest*(1-srca)
+	' 5 = kRenderTransAdd,		// src*a+dest
+	pRenderMode = 5
+
+	'1 : "start on"
+	'2 : "particle density"
+	'4 : "fade in"
+	'8 : "fade out"
+	'16 : "use world gravity"
+	'32 : "tri, not quads"
+	'64 : "minimize edges"
+	' flags (start on, fade in, fade out, triangles)
+	pSpawnFlags = 8
+
+	' particle lifetime (same as umbra cloud duration)
+	pLifetime = 3
+
+	' Gen rate
+	pGenRate = 50
+
+	' Gen shape (one of: Point, Line, Triangle, Plane, Box, Cylinder, Cone, Blob, Disc, Rectangle, None)
+	pGenShape = Box
+
+	' Gen params
+	pGenShapeParams = -100,-100,-100,100,100,100,0,0
+end
+
+start pSystemName AcidHit
+    ' Max number of particles
+    pNumParticles = 50
+
+    ' size
+    pSize = 25
+
+    ' number of times to loop through an animated texture
+    pAnimationSpeed = 1
+
+    ' num frames in sprite
+    pSpriteNumFrames = 12
+
+    ' Particle base color
+    pBaseColor = 1 1 1
+
+    ' Scale by the lifetime, so it will eventually be pScale*pSize right before it dies
+    pScale = 3
+   
+    ' Particle sprite
+    pSprite = sprites/acidsplash.spr
+
+    ' system lifetime
+    pSystemLifetime = .3
+
+    ' starting velocity
+    pVelShape = Box
+   
+    ' starting velocity parms
+    pVelParams = 200,200,250,-200,-200,-20,0,0
+
+    ' render mode
+    ' 0 = kRenderNormal
+    ' 1 = kRenderTransColor,        // c*a+dest*(1-a)
+    ' 2 = kRenderTransTexture,    // src*a+dest*(1-a)
+    ' 3 = kRenderGlow,            // src*a+dest -- No Z buffer checks
+    ' 4 = kRenderTransAlpha,        // src*srca+dest*(1-srca)
+    ' 5 = kRenderTransAdd,        // src*a+dest
+    pRenderMode = 5
+
+    '1 : "start on"
+    '2 : "particle density"
+    '4 : "fade in"
+    '8 : "fade out"
+    '16 : "use world gravity"
+    '32 : "tri, not quads"
+    '64 : "minimize edges"
+    ' flags (start on, fade in, fade out, triangles)
+    'pSpawnFlags = 24
+    pSpawnFlags = 24
+
+    ' particle lifetime
+    pLifetime = .8
+
+    ' Gen rate
+    pGenRate = 600
+
+    ' Gen shape (one of: Point, Line, Triangle, Plane, Box, Cylinder, Cone, Blob, Disc, Rectangle, None)
+    pGenShape = Box
+
+    ' Gen params
+    pGenShapeParams = -8,-8,-8,8,8,8,0,0
+end
+
+start pSystemName BacteriaSpray
+    ' Max number of particles
+    pNumParticles = 6
+
+    ' size
+    pSize = 20
+
+    ' number of times to loop through an animated texture
+    pAnimationSpeed = 1
+
+    ' num frames in sprite
+    pSpriteNumFrames = 6
+
+    ' Particle base color
+    pBaseColor = 1 1 1
+
+    ' Scale by the lifetime, so it will eventually be pScale*pSize right before it dies
+    pScale = 4
+   
+    ' Particle sprite
+    pSprite = sprites/bacteria.spr
+
+    ' system lifetime
+    pSystemLifetime = 1
+
+    ' starting velocity
+    pVelShape = Box
+   
+    ' starting velocity parms
+    pVelParams = 0,0,0,0,0,0,0,0
+
+    ' render mode
+    ' 0 = kRenderNormal
+    ' 1 = kRenderTransColor,        // c*a+dest*(1-a)
+    ' 2 = kRenderTransTexture,    // src*a+dest*(1-a)
+    ' 3 = kRenderGlow,            // src*a+dest -- No Z buffer checks
+    ' 4 = kRenderTransAlpha,        // src*srca+dest*(1-srca)
+    ' 5 = kRenderTransAdd,        // src*a+dest
+    pRenderMode = 5
+
+    '1 : "start on"
+    '2 : "particle density"
+    '4 : "fade in"
+    '8 : "fade out"
+    '16 : "use world gravity"
+    '32 : "tri, not quads"
+    '64 : "minimize edges"
+    ' flags (start on, fade in, fade out, triangles)
+    'pSpawnFlags = 24
+    pSpawnFlags = 12
+
+    ' particle lifetime
+    pLifetime = .8
+
+    ' Gen rate
+    pGenRate = 4
+
+    ' Gen shape (one of: Point, Line, Triangle, Plane, Box, Cylinder, Cone, Blob, Disc, Rectangle, None)
+    pGenShape = Box
+
+    ' Gen params
+    pGenShapeParams = -30,-30,-20,30,30,20,0,0
+end
+
+start pSystemName Xenocide
+    ' Max number of particles
+    pNumParticles = 50
+
+    ' size
+    pSize = 15
+
+    ' number of times to loop through an animated texture
+    pAnimationSpeed = 1
+
+    ' num frames in sprite
+    pSpriteNumFrames = 25
+
+    ' Particle base color
+    pBaseColor = 1 1 1
+
+    ' Scale by the lifetime, so it will eventually be pScale*pSize right before it dies
+    pScale = 5
+   
+    ' Particle sprite
+    pSprite = sprites/eexplo.spr
+
+    ' system lifetime
+    pSystemLifetime = .3
+
+    ' starting velocity
+    pVelShape = Box
+   
+    ' starting velocity parms
+    pVelParams = 240,240,30,-240,-240,-20,0,0
+
+    ' render mode
+    ' 0 = kRenderNormal
+    ' 1 = kRenderTransColor,        // c*a+dest*(1-a)
+    ' 2 = kRenderTransTexture,    // src*a+dest*(1-a)
+    ' 3 = kRenderGlow,            // src*a+dest -- No Z buffer checks
+    ' 4 = kRenderTransAlpha,        // src*srca+dest*(1-srca)
+    ' 5 = kRenderTransAdd,        // src*a+dest
+    pRenderMode = 5
+
+    '1 : "start on"
+    '2 : "particle density"
+    '4 : "fade in"
+    '8 : "fade out"
+    '16 : "use world gravity"
+    '32 : "tri, not quads"
+    '64 : "minimize edges"
+    ' flags (start on, fade in, fade out, triangles)
+    'pSpawnFlags = 24
+    pSpawnFlags = 8
+
+    ' particle lifetime
+    pLifetime = .7
+
+    ' Gen rate
+    pGenRate = 800
+
+    ' Gen shape (one of: Point, Line, Triangle, Plane, Box, Cylinder, Cone, Blob, Disc, Rectangle, None)
+    pGenShape = Box
+
+    ' Gen params
+    pGenShapeParams = -12,-12,-8,12,12,8,0,0
+end
+
+start pSystemName BileBomb
+	' Max number of particles
+	pNumParticles = 50
+
+	' size
+	pSize = 15
+
+	' number of times to loop through an animated texture
+	pAnimationSpeed = 2
+
+	' num frames in sprite
+	pSpriteNumFrames = 10
+
+	' Particle base color
+	pBaseColor = 1 1 1
+
+	' Scale by the lifetime, so it will eventually be pScale*pSize right before it dies
+    pScale = 8
+	
+	' Particle sprite
+	pSprite = sprites/bilebomb.spr
+
+	' system lifetime
+	pSystemLifetime = 0.5
+
+	' starting velocity
+	pVelShape = Box
+	
+	' starting velocity parms
+	pVelParams = -200,-200,150,200,200,400,0,0
+
+	' render mode
+	' 0 = kRenderNormal
+	' 1 = kRenderTransColor,		// c*a+dest*(1-a)
+	' 2 = kRenderTransTexture,	// src*a+dest*(1-a)
+	' 3 = kRenderGlow,			// src*a+dest -- No Z buffer checks
+	' 4 = kRenderTransAlpha,		// src*srca+dest*(1-srca)
+	' 5 = kRenderTransAdd,		// src*a+dest
+	pRenderMode = 5
+
+	'1 : "start on"
+	'2 : "particle density"
+	'4 : "fade in"
+	'8 : "fade out"
+	'16 : "use world gravity"
+	'32 : "tri, not quads"
+	'64 : "minimize edges"
+	' flags (start on, fade in, fade out, triangles)
+	pSpawnFlags = 24
+
+	' particle lifetime
+	pLifetime = 1.2
+
+	' Gen rate
+	pGenRate = 800
+
+	' Gen shape (one of: Point, Line, Triangle, Plane, Box, Cylinder, Cone, Blob, Disc, Rectangle, None)
+	pGenShape = Box
+
+	' Gen params
+	pGenShapeParams = -8,-8,-8,8,8,8,0,0
+end
+
+start pSystemName PhaseInEffect
+	' Max number of particles
+	pNumParticles = 40
+
+	' size
+	pSize = 35
+
+	' number of times to loop through an animated texture
+	pAnimationSpeed = 1
+
+	' num frames in sprite
+	pSpriteNumFrames = 1
+
+	' Particle base color
+	pBaseColor = 1 1 1
+
+	' Scale by the lifetime, so it will eventually be pScale*pSize right before it dies
+    pScale = .2
+	
+	' Particle sprite
+	pSprite = sprites/hack.spr
+
+	' system lifetime
+	pSystemLifetime = 1.2
+
+	' starting velocity
+	pVelShape = Box
+	
+	' starting velocity parms
+	pVelParams = -40,-40,-40,40,40,40,0,0
+
+	' render mode
+	' 0 = kRenderNormal
+	' 1 = kRenderTransColor,		// c*a+dest*(1-a)
+	' 2 = kRenderTransTexture,	// src*a+dest*(1-a)
+	' 3 = kRenderGlow,			// src*a+dest -- No Z buffer checks
+	' 4 = kRenderTransAlpha,		// src*srca+dest*(1-srca)
+	' 5 = kRenderTransAdd,		// src*a+dest
+	pRenderMode = 5
+
+
+	'1 : "start on"
+	'2 : "particle density"
+	'4 : "fade in"
+	'8 : "fade out"
+	'16 : "use world gravity"
+	'32 : "tri, not quads"
+	'64 : "minimize edges"
+	' flags (start on, fade in, fade out, triangles)
+	'pSpawnFlags = 24
+	pSpawnFlags = 12
+
+	' particle lifetime
+	pLifetime = 1.2
+
+	' Gen rate
+	pGenRate = 20
+
+	' Gen shape (one of: Point, Line, Triangle, Plane, Box, Cylinder, Cone, Blob, Disc, Rectangle, None)
+	pGenShape = Box
+
+	' Gen params
+	pGenShapeParams = -10,-10,-10,10,10,10,0,0
+end
+
+start pSystemName ScanEffect
+	' Max number of particles
+	pNumParticles = 10
+
+	' size
+	pSize = 10
+
+	' number of times to loop through an animated texture
+	pAnimationSpeed = 1
+
+	' num frames in sprite
+	pSpriteNumFrames = 1
+
+	' Particle base color
+	pBaseColor = 1 1 1
+
+	' Scale by the lifetime, so it will eventually be pScale*pSize right before it dies
+    pScale = 100
+	
+	' Particle sprite
+	pSprite = sprites/scan.spr
+
+	' system lifetime
+	pSystemLifetime = 10
+
+	' starting velocity
+	pVelShape = Box
+	
+	' starting velocity parms
+	pVelParams = 0,0,0,0,0,0,0,0
+
+	' render mode
+	' 0 = kRenderNormal
+	' 1 = kRenderTransColor,		// c*a+dest*(1-a)
+	' 2 = kRenderTransTexture,	// src*a+dest*(1-a)
+	' 3 = kRenderGlow,			// src*a+dest -- No Z buffer checks
+	' 4 = kRenderTransAlpha,		// src*srca+dest*(1-srca)
+	' 5 = kRenderTransAdd,		// src*a+dest
+	pRenderMode = 5
+
+
+	'1 : "start on"
+	'2 : "particle density"
+	'4 : "fade in"
+	'8 : "fade out"
+	'16 : "use world gravity"
+	'32 : "tri, not quads"
+	'64 : "minimize edges"
+	'128: "constrain pitch"
+	'512: "high-detail only"
+	'1024: "face up"
+	' flags (start on, fade in, fade out, triangles)
+	pSpawnFlags = 1032
+
+	' particle lifetime
+	pLifetime = 1.5
+
+	' Gen rate
+	pGenRate = 1
+
+	' Gen shape (one of: Point, Line, Triangle, Plane, Box, Cylinder, Cone, Blob, Disc, Rectangle, None)
+	pGenShape = Box
+
+	' Gen params
+	pGenShapeParams = 0,0,20,0,0,20,0,0
+end
+
+start pSystemName JetpackEffect
+	' Max number of particles
+	pNumParticles = 4
+
+	' size
+	pSize = 12
+
+	' number of times to loop through an animated texture
+	pAnimationSpeed = 1
+
+	' num frames in sprite
+	pSpriteNumFrames = 15
+
+	' Particle base color
+	pBaseColor = .2 .2 .2
+
+	' Scale by the lifetime, so it will eventually be pScale*pSize right before it dies
+    pScale = .5
+	
+	' Particle sprite
+	pSprite = sprites/blink2.spr
+
+	' system lifetime
+	pSystemLifetime = .5
+
+	' starting velocity
+	pVelShape = Box
+	
+	' starting velocity parms
+	pVelParams = 0,0,-20,0,0,-30,0,0
+
+	' render mode
+	' 0 = kRenderNormal
+	' 1 = kRenderTransColor,		// c*a+dest*(1-a)
+	' 2 = kRenderTransTexture,	// src*a+dest*(1-a)
+	' 3 = kRenderGlow,			// src*a+dest -- No Z buffer checks
+	' 4 = kRenderTransAlpha,		// src*srca+dest*(1-srca)
+	' 5 = kRenderTransAdd,		// src*a+dest
+	pRenderMode = 5
+
+	' particle max alpha
+	particleMaxAlpha = .1
+
+	'1 : "start on"
+	'2 : "particle density"
+	'4 : "fade in"
+	'8 : "fade out"
+	'16 : "use world gravity"
+	'32 : "tri, not quads"
+	'64 : "minimize edges"
+	' flags (start on, fade in, fade out, triangles)
+	pSpawnFlags = 8
+
+	' particle lifetime
+	pLifetime = 2
+
+	' Gen rate
+	pGenRate = 1
+
+	' Gen shape (one of: Point, Line, Triangle, Plane, Box, Cylinder, Cone, Blob, Disc, Rectangle, None)
+	pGenShape = Box
+
+	' Gen params
+	pGenShapeParams = 0,0,0,0,0,0,0,0
+end
+
+start pSystemName SmokePuffs
+	' Max number of particles
+	pNumParticles = 5
+
+	' size
+	pSize = 7
+
+	' number of times to loop through an animated texture
+	pAnimationSpeed = 1
+
+	' num frames in sprite
+	pSpriteNumFrames = 10
+
+	' Particle base color
+	pBaseColor = .2 .2 .2
+
+	' Scale by the lifetime, so it will eventually be pScale*pSize right before it dies
+	pScale = 4
+	
+	' Particle sprite
+	pSprite = sprites/turretsmoke.spr
+
+	' system lifetime
+	pSystemLifetime = .5
+
+	' starting velocity
+	pVelShape = Box
+	
+	' starting velocity parms
+	pVelParams = -1,-1,2,1,1,20,0,0
+
+	' render mode
+	' 0 = kRenderNormal
+	' 1 = kRenderTransColor,		// c*a+dest*(1-a)
+	' 2 = kRenderTransTexture,	// src*a+dest*(1-a)
+	' 3 = kRenderGlow,			// src*a+dest -- No Z buffer checks
+	' 4 = kRenderTransAlpha,		// src*srca+dest*(1-srca)
+	' 5 = kRenderTransAdd,		// src*a+dest
+	pRenderMode = 5
+
+	' particle max alpha
+	particleMaxAlpha = .1
+
+	' particle lifetime
+	pLifetime = 1.5
+
+	'1 : "start on"
+	'2 : "particle density"
+	'4 : "fade in"
+	'8 : "fade out"
+	'16 : "use world gravity"
+	'32 : "tri, not quads"
+	'64 : "minimize edges"
+	'512: "high-detail only"
+	' flags (start on, fade in, fade out, triangles)
+	pSpawnFlags = 520
+
+	' Gen rate
+	pGenRate = 2
+
+	' Gen shape (one of: Point, Line, Triangle, Plane, Box, Cylinder, Cone, Blob, Disc, Rectangle, None)
+	pGenShape = Box
+
+	' Gen params
+	pGenShapeParams = -4,-4,-2,4,4,2,0,0
+end
+
+start pSystemName ChamberDeath
+	' Max number of particles
+	pNumParticles = 25
+
+	' size
+	pSize = 15
+
+	' number of times to loop through an animated texture
+	pAnimationSpeed = 2
+
+	' num frames in sprite
+	pSpriteNumFrames = 10
+
+	' Particle base color
+	pBaseColor = 1 1 1
+
+	' Scale by the lifetime, so it will eventually be pScale*pSize right before it dies
+    pScale = 4
+	
+	' Particle sprite
+	pSprite = sprites/chamberdeath.spr
+
+	' system lifetime
+	pSystemLifetime = 0.5
+
+	' starting velocity
+	pVelShape = Box
+	
+	' starting velocity parms
+	pVelParams = -100,-100,75,100,100,400,0,0
+
+	' render mode
+	' 0 = kRenderNormal
+	' 1 = kRenderTransColor,		// c*a+dest*(1-a)
+	' 2 = kRenderTransTexture,	// src*a+dest*(1-a)
+	' 3 = kRenderGlow,			// src*a+dest -- No Z buffer checks
+	' 4 = kRenderTransAlpha,		// src*srca+dest*(1-srca)
+	' 5 = kRenderTransAdd,		// src*a+dest
+	pRenderMode = 5
+
+	'1 : "start on"
+	'2 : "particle density"
+	'4 : "fade in"
+	'8 : "fade out"
+	'16 : "use world gravity"
+	'32 : "tri, not quads"
+	'64 : "minimize edges"
+	' flags (start on, fade in, fade out, triangles)
+	pSpawnFlags = 24
+
+	' particle lifetime
+	pLifetime = .6
+
+	' Gen rate
+	pGenRate = 800
+
+	' Gen shape (one of: Point, Line, Triangle, Plane, Box, Cylinder, Cone, Blob, Disc, Rectangle, None)
+	pGenShape = Box
+
+	' Gen params
+	pGenShapeParams = -8,-8,-8,8,8,8,0,0
+end
+
+start pSystemName HiveDeath
+	' Max number of particles
+	pNumParticles = 50
+
+	' size
+	pSize = 15
+
+	' number of times to loop through an animated texture
+	pAnimationSpeed = 2
+
+	' num frames in sprite
+	pSpriteNumFrames = 10
+
+	' Particle base color
+	pBaseColor = 1 1 1
+
+	' Scale by the lifetime, so it will eventually be pScale*pSize right before it dies
+    pScale = 4
+	
+	' Particle sprite
+	pSprite = sprites/chamberdeath.spr
+
+	' system lifetime
+	pSystemLifetime = 0.8
+
+	' starting velocity
+	pVelShape = Box
+	
+	' starting velocity parms
+	pVelParams = -100,-100,75,100,100,400,0,0
+
+	' render mode
+	' 0 = kRenderNormal
+	' 1 = kRenderTransColor,		// c*a+dest*(1-a)
+	' 2 = kRenderTransTexture,	// src*a+dest*(1-a)
+	' 3 = kRenderGlow,			// src*a+dest -- No Z buffer checks
+	' 4 = kRenderTransAlpha,		// src*srca+dest*(1-srca)
+	' 5 = kRenderTransAdd,		// src*a+dest
+	pRenderMode = 5
+
+	'1 : "start on"
+	'2 : "particle density"
+	'4 : "fade in"
+	'8 : "fade out"
+	'16 : "use world gravity"
+	'32 : "tri, not quads"
+	'64 : "minimize edges"
+	' flags (start on, fade in, fade out, triangles)
+	pSpawnFlags = 24
+
+	' particle lifetime
+	pLifetime = 1.2
+
+	' Gen rate
+	pGenRate = 800
+
+	' Gen shape (one of: Point, Line, Triangle, Plane, Box, Cylinder, Cone, Blob, Disc, Rectangle, None)
+	pGenShape = Box
+
+	' Gen params
+	pGenShapeParams = -64,-64,-64,64,64,64,0,0
+end
+
+start pSystemName StompEffect
+	' Max number of particles
+	pNumParticles = 2
+
+	' size
+	pSize = 10
+
+	' number of times to loop through an animated texture
+	pAnimationSpeed = 1
+
+	' num frames in sprite
+	pSpriteNumFrames = 1
+
+	' Particle base color
+	pBaseColor = 1 1 1
+
+	' Scale by the lifetime, so it will eventually be pScale*pSize right before it dies
+    pScale = 20
+	
+	' Particle sprite
+	pSprite = sprites/stomp.spr
+
+	' system lifetime
+	pSystemLifetime = .2
+
+	' starting velocity
+	pVelShape = Box
+	
+	' starting velocity parms
+	pVelParams = 0,0,0,0,0,0,0,0
+
+	' render mode
+	' 0 = kRenderNormal
+	' 1 = kRenderTransColor,		// c*a+dest*(1-a)
+	' 2 = kRenderTransTexture,	// src*a+dest*(1-a)
+	' 3 = kRenderGlow,			// src*a+dest -- No Z buffer checks
+	' 4 = kRenderTransAlpha,		// src*srca+dest*(1-srca)
+	' 5 = kRenderTransAdd,		// src*a+dest
+	pRenderMode = 5
+
+
+	'1 : "start on"
+	'2 : "particle density"
+	'4 : "fade in"
+	'8 : "fade out"
+	'16 : "use world gravity"
+	'32 : "tri, not quads"
+	'64 : "minimize edges"
+	'128: "constrain pitch"
+	'512: "high-detail only"
+	'1024: "face up"
+	' flags (start on, fade in, fade out, triangles)
+	pSpawnFlags = 1032
+
+	' particle lifetime
+	pLifetime = .5
+
+	' Gen rate
+	pGenRate = 50
+
+	' Gen shape (one of: Point, Line, Triangle, Plane, Box, Cylinder, Cone, Blob, Disc, Rectangle, None)
+	pGenShape = Box
+
+	' Gen params (this is offset a bit because stomp originates at Onos center)
+	pGenShapeParams = 0,0,0,0,0,0,0,0
+end
+
+start pSystemName PheromoneEffect
+	' Max number of particles
+	pNumParticles = 1
+
+	' size
+	pSize = 30
+
+	' number of times to loop through an animated texture
+	pAnimationSpeed = 1
+
+	' num frames in sprite
+	pSpriteNumFrames = 1
+
+	' Particle base color
+	pBaseColor = .2 .2 .2
+
+	' Scale by the lifetime, so it will eventually be pScale*pSize right before it dies
+    pScale = .8
+	
+	' Particle sprite
+	pSprite = sprites/pheromone.spr
+
+	' system lifetime
+	pSystemLifetime = .1
+
+	' starting velocity
+	pVelShape = Point
+	
+	' starting velocity parms
+	pVelParams = 0,0,0,0,0,0,0,0
+
+	' render mode
+	' 0 = kRenderNormal
+	' 1 = kRenderTransColor,		// c*a+dest*(1-a)
+	' 2 = kRenderTransTexture,	// src*a+dest*(1-a)
+	' 3 = kRenderGlow,			// src*a+dest -- No Z buffer checks
+	' 4 = kRenderTransAlpha,		// src*srca+dest*(1-srca)
+	' 5 = kRenderTransAdd,		// src*a+dest
+	pRenderMode = 5
+
+	' particle max alpha
+	particleMaxAlpha = .1
+
+	'1 : "start on"
+	'2 : "particle density"
+	'4 : "fade in"
+	'8 : "fade out"
+	'16 : "use world gravity"
+	'32 : "tri, not quads"
+	'64 : "minimize edges"
+	' flags (start on, fade in, fade out, triangles)
+	pSpawnFlags = 8
+
+	' particle lifetime
+	pLifetime = 10
+
+	' Gen rate
+	pGenRate = 10
+
+	' Gen shape (one of: Point, Line, Triangle, Plane, Box, Cylinder, Cone, Blob, Disc, Rectangle, None)
+	pGenShape = Box
+
+	' Gen params
+	pGenShapeParams = 0,0,0,0,0,0,0,0
+end
+
+start pSystemName StompSmoke
+	' Max number of particles
+	pNumParticles = 1
+
+	' size
+	pSize = 20
+
+	' number of times to loop through an animated texture
+	pAnimationSpeed = 1
+
+	' num frames in sprite
+	pSpriteNumFrames = 10
+
+	' Particle base color
+	pBaseColor = .2 .2 .2
+
+	' Scale by the lifetime, so it will eventually be pScale*pSize right before it dies
+	pScale = 4
+	
+	' Particle sprite
+	pSprite = sprites/lightsmoke.spr
+
+	' system lifetime
+	pSystemLifetime = .1
+
+	' starting velocity
+	pVelShape = Box
+	
+	' starting velocity parms
+	pVelParams = 0,0,5,0,0,10,0,0
+
+	' render mode
+	' 0 = kRenderNormal
+	' 1 = kRenderTransColor,		// c*a+dest*(1-a)
+	' 2 = kRenderTransTexture,	// src*a+dest*(1-a)
+	' 3 = kRenderGlow,			// src*a+dest -- No Z buffer checks
+	' 4 = kRenderTransAlpha,		// src*srca+dest*(1-srca)
+	' 5 = kRenderTransAdd,		// src*a+dest
+	pRenderMode = 5
+
+	' particle max alpha
+	particleMaxAlpha = .1
+
+	' particle lifetime
+	pLifetime = .7
+
+	'1 : "start on"
+	'2 : "particle density"
+	'4 : "fade in"
+	'8 : "fade out"
+	'16 : "use world gravity"
+	'32 : "tri, not quads"
+	'64 : "minimize edges"
+	'128: "constrain pitch"
+	'512: "high-detail only"
+	'1024: "face up"
+	' fade out, high detail
+	pSpawnFlags = 520
+
+	' Gen rate
+	pGenRate = 40
+
+	' Gen shape (one of: Point, Line, Triangle, Plane, Box, Cylinder, Cone, Blob, Disc, Rectangle, None)
+	pGenShape = Box
+
+	' Gen params
+	pGenShapeParams = -40,-40,0,40,40,10,0,0
+end
+
+
+

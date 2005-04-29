@@ -119,8 +119,8 @@
 #define kGameDownloadSize 150
 #define kGameHDSpaceNeeded 300
 #define kGameVersionMajor 3
-#define kGameVersionMinor 1
-#define kGameVersionRevision 0
+#define kGameVersionMinor 0
+#define kGameVersionRevision 3
 #define kGestateBaseArmor 150
 #define kGestateHealth 200
 #define kGorgeArmorUpgrade 50
@@ -180,7 +180,7 @@
 #define kMGMaxAmmo 250
 #define kMGMaxClip 50
 #define kMarineArmorUpgrade 60
-#define kMarineBaseArmor 25
+#define kMarineBaseArmor 30
 #define kMarineBaseHeavyArmor 200
 #define kMarineHealth 100
 #define kMarineHeavyArmorUpgrade 90
@@ -275,7 +275,7 @@
 #define kShotgunCost 10
 #define kSiegeBuildTime 10
 #define kSiegeCost 15
-#define kSiegeDamage 330
+#define kSiegeDamage 380
 #define kSiegeHealth 2000
 #define kSiegeROF 4
 #define kSiegeTurretRange 1100

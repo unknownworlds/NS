@@ -376,7 +376,8 @@ float SetController( void *pmodel, entvars_t *pev, int iController, float flValu
 	mstudiobonecontroller_t	*pbonecontroller = (mstudiobonecontroller_t *)((byte *)pstudiohdr + pstudiohdr->bonecontrollerindex);
 
 	// find first controller that matches the index
-	for (int i = 0; i < pstudiohdr->numbonecontrollers; i++, pbonecontroller++)
+	int i=0;
+	for (i = 0; i < pstudiohdr->numbonecontrollers; i++, pbonecontroller++)
 	{
 		if (pbonecontroller->index == iController)
 			break;

@@ -442,7 +442,8 @@ void Host_Say( edict_t *pEntity, int teamonly )
 	}
 
 // make sure the text has content
-	for ( char *pc = p; pc != NULL && *pc != 0; pc++ )
+	char *pc=p;
+	for ( pc = p; pc != NULL && *pc != 0; pc++ )
 	{
 		if ( isprint( *pc ) && !isspace( *pc ) )
 		{
@@ -861,8 +862,9 @@ void ClientPrecache( void )
 {
 	// Precache sound lists for all player types
 	gSoundListManager.Clear();
-
-	for(int i = ((int)AVH_USER3_NONE + 1); i < (int)AVH_USER3_ALIEN_EMBRYO; i++)
+	
+	int i=0;
+	for(i = ((int)AVH_USER3_NONE + 1); i < (int)AVH_USER3_ALIEN_EMBRYO; i++)
 	{
 		char theSoundListName[256];
 		bool theIsAlien = (i > 3);
@@ -1950,9 +1952,9 @@ int GetWeaponData( struct edict_s *player, struct weapon_data_s *info )
 						item->m_iId						= II.iId;
 						item->m_iClip					= gun->m_iClip;
 
-						item->m_flTimeWeaponIdle		= max( gun->m_flTimeWeaponIdle, -0.001 );
-						item->m_flNextPrimaryAttack		= max( gun->m_flNextPrimaryAttack, -0.001 );
-						item->m_flNextSecondaryAttack	= max( gun->m_flNextSecondaryAttack, -0.001 );
+						item->m_flTimeWeaponIdle		= max( gun->m_flTimeWeaponIdle, -0.001f );
+						item->m_flNextPrimaryAttack		= max( gun->m_flNextPrimaryAttack, -0.001f );
+						item->m_flNextSecondaryAttack	= max( gun->m_flNextSecondaryAttack, -0.001f );
 						item->m_fInReload				= gun->m_fInReload;
 
 						//thePlayer->SetDebugCSP(item);

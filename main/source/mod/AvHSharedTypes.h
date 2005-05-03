@@ -11,7 +11,7 @@ const int kHiveInfoStatusBuildingStage5 = 5;
 const int kHiveInfoStatusBuilt = 6;
 const int kHiveInfoStatusUnderAttack = 7;
 
-#define CHECK_EQUAL(x) (this->##x == inHiveInfo.##x)
+#define CHECK_EQUAL(x) (this->x == inHiveInfo.x )
 class AvHHiveInfo
 {
 public:

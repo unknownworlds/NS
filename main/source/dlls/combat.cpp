@@ -1736,7 +1736,7 @@ Vector CBaseEntity::FireBulletsPlayer ( ULONG cShots, Vector vecSrc, Vector vecD
 							if ( distance > BALANCE_VAR(kShotgunDamageRange) )
 							{
 								float fallOffDistance=distance-BALANCE_VAR(kShotgunDamageRange);
-								float fallOff=max(0.0, 1.0f-(fallOffDistance/(kSGRange/2)));
+								float fallOff=max(0.0f, 1.0f-(fallOffDistance/(kSGRange/2)));
 								theAdjustedDamage*=fallOff;
 							}
 						}

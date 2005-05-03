@@ -12,22 +12,18 @@ ARCH=i386
 CC=gcc
 LD=gcc
 
-CURL_SRCDIR=../curl/lib
+LIBBASE=../../../libraries/current
+
 DLL_SRCDIR=../dlls
 GAME_SHARED_SRCDIR = ../game_shared
-LUA_SRCDIR = ../lua/src
-LUA_AUX_SRCDIR = ../lua/src/lib
 MOD_SRCDIR = ../mod
 PARTICLES_SRCDIR = ../particles
 PM_SHARED_SRCDIR=../pm_shared
 TEXT_SRCDIR = ../textrep
 UTIL_SRCDIR = ../util
 
-CURL_OBJDIR=$(CURL_SRCDIR)/obj
 DLL_OBJDIR=$(DLL_SRCDIR)/obj
 GAME_SHARED_OBJDIR=$(GAME_SHARED_SRCDIR)/obj
-LUA_OBJDIR=$(LUA_SRCDIR)/obj
-LUA_AUX_OBJDIR=$(LUA_AUX_SRCDIR)/obj
 MOD_OBJDIR=$(MOD_SRCDIR)/obj
 PARTICLES_OBJDIR=$(PARTICLES_SRCDIR)/obj
 PM_SHARED_OBJDIR=$(PM_SHARED_SRCDIR)/obj
@@ -38,15 +34,15 @@ OUTPUT_DIR=../../hlds_l/ns/dlls
 BASE_CFLAGS=-Dstricmp=strcasecmp -D_strnicmp=strncasecmp -Dstrnicmp=strncasecmp -DAVH_SERVER -DLINUX  -DVALVE_DLL -DQUIVER -DVOXEL -DQUAKE2 -DDEDICATED -DSWDS -D_STLP_USE_GLIBC
 
 #full optimization
-CFLAGS=$(BASE_CFLAGS) -w -Wall -nostdinc++ -fPIC -mcpu=i486 -O3 -pipe -fno-for-scope -funroll-loops -fdelayed-branch -malign-loops=4 -malign-jumps=4 -malign-functions=4  
+CFLAGS=$(BASE_CFLAGS) -w -Wall -nostdinc++ -ffor-scope -fPIC -mcpu=i486 -O3 -pipe  -funroll-loops -fdelayed-branch -malign-loops=4 -malign-jumps=4 -malign-functions=4  
 
 #use these when debugging 
 #CFLAGS=$(BASE_CFLAGS) -fPIC -fno-for-scope   
 
 # add base directory (CGC)
 
-INCLUDEDIRS=-I../stlport/stlport -I. -I../curl/include -I../dlls -I../engine -I../common -I../mod -I../game_shared -I../lua/include -I../pm_shared -I.. -I/usr/include/c++/3.2/i386-redhat-linux -I/usr/include/c++/3.2 -I/usr/include/c++ 
-LINKDIRS= -L../curl/lib/.libs -L../stlport/lib 
+INCLUDEDIRS=-I$(LIBBASE) -I. -I$(LIBBASE)/include -I$(LIBBASE)/include/stlport -I$(LIBBASE)/include/particle -I$(LIBBASE)/include/lua -I../dlls -I../engine -I../common -I../mod -I../game_shared -I../pm_shared -I.. -I/usr/include/c++/3.3/i486-linux -I/usr/include/c++/3.3 -I/usr/include/c++ 
+LINKDIRS=  -L$(LIBBASE)/release
 
 SHLIBEXT=so
 
@@ -54,8 +50,8 @@ LDPRELIBS= $(CFLAGS) -shared \
            -Wl,-Map,ns_map.txt \
            $(LINKDIRS)
 
-LDPOSTLIBS= -Wl,-Bstatic -lcurl -lstlport_gcc -lstdc++ -lsupc++ \
-	-Wl,-Bdynamic -lm -lgcc -lgcc_eh  -Wl,-Bstatic -lc
+LDPOSTLIBS= -Wl,-Bstatic -lstlport_gcc -lstdc++ -lsupc++ -llua -llualib\
+	-Wl,-Bdynamic -lm -lgcc -lgcc_eh
 # -lgcc -lgcc_eh -lelf
 DO_CC=$(CC) $(CFLAGS) $(INCLUDEDIRS) -o $@ -c $<
 
@@ -71,12 +67,6 @@ $(DLL_OBJDIR)/%.o: $(DLL_SRCDIR)/%.cpp
 	$(DO_CC)
 
 $(GAME_SHARED_OBJDIR)/%.o: $(GAME_SHARED_SRCDIR)/%.cpp
-	$(DO_CC)
-
-$(LUA_OBJDIR)/%.o: $(LUA_SRCDIR)/%.c
-	$(DO_CC)
-
-$(LUA_AUX_OBJDIR)/%.o: $(LUA_AUX_SRCDIR)/%.c
 	$(DO_CC)
 
 $(MOD_OBJDIR)/%.o: $(MOD_SRCDIR)/%.cpp
@@ -127,7 +117,6 @@ OBJ = \
 	$(DLL_OBJDIR)/plane.o \
 	$(DLL_OBJDIR)/plats.o \
 	$(DLL_OBJDIR)/player.o \
-	$(DLL_OBJDIR)/rpg.o \
 	$(DLL_OBJDIR)/satchel.o \
 	$(DLL_OBJDIR)/shotgun.o \
 	$(DLL_OBJDIR)/singleplay_gamerules.o \
@@ -146,32 +135,6 @@ OBJ = \
 	$(DLL_OBJDIR)/xen.o \
 	$(GAME_SHARED_OBJDIR)/voice_banmgr.o \
 	$(GAME_SHARED_OBJDIR)/voice_gamemgr.o \
-	$(LUA_OBJDIR)/lapi.o \
-	$(LUA_AUX_OBJDIR)/lauxlib.o \
-	$(LUA_AUX_OBJDIR)/lbaselib.o \
-	$(LUA_OBJDIR)/lcode.o \
-	$(LUA_AUX_OBJDIR)/ldblib.o \
-	$(LUA_OBJDIR)/ldebug.o \
-	$(LUA_OBJDIR)/ldo.o \
-	$(LUA_OBJDIR)/lfunc.o \
-	$(LUA_OBJDIR)/lgc.o \
-	$(LUA_AUX_OBJDIR)/liolib.o \
-	$(LUA_OBJDIR)/llex.o \
-	$(LUA_AUX_OBJDIR)/lmathlib.o \
-	$(LUA_OBJDIR)/lmem.o \
-	$(LUA_OBJDIR)/lobject.o \
-	$(LUA_OBJDIR)/lparser.o \
-	$(LUA_OBJDIR)/lstate.o \
-	$(LUA_OBJDIR)/lstring.o \
-	$(LUA_AUX_OBJDIR)/lstrlib.o \
-	$(LUA_OBJDIR)/ltable.o \
-	$(LUA_OBJDIR)/ltests.o \
-	$(LUA_OBJDIR)/ltm.o \
-	$(LUA_OBJDIR)/lundump.o \
-	$(LUA_OBJDIR)/lvm.o \
-	$(LUA_OBJDIR)/lzio.o \
-	$(LUA_OBJDIR)/lopcodes.o \
-	$(LUA_OBJDIR)/ldump.o \
 	$(PM_SHARED_OBJDIR)/pm_debug.o \
 	$(PM_SHARED_OBJDIR)/pm_math.o \
 	$(PM_SHARED_OBJDIR)/pm_shared.o \
@@ -182,7 +145,6 @@ OBJ = \
 	$(MOD_OBJDIR)/AvHAlienTurret.o \
 	$(MOD_OBJDIR)/AvHAlienWeapon.o \
 	$(MOD_OBJDIR)/AvHAssert.o \
-	$(MOD_OBJDIR)/AvHBalance.o \
 	$(MOD_OBJDIR)/AvHBaseBuildable.o \
 	$(MOD_OBJDIR)/AvHBaseInfoLocation.o \
 	$(MOD_OBJDIR)/AvHBasePlayerWeapon.o \
@@ -197,7 +159,6 @@ OBJ = \
 	$(MOD_OBJDIR)/AvHConsoleCommands.o \
 	$(MOD_OBJDIR)/AvHConstants.o \
 	$(MOD_OBJDIR)/AvHCombat.o \
-	$(MOD_OBJDIR)/AvHCurl.o \
 	$(MOD_OBJDIR)/AvHDevour.o \
 	$(MOD_OBJDIR)/AvHDivineWind.o \
 	$(MOD_OBJDIR)/AvHEntities.o \
@@ -219,6 +180,7 @@ OBJ = \
 	$(MOD_OBJDIR)/AvHMine.o \
 	$(MOD_OBJDIR)/AvHMiniMap.o \
 	$(MOD_OBJDIR)/AvHMovementUtil.o \
+	$(MOD_OBJDIR)/AvHNetworkMessages.o \
 	$(MOD_OBJDIR)/AvHOrder.o \
 	$(MOD_OBJDIR)/AvHParasiteGun.o \
 	$(MOD_OBJDIR)/AvHParticleSystem.o \
@@ -251,8 +213,9 @@ OBJ = \
 	$(MOD_OBJDIR)/AvHStomp.o \
 	$(MOD_OBJDIR)/AvHSwipe.o \
 	$(MOD_OBJDIR)/AvHTeam.o \
-	$(MOD_OBJDIR)/AvHTechNodes.o \
+	$(MOD_OBJDIR)/AvHTechNode.o \
 	$(MOD_OBJDIR)/AvHTurret.o \
+	$(MOD_OBJDIR)/AvHTechTree.o \
 	$(MOD_OBJDIR)/AvHUmbraGun.o \
 	$(MOD_OBJDIR)/AvHVisibleBlipList.o \
 	$(MOD_OBJDIR)/AvHVoiceHelper.o \
@@ -266,12 +229,10 @@ OBJ = \
 	$(MOD_OBJDIR)/CollisionChecker.o \
 	$(MOD_OBJDIR)/CollisionChecker_ServerOnly.o \
 	$(MOD_OBJDIR)/NetworkMeter.o \
-	$(PARTICLES_OBJDIR)/action_api.o \
-	$(PARTICLES_OBJDIR)/actions.o \
-	$(PARTICLES_OBJDIR)/system.o \
 	$(TEXT_OBJDIR)/TRDescription.o \
 	$(TEXT_OBJDIR)/TRFactory.o \
 	$(UTIL_OBJDIR)/Checksum.o \
+	$(UTIL_OBJDIR)/Balance.o \
 	$(UTIL_OBJDIR)/LinuxSupport.o \
 	$(UTIL_OBJDIR)/Mat3.o \
 	$(UTIL_OBJDIR)/MathUtil.o \
@@ -279,10 +240,13 @@ OBJ = \
 	$(UTIL_OBJDIR)/STLUtil.o \
 	$(UTIL_OBJDIR)/Tokenizer.o
 
+#	$(PARTICLES_OBJDIR)/action_api.o 
+#	$(PARTICLES_OBJDIR)/actions.o 
+#	$(PARTICLES_OBJDIR)/system.o 
+
 $(DLLNAME)_$(ARCH).$(SHLIBEXT) : neat $(OBJ)
 	$(LD) $(LDPRELIBS) -o $@ $(OBJ) $(LDPOSTLIBS) 
-	cp $(DLLNAME)_$(ARCH).$(SHLIBEXT) /usr/steam/hlds_l/ns/dlls/
-release: $(DLLNAME)_$(ARCH).$(SHLIBEXT)
+	release: $(DLLNAME)_$(ARCH).$(SHLIBEXT)
 	strip $(DLLNAME)_$(ARCH).$(SHLIBEXT)
 	zip $(DLLNAME)_$(ARCH).zip $(DLLNAME)_$(ARCH).$(SHLIBEXT)
 curl:
@@ -291,8 +255,6 @@ neat:
 	-mkdir $(CURL_OBJDIR)
 	-mkdir $(DLL_OBJDIR)
 	-mkdir $(GAME_SHARED_OBJDIR)
-	-mkdir $(LUA_OBJDIR)
-	-mkdir $(LUA_AUX_OBJDIR)
 	-mkdir $(MOD_OBJDIR)
 	-mkdir $(PARTICLES_OBJDIR)
 	-mkdir $(PM_SHARED_OBJDIR)
@@ -306,8 +268,6 @@ spotless: clean
 	-rm -r $(CURL_OBJDIR)
 	-rm -r $(DLL_OBJDIR)
 	-rm -r $(GAME_SHARED_OBJDIR)
-	-rm -r $(LUA_OBJDIR)
-	-rm -r $(LUA_AUX_OBJDIR)
 	-rm -r $(MOD_OBJDIR)
 	-rm -r $(PARTICLES_OBJDIR)
 	-rm -r $(PM_SHARED_OBJDIR)

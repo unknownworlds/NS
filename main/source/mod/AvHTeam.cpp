@@ -874,7 +874,7 @@ void AvHTeam::ResetGame()
 	this->mFunSoundsPlayed.clear();
 	this->mPlayedSeeDeadPeople = false;
 
-	int theEasterEggChance = max(0, avh_eastereggchance.value);
+	int theEasterEggChance = max(0.0f, avh_eastereggchance.value);
 	this->mPlayFunSoundsThisGame = (RANDOM_LONG(0, theEasterEggChance) == 0);
 
 	// Don't give hints right away
@@ -1769,7 +1769,7 @@ void AvHTeam::UpdateVoting()
 				// If we have enough votes to kick commander
 				float theVotePercent = avh_votepercentneeded.value;
 				int theMinVotesRequired = (int)avh_minvotesneeded.value;
-				int theVotesNeeded = max(theMinVotesRequired, this->mPlayerList.size()*theVotePercent);
+				int theVotesNeeded = max((float)theMinVotesRequired, this->mPlayerList.size()*theVotePercent);
 				
 				// #545: If the voting has changed, indicate so in the HUD
 				if ((this->mVotesNeeded != theVotesNeeded) || (this->mVotes != this->mPreviousVotes)) {

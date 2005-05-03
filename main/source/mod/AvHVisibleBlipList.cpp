@@ -234,7 +234,7 @@ void AvHVisibleBlipList::VidInit()
 }
 #endif
 
-#define CHECK_EQUAL(x) (this->##x == inList.##x)
+#define CHECK_EQUAL(x) (this->x == inList.x)
 bool AvHVisibleBlipList::operator==(const AvHVisibleBlipList& inList)
 {
 	bool theAreEqual = CHECK_EQUAL(mNumBlips);

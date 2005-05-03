@@ -15,7 +15,7 @@
 #include "mod/AvHTechNode.h"
 
 //for use in operator==
-#define CHECK_EQUAL(x) (this->##x == other.##x)
+#define CHECK_EQUAL(x) (this->x == other.x)
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // AvHTechNode

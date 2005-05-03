@@ -1714,7 +1714,7 @@ float AvHInfantryPortal::GetReinforceTime() const
 		theReinforceTime = 2;
 	}
 
-	theReinforceTime = max(0, theReinforceTime);
+	theReinforceTime = max(0.0f, theReinforceTime);
 
 	return theReinforceTime;
 }

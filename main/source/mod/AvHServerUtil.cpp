@@ -1086,7 +1086,7 @@ void AvHSUKnockPlayerAbout(CBaseEntity* inAttcker, CBaseEntity* inVictim, int in
 
 			inVictim->pev->punchangle.z = -18;
 			inVictim->pev->punchangle.x = 5;
-			inVictim->pev->velocity = VecDir * max(0, 120 - VecDir.Length() ) * inForce/75;
+			inVictim->pev->velocity = VecDir * max(0.0f, 120 - VecDir.Length() ) * inForce/75;
 		}
 	}
 
@@ -1441,7 +1441,7 @@ void AvHSUExplosiveForce(const Vector& inOrigin, int inRadius, float inForceScal
 				
 				float theForceScalar = inForceScalar;
 				float theDistanceToExplosion = theForceVector.Length();
-				theDistanceToExplosion = min(max(theDistanceToExplosion, 0), inRadius);
+				theDistanceToExplosion = min(max(theDistanceToExplosion, 0.0f), (float)inRadius);
 				
 				float thePercentForce = (1.0f - (theDistanceToExplosion/(float)inRadius));
 				theForceScalar *= thePercentForce;

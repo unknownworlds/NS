@@ -235,7 +235,7 @@ void AvHBaseBuildable::ConstructUse( CBaseEntity *pActivator, CBaseEntity *pCall
 				    const float kDefaultInterval = .1f;
 				    float theTimeOfLastConstructUse = thePlayer->GetTimeOfLastConstructUse();
 				    
-				    float theInterval = min(max(gpGlobals->time - theTimeOfLastConstructUse, 0), kDefaultInterval);
+				    float theInterval = min(max(gpGlobals->time - theTimeOfLastConstructUse, 0.0f), kDefaultInterval);
 				    thePercentage += (theInterval/(float)theBuildTime);
 
 				    thePlayer->SetTimeOfLastConstructUse(gpGlobals->time);
@@ -474,7 +474,7 @@ void AvHBaseBuildable::SetNormalizedBuildPercentage(float inPercentage, bool inF
 	if(theDiff > 0)
 	{
 		this->pev->health += theDiff*(1.0f - kBaseHealthPercentage)*this->mBaseHealth;
-		this->pev->health = min(max(0.0f, this->pev->health), this->mBaseHealth);
+		this->pev->health = min(max(0.0f, this->pev->health), (float)this->mBaseHealth);
 	}
 	else
 	{

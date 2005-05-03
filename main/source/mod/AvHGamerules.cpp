@@ -1011,7 +1011,7 @@ bool AvHGamerules::GetCanJoinTeamInFuture(AvHPlayer* inPlayer, AvHTeamNumber inT
 					theWouldBeNumPlayersOnOtherTeam--;
 				}
 
-				int theDiscrepancyAllowed = max(1, avh_limitteams.value);
+				int theDiscrepancyAllowed = max(1.0f, avh_limitteams.value);
 				if(((theWouldBeNumPlayersOnTeam - theWouldBeNumPlayersOnOtherTeam) <= theDiscrepancyAllowed) || this->GetIsTournamentMode() || this->GetCheatsEnabled())
 				{
 					// tankefugl: 0000953
@@ -2271,7 +2271,7 @@ int AvHGamerules::GetVotesNeededForMapChange() const
     if(theMapVoteRatio > 0)
     {
         theMapVoteRatio = min(max(0.0f, theMapVoteRatio), 1.0f);
-        theNumVotes = max(theMapVoteRatio*this->GetNumberOfPlayers(), 1);
+        theNumVotes = max(theMapVoteRatio*this->GetNumberOfPlayers(), 1.0f);
     }
 
     return theNumVotes;

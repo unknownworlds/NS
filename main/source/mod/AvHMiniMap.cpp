@@ -148,7 +148,8 @@ bool AvHMiniMap::Process()
 		uint8 theSampleArray[kNumPixelsPerCall];
 		memset(theSampleArray, 0, kNumPixelsPerCall);
 		
-		for(int i = 0; (i < kNumPixelsPerCall) && (this->mNumSamplesProcessed < this->mNumSamplesToProcess); i++)
+		int i=0;
+		for(i = 0; (i < kNumPixelsPerCall) && (this->mNumSamplesProcessed < this->mNumSamplesToProcess); i++)
 		{
 			int theSampleIndex = this->mNumSamplesProcessed;
 			int theX = theSampleIndex % this->mMapWidth;

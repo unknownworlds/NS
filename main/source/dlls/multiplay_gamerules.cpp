@@ -654,8 +654,8 @@ void CHalfLifeMultiplay::DeathNotice( CBasePlayer *pVictim, entvars_t *pKiller, 
 		killer_weapon_name += 8;
 	else if ( strncmp( killer_weapon_name, "func_", 5 ) == 0 )
 		killer_weapon_name += 5;
-
-	NetMsg_DeathMsg( killer_index, ENTINDEX( pVictim->edict() ), string( killer_weapon_name ) );
+	string tmpstr(killer_weapon_name);
+	NetMsg_DeathMsg( killer_index, ENTINDEX( pVictim->edict() ), tmpstr);
 
 	// replace the code names with the 'real' names
 	if ( !strcmp( killer_weapon_name, "egon" ) )

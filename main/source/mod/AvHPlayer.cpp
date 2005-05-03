@@ -3401,7 +3401,7 @@ void AvHPlayer::InitializeFromTeam(float inHealthPercentage, float inArmorPercen
 {
     // Set base health and armor
     int theMaxHealth = AvHPlayerUpgrade::GetMaxHealth(this->pev->iuser4, (AvHUser3)this->pev->iuser3, this->GetExperienceLevel());
-    this->pev->health = this->pev->max_health = max(theMaxHealth*inHealthPercentage,1);//voogru: prevent bug with players evolving down from higher lifeform from getting negative health but still "alive"
+    this->pev->health = this->pev->max_health = max(theMaxHealth*inHealthPercentage,1.0f);//voogru: prevent bug with players evolving down from higher lifeform from getting negative health but still "alive"
 
     this->pev->armorvalue = AvHPlayerUpgrade::GetMaxArmorLevel(this->pev->iuser4, (AvHUser3)this->pev->iuser3)*inArmorPercentage;
     
@@ -4842,10 +4842,10 @@ void AvHPlayer::RevertHealthArmorPercentages()
 {
     // Preserve armor and health percentages
     int theMaxHealth = AvHPlayerUpgrade::GetMaxHealth(this->pev->iuser4, (AvHUser3)this->pev->iuser3, this->GetExperienceLevel());
-    this->pev->health = max(this->mHealthPercentBefore*theMaxHealth,1);//voogru: prevent bug with players evolving down from higher lifeform from getting negative health but still "alive"
+    this->pev->health = max(this->mHealthPercentBefore*theMaxHealth,1.0f);//voogru: prevent bug with players evolving down from higher lifeform from getting negative health but still "alive"
 
     int theMaxArmor = AvHPlayerUpgrade::GetMaxArmorLevel(this->pev->iuser4, (AvHUser3)this->pev->iuser3);
-    this->pev->armorvalue = max(this->mArmorPercentBefore*theMaxArmor, 0);
+    this->pev->armorvalue = max(this->mArmorPercentBefore*theMaxArmor, 0.0f);
 
 	// Assumes a push/pop kind of deal
 	this->mHealthPercentBefore = this->mArmorPercentBefore = 1.0f;
@@ -4855,11 +4855,11 @@ void AvHPlayer::SaveHealthArmorPercentages()
 {
     int theMaxHealth = AvHPlayerUpgrade::GetMaxHealth(this->pev->iuser4, (AvHUser3)this->pev->iuser3, this->GetExperienceLevel());
     this->mHealthPercentBefore = this->pev->health/(float)theMaxHealth;
-    this->mHealthPercentBefore = min(max(0, this->mHealthPercentBefore), 1);
+    this->mHealthPercentBefore = min(max(0.0f, this->mHealthPercentBefore), 1.0f);
     
     int theMaxArmor = AvHPlayerUpgrade::GetMaxArmorLevel(this->pev->iuser4, (AvHUser3)this->pev->iuser3);
     this->mArmorPercentBefore = this->pev->armorvalue/(float)theMaxArmor;
-    this->mArmorPercentBefore = min(max(0, this->mArmorPercentBefore), 1);
+    this->mArmorPercentBefore = min(max(0.0f, this->mArmorPercentBefore), 1.0f);
 }
 
 void AvHPlayer::ProcessResourceAdjustment(AvHMessageID inMessageID)
@@ -5094,7 +5094,7 @@ void AvHPlayer::Research(AvHMessageID inUpgrade, int inEntityIndex)
                         ASSERT(thePercentageComplete < 1.0f);
                         const float kRefundFactor = 1.0f;
                         float theRefund = kRefundFactor*(1.0f - thePercentageComplete)*theResearchCost;
-                        theRefund = min(theRefund, theResearchCost);
+                        theRefund = min(theRefund, (float)theResearchCost);
                         this->SetResources(this->GetResources() + theRefund);
                     }
 
@@ -6332,9 +6332,9 @@ void AvHPlayer::InternalCommonThink()
 
     // Players keep their health in fuser2
     int theMaxHealth = AvHPlayerUpgrade::GetMaxHealth(this->pev->iuser4, (AvHUser3)this->pev->iuser3, this->GetExperienceLevel());
-    int theCurrentHealth = max(0, this->pev->health);
+    int theCurrentHealth = max(0.0f, this->pev->health);
     int theMaxArmor = AvHPlayerUpgrade::GetMaxArmorLevel(this->pev->iuser4, (AvHUser3)this->pev->iuser3);
-    int theCurrentArmor = max(0, this->pev->armorvalue);
+    int theCurrentArmor = max(0.0f, this->pev->armorvalue);
 
     // Draw ring to take into account health and armor for aliens, just health for marines (so gorge and comm know when to heal)
     float theScalar = (float)theCurrentHealth/theMaxHealth;
@@ -6456,7 +6456,7 @@ void AvHPlayer::InternalMarineThink()
                     int theMaxArmor = AvHPlayerUpgrade::GetMaxArmorLevel(this->pev->iuser4, (AvHUser3)this->pev->iuser3);
                     if(this->pev->armorvalue < theMaxArmor)
                     {
-                        this->pev->armorvalue = min(theMaxArmor, this->pev->armorvalue + kPowerRegenRate*theTimePassed);
+                        this->pev->armorvalue = min((float)theMaxArmor, this->pev->armorvalue + kPowerRegenRate*theTimePassed);
                     }
                 }
             }
@@ -8234,12 +8234,12 @@ bool AvHPlayer::Heal(float inAmount, bool inPlaySound)
 	{
 		int theAmountToGive = theAmount;
 		theAmount -= (theMaxHealth - this->pev->health); //store relative amount compared to that necessary for complete heal
-		this->pev->health = min(theMaxHealth, this->pev->health + theAmountToGive);
+		this->pev->health = min((float)theMaxHealth, this->pev->health + theAmountToGive);
 		theDidHeal = true;
 	}
 	else if(this->pev->armorvalue < theMaxArmor)
     {
-        this->pev->armorvalue = min(theMaxArmor, this->pev->armorvalue + theAmount);
+        this->pev->armorvalue = min((float)theMaxArmor, this->pev->armorvalue + theAmount);
         theDidHeal = true;
     }
     

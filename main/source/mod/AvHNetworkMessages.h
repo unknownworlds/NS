@@ -32,8 +32,8 @@
 #include "AvHTechSlotManager.h"
 #include "AvHVisibleBlipList.h"
 #include "AvHEntityHierarchy.h"
-#include "..\engine\shake.h"
-#include "..\common\weaponinfo.h"
+#include "../engine/shake.h"
+#include "../common/weaponinfo.h"
 
 //FUNCTION PROTOTYPES
 #ifdef AVH_SERVER

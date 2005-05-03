@@ -2062,8 +2062,8 @@ void CBasePlayer::UpdateStatusBar()
 					//newSBarState[ SBAR_ID_TARGETARMOR ] = pEntity->pev->armorvalue; //No need to get it % based since 100 it's the max.
 					float theHealthPercent = pEntity->pev->health/AvHPlayerUpgrade::GetMaxHealth(pEntity->pev->iuser4, (AvHUser3)pEntity->pev->iuser3, theLevel);
 					float theArmorPercent = pEntity->pev->armorvalue/AvHPlayerUpgrade::GetMaxArmorLevel(pEntity->pev->iuser4, (AvHUser3)pEntity->pev->iuser3);
-					newSBarState[ SBAR_ID_TARGETHEALTH ] = max(theHealthPercent*100+0.5, 0);
-					newSBarState[ SBAR_ID_TARGETARMOR ] = max(theArmorPercent*100+0.5, 0);
+					newSBarState[ SBAR_ID_TARGETHEALTH ] = max(theHealthPercent*100+0.5f, 0.0f);
+					newSBarState[ SBAR_ID_TARGETARMOR ] = max(theArmorPercent*100+0.5f, 0.0f);
 					newSBarState[ SBAR_ID_TARGETLEVEL ] = theLevel;
 				}
 			}
@@ -2091,7 +2091,7 @@ void CBasePlayer::UpdateStatusBar()
 					strcpy( sbuf1, "2 (health: %i2%%)\n" );
 
 					float theHealthPercentage = pEntity->pev->health/pEntity->pev->max_health;
-					newSBarState[ SBAR_ID_TARGETHEALTH ] = max(theHealthPercentage*100+0.5, 0);
+					newSBarState[ SBAR_ID_TARGETHEALTH ] = max(theHealthPercentage*100+0.5f, 0.0f);
 				}
 			}
 
@@ -2978,23 +2978,23 @@ pt_end:
 				
 				if ( gun && gun->UseDecrement() )
 				{
-					gun->m_flNextPrimaryAttack		= max( gun->m_flNextPrimaryAttack - gpGlobals->frametime, -1.0 );
-					gun->m_flNextSecondaryAttack	= max( gun->m_flNextSecondaryAttack - gpGlobals->frametime, -0.001 );
+					gun->m_flNextPrimaryAttack		= max( gun->m_flNextPrimaryAttack - gpGlobals->frametime, -1.0f );
+					gun->m_flNextSecondaryAttack	= max( gun->m_flNextSecondaryAttack - gpGlobals->frametime, -0.001f );
 
 					if ( gun->m_flTimeWeaponIdle != 1000 )
 					{
-						gun->m_flTimeWeaponIdle		= max( gun->m_flTimeWeaponIdle - gpGlobals->frametime, -0.001 );
+						gun->m_flTimeWeaponIdle		= max( gun->m_flTimeWeaponIdle - gpGlobals->frametime, -0.001f );
 					}
 
 					if ( gun->pev->fuser1 != 1000 )
 					{
-						gun->pev->fuser1	= max( gun->pev->fuser1 - gpGlobals->frametime, -0.001 );
+						gun->pev->fuser1	= max( gun->pev->fuser1 - gpGlobals->frametime, -0.001f );
 					}
 
 					// Only decrement if not flagged as NO_DECREMENT
 //					if ( gun->m_flPumpTime != 1000 )
 				//	{
-				//		gun->m_flPumpTime	= max( gun->m_flPumpTime - gpGlobals->frametime, -0.001 );
+				//		gun->m_flPumpTime	= max( gun->m_flPumpTime - gpGlobals->frametime, -0.001f );
 				//	}
 					
 				}
@@ -4175,7 +4175,7 @@ void CBasePlayer :: UpdateClientData( void )
 
 	if ((int)pev->health != m_iClientHealth) //voogru: this cast to int is important, otherwise we spam the message, this is just a quick and easy fix. 
 	{
-		NetMsg_Health( pev, max( pev->health, 0 ) );
+		NetMsg_Health( pev, max( pev->health, 0.0f ) );
 		m_iClientHealth = (int)pev->health;
 	}
 

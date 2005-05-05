@@ -231,11 +231,12 @@ void AvHEntityHierarchy::BuildFromTeam(const AvHTeam* inTeam, BaseEntityListType
             {
 
 	            const AvHMapExtents& theMapExtents = GetGameRules()->GetMapExtents();
-	            float theMinMapX = theMapExtents.GetMinMapX();
-	            float theMinMapY = theMapExtents.GetMinMapY();
+//				commented this out here, commented out corresponding shift in AvHOverviewMap::Draw at line 771
+//				float theMinMapX = theMapExtents.GetMinMapX();
+//				float theMinMapY = theMapExtents.GetMinMapY();
 
-                mapEntity.mX -= theMinMapX;
-                mapEntity.mY -= theMinMapY; 
+//				mapEntity.mX -= theMinMapX;
+//				mapEntity.mY -= theMinMapY; 
                 
                 mEntityList[theEntityIndex] = mapEntity;
 

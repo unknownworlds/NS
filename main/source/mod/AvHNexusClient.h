@@ -4,7 +4,7 @@
 namespace AvHNexus
 {
 	bool send(const unsigned char* data, const size_t length);
-	bool recv(const char* data, const size_t length);
+	bool recv(const unsigned char* data, const size_t length);
 
 	void startup(void);
 	void shutdown(void);

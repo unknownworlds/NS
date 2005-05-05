@@ -723,7 +723,7 @@ void AvHOverviewMap::Update(float inCurrentTime)
 	this->KillOldAlerts(inCurrentTime);
 }
 
-const float kPositionNetworkConstant = 0.25;
+const float kPositionNetworkConstant = 2.0f;
 
 void AvHOverviewMap::UpdateDrawData(float inCurrentTime)
 {
@@ -768,8 +768,9 @@ void AvHOverviewMap::UpdateDrawData(float inCurrentTime)
         theDrawableEntity.mSquadNumber  = theIter->second.mSquadNumber;
 
 		// Returns position relative to minimap, so add it back in
-		theDrawableEntity.mX += this->mMapExtents.GetMinMapX();
-		theDrawableEntity.mY += this->mMapExtents.GetMinMapY();
+//				commented this out here, commented out corresponding shift in AvHEntityHierarchy::BuildFromTeam at line 234
+//		theDrawableEntity.mX += this->mMapExtents.GetMinMapX();
+//		theDrawableEntity.mY += this->mMapExtents.GetMinMapY();
 		theDrawableEntity.mIsLocalPlayer = theIsLocalPlayer;
 
         // Get additional information about the entity from the client state.
@@ -836,7 +837,6 @@ void AvHOverviewMap::UpdateDrawData(float inCurrentTime)
 	}
 
 	std::sort(mDrawableEntityList.begin(), mDrawableEntityList.end(), DrawingOrderSort());
-
 }
 
 void AvHOverviewMap::UpdateOrders(const OrderListType& inOrderList, const EntityListType& inDrawPlayers)

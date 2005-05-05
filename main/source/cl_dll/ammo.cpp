@@ -43,16 +43,33 @@ int g_weaponselect = 0;
 
 //Equivalent to DECLARE_COMMAND(lastinv,LastInv) except we use gWR instead of gHud
 void __CmdFunc_LastInv(void)
+{ gWR.UserCmd_LastInv(); }
+
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+WeaponsResource::WeaponsResource(void) : lastWeapon(NULL), iOldWeaponBits(0) {}
+WeaponsResource::~WeaponsResource(void) {}
+
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+void WeaponsResource::Init( void )
 {
-	gWR.UserCmd_LastInv();
+	memset( rgWeapons, 0, sizeof(WEAPON)*MAX_WEAPONS );
+	Reset();
+	HOOK_COMMAND("lastinv",LastInv);
 }
 
-void WeaponsResource::Init(void)
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+void WeaponsResource::Reset( void )
 {
-	memset( rgWeapons, 0, sizeof rgWeapons );
-	HOOK_COMMAND("lastinv",LastInv);
-	Reset();
+	lastWeapon = NULL;
+	iOldWeaponBits = 0;
+	memset( rgSlots, 0, sizeof(WEAPON*)*MAX_WEAPON_SLOTS*MAX_WEAPON_POSITIONS );
+	memset( riAmmo, 0, sizeof(int)*MAX_AMMO_TYPES );
 }
+
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 void WeaponsResource :: LoadAllWeaponSprites( void )
 {
@@ -63,47 +80,25 @@ void WeaponsResource :: LoadAllWeaponSprites( void )
 	}
 }
 
-int WeaponsResource :: CountAmmo( int iId ) 
-{ 
-	if ( iId < 0 )
-		return 0;
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-	return riAmmo[iId];
-}
-
-int WeaponsResource :: HasAmmo( WEAPON *p )
+inline void LoadWeaponSprite( client_sprite_t* ptr, HSPRITE& sprite, wrect_t& bounds )
 {
-	if ( !p )
-		return FALSE;
-
-	// weapons with no max ammo can always be selected
-	if ( p->iMax1 == -1 )
-		return TRUE;
-
-	return (p->iAmmoType == -1) || p->iClip > 0 || CountAmmo(p->iAmmoType) 
-		|| CountAmmo(p->iAmmo2Type) || ( p->iFlags & WEAPON_FLAGS_SELECTONEMPTY );
-}
-
-int WeaponsResource::IsEnabled(WEAPON* p)
-{
-	int theIsEnabled = FALSE;
-	// If weapon is enabled
-	if(HUD_GetWeaponEnabled(p->iId))
+	if( ptr )
 	{
-		theIsEnabled = this->HasAmmo(p);
+		string name( "sprites/" );
+		name.append( ptr->szSprite );
+		name.append( ".spr" );
+		sprite = Safe_SPR_Load(name.c_str());
+		bounds = ptr->rc;
 	}
-	return theIsEnabled;
+	else
+	{
+		sprite = NULL;
+	}
 }
 
-int WeaponsResource::IsSelectable(WEAPON* p)
-{
-	int theIsSelectable = FALSE;
-	if( p != NULL && HUD_GetWeaponEnabled(p->iId))
-	{
-		theIsSelectable = TRUE;
-	}
-	return theIsSelectable;
-}
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 void WeaponsResource :: LoadWeaponSprites( WEAPON *pWeapon )
 {
@@ -137,157 +132,202 @@ void WeaponsResource :: LoadWeaponSprites( WEAPON *pWeapon )
 		return;
 	}
 
-	client_sprite_t *p;
+	LoadWeaponSprite( GetSpriteList( pList, "crosshair", iRes, i ), pWeapon->hCrosshair, pWeapon->rcCrosshair );
+	LoadWeaponSprite( GetSpriteList( pList, "autoaim", iRes, i ), pWeapon->hAutoaim, pWeapon->rcAutoaim );
+	LoadWeaponSprite( GetSpriteList( pList, "zoom", iRes, i ), pWeapon->hZoomedCrosshair, pWeapon->rcZoomedCrosshair );
+	LoadWeaponSprite( GetSpriteList( pList, "zoom_autoaim", iRes, i ), pWeapon->hZoomedAutoaim, pWeapon->rcZoomedAutoaim );
+	LoadWeaponSprite( GetSpriteList( pList, "weapon", iRes, i ), pWeapon->hInactive, pWeapon->rcInactive );
+	LoadWeaponSprite( GetSpriteList( pList, "weapon_s", iRes, i ), pWeapon->hActive, pWeapon->rcActive );
+	LoadWeaponSprite( GetSpriteList( pList, "ammo", iRes, i ), pWeapon->hAmmo, pWeapon->rcAmmo );
+	LoadWeaponSprite( GetSpriteList( pList, "ammo2", iRes, i ), pWeapon->hAmmo2, pWeapon->rcAmmo2 );
 	
-	p = GetSpriteList( pList, "crosshair", iRes, i );
-	if (p)
+	if( pWeapon->hZoomedCrosshair == NULL ) //default to non-zoomed crosshair
 	{
-		sprintf(sz, "sprites/%s.spr", p->szSprite);
-		pWeapon->hCrosshair = Safe_SPR_Load(sz);
-		pWeapon->rcCrosshair = p->rc;
-	}
-	else
-		pWeapon->hCrosshair = NULL;
-
-	p = GetSpriteList(pList, "autoaim", iRes, i);
-	if (p)
-	{
-		sprintf(sz, "sprites/%s.spr", p->szSprite);
-		pWeapon->hAutoaim = Safe_SPR_Load(sz);
-		pWeapon->rcAutoaim = p->rc;
-	}
-	else
-		pWeapon->hAutoaim = 0;
-
-	p = GetSpriteList( pList, "zoom", iRes, i );
-	if (p)
-	{
-		sprintf(sz, "sprites/%s.spr", p->szSprite);
-		pWeapon->hZoomedCrosshair = Safe_SPR_Load(sz);
-		pWeapon->rcZoomedCrosshair = p->rc;
-	}
-	else
-	{
-		pWeapon->hZoomedCrosshair = pWeapon->hCrosshair; //default to non-zoomed crosshair
+		pWeapon->hZoomedCrosshair = pWeapon->hCrosshair;
 		pWeapon->rcZoomedCrosshair = pWeapon->rcCrosshair;
 	}
 
-	p = GetSpriteList(pList, "zoom_autoaim", iRes, i);
-	if (p)
+	if( pWeapon->hAutoaim == NULL ) //default to non-autoaim crosshair
 	{
-		sprintf(sz, "sprites/%s.spr", p->szSprite);
-		pWeapon->hZoomedAutoaim = Safe_SPR_Load(sz);
-		pWeapon->rcZoomedAutoaim = p->rc;
+		pWeapon->hAutoaim = pWeapon->hCrosshair;
+		pWeapon->rcAutoaim = pWeapon->rcCrosshair;
 	}
-	else
+
+	if( pWeapon->hZoomedAutoaim == NULL ) //default to non-autoaim zoomed crosshair
 	{
-		pWeapon->hZoomedAutoaim = pWeapon->hZoomedCrosshair;  //default to zoomed crosshair
+		pWeapon->hZoomedAutoaim = pWeapon->hZoomedCrosshair;
 		pWeapon->rcZoomedAutoaim = pWeapon->rcZoomedCrosshair;
 	}
 
-	p = GetSpriteList(pList, "weapon", iRes, i);
-	if (p)
-	{
-		sprintf(sz, "sprites/%s.spr", p->szSprite);
-		pWeapon->hInactive = Safe_SPR_Load(sz);
-		pWeapon->rcInactive = p->rc;
-
-		gHR.iHistoryGap = max( gHR.iHistoryGap, pWeapon->rcActive.bottom - pWeapon->rcActive.top );
-	}
-	else
-		pWeapon->hInactive = 0;
-
-	p = GetSpriteList(pList, "weapon_s", iRes, i);
-	if (p)
-	{
-		sprintf(sz, "sprites/%s.spr", p->szSprite);
-		pWeapon->hActive = Safe_SPR_Load(sz);
-		pWeapon->rcActive = p->rc;
-	}
-	else
-		pWeapon->hActive = 0;
-
-	p = GetSpriteList(pList, "ammo", iRes, i);
-	if (p)
-	{
-		sprintf(sz, "sprites/%s.spr", p->szSprite);
-		pWeapon->hAmmo = Safe_SPR_Load(sz);
-		pWeapon->rcAmmo = p->rc;
-
-		gHR.iHistoryGap = max( gHR.iHistoryGap, pWeapon->rcActive.bottom - pWeapon->rcActive.top );
-	}
-	else
-		pWeapon->hAmmo = 0;
-
-	p = GetSpriteList(pList, "ammo2", iRes, i);
-	if (p)
-	{
-		sprintf(sz, "sprites/%s.spr", p->szSprite);
-		pWeapon->hAmmo2 = Safe_SPR_Load(sz);
-		pWeapon->rcAmmo2 = p->rc;
-
-		gHR.iHistoryGap = max( gHR.iHistoryGap, pWeapon->rcActive.bottom - pWeapon->rcActive.top );
-	}
-	else
-		pWeapon->hAmmo2 = 0;
-
+	if( pWeapon->hActive || pWeapon->hInactive || pWeapon->hAmmo || pWeapon->hAmmo2 )
+	{ gHR.iHistoryGap = max( gHR.iHistoryGap, pWeapon->rcActive.bottom - pWeapon->rcActive.top ); }
 }
 
-// Returns the first weapon for a given slot.
-WEAPON *WeaponsResource :: GetFirstPos( int iSlot )
-{
-	WEAPON *pret = NULL;
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-	for (int i = 0; i < MAX_WEAPON_POSITIONS; i++)
+WEAPON* WeaponsResource::GetWeapon( int iId ) { return rgWeapons[iId].iId ? &rgWeapons[iId] : NULL; }
+WEAPON* WeaponsResource::GetWeaponSlot( int slot, int pos ) { return rgSlots[slot][pos]; }
+
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+WEAPON* WeaponsResource::GetFirstPos( int iSlot )
+{
+	WEAPON *returnVal = NULL;
+	ASSERT( iSlot < MAX_WEAPON_SLOTS && iSlot >= 0 );
+
+	for( int counter = 0; counter < MAX_WEAPON_POSITIONS; ++counter )
 	{
-		if (this->IsSelectable(rgSlots[iSlot][i]))
+		if( this->IsSelectable(rgSlots[iSlot][counter]) )
 		{
-			pret = rgSlots[iSlot][i];
+			returnVal = rgSlots[iSlot][counter];
 			break;
 		}
 	}
 
-	return pret;
+	return returnVal;
 }
 
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-WEAPON* WeaponsResource :: GetNextActivePos( int iSlot, int iSlotPos )
+WEAPON* WeaponsResource::GetNextActivePos( int iSlot, int iSlotPos )
 {
-	if ( iSlotPos >= MAX_WEAPON_POSITIONS || iSlot >= MAX_WEAPON_SLOTS )
-		return NULL;
+	WEAPON* returnVal = NULL;
+	ASSERT( iSlot < MAX_WEAPON_SLOTS && iSlot >= 0 );
+	ASSERT( iSlotPos >= 0 );
 
-	WEAPON *p = gWR.rgSlots[ iSlot ][ iSlotPos+1 ];
-	
-	if (!this->IsSelectable(p))
-		return GetNextActivePos( iSlot, iSlotPos + 1 );
+	for( int counter = iSlotPos+1; counter < MAX_WEAPON_POSITIONS; ++counter )
+	{
+		if( this->IsSelectable(rgSlots[iSlot][counter]) )
+		{
+			returnVal = rgSlots[iSlot][counter];
+			break;
+		}
+	}
 
-	return p;
+	return returnVal;
 }
 
-void WeaponsResource::SetCurrentWeapon(WEAPON* newWeapon)
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+bool WeaponsResource::IsEnabled(WEAPON* p)
 {
-	WEAPON* currentWeapon = this->GetWeapon(gHUD.GetCurrentWeaponID());
-	// puzl: 497 - Because weapon state can get out of sync, we should allow this even if the weapons are the same 
-	// && newWeapon != currentWeapon 
-	if( newWeapon != NULL )
-	{ 
-		if( newWeapon != currentWeapon )
-		{ lastWeapon = currentWeapon; }
-		ServerCmd(newWeapon->szName);
-		g_weaponselect = newWeapon->iId;
+	if( p == NULL ) { return false; }
+	return HUD_GetWeaponEnabled(p->iId) && this->HasAmmo(p);
+}
+
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+bool WeaponsResource::IsSelectable(WEAPON* p)
+{
+	if( p == NULL ) { return false; }
+	return HUD_GetWeaponEnabled(p->iId);
+}
+
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+bool WeaponsResource::HasAmmo( WEAPON* p )
+{
+	if( p == NULL) { return false; }
+	//note : if max ammo capacity is -1, this has always returned true in spite of not
+	// having actual ammo -- KGP
+	return (p->iAmmoType == -1) || (p->iMax1 == -1) || p->iClip > 0 || CountAmmo(p->iAmmoType)
+		|| CountAmmo(p->iAmmo2Type) || (p->iFlags & WEAPON_FLAGS_SELECTIONEMPTY );
+}
+
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+int WeaponsResource::CountAmmo( int iId )
+{
+	ASSERT( iId < MAX_AMMO_TYPES );
+	if( iId < 0 ) return 0;
+	return riAmmo[iId];
+}
+
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+int WeaponsResource::GetAmmo( int iId )
+{
+	ASSERT( iId < MAX_AMMO_TYPES && iId > -1 );
+	return riAmmo[iId];
+}
+
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+void WeaponsResource::SetAmmo( int iId, int iCount )
+{
+	ASSERT( iId < MAX_AMMO_TYPES && iId > -1 );
+	riAmmo[iId] = iCount;
+}
+
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+HSPRITE* WeaponsResource::GetAmmoPicFromWeapon( int iAmmoId, wrect_t& rect )
+{
+	for ( int i = 0; i < MAX_WEAPONS; i++ )
+	{
+		if ( rgWeapons[i].iAmmoType == iAmmoId )
+		{
+			rect = rgWeapons[i].rcAmmo;
+			return &rgWeapons[i].hAmmo;
+		}
+		else if ( rgWeapons[i].iAmmo2Type == iAmmoId )
+		{
+			rect = rgWeapons[i].rcAmmo2;
+			return &rgWeapons[i].hAmmo2;
+		}
+	}
+
+	return NULL;
+}
+
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+void WeaponsResource::AddWeapon( WEAPON *wp ) 
+{ 
+	rgWeapons[ wp->iId ] = *wp;	
+	LoadWeaponSprites( &rgWeapons[ wp->iId ] );
+}
+
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+void WeaponsResource::PickupWeapon( WEAPON *wp )
+{
+	rgSlots[ wp->iSlot ][ wp->iSlotPos ] = wp;
+}
+
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+void WeaponsResource::DropWeapon( WEAPON *wp )
+{
+	rgSlots[ wp->iSlot ][ wp->iSlotPos ] = NULL;
+	if(lastWeapon == wp) //dropped last weapon, remove it from the list
+	{ lastWeapon = NULL; }
+}
+
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+void WeaponsResource::DropAllWeapons( void )
+{
+	for ( int i = 0; i < MAX_WEAPONS; i++ )
+	{
+		if ( rgWeapons[i].iId )
+			DropWeapon( &rgWeapons[i] );
 	}
 }
+
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 void WeaponsResource::UserCmd_LastInv(void)
 {
-	if(this->IsSelectable(this->lastWeapon) && this->lastWeapon != this->GetWeapon(gHUD.GetCurrentWeaponID()))
+	if(this->IsSelectable(this->lastWeapon))
 	{ 
 		this->SetCurrentWeapon(lastWeapon);
-		//voogru: Should a sound be played?
-		/*const char* theSound = AvHSHUGetCommonSoundName(gHUD.GetIsAlien(), WEAPON_SOUND_HUD_ON);
-		gHUD.PlayHUDSound(theSound, kHUDSoundVolume);*/
+		const char* theSound = AvHSHUGetCommonSoundName(gHUD.GetIsAlien(), WEAPON_SOUND_HUD_ON);
+		gHUD.PlayHUDSound(theSound, kHUDSoundVolume);
 	}
 }
+
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 void WeaponsResource::SetValidWeapon(void)
 {
@@ -317,6 +357,91 @@ void WeaponsResource::SetValidWeapon(void)
 		}
 	}
 }
+
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+void WeaponsResource::SetCurrentWeapon(WEAPON* newWeapon)
+{
+	WEAPON* currentWeapon = this->GetWeapon(gHUD.GetCurrentWeaponID());
+	// puzl: 497 - Because weapon state can get out of sync, we should allow this even if the weapons are the same 
+	// && newWeapon != currentWeapon 
+	if( newWeapon != NULL )
+	{ 
+		if( newWeapon != currentWeapon )
+		{ lastWeapon = currentWeapon; }
+		ServerCmd(newWeapon->szName);
+		g_weaponselect = newWeapon->iId;
+	}
+}
+
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+void WeaponsResource :: SelectSlot( int iSlot, int fAdvance, int iDirection )
+{
+	if ( gHUD.m_Menu.m_fMenuDisplayed && (fAdvance == FALSE) && (iDirection == 1) )	
+	{ // menu is overriding slot use commands
+		gHUD.m_Menu.SelectMenuItem( iSlot + 1 );  // slots are one off the key numbers
+		return;
+	}
+
+	if ( iSlot >= MAX_WEAPON_SLOTS )
+		return;
+	
+	if ( gHUD.m_fPlayerDead || gHUD.m_iHideHUDDisplay & ( HIDEHUD_WEAPONS | HIDEHUD_ALL ) )
+		return;
+	
+	if (!(gHUD.m_iWeaponBits & (1<<(WEAPON_SUIT)) )) //require suit
+		return;
+	
+	if ( ! ( gHUD.m_iWeaponBits & ~(1<<(WEAPON_SUIT)) )) //require something besides suit
+		return;
+	
+	WEAPON *p = NULL;
+	bool fastSwitch = CVAR_GET_FLOAT( "hud_fastswitch" ) != 0;
+	if ((gpActiveSel == NULL) || (gpActiveSel == (WEAPON *)1) || (iSlot != gpActiveSel->iSlot))
+	{
+		p = GetFirstPos(iSlot);
+		const char* theSound = AvHSHUGetCommonSoundName(gHUD.GetIsAlien(), WEAPON_SOUND_HUD_ON);
+		gHUD.PlayHUDSound(theSound, kHUDSoundVolume);
+
+		if (this->IsSelectable(p) && fastSwitch) //check to see if we can use fastSwitch
+		{
+			WEAPON *p2 = GetNextActivePos( p->iSlot, p->iSlotPos );
+			if (!this->IsSelectable(p2)) //only one target in the bucket
+			{
+				this->SetCurrentWeapon(p);
+				return;
+			}
+		}
+	}
+	else
+	{
+		const char* theSound = AvHSHUGetCommonSoundName(gHUD.GetIsAlien(), WEAPON_SOUND_MOVE_SELECT);
+		gHUD.PlayHUDSound(theSound, kHUDSoundVolume);
+
+		if ( gpActiveSel )
+			p = GetNextActivePos( gpActiveSel->iSlot, gpActiveSel->iSlotPos );
+		if ( !p )
+			p = GetFirstPos( iSlot );
+	}
+	
+	if (!this->IsSelectable(p))  // no valid selection found
+	{
+		// if fastSwitch is on, ignore, else turn on the menu
+		if ( !fastSwitch ) {
+			gpActiveSel = (WEAPON *)1;
+		}
+		else {
+			gpActiveSel = NULL;
+		}
+	}
+	else 
+	{
+		gpActiveSel = p;
+	}
+}
+
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 int giBucketHeight, giBucketWidth, giABHeight, giABWidth; // Ammo Bar width and height
 
@@ -490,96 +615,6 @@ void CHudAmmo::Think(void)
 	}
 }
 
-//
-// Helper function to return a Ammo pointer from id
-//
-
-HSPRITE* WeaponsResource :: GetAmmoPicFromWeapon( int iAmmoId, wrect_t& rect )
-{
-	for ( int i = 0; i < MAX_WEAPONS; i++ )
-	{
-		if ( rgWeapons[i].iAmmoType == iAmmoId )
-		{
-			rect = rgWeapons[i].rcAmmo;
-			return &rgWeapons[i].hAmmo;
-		}
-		else if ( rgWeapons[i].iAmmo2Type == iAmmoId )
-		{
-			rect = rgWeapons[i].rcAmmo2;
-			return &rgWeapons[i].hAmmo2;
-		}
-	}
-
-	return NULL;
-}
-
-
-// Menu Selection Code
-
-void WeaponsResource :: SelectSlot( int iSlot, int fAdvance, int iDirection )
-{
-	if ( gHUD.m_Menu.m_fMenuDisplayed && (fAdvance == FALSE) && (iDirection == 1) )	
-	{ // menu is overriding slot use commands
-		gHUD.m_Menu.SelectMenuItem( iSlot + 1 );  // slots are one off the key numbers
-		return;
-	}
-
-	if ( iSlot > MAX_WEAPON_SLOTS )
-		return;
-	
-	if ( gHUD.m_fPlayerDead || gHUD.m_iHideHUDDisplay & ( HIDEHUD_WEAPONS | HIDEHUD_ALL ) )
-		return;
-	
-	if (!(gHUD.m_iWeaponBits & (1<<(WEAPON_SUIT)) )) //require suit
-		return;
-	
-	if ( ! ( gHUD.m_iWeaponBits & ~(1<<(WEAPON_SUIT)) )) //require something besides suit
-		return;
-	
-	WEAPON *p = NULL;
-	bool fastSwitch = CVAR_GET_FLOAT( "hud_fastswitch" ) != 0;
-	if ((gpActiveSel == NULL) || (gpActiveSel == (WEAPON *)1) || (iSlot != gpActiveSel->iSlot))
-	{
-		p = GetFirstPos(iSlot);
-		const char* theSound = AvHSHUGetCommonSoundName(gHUD.GetIsAlien(), WEAPON_SOUND_HUD_ON);
-		gHUD.PlayHUDSound(theSound, kHUDSoundVolume);
-
-		if (this->IsSelectable(p) && fastSwitch) //check to see if we can use fastSwitch
-		{
-			WEAPON *p2 = GetNextActivePos( p->iSlot, p->iSlotPos );
-			if (!this->IsSelectable(p2)) //only one target in the bucket
-			{
-				this->SetCurrentWeapon(p);
-				return;
-			}
-		}
-	}
-	else
-	{
-		const char* theSound = AvHSHUGetCommonSoundName(gHUD.GetIsAlien(), WEAPON_SOUND_MOVE_SELECT);
-		gHUD.PlayHUDSound(theSound, kHUDSoundVolume);
-
-		if ( gpActiveSel )
-			p = GetNextActivePos( gpActiveSel->iSlot, gpActiveSel->iSlotPos );
-		if ( !p )
-			p = GetFirstPos( iSlot );
-	}
-	
-	if (!this->IsSelectable(p))  // no valid selection found
-	{
-		// if fastSwitch is on, ignore, else turn on the menu
-		if ( !fastSwitch ) {
-			gpActiveSel = (WEAPON *)1;
-		}
-		else {
-			gpActiveSel = NULL;
-		}
-	}
-	else 
-	{
-		gpActiveSel = p;
-	}
-}
 
 //------------------------------------------------------------------------
 // Message Handlers
@@ -729,6 +764,7 @@ int CHudAmmo::MsgFunc_WeaponList(const char *pszName, int iSize, void *pbuf )
 	NetMsg_WeaponList( pbuf, iSize, weapon_data );
 
 	WEAPON Weapon;
+	memset( &Weapon, 0, sizeof(WEAPON) );
 
 	strcpy( Weapon.szName, weapon_data.weapon_name.c_str() );
 	Weapon.iAmmoType = weapon_data.ammo1_type;	
@@ -757,7 +793,7 @@ void CHudAmmo::SlotInput( int iSlot )
 	if ( gViewPort && gViewPort->SlotInput( iSlot ) )
 		return;
 
-	gWR.SelectSlot(iSlot, FALSE, 1);
+	gWR.SelectSlot( iSlot, FALSE, 1 );
 }
 
 void CHudAmmo::UserCmd_Slot1(void)

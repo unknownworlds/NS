@@ -68,8 +68,6 @@ int CBaseAnimating::Save( class CSave & ) { return 1; }
 
 // DEBUG Stubs
 edict_t *DBG_EntOfVars( const entvars_t *pev ) { return NULL; }
-// Now in AvHAssert.cpp
-//void DBG_AssertFunction(bool fExpr,	const char*	szExpr,	const char*	szFile,	int szLine,	const char*	szMessage) { }
 
 // UTIL_* Stubs
 void UTIL_PrecacheOther( const char *szClassname ) { }

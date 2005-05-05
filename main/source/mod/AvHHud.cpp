@@ -4161,19 +4161,21 @@ void AvHHud::InitializeDemoRecording()
 	for(i = 0; i < MAX_WEAPONS; i++)
 	{
 		WEAPON* theWeapon = gWR.GetWeapon(i);
+		if( theWeapon )
+		{
+			theTotalSize = sizeof(theWeapon->szName) + sizeof(theWeapon->iAmmoType) + sizeof(theWeapon->iAmmo2Type) + sizeof(theWeapon->iMax1) + sizeof(theWeapon->iMax2) + sizeof(theWeapon->iSlot) + sizeof(theWeapon->iSlotPos) + sizeof(theWeapon->iFlags) + sizeof(theWeapon->iId) + sizeof(theWeapon->iClip) + sizeof(theWeapon->iCount);// + sizeof(int); // last one is for ammo
+			theCharArray = new unsigned char[theTotalSize];
 
-		theTotalSize = sizeof(theWeapon->szName) + sizeof(theWeapon->iAmmoType) + sizeof(theWeapon->iAmmo2Type) + sizeof(theWeapon->iMax1) + sizeof(theWeapon->iMax2) + sizeof(theWeapon->iSlot) + sizeof(theWeapon->iSlotPos) + sizeof(theWeapon->iFlags) + sizeof(theWeapon->iId) + sizeof(theWeapon->iClip) + sizeof(theWeapon->iCount);// + sizeof(int); // last one is for ammo
-		theCharArray = new unsigned char[theTotalSize];
+			int theWeaponCoreDataLength = theTotalSize;// - sizeof(int);
+			memcpy(theCharArray, theWeapon, theWeaponCoreDataLength); // Everything but ammo
+			//int theAmmo = gWR.GetAmmo(theWeapon->iId);
+			//memcpy(theCharArray + theWeaponCoreDataLength, &theAmmo, sizeof(int));
 
-		int theWeaponCoreDataLength = theTotalSize;// - sizeof(int);
-		memcpy(theCharArray, theWeapon, theWeaponCoreDataLength); // Everything but ammo
-		//int theAmmo = gWR.GetAmmo(theWeapon->iId);
-		//memcpy(theCharArray + theWeaponCoreDataLength, &theAmmo, sizeof(int));
+			Demo_WriteBuffer(TYPE_WEAPONINFO, theTotalSize, (unsigned char*)theWeapon);
 
-		Demo_WriteBuffer(TYPE_WEAPONINFO, theTotalSize, (unsigned char*)theWeapon);
-
-		delete [] theCharArray;
-		theCharArray = NULL;
+			delete [] theCharArray;
+			theCharArray = NULL;
+		}
 	}
 }
 
@@ -4188,7 +4190,7 @@ int	AvHHud::InitializeWeaponInfoPlayback(int inSize, unsigned char* inBuffer)
 
 	if(theWeapon.iId)
 	{
-		gWR.AddWeapon( &theWeapon);
+		gWR.AddWeapon( &theWeapon );
 		//int theAmmo = 0;
 		//memcpy(&theAmmo, inBuffer + theWeaponCoreDataLength, sizeof(int));
 		//gWR.SetAmmo(theWeapon.iId, theAmmo);
@@ -5160,13 +5162,16 @@ void AvHHud::UpdateEntityID(float inCurrentTime)
 			ASSERT(this->mSelectingWeaponID >= 0);
 			ASSERT(this->mSelectingWeaponID < 32);
 			WEAPON* theWeapon = gWR.GetWeapon(this->mSelectingWeaponID);
-			int theDamage = theWeapon->iMax2;
+			if( theWeapon )
+			{
+				int theDamage = theWeapon->iMax2;
 
-			char theHelpTextWithDamage[1024];
-			sprintf(theHelpTextWithDamage, theHelpText.c_str(), theDamage);
+				char theHelpTextWithDamage[1024];
+				sprintf(theHelpTextWithDamage, theHelpText.c_str(), theDamage);
 
-			this->SetHelpMessage(theHelpTextWithDamage);
-			theSetHelpMessage = true;
+				this->SetHelpMessage(theHelpTextWithDamage);
+				theSetHelpMessage = true;
+			}
 		}
 	}
 	else if(this->mTechHelpText != "")

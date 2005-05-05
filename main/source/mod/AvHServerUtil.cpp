@@ -1149,7 +1149,7 @@ void AvHGetLineBounds(const Vector& vecStart, const Vector& vecEnd, Vector& outM
 
     outMaxs[0] += kBoundingBoxPadding;
     outMaxs[1] += kBoundingBoxPadding;
-    outMins[2] += kBoundingBoxPadding;
+    outMaxs[2] += kBoundingBoxPadding;
 
 }
 

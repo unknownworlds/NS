@@ -3058,24 +3058,6 @@ bool AvHPlayer::GiveOrderToSelection(AvHOrderType inOrder, Vector inNormRay)
 
     Vector theOrigin = this->GetVisualOrigin();
 
-//  #ifdef DEBUG
-//  vec3_t theStartPoint;
-//  VectorMA(theOrigin, kSelectionStartRange, inNormRay, theStartPoint);
-//  
-//  vec3_t theEndPoint;
-//  VectorMA(theOrigin, kSelectionEndRange, inNormRay, theEndPoint);
-//  
-//  vec3_t theValidOrigin;
-//  AvHSHUServerGetFirstNonSolidPoint(theStartPoint, theEndPoint, theValidOrigin);
-//
-//  theValidOrigin.z -= BALANCE_VAR(kBiteDamage);
-//
-//  CBaseEntity* pEnt = CBaseEntity::Create(kwsDebugEntity, theValidOrigin, Vector(0, 0, 0));
-//  ASSERT(pEnt);
-//  pEnt->pev->movetype = MOVETYPE_FLY;
-//  pEnt->pev->solid = SOLID_NOT;
-//  #endif
-
     if(AvHCreateSpecificOrder((AvHTeamNumber)(this->pev->team), theOrigin, inOrder, inNormRay, theNewOrder))
     {
         this->GiveOrderToSelection(theNewOrder);
@@ -7795,48 +7777,6 @@ void AvHPlayer::Spawn( void )
     this->pev->iuser1 = 0;
 }
 
-//bool AvHPlayer::SpawnReinforcements(void)
-//{
-//  bool            theSuccess = false;
-//  
-//  // Does player have the points to do this?
-//  // Check first if someone bought you early, if so, is that person trying to come back in?  Get him if possible.
-//  // For every player in the world
-//  edict_t* pent = FIND_ENTITY_BY_CLASSNAME(NULL, kAvHPlayerClassName);
-//  while (!FNullEnt(pent) && !theSuccess)
-//  {
-//      AvHPlayer* theFoundPlayer = dynamic_cast<AvHPlayer*>(CBaseEntity::Instance(pent));
-//      if(theFoundPlayer)
-//      {
-//          // Get team for calling player
-//          AvHTeamNumber theTeamNumber = this->GetTeam();
-//          
-//          // Make sure the player is a valid choice for reinforcements (the right playmode, hasn't observed this game, etc)
-//          if(theFoundPlayer->GetIsValidReinforcementFor(theTeamNumber))
-//          {
-//              // Join the team if you can
-//              if(GetGameRules()->AttemptToJoinTeam(theFoundPlayer, theTeamNumber))
-//              {
-//                  theFoundPlayer->SetPlayMode(PLAYMODE_PLAYING);
-//                  //theFoundPlayer->StopObserver();
-//                  
-//                  //ClientPrint(theFoundPlayer->pev, HUD_PRINTTALK, "You were called in as reinforcements!");
-//                  theFoundPlayer->SendMessage(kYouReinforcement);
-//                  
-//                  // Decrement points of player issuing command
-//                  // Send new player a message indicating who sent for them
-//                  this->SendMessage(kYouCalledReinforcement);
-//                  
-//                  // Remember who bought you, next time you'll buy them if he exists
-//                  theSuccess = true;
-//              }
-//          }
-//      }
-//      pent = FIND_ENTITY_BY_CLASSNAME(pent, kAvHPlayerClassName);
-//  }
-//  return theSuccess;
-//}
-
 void AvHPlayer::StartObservingIfNotAlready(void)
 {
     // Prevent this is the cvar is set
@@ -8996,7 +8936,7 @@ void AvHPlayer::UpdateAlienUI()
     }
 }
 
-// TODO: Update this less frequently than every tick or optimize so most blips are in PVS so their positions don't have to be sent down
+// TODO: Send only changed blips, send only the changes for each blip.
 void AvHPlayer::UpdateBlips()
 {
     if(this->mEnemyBlips != this->mClientEnemyBlips)

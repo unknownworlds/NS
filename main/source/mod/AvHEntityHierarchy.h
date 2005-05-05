@@ -51,8 +51,11 @@ const int		kUnseenEnemyBase = 14;
 const int		kVisibleEnemyBase = 15;
 const int		kNumStatusTypes = 15;
 
-struct MapEntity
+class MapEntity
 {
+public:
+	MapEntity(void) : mUser3(AVH_USER3_NONE), mTeam(TEAM_IND), mX(0.0f), mY(0.0f), mAngle(0.0f), mSquadNumber(0) {}
+
     AvHUser3        mUser3;
     AvHTeamNumber   mTeam;
     float           mX;
@@ -74,7 +77,6 @@ struct MapEntity
     {
         return !(*this == e);
     }
-
 };
 
 

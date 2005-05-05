@@ -28,90 +28,52 @@
 //
 
 // this is the max number of items in each bucket
-//#define MAX_WEAPON_POSITIONS		MAX_WEAPON_SLOTS
 #define MAX_WEAPON_POSITIONS		10
 
 class WeaponsResource
 {
-private:
-	// Information about weapons & ammo
-	WEAPON		rgWeapons[MAX_WEAPONS];	// Weapons Array
-
-	// counts of weapons * ammo
-	WEAPON*		rgSlots[MAX_WEAPON_SLOTS+1][MAX_WEAPON_POSITIONS+1];	// The slots currently in use by weapons.  The value is a pointer to the weapon;  if it's NULL, no weapon is there
-	int			riAmmo[MAX_AMMO_TYPES];							// count of each ammo type
-
-	//client-side lastinv
-	WEAPON*		lastWeapon;
-
 public:
-	void Init(void);
-
-	void Reset( void )
-	{
-		iOldWeaponBits = 0;
-		memset( rgSlots, 0, sizeof rgSlots );
-		memset( riAmmo, 0, sizeof riAmmo );
-		lastWeapon = NULL;
-	}
-
-///// WEAPON /////
-	int			iOldWeaponBits;
-
-	WEAPON *GetWeapon( int iId ) { return &rgWeapons[iId]; }
-	void AddWeapon( WEAPON *wp ) 
-	{ 
-		rgWeapons[ wp->iId ] = *wp;	
-		LoadWeaponSprites( &rgWeapons[ wp->iId ] );
-	}
-
-	void PickupWeapon( WEAPON *wp )
-	{
-		rgSlots[ wp->iSlot ][ wp->iSlotPos ] = wp;
-	}
-
-	void DropWeapon( WEAPON *wp )
-	{
-		rgSlots[ wp->iSlot ][ wp->iSlotPos ] = NULL;
-		if(lastWeapon == wp) //dropped last weapon, remove it from the list
-		{ 
-			lastWeapon = NULL; 
-		}
-	}
-
-	void DropAllWeapons( void )
-	{
-		for ( int i = 0; i < MAX_WEAPONS; i++ )
-		{
-			if ( rgWeapons[i].iId )
-				DropWeapon( &rgWeapons[i] );
-		}
-	}
-
-	WEAPON* GetWeaponSlot( int slot, int pos ) { return rgSlots[slot][pos]; }
+	WeaponsResource( void );
+	~WeaponsResource( void );
+	void Init( void );
+	void Reset( void );
 
 	void LoadWeaponSprites( WEAPON* wp );
 	void LoadAllWeaponSprites( void );
+
+	WEAPON*	GetWeapon( int iId );
+	WEAPON* GetWeaponSlot( int slot, int pos );
 	WEAPON* GetFirstPos( int iSlot );
-	void SelectSlot( int iSlot, int fAdvance, int iDirection );
 	WEAPON* GetNextActivePos( int iSlot, int iSlotPos );
 
-	void UserCmd_LastInv(void);
-	void SetValidWeapon(void);
-	void SetCurrentWeapon(WEAPON* wp);
-	int IsEnabled( WEAPON *p );
-	int IsSelectable(WEAPON *p);
-	int HasAmmo( WEAPON *p );
+	bool	IsEnabled( WEAPON *p );
+	bool	IsSelectable( WEAPON *p );
 
+	bool	HasAmmo( WEAPON *p );
+	int		CountAmmo( int iId );
+	int		GetAmmo( int iId );
+	void	SetAmmo( int iId, int iCount );
+	HSPRITE* GetAmmoPicFromWeapon( int iAmmoId, wrect_t& rect );	//TODO: fix bass-ackwards arrangement and store sprites with ammo types
 
-///// AMMO /////
-	AMMO GetAmmo( int iId ) { return riAmmo[ iId ]; }
+	void	AddWeapon( WEAPON* wp );
+	void	PickupWeapon( WEAPON* wp );
+	void	DropWeapon( WEAPON* wp );
+	void	DropAllWeapons( void );
 
-	void SetAmmo( int iId, int iCount ) { riAmmo[ iId ] = iCount;	}
+	//CONSIDER: Should the selection functions be in the menu with the selection variables?
+	void	UserCmd_LastInv( void );
+	void	SetValidWeapon( void );
+	void	SetCurrentWeapon( WEAPON* wp );
+	void	SelectSlot( int iSlot, int fAdvance, int iDirection );
 
-	int CountAmmo( int iId );
+	friend CHudAmmo; //for iOldWeaponBits access
+private:
+	WEAPON	rgWeapons[MAX_WEAPONS];									// current weapon state
+	WEAPON*	rgSlots[MAX_WEAPON_SLOTS][MAX_WEAPON_POSITIONS];		// current weapon slot map
+	WEAPON*	lastWeapon;												// client-side lastinv
 
-	HSPRITE* GetAmmoPicFromWeapon( int iAmmoId, wrect_t& rect );
+	int		riAmmo[MAX_AMMO_TYPES];									// current ammo counts
+	int		iOldWeaponBits;
 };
 
 extern WeaponsResource gWR;

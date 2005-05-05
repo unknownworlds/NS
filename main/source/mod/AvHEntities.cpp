@@ -1211,17 +1211,17 @@ void TriggerPresence::KeyValue(KeyValueData* pkvd)
 	} 
 	else if(FStrEq(pkvd->szKeyName, "timebeforeleave"))
 	{
-		this->mTimeBeforeLeave = fmax(atof(pkvd->szValue), 0.0f);
+		this->mTimeBeforeLeave = max(atof(pkvd->szValue), 0.0f);
 		pkvd->fHandled = TRUE;
 	} 
 	else if(FStrEq(pkvd->szKeyName, "momentaryopentime"))
 	{
-		this->mMomentaryOpenTime = fmax(atof(pkvd->szValue), 0.01f);
+		this->mMomentaryOpenTime = max(atof(pkvd->szValue), 0.01f);
 		pkvd->fHandled = TRUE;
 	} 
 	else if(FStrEq(pkvd->szKeyName, "momentaryclosetime"))
 	{
-		this->mMomentaryCloseTime = fmax(atof(pkvd->szValue), 0.01f);
+		this->mMomentaryCloseTime = max(atof(pkvd->szValue), 0.01f);
 		pkvd->fHandled = TRUE;
 	} 
 	else if(FStrEq(pkvd->szKeyName, "spawnflags"))

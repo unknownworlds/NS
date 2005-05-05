@@ -424,22 +424,6 @@ BOOL AvHGamerules::ClientCommand( CBasePlayer *pPlayer, const char *pcmd )
 		}
 		theSuccess = true;
 	}
-	else if(FStrEq(pcmd, kcUPPPing))
-	{
-		if(theIsDeveloper)
-		{
-			AvHNexus::performSpeedTest();
-		}
-		theSuccess = true;
-	}
-	else if(FStrEq(pcmd, kcUPPToggleProfiling))
-	{
-		if(theIsDeveloper)
-		{
-			AvHNexus::setGeneratePerformanceData(theAvHPlayer->edict(),!AvHNexus::getGeneratePerformanceData());
-		}
-		theSuccess = true;
-	}
 	#ifdef AVH_PLAYTEST_BUILD
 	else if(FStrEq(pcmd, kcTournyMode))
 	{

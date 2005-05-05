@@ -67,28 +67,12 @@ void HistoryResource :: AddToHistory( int iType, const char *szName, int iCount 
 	if ( iType != HISTSLOT_ITEM )
 		return;
 
-	if ( (((AMMO_PICKUP_GAP * iCurrentHistorySlot) + AMMO_PICKUP_PICK_HEIGHT) > AMMO_PICKUP_HEIGHT_MAX) || (iCurrentHistorySlot >= MAX_HISTORY) )
-	{	// the pic would have to be drawn too high
-		// so start from the bottom
-		iCurrentHistorySlot = 0;
-	}
-
-	HIST_ITEM *freeslot = &rgAmmoHistory[iCurrentHistorySlot++];  // default to just writing to the first slot
-
-	// I am really unhappy with all the code in this file
-
 	int i = gHUD.GetSpriteIndex( szName );
 	if ( i == -1 )
 		return;  // unknown sprite name, don't add it to history
 
-	freeslot->iId = i;
-	freeslot->type = iType;
-	freeslot->iCount = iCount;
-
-	HISTORY_DRAW_TIME = CVAR_GET_FLOAT( "hud_drawhistory_time" );
-	freeslot->DisplayTime = gHUD.m_flTime + HISTORY_DRAW_TIME;
+	return this->AddToHistory( iType, i, iCount );
 }
-
 
 void HistoryResource :: CheckClearHistory( void )
 {

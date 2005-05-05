@@ -1148,7 +1148,7 @@ union float_converter
 			// 5 bits for info (range 1-32, refers to player number)
 			// total is 40 bits = 5 bytes for friendly, 35 bits for foe.
 			// savings would be 37.5% for friendly bytes.
-			// blip precision is equal to double large minimap precision, with worst case of 4 unit X,Y separation for MT.
+			// blip precision would be equal to double large minimap precision, with worst case of 4 unit X,Y separation for MT.
 			// because maps are much smaller vertically than horizontally as a rule, the worst case of 16 unit Z separation
 			// will very rarely occur.
 			for( int counter = 0; counter < list.mNumBlips; counter++ )
@@ -1899,72 +1899,112 @@ union float_converter
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-const int		kNumStatusBits = 6;
-const int		kStatusMask = 0x3F;
-const int       kNumTeamBits = 2;
-const int       kTeamMask = 0x03;
-const int		kNumPositionCoordinateBits = 12;
-const int		kNumPositionBits = kNumPositionCoordinateBits*2;
-const int		kPositionCoordinateMask  = 0xFFF;
-const int		kPositionNetworkConstant = 25;
+const int	kNumStatusBits = 6;
+const int	kStatusMask = 0x3F;
+const int	kNumTeamBits = 2;
+const int	kTeamMask = 0x03;
+const int	kNumPositionCoordinateBits = 12;
+const int	kPositionCoordinateMask  = 0xFFF;
+const int	kPositionCoordinateOffset = 4096;
+const float	kPositionCoordinateScale = 0.5f;
+const int	kNumPositionBits = kNumPositionCoordinateBits*2;
+
+const int	kNumSquadBits = 3;
+const int	kSquadMask = 0x07;
+const int	kNumAngleBits = 4;
+const int	kAngleMask = 0x0F;
+const int	kNumPlayerIndexBits = 6;
+const int	kPlayerIndexMask = 0x3F;
+const int	kNumIndexBits = 14;
+const int	kIndexMask = 0x3FFF;
+const int	kNumFlagBits = 2;
+const int	kFlagMask = 0x03;
+const int	kEntHierFlagPlayer		= 0x01;
+const int	kEntHierFlagDeletion	= 0x02;
 
 #ifndef AVH_SERVER
 	//TODO : replace OldItems with vector<int>
-	void ReadEntHier( MapEntityMap& NewItems, EntityListType& OldItems );
+	void ReadEntHier( MapEntityMap& NewItems, EntityListType& OldItems, int short_data, int long_data );
+	float UnpackageCoord( const int packaged_coord );
 	void NetMsg_UpdateEntityHierarchy( void* const buffer, const int size, MapEntityMap& NewItems, EntityListType& OldItems )
 	{
 		NewItems.clear();
 		OldItems.clear();
-		int num_items = size / 6;
+		int amnt_read = 0;
+		int short_data, long_data;
 		BEGIN_READ( buffer, size );
-			for( int count = 0; count < num_items; count++ )
+			while( amnt_read < size )
 			{
-				ReadEntHier( NewItems, OldItems );
+				short_data = READ_SHORT();
+				amnt_read += 2;
+				if( (short_data & kEntHierFlagDeletion) == 0 )
+				{ 
+					long_data = READ_LONG();
+					amnt_read += 4;
+				}
+				ReadEntHier( NewItems, OldItems, short_data, long_data );
 			}
 		END_READ();
 	}
 
-	void ReadEntHier( MapEntityMap& NewItems, EntityListType& OldItems )
+	void ReadEntHier( MapEntityMap& NewItems, EntityListType& OldItems, int short_data, int long_data )
 	{
-		int short_data = READ_SHORT();
-		int long_data = READ_LONG();
-		MapEntity ent;
+		int flags = short_data & kFlagMask;
+		short_data >>= kNumFlagBits;
 
-		int index = short_data >> 1 & 31;
-		if( long_data == 0 )
+		if( (flags & kEntHierFlagDeletion) == kEntHierFlagDeletion )	// Deletion (player or otherwise)
 		{
-			OldItems.push_back( index );
+			OldItems.push_back( short_data & kIndexMask );
 			return;
 		}
+
+		MapEntity ent;
+		int index = 0;
 
 		ent.mUser3 = (AvHUser3)(long_data & kStatusMask);
 		long_data >>= kNumStatusBits;
 		ent.mTeam = (AvHTeamNumber)(long_data & kTeamMask);
 		long_data >>= kNumTeamBits;
-		ent.mY = (long_data & kPositionCoordinateMask)*kPositionNetworkConstant;
+		ent.mY = UnpackageCoord(long_data & kPositionCoordinateMask);
 		long_data >>= kNumPositionCoordinateBits;
-		ent.mX = (long_data & kPositionCoordinateMask)*kPositionNetworkConstant;
+		ent.mX = UnpackageCoord(long_data & kPositionCoordinateMask);
 
-		if (short_data & 0x1) // Player
+		if( (flags & kEntHierFlagPlayer) == kEntHierFlagPlayer )		// Player added/changed
 		{
-			ent.mSquadNumber = (short_data >> 10) & 7;
-			ent.mAngle = ((short_data >> 6) & 15) * 360.0f / 16.0f;
+			index = short_data & kPlayerIndexMask;
+			short_data >>= kNumPlayerIndexBits;
+			ent.mAngle = short_data & kAngleMask;
+			short_data >>= kNumAngleBits;
+			ent.mSquadNumber = short_data & kSquadMask;
 		}
-		else
+		else															// Other item added/changed
 		{
+			index = short_data & kIndexMask;
 			ent.mSquadNumber = 0;
 			ent.mAngle = 0;
 		}
+
 		NewItems.insert( MapEntityMap::value_type( index, ent ) );
 	}
+
+	float UnpackageCoord( const int packaged_coord )
+	{
+		float returnVal = packaged_coord;
+		returnVal /= kPositionCoordinateScale;
+		returnVal -= kPositionCoordinateOffset;
+		return returnVal;
+	}
+
 #else
 	void WriteEntHier( const int index, const MapEntity& ent, bool delete_flag, int& short_data, int& long_data );
+	int PackageCoord( const float coord );
 	void NetMsg_UpdateEntityHierarchy( entvars_t* const pev, const MapEntityMap& NewItems, const EntityListType& OldItems )
 	{
 		const int kMaxUpdatesPerPacket = 30;
 		if( NewItems.empty() && OldItems.empty() ) { return; } //nothing to send!
 
 		MapEntityMap::const_iterator new_current, new_end = NewItems.end();
+		MapEntity temp;
 		EntityListType::const_iterator old_current, old_end = OldItems.end();
 		int short_data, long_data, count = 1;
 		MESSAGE_BEGIN( MSG_ONE, g_msgUpdateEntityHierarchy, NULL, pev );
@@ -1986,27 +2026,36 @@ const int		kPositionNetworkConstant = 25;
 					MESSAGE_END();
 					MESSAGE_BEGIN( MSG_ONE, g_msgUpdateEntityHierarchy, NULL, pev );
 				}
-				WriteEntHier( new_current->first, new_current->second, true, short_data, long_data );
+				WriteEntHier( *old_current, temp, true, short_data, long_data );
 				WRITE_SHORT(short_data);
-				WRITE_LONG(long_data);
 			}
 		MESSAGE_END();
 	}
 
 	void WriteEntHier( const int index, const MapEntity& ent, bool delete_flag, int& short_data, int& long_data )
 	{
-		if( !delete_flag )
+		if( delete_flag )
 		{
-			long_data = ent.mX / kPositionNetworkConstant;
-			long_data <<= kNumPositionCoordinateBits;
-			long_data |= (int)(ent.mY / kPositionNetworkConstant);
-			long_data <<= kNumTeamBits;
-			long_data |= ent.mTeam;
-			long_data <<= kNumStatusBits;
-			long_data |= ent.mUser3;
+				ASSERT( (index & ~kIndexMask) == 0 );
+			short_data = index;
+			short_data <<= kNumFlagBits;
+				ASSERT( (short_data & kFlagMask) == 0 );
+			short_data |= kEntHierFlagDeletion;
+			return;
 		}
-		else
-		{ long_data = 0; }
+
+		long_data = PackageCoord(ent.mX);
+		long_data <<= kNumPositionCoordinateBits;
+			ASSERT((long_data & kPositionCoordinateMask) == 0);
+		long_data |= PackageCoord(ent.mY);
+		long_data <<= kNumTeamBits;
+			ASSERT((long_data & kTeamMask) == 0);
+			ASSERT((ent.mTeam & ~kTeamMask) == 0);
+		long_data |= ent.mTeam & kTeamMask;
+		long_data <<= kNumStatusBits;
+			ASSERT((long_data & kStatusMask) == 0);
+			ASSERT((ent.mUser3 & ~kStatusMask) == 0);
+		long_data |= ent.mUser3 & kStatusMask;
 
 		switch( ent.mUser3 )
 		{
@@ -2016,12 +2065,39 @@ const int		kPositionNetworkConstant = 25;
 		case AVH_USER3_ALIEN_PLAYER5: case AVH_USER3_ALIEN_EMBRYO:
 		case AVH_USER3_HEAVY:
 		{
-			int angle = (WrapFloat(ent.mAngle, 0, 360) / 360.0f) * 16;
-			short_data = (ent.mSquadNumber << 10) | (angle << 6) | (index << 1) | 1;
+				ASSERT( (ent.mSquadNumber & ~kSquadMask) == 0 );
+			short_data = ent.mSquadNumber;
+			short_data <<= kNumAngleBits;
+			int angle = WrapFloat(ent.mAngle,0,360);
+			angle /= 22.5f;
+				ASSERT( (short_data & kAngleMask) == 0);
+				ASSERT( (angle & ~kAngleMask) == 0);
+			short_data |= angle & kAngleMask;
+			short_data <<= kNumPlayerIndexBits;
+				ASSERT( ( short_data & kPlayerIndexMask ) == 0 );
+				ASSERT( ( index & ~kPlayerIndexMask ) == 0 );
+			short_data |= index & kIndexMask;
+			short_data <<= kNumFlagBits;
+				ASSERT( ( short_data & kFlagMask ) == 0 );
+			short_data |= kEntHierFlagPlayer;
 			break;
 		}
 		default:
-			short_data = (index << 1) | 0;
+				ASSERT( ( index & ~kIndexMask ) == 0 );
+			short_data = index & kIndexMask;
+			short_data <<= kNumFlagBits;
 		}
 	}
+
+	int PackageCoord( const float coord )
+	{
+		float adjustedCoord = coord;
+		adjustedCoord += kPositionCoordinateOffset;
+		adjustedCoord *= kPositionCoordinateScale;
+		int returnVal = adjustedCoord;
+		ASSERT( (returnVal & ~kPositionCoordinateMask) == 0);
+		returnVal &= kPositionCoordinateMask;
+		return returnVal;
+	}
+
 #endif

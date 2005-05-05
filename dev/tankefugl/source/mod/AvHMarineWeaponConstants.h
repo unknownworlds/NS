@@ -152,7 +152,7 @@ const int		kHGBarrelLength		= 10;
 #define			kHGSpread			VECTOR_CONE_1DEGREES
 
 // Sonic/Shot gun constants.
-const int		kSGRange			= 700;
+const int		kSGRange			= 8192;
 const float		kSGXPunch			= .8f;
 #define			kSGEjectModel		"models/shotshell.mdl"
 #define			kSGEventName		"events/SonicGun.sc"

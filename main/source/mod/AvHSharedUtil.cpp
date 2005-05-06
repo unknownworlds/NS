@@ -560,7 +560,7 @@ bool AvHSHUGetDrawRingsForUser3(AvHUser3 inUser3, float& outScalar)
 		break;
 
 	case AVH_USER3_INFANTRYPORTAL:
-		theScalar = 1.3f;
+		theScalar = 1.35f;
 		theDrawRings = true;
 		break;
 

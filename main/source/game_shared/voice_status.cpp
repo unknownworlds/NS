@@ -1,5 +1,5 @@
 //========= Copyright © 1996-2001, Valve LLC, All rights reserved. ============
-//  
+//
 // Purpose: 
 //
 // $NoKeywords: $
@@ -335,7 +335,7 @@ void CVoiceStatus::CreateEntities()
 	{
 		if(!m_VoicePlayers[i])
 			continue;
-		
+
 		cl_entity_s *pClient = gEngfuncs.GetEntityByIndex(i+1);
 		
 		// Don't show an icon if the player is not in our PVS.
@@ -360,7 +360,13 @@ void CVoiceStatus::CreateEntities()
 		pEnt->baseline.renderamt = 255;
 		pEnt->curstate.renderfx = kRenderFxNoDissipation;
 		pEnt->curstate.framerate = 1;
-		pEnt->curstate.frame = 0;
+		// tankefugl: different sprite for each team
+		if (pClient->curstate.team <= SPR_Frames(m_VoiceHeadModel))
+			pEnt->curstate.frame = pClient->curstate.team;
+		else
+			pEnt->curstate.frame = 0;
+        //pEnt->curstate.frame = 0;
+		// :tankefugl
 		pEnt->model = (struct model_s*)gEngfuncs.GetSpritePointer(m_VoiceHeadModel);
 		pEnt->angles[0] = pEnt->angles[1] = pEnt->angles[2] = 0;
 		pEnt->curstate.scale = 0.5f;

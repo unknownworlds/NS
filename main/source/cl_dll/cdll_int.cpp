@@ -1,5 +1,5 @@
 /***
-*  
+*
 *	Copyright (c) 1999, Valve LLC. All rights reserved.
 *	
 *	This product contains software technology licensed from Id 

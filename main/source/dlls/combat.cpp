@@ -1702,6 +1702,14 @@ Vector CBaseEntity::FireBulletsPlayer ( ULONG cShots, Vector vecSrc, Vector vecD
 		//				x * vecSpread.x * vecRight +
 		//				y * vecSpread.y * vecUp;
 
+		// tankefugl: 0000973
+		// added inner cone for half of the shots
+		if (isShotgun && (iShot > (cShots/2)))
+		{
+			vecSpread = kSGInnerSpread;
+		}
+		// :tankefugl
+			
 		Vector vecDir = UTIL_GetRandomSpreadDir(shared_rand, iShot, vecDirShooting, vecRight, vecUp, vecSpread);
 		Vector vecEnd;
 
@@ -1730,16 +1738,19 @@ Vector CBaseEntity::FireBulletsPlayer ( ULONG cShots, Vector vecSrc, Vector vecD
 
 					if(theAdjustedDamage)
 					{
-						if ( isShotgun && !( theEntityHit->pev->iuser3 & AVH_USER3_BREAKABLE) ) 
-						{
-							float distance=fabs((vecSrc - theEntityHit->pev->origin).Length());
-							if ( distance > BALANCE_VAR(kShotgunDamageRange) )
-							{
-								float fallOffDistance=distance-BALANCE_VAR(kShotgunDamageRange);
-								float fallOff=max(0.0f, 1.0f-(fallOffDistance/(kSGRange/2)));
-								theAdjustedDamage*=fallOff;
-							}
-						}
+						// tankefugl: 0000973
+						// removed shotgun fallof
+						//if ( isShotgun && !( theEntityHit->pev->iuser3 & AVH_USER3_BREAKABLE) ) 
+						//{
+						//	float distance=fabs((vecSrc - theEntityHit->pev->origin).Length());
+						//	if ( distance > BALANCE_VAR(kShotgunDamageRange) )
+						//	{
+						//		float fallOffDistance=distance-BALANCE_VAR(kShotgunDamageRange);
+						//		float fallOff=max(0.0, 1.0f-(fallOffDistance/(kSGRange/2)));
+						//		theAdjustedDamage*=fallOff;
+						//	}
+						//}
+						// :tankefugl
 						if ( theAdjustedDamage ) {
 							theEntityHit->TraceAttack(pevAttacker, theAdjustedDamage, vecDir, &tr, theDamageType | ((theAdjustedDamage > 16) ? DMG_ALWAYSGIB : DMG_NEVERGIB) );
 						}

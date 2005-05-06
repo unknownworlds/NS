@@ -1,5 +1,5 @@
 //======== (C) Copyright 2001 Charles G. Cleveland All rights reserved. =========
-//  
+//
 // The copyright to the contents herein is the property of Charles G. Cleveland.
 // The contents may be used and/or copied only with the written permission of
 // Charles G. Cleveland, or in accordance with the terms and conditions stipulated in
@@ -646,6 +646,13 @@ void AvHHud::ClearData()
 	this->mCurrentGhostIsValid = false;
 
 	this->mAmbientSounds.clear();
+
+	// tankefugl: 0000971 
+	this->mTeammateOrder.clear();
+	this->mDisplayOrderIndex = 0;
+	this->mDisplayOrderTime = 0;
+	this->mDisplayOrderType = 0;
+	// :tankefugl
 }
 
 
@@ -2035,32 +2042,42 @@ void AvHHud::OrderNotification(const AvHOrder& inOrder)
 			// Do a switch on the order type
 			AvHOrderType theOrderType = inOrder.GetOrderType();
 			AvHHUDSound theSound = HUD_SOUND_INVALID;
-			
+
+			// tankefugl: 0000992
+			// popup indicator for order
+			bool thePopup = false;
+
 			// Play HUD sound depending on order
 			switch(theOrderType)
 			{
 			case ORDERTYPEL_MOVE:
 				theSound = HUD_SOUND_ORDER_MOVE;
+				thePopup = true;
 				break;
 				
 			case ORDERTYPET_ATTACK:
 				theSound = HUD_SOUND_ORDER_ATTACK;
+				thePopup = true;
 				break;
 				
 			case ORDERTYPET_BUILD:
 				theSound = HUD_SOUND_ORDER_BUILD;
+				thePopup = true;
 				break;
 				
 			case ORDERTYPET_GUARD:
 				theSound = HUD_SOUND_ORDER_GUARD;
+				thePopup = true;
 				break;
 				
 			case ORDERTYPET_WELD:
 				theSound = HUD_SOUND_ORDER_WELD;
+				thePopup = true;
 				break;
 				
 			case ORDERTYPET_GET:
 				theSound = HUD_SOUND_ORDER_GET;
+				thePopup = true;
 				break;
 			}
 
@@ -2070,6 +2087,13 @@ void AvHHud::OrderNotification(const AvHOrder& inOrder)
 			}
 
 			this->PlayHUDSound(theSound);
+
+			// tankefugl: 0000992
+			if (thePopup)
+			{
+				this->SetDisplayOrder(2, this->GetFrameForOrderType(theOrderType), "", "", "");
+			}
+			// :tankefugl
 		}
 	//}
 }
@@ -2289,6 +2313,55 @@ int AvHHud::MiniMap(const char* pszName, int iSize, void* pbuf)
 	return 1;
 }
 
+// tankefugl: 0000971 
+BIND_MESSAGE(IssueOrder);
+int AvHHud::IssueOrder(const char* pszName, int iSize, void* pbuf)
+{
+	int ordertype, ordersource, ordertarget;
+	NetMsg_IssueOrder( pbuf, iSize, ordertype, ordersource, ordertarget);
+	
+	float now = this->GetTimeOfLastUpdate();
+	TeammateOrderListType::iterator theIter = this->mTeammateOrder.find(ordersource);
+	if (theIter == this->mTeammateOrder.end())
+	{
+		this->mTeammateOrder.insert(theIter, pair<int, TeammateOrderType>(ordersource, TeammateOrderType(ordertype, now)));
+	}
+	else
+	{
+		TeammateOrderType *theOrder = &((*theIter).second);
+		(*theOrder).first = ordertype;
+		(*theOrder).second = now;
+	}
+	
+	if (this->GetInTopDownMode() == false)
+	{
+		cl_entity_s* theLocalPlayer = gEngfuncs.GetLocalPlayer();
+		if (theLocalPlayer->index == ordertarget)
+		{
+			hud_player_info_t info;
+			memset(&info, 0, sizeof(info));
+			GetPlayerInfo(ordersource, &info);
+
+			string temp;
+			string nameFormat;
+			// fetch from titles.txt
+			sprintf(temp, "TeammateOrder%d", ordertype);
+			LocalizeString(temp.c_str(), nameFormat);
+			sprintf(temp, nameFormat.c_str(), info.name);
+
+			this->SetDisplayOrder(1, ordertype, temp, "", "");
+		}
+		if (theLocalPlayer->index == ordersource)
+		{
+			this->mCurrentOrderTarget = ordertarget;
+			this->mCurrentOrderType = ordertype;
+			this->mCurrentOrderTime = now;
+		}
+	}
+
+	return 1;
+}
+// :tankefugl
 
 BIND_MESSAGE(ServerVar);
 int AvHHud::ServerVar(const char* pszName, int iSize, void* pbuf)
@@ -2461,6 +2534,20 @@ void AvHHud::ResetGame(bool inMapChanged)
 	this->mTimeOfLastLevelUp = -1;
 
 	memset(this->mMenuImpulses, MESSAGE_NULL, sizeof(AvHMessageID)*kNumUpgradeLines);
+
+	// tankefugl: 0000992 & 0000971
+	this->mTeammateOrder.clear();
+	this->mCurrentOrderTarget = 0;
+	this->mCurrentOrderType = 0;
+	this->mCurrentOrderTime = 0.0f;
+
+	this->mDisplayOrderTime = 0.0f;
+	this->mDisplayOrderType = 0;
+	this->mDisplayOrderIndex = 0;
+	this->mDisplayOrderText1 = "";
+	this->mDisplayOrderText2 = "";
+	this->mDisplayOrderText3 = "";
+	// :tankefugl
 }
 
 BIND_MESSAGE(SetGmma);
@@ -2818,7 +2905,7 @@ int AvHHud::PlayHUDNot(const char* pszName, int iSize, void* pbuf)
 	{
 		// Push back icon
 		HUDNotificationType theNotification;
-		theNotification.mStructureID = (AvHMessageID)sound;
+		theNotification.mStructureID = (AvHMessageID)message_id;
 		theNotification.mTime = this->mTimeOfCurrentUpdate;
 		theNotification.mLocation = Vector(location_x, location_y, 0.0f);
 
@@ -3475,6 +3562,9 @@ void AvHHud::Init(void)
 	HOOK_MESSAGE(AlienInfo);
 	HOOK_MESSAGE(DebugCSP);
 	HOOK_MESSAGE(TechSlots);
+	// tankefugl: 0000971 
+	HOOK_MESSAGE(IssueOrder);
+	// :tankefugl
 
     HOOK_MESSAGE(ServerVar);
 	
@@ -3702,7 +3792,7 @@ void AvHHud::SetHelpMessage(const string& inHelpText, bool inForce, float inNorm
 	if(inForce || gEngfuncs.pfnGetCvarFloat(kvAutoHelp))
 	{
 		float theReticleX = kHelpMessageLeftEdgeInset;
-		float theReticleY = kHelpMessageTopEdgeInset;
+		float theReticleY = kHelpMessageTopEdgeInset - 0.15f;
 		bool theCentered = false;
 
 		if(this->GetInTopDownMode())
@@ -3723,7 +3813,7 @@ void AvHHud::SetHelpMessage(const string& inHelpText, bool inForce, float inNorm
 			if(this->GetIsAlien())
 			{
 				theReticleX = kHelpMessageAlienLeftedgeInset;
-				theReticleY = kHelpMessageAlienTopEdgeInset;
+				theReticleY = kHelpMessageAlienTopEdgeInset - 0.15f;
 			}
 			
 			if(inNormX != -1)

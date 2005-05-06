@@ -1438,6 +1438,13 @@ void NS_UpdateWallsticking()
             
             bool wallsticking = false;
 
+			// tankefugl: fix to allow skulks to climb walls oriented 45 degrees in the x-y plane
+			// it also allows for easier climbing around courners
+			wallsticking |= NS_CheckOffsetFromOrigin(pmove->forward[0], pmove->forward[1], pmove->forward[2], theSurfaceNormal);
+			if (wallsticking)
+				VectorScale(theSurfaceNormal, 5, theSurfaceNormal);
+			// :tankefugl
+
             wallsticking |= NS_CheckOffsetFromOrigin(theMinPoint[0], theMinPoint[1], theMinPoint[2], theSurfaceNormal);
             wallsticking |= NS_CheckOffsetFromOrigin(theMinPoint[0], theMaxPoint[1], theMinPoint[2], theSurfaceNormal);
             wallsticking |= NS_CheckOffsetFromOrigin(theMaxPoint[0], theMinPoint[1], theMinPoint[2], theSurfaceNormal);
@@ -4075,7 +4082,8 @@ void PM_UnDuck( void )
         
         VectorCopy( pmove->origin, newOrigin );
         
-        if ( pmove->onground != -1 )
+		// tankefugl: remove the jump when pressing and releasing duck quickly
+		if ( pmove->onground != -1 && pmove->flags & FL_DUCKING && pmove->bInDuck == false)
         {
             int theStandingHull = AvHMUGetHull(false, pmove->iuser3);
             int theCrouchingHull = AvHMUGetHull(true, pmove->iuser3);
@@ -4923,7 +4931,10 @@ void PM_Jump (void)
     }
     
     // See if we are waterjumping.  If so, decrement count and return.
-    if ( pmove->waterjumptime )
+	// tankefugl: 0000972 
+	if (pmove->waterjumptime && !(pmove->waterlevel == 0 && pmove->iuser3 == AVH_USER3_ALIEN_PLAYER1))
+	// :tankefugl
+//    if ( pmove->waterjumptime )
     {
         pmove->waterjumptime -= pmove->cmd.msec;
         if (pmove->waterjumptime < 0)
@@ -6354,7 +6365,10 @@ void PM_PlayerMove ( qboolean server )
         }
 
         // If we are leaping out of the water, just update the counters.
-        if ( pmove->waterjumptime )
+		// tankefugl: 0000972 
+		if (pmove->waterjumptime && !(pmove->waterlevel == 0 && pmove->iuser3 == AVH_USER3_ALIEN_PLAYER1))
+		// :tankefugl
+//        if ( pmove->waterjumptime )
         {
             PM_WaterJump();
             PM_FlyMove();

@@ -210,7 +210,7 @@ void AvHSonicGun::FireProjectiles(void)
 	
     // Fire the bullets and apply damage
 	//this->m_pPlayer->FireBullets(kSGBulletsPerShot, vecSrc, vecAiming, this->GetProjectileSpread(), this->mRange, 0, 0, theDamage);
-	this->m_pPlayer->FireBulletsPlayer(BALANCE_VAR(kSGBulletsPerShot), vecSrc, vecAiming, this->GetProjectileSpread(), this->mRange, BULLET_PLAYER_BUCKSHOT, 0, theDamage);
+	this->m_pPlayer->FireBulletsPlayer(BALANCE_VAR(kSGBulletsPerShot), vecSrc, vecAiming, this->GetProjectileSpread(), this->mRange, BULLET_PLAYER_BUCKSHOT, 0, theDamage, 0, this->m_pPlayer->random_seed);
 }
 
 bool AvHSonicGun::GetHasMuzzleFlash() const

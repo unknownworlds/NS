@@ -1,5 +1,5 @@
 //======== (C) Copyright 2001 Charles G. Cleveland All rights reserved. =========
-//  
+//
 // The copyright to the contents herein is the property of Charles G. Cleveland.
 // The contents may be used and/or copied only with the written permission of
 // Charles G. Cleveland, or in accordance with the terms and conditions stipulated in
@@ -139,6 +139,7 @@
 #include "mod/AvHSpriteAPI.h"
 #include "mod/AvHParticleEditorHandler.h"
 #include <list>
+#include "common/entity_types.h"
 
 void IN_GetMousePos( int *mx, int *my );
 
@@ -883,7 +884,8 @@ void AvHHud::DrawToolTips()
 	}
 }
 
-void AvHHud::DrawWorldSprite(int inSpriteHandle, int inRenderMode, vec3_t inWorldPosition, int inFrame, float inWorldSize)
+void AvHHud::DrawWorldSprite(int inSpriteHandle, int inRenderMode, vec3_t inWorldPosition, int inFrame, float inWorldSize, float inAlpha)
+// tankefugl: added inAlpha
 {
 	vec3_t theUpperLeft;
 	vec3_t theLowerRight;
@@ -968,7 +970,7 @@ void AvHHud::DrawWorldSprite(int inSpriteHandle, int inRenderMode, vec3_t inWorl
 
             //DrawScaledHUDSprite(inSpriteHandle, inRenderMode, 1, theScreenX, theScreenY, theWidth, theHeight, inFrame);
             
-            AvHSpriteSetColor(1, 1, 1);
+            AvHSpriteSetColor(1, 1, 1, inAlpha);
             AvHSpriteSetRenderMode(inRenderMode);
             AvHSpriteDraw(inSpriteHandle, inFrame, theScreenX, theScreenY, theScreenX + theWidth, theScreenY + theHeight, 0, 0, 1, 1);
             
@@ -1060,6 +1062,14 @@ void AvHHud::DrawOrderText(const AvHOrder& inOrder)
 	string theTranslatedLocation = theLocationOfOrder;
 	LocalizeString(theLocationOfOrder.c_str(), theTranslatedLocation);
 	
+	// tankefugl: 0000992	
+	string theFirstLine = theLocalizedTitle;
+	if(theRangeDisplayString != "")
+	{
+		theFirstLine += string(" : ") + theRangeDisplayString;
+	}
+	// :tankefugl
+	
 	Vector theScreenPos;
 	if(AvHCUWorldToScreen((float*)theOrderLocation, (float*)&theScreenPos))
 	{
@@ -1087,7 +1097,180 @@ void AvHHud::DrawOrderText(const AvHOrder& inOrder)
 			this->DrawHudStringCentered(theBaseX, theBaseY + 2*theStringHeight, ScreenWidth(), theTranslatedLocation.c_str(), theR, theG, theB);
 		}
 	}
+	// tankefugl: 0000992
+	if (this->mDisplayOrderType == 2)
+	{
+		// this->mDisplayOrderText1 = "The commander issued an order:";
+		this->mDisplayOrderText1 = theFirstLine.c_str();
+		this->mDisplayOrderText2 = theTranslatedLocation.c_str();
+	}
+	// :tankefugl	
 }
+
+// tankefugl: 0000992
+void AvHHud::SetDisplayOrder(int inOrderType, int inOrderIndex, string inText1, string inText2, string inText3)
+{
+	this->mDisplayOrderTime = this->mTimeOfLastUpdate;
+	this->mDisplayOrderType = inOrderType;
+	this->mDisplayOrderIndex = inOrderIndex;
+	this->mDisplayOrderText1 = inText1;
+	this->mDisplayOrderText2 = inText2;
+	this->mDisplayOrderText3 = inText3;
+}
+
+void AvHHud::DrawDisplayOrder()
+{
+	const float flashLength = 1.0f;
+	const float fadeLimit	= 6.0f;
+	const float fadeEnd		= 2.0f;
+	
+	if ((this->mDisplayOrderType > 0) && (this->mDisplayOrderTime + fadeLimit + fadeEnd) > this->mTimeOfLastUpdate && (this->GetInTopDownMode() == false))
+	{
+		float theFade = 1.0f;
+		if ((this->mDisplayOrderTime + fadeLimit) < this->mTimeOfLastUpdate)
+		{
+			theFade = 1.0f - (this->mTimeOfLastUpdate - (this->mDisplayOrderTime + fadeLimit)) / fadeEnd;
+			if(theFade < 0.0f)
+			{
+				this->mDisplayOrderType = 0;
+				return;
+			}
+		}
+
+		// flash the icon for the first second
+		if ((this->mDisplayOrderTime + flashLength) > this->mTimeOfLastUpdate)
+		{
+			if (((int)((this->mTimeOfLastUpdate - this->mDisplayOrderTime) * 8)) % 2)
+			{
+				theFade = 0.0f;
+			}
+		}
+
+		// draw the panel
+//        int sprite = Safe_SPR_Load(kWhiteSprite);
+        
+        int r, g, b;
+        GetPrimaryHudColor(r, g, b, true, false);
+
+		int theStringHeight = this->GetHudStringHeight();
+
+//		float mSelectionBoxX1 = 0.25f * ScreenWidth();
+//		float mSelectionBoxY1 = 0.08f * ScreenHeight();
+//		float mSelectionBoxX2 = mSelectionBoxX1 + 0.50f * ScreenWidth();
+//		float mSelectionBoxY2 = mSelectionBoxY1 + 0.08f * ScreenWidth();
+
+//		float mIconX1 = mSelectionBoxX1 + 0.01f * ScreenWidth();
+//		float mIconY1 = mSelectionBoxY1 + 0.01f * ScreenWidth();
+//		float mIconX2 = mIconX1 + 0.06f * ScreenWidth();
+//		float mIconY2 = mIconY1 + 0.06f * ScreenWidth();
+
+//		AvHSpriteSetRenderMode(kRenderTransAdd);
+//		AvHSpriteSetColor(r / 255.0, g / 255.0, b / 255.0, 0.3 * theFade);
+//		AvHSpriteSetDrawMode(kSpriteDrawModeFilled);
+//		AvHSpriteDraw(sprite, 0, mSelectionBoxX1 + 1, mSelectionBoxY1 + 1, mSelectionBoxX2 - 1, mSelectionBoxY2 - 1, 0, 0, 1, 1);
+		
+//		AvHSpriteSetRenderMode(kRenderTransAdd);
+//		AvHSpriteSetColor(r / 255.0, g / 255.0, b / 255.0, 0.7 * theFade);
+//		AvHSpriteSetDrawMode(kSpriteDrawModeBorder);
+//		AvHSpriteDraw(sprite, 0, mSelectionBoxX1, mSelectionBoxY1, mSelectionBoxX2, mSelectionBoxY2, 0, 0, 1, 1);
+		
+		float mIconX1 = 0.45f * ScreenWidth();
+		float mIconY1 = 0.10f * ScreenHeight();
+		float mIconX2 = mIconX1 + 0.10f * ScreenWidth();
+		float mIconY2 = mIconY1 + 0.10f * ScreenWidth();
+
+		float mTextX1 = 0.50f * ScreenWidth();
+
+		AvHSpriteSetRenderMode(kRenderTransAdd);
+        AvHSpriteSetDrawMode(kSpriteDrawModeFilled);
+		AvHSpriteSetColor(1, 1, 1, 1 * theFade);
+
+		if (this->mDisplayOrderType == 1)
+		{
+			AvHSpriteDraw(this->mTeammateOrderSprite, this->mDisplayOrderIndex + 8, mIconX1, mIconY1, mIconX2, mIconY2, 0, 0, 1, 1);
+			this->DrawHudStringCentered(mTextX1, mIconY2, ScreenWidth(), this->mDisplayOrderText1.c_str(), r, g, b);
+		}
+		else if (this->mDisplayOrderType == 2)
+		{
+			AvHSpriteDraw(this->mOrderSprite, this->mDisplayOrderIndex, mIconX1, mIconY1, mIconX2, mIconY2, 0, 0, 1, 1);
+			this->DrawHudStringCentered(mTextX1, mIconY2, ScreenWidth(), this->mDisplayOrderText1.c_str(), r, g, b);
+			this->DrawHudStringCentered(mTextX1, mIconY2 + theStringHeight, ScreenWidth(), this->mDisplayOrderText2.c_str(), r, g, b);
+		}
+
+
+//		float mTextX1 = mIconX2 + 0.02 * ScreenWidth();
+//		this->DrawHudString(mTextX1, mIconY1, ScreenWidth(), this->mDisplayOrderText1.c_str(), r, g, b);
+//		this->DrawHudString(mTextX1, mIconY1 + theStringHeight, ScreenWidth(), this->mDisplayOrderText2.c_str(), r, g, b);
+//		this->DrawHudString(mTextX1, mIconY1 + theStringHeight * 2, ScreenWidth(), this->mDisplayOrderText3.c_str(), r, g, b);
+	}
+}
+// :tankefugl
+
+// tankefugl: 0000971
+void AvHHud::DrawTeammateOrders()
+{
+	TeammateOrderListType::iterator toErase = NULL;
+	cl_entity_s* theLocalPlayer = gEngfuncs.GetLocalPlayer();
+
+	const float flashLength = 1.0f;
+	const float fadeLimit	= 6.0f;
+	const float fadeEnd		= 2.0f;
+
+	for(TeammateOrderListType::iterator theIter = this->mTeammateOrder.begin(); theIter != this->mTeammateOrder.end(); theIter++)
+	{
+		TeammateOrderType theOrder = (*theIter).second;
+		int theEntIndex = (*theIter).first;
+		float theFade = 1.0f;
+
+		// remove the order if it has expired
+		if((theOrder.second + fadeEnd + fadeLimit) < this->mTimeOfLastUpdate)
+		{
+			toErase = theIter;
+			continue;
+		}
+		// draw the order fading away
+		else if((theOrder.second + fadeLimit) < this->mTimeOfLastUpdate)
+		{
+			theFade = 1.0f - (this->mTimeOfLastUpdate - (theOrder.second + fadeLimit)) / fadeEnd;
+			if(theFade < 0.0f)
+				theFade = 0.0f;
+		}
+		// else, draw the order normally
+
+		cl_entity_s* theEntity = gEngfuncs.GetEntityByIndex(theEntIndex);
+		if (theEntity && (theEntIndex < MAX_PLAYERS && theEntIndex >= 0) && (theEntity->index != theLocalPlayer->index))
+		{
+			if (AvHTraceLineAgainstWorld(theLocalPlayer->origin, theEntity->origin) == 1.0f)
+			{
+				vec3_t theVec;
+				VectorCopy(theEntity->origin, theVec);
+				theVec[2] += AvHCUGetIconHeightForPlayer((AvHUser3)theEntity->curstate.iuser3);
+				this->DrawWorldSprite(this->mTeammateOrderSprite, kRenderTransAdd, theVec, theOrder.first, kHelpIconDrawSize, theFade);
+			}
+		}
+	}
+
+	if (toErase != NULL)
+		this->mTeammateOrder.erase(toErase);
+
+	// flash target player
+	if (((this->mCurrentOrderTime + flashLength) > this->mTimeOfLastUpdate) && (this->mCurrentOrderTarget > 0))
+	{
+		if (((int)((this->mTimeOfLastUpdate - (this->mCurrentOrderTime + flashLength)) * 8)) % 2)
+		{
+			cl_entity_s* theTargetEntity = gEngfuncs.GetEntityByIndex(this->mCurrentOrderTarget);
+
+			vec3_t theVec;
+			VectorCopy(theTargetEntity->origin, theVec);
+			theVec[2] += AvHCUGetIconHeightForPlayer((AvHUser3)theTargetEntity->curstate.iuser3);
+			this->DrawWorldSprite(this->mTeammateOrderSprite, kRenderTransAdd, theVec, this->mCurrentOrderType, kHelpIconDrawSize, 1.0f);
+
+		}
+	}
+
+
+}
+// :tankefugl
 
 void AvHHud::DrawOrders()
 {
@@ -2220,8 +2403,11 @@ void AvHHud::DrawBuildHealthEffectsForEntity(int inEntityIndex, float inAlpha)
 				// It's an unfriendly building that's very close OR
 				(!theEntityIsPlayer && (theDistanceToEntity < kDrawEnemyBuildingDistance)) ||
 
-				// It's a friendly entity and we're a builder
-				(theIsOnOurTeam && (this->GetHUDUser3() == AVH_USER3_ALIEN_PLAYER2))
+				// It's a friendly entity and we're a builder OR
+				(theIsOnOurTeam && (this->GetHUDUser3() == AVH_USER3_ALIEN_PLAYER2)) ||
+
+				// welder/healing spray is selected
+				(this->mCurrentWeaponID == 18 || this->mCurrentWeaponID == 27)
 
 				)
 			{
@@ -2344,17 +2530,18 @@ void AvHHud::DrawSelectionAndBuildEffects()
 		// :tankefugl
 	}
 
-// tankefugl: 0000988 
-	gEngfuncs.pEventAPI->EV_SetUpPlayerPrediction( false, true );
-	gEngfuncs.pEventAPI->EV_PushPMStates();
-	gEngfuncs.pEventAPI->EV_SetSolidPlayers(-1);
+	// tankefugl: 0000988 & 0000991
+	bool maintanceWeaponSelected = (this->mCurrentWeaponID == 18 || this->mCurrentWeaponID == 27);
+	bool isCommander = this->GetInTopDownMode();
+	if (isCommander || maintanceWeaponSelected) {		
+		gEngfuncs.pEventAPI->EV_SetUpPlayerPrediction( false, true );
+		gEngfuncs.pEventAPI->EV_PushPMStates();
+		gEngfuncs.pEventAPI->EV_SetSolidPlayers(-1);
 
-	if (this->GetInTopDownMode()) {
 		int localPlayerIndex = gEngfuncs.GetLocalPlayer()->index;
-		physent_t *thePlayer = gEngfuncs.pEventAPI->EV_GetPhysent(localPlayerIndex);
-//		gEngfuncs.Con_Printf("gEngfuncs.GetLocalPlayer()->index = %d, thePlayer->team = %d\n", gEngfuncs.GetLocalPlayer()->index, thePlayer->team);
 
-		if (thePlayer) 
+		physent_t *thePlayer = gEngfuncs.pEventAPI->EV_GetPhysent(localPlayerIndex);
+		if (thePlayer)
 		{
 			physent_t* theEntity = NULL;
 			int theNumEnts = pmove->numphysent;
@@ -2372,18 +2559,25 @@ void AvHHud::DrawSelectionAndBuildEffects()
 							bool theIsPlayer = ((theEntityIndex >= 1) && (theEntityIndex <= gEngfuncs.GetMaxClients()));
 							bool theSameTeam = (theEntity->team == thePlayer->team );
 							
-							if(theIsPlayer || theSameTeam)
+							if (isCommander && (theIsPlayer || theSameTeam))
 							{
-								this->DrawBuildHealthEffectsForEntity(theEntityIndex, 0.3);
+								this->DrawBuildHealthEffectsForEntity(theEntityIndex, 0.2);
+							}
+							else if (maintanceWeaponSelected && theSameTeam && !theIsPlayer)
+							{
+								if (AvHTraceLineAgainstWorld(gEngfuncs.GetLocalPlayer()->origin, theEntity->origin) == 1.0f)
+								{
+									this->DrawBuildHealthEffectsForEntity(theEntityIndex, 0.3);
+								}
 							}
 						}
 					}
 				}
 			}
 		}
+		gEngfuncs.pEventAPI->EV_PopPMStates();
 	}
-	gEngfuncs.pEventAPI->EV_PopPMStates();
-// :tankefugl
+	// :tankefugl
 }
 
 
@@ -2534,6 +2728,11 @@ void AvHHud::RenderCommonUI()
 
         this->DrawOrders();
         this->DrawHelpIcons();
+		// tankefugl: 0000971
+		this->DrawTeammateOrders();
+		// tankefugl: 0000992
+		this->DrawDisplayOrder();
+		// :tankefugl
 
         if (this->GetIsCombatMode())
         {
@@ -3373,8 +3572,13 @@ void AvHHud::RenderAlienUI()
 	    const float kTextInset = kResourceEnergyBarWidth*.5f;
 	    const int kNumericYOffset = 1.5*this->GetHudStringHeight();
 
-        int theResourceLabelX = mViewport[0] + kTextInset*ScreenWidth();
-	    int theResourceLabelY = theY -  + .05f * ScreenHeight();
+	    // tankefugl: 0000989
+		// moved resource label a bit down
+        //int theResourceLabelX = mViewport[0] + kTextInset*ScreenWidth();
+		//int theResourceLabelY = theY -  + .05f * ScreenHeight();
+        int theResourceLabelX = 10;
+		int theResourceLabelY = .68f * ScreenHeight();
+		// :tankefugl
 	    
 		if(this->mMapMode == MAP_MODE_NS)
 		{
@@ -3990,6 +4194,10 @@ void AvHHud::VidInit(void)
 
 	string theIconName = string(kHelpIconPrefix) + ".spr";
 	this->mHelpSprite = Safe_SPR_Load(theIconName.c_str());
+
+	// tankefugl: 0000971
+	this->mTeammateOrderSprite = Safe_SPR_Load(kTeammateOrderSprite);
+	// :tankefugl
 
 	this->mEnemyBlips.VidInit();
 	this->mFriendlyBlips.VidInit();

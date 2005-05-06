@@ -1,5 +1,5 @@
 //======== (C) Copyright 2001 Charles G. Cleveland All rights reserved. =========
-//  
+//
 // The copyright to the contents herein is the property of Charles G. Cleveland.
 // The contents may be used and/or copied only with the written permission of
 // Charles G. Cleveland, or in accordance with the terms and conditions stipulated in
@@ -397,6 +397,9 @@ public:
 
 	int				GameStatus(const char* pszName, int iSize, void* pbuf);
 	int				MiniMap(const char* pszName, int iSize, void* pbuf);
+	// tankefugl: 0000971 
+	int				IssueOrder(const char* pszName, int iSize, void* pbuf);
+	// :tankefugl
 	int				Progress(const char* pszName, int iSize, void* pbuf);
 	int				SetGmma(const char* pszName, int iSize, void* pbuf);
 	int				SetSelect(const char* pszName, int iSize, void* pbuf);
@@ -440,12 +443,20 @@ private:
 	void			DrawMouseCursor(int inBaseX, int inBaseY);
 	void			DrawOrders();
 	void			DrawHelpIcons();
+	// tankefugl: 0000971
+	void			DrawTeammateOrders();
+	// tankefugl: 0000992
+	void			DrawDisplayOrder();
+	void			SetDisplayOrder(int inOrderType, int inOrderIndex, string inText1, string inText2, string inText3);
+	// :tankefugl
 	void			DrawHUDStructureNotification();
 	void			DrawInfoLocationText();
 	void			DrawPlayerNames();
 	void			DrawReticleInfo();
 	void			DrawToolTips();
-	void			DrawWorldSprite(int inSpriteHandle, int inRenderMode, vec3_t inWorldPosition, int inFrame, float inWorldSize);
+	// tankefugl: 0000971 -- added inAlpha
+	void			DrawWorldSprite(int inSpriteHandle, int inRenderMode, vec3_t inWorldPosition, int inFrame, float inWorldSize, float inAlpha = 1.0f);
+	// :tankefugl
 	void			DrawOrderIcon(const AvHOrder& inOrder);
 	void			DrawOrderText(const AvHOrder& inOrder);
 	int				GetFrameForOrderType(AvHOrderType inOrderType) const;
@@ -584,6 +595,19 @@ private:
 	OrderListType			mOrders;
 	//AvHOrderType			mOrderMode;
 
+	// tankefugl: 0000971
+	map< int, TeammateOrderType >	mTeammateOrder;
+	// tankefugl: 0000992
+	float					mDisplayOrderTime;
+	int						mDisplayOrderType;
+	int						mDisplayOrderIndex;
+	string					mDisplayOrderText1;
+	string					mDisplayOrderText2;
+	string					mDisplayOrderText3;
+	int						mCurrentOrderTarget;
+	int						mCurrentOrderType;
+	float					mCurrentOrderTime;
+	// :tankefugl
 	AvHMessageID			mTechEvent;
 	AvHMessageID			mAlienAbility;
 	AvHMessageID			mGroupEvent;
@@ -671,6 +695,9 @@ private:
 	HSPRITE					mMarineOrderIndicator;
 	HSPRITE					mMarineUpgradesSprite;
 
+	// tankefugl: 0000971
+	HSPRITE					mTeammateOrderSprite;
+	// :tankefugl
 	typedef map<int, int>			SpriteListType;
 	SpriteListType					mActionButtonSprites;
 	//SpriteListType					mHelpSprites;

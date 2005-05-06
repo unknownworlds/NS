@@ -1693,6 +1693,7 @@ char* AvHNuke::GetKilledSound() const
 
 
 const float kInfantryPortalThinkTime = 1.0f;
+#define kInfantryPortalLightEffect EF_LIGHT
 
 AvHInfantryPortal::AvHInfantryPortal() : AvHMarineBaseBuildable(TECH_INFANTRYPORTAL, BUILD_INFANTRYPORTAL, kwsInfantryPortal, AVH_USER3_INFANTRYPORTAL)
 {
@@ -1741,6 +1742,7 @@ void AvHInfantryPortal::SetHasBeenBuilt()
 
 	SetThink(&AvHInfantryPortal::PortalThink);
 	this->pev->nextthink = gpGlobals->time + kInfantryPortalThinkTime; 
+	this->pev->effects |= kInfantryPortalLightEffect;
 }
 
 void AvHInfantryPortal::Precache()
@@ -1813,6 +1815,7 @@ void AvHInfantryPortal::ResetReinforcingPlayer(bool inSuccess)
 void AvHInfantryPortal::UpdateOnRecycle(void)
 {
 	this->ResetReinforcingPlayer(false);
+	this->pev->effects &= ~kInfantryPortalLightEffect;
 }
 
 void AvHInfantryPortal::UpdateOnRemove(void)
@@ -1838,6 +1841,18 @@ int AvHInfantryPortal::GetIdle2Animation() const
 	// AvHBaseBuildable randomly shows Idle2, which we don't have in this model.
 	return 2;
 }	
+
+// tankefugl: 
+int AvHInfantryPortal::GetDeployAnimation() const
+{
+	return 0;
+}
+
+int AvHInfantryPortal::GetSpawnAnimation() const
+{
+	return 1;
+}
+// :tankefugl
 
 const int kCommandStationExitAnimation = 12;
 

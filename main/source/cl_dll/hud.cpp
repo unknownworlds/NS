@@ -1,5 +1,5 @@
 /***
-*  
+*
 *	Copyright (c) 1999, Valve LLC. All rights reserved.
 *	
 *	This product contains software technology licensed from Id 
@@ -33,6 +33,10 @@
 
 #include "mod/AvHNetworkMessages.h"
 #include "ui/ChatPanel.h"
+
+// tankefugl: duck toggle
+bool g_bDuckToggled;
+// :tankefugl
 
 class CHLVoiceStatusHelper : public IVoiceStatusHelper
 {
@@ -191,6 +195,10 @@ void CHud :: Init( void )
 
 	m_iLogo = 0;
 	m_iFOV = 0;
+
+	// tankefugl: duck toggle
+	g_bDuckToggled = false;
+	// :tankefugl
 
 	CVAR_CREATE( "zoom_sensitivity_ratio", "1.2", 0 );
 	default_fov = CVAR_CREATE( "default_fov", "90", 0 );

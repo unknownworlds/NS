@@ -90,6 +90,8 @@
 #define		kBuildCircleSprite			"sprites/buildcircle.spr"
 //#define		kSiegeTurretSprite			"sprites/siegeturret.spr"
 
+#define		kTeammateOrderSprite		"sprites/query.spr"
+
 //#define		kOverwatchAimSprite			"sprites/overwatch-aim.spr"
 
 #define		kMembraneSprite				"sprites/membrane.spr"

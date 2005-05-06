@@ -557,13 +557,13 @@ start PieMenu SoldierMenu
 	node2 = 4/2/#MenuTalk/0
 	node3 = 4/2/4/#MenuFollowMe/7
 	node4 = 4/2/2/#MenuCovering/8
-	node5 = 4/2/0/#MenuTaunt/9
+	node5 = 4/2/0/#MenuWeldMe/14
 	node6 = 4/6/#MenuYell/0
 	node7 = 4/6/0/#MenuNeedHealth/10
 	node8 = 4/6/6/#MenuNeedAmmo/11
-	node9 = 4/6/4/#MenuInPosition/12
+	node9 = 4/6/4/#MenuNeedOrder/80
 	node10 = 4/4/#MenuSay/0
-	node11 = 4/4/2/#MenuMoveOut/14
+	node11 = 4/4/2/#MenuTaunt/9
 	node12 = 4/4/4/#MenuEnemySpotted/13
 	node13 = 4/4/6/#MenuAllClear/15
 
@@ -587,12 +587,12 @@ start PieMenu SoldierMenu
 	' Switch between light and heavy weapon
 	node17 = 6/6/#MenuNextWeapon/1
 
-	node18 = 2/#MenuOrders/0
-	node19 = 2/0/#MenuNeedOrder/80
-	node20 = 2/4/#MenuAck/81
+	node18 = 2/#MenuAck/81
+	'node19 = 2/0/#MenuNeedOrder/80
+	'node20 = 2/0/#MenuAck/81
 
 	' Administrative
-	node21 = 0/#MenuVoteCommanderDown/6
+	node19 = 0/#MenuVoteCommanderDown/6
 end
 
 start PieMenu SoldierCombatMenu
@@ -615,13 +615,13 @@ start PieMenu SoldierCombatMenu
 	node2 = 4/2/#MenuTalk/0
 	node3 = 4/2/4/#MenuFollowMe/7
 	node4 = 4/2/2/#MenuCovering/8
-	node5 = 4/2/0/#MenuTaunt/9
+	node5 = 4/2/0/#MenuWeldMe/14
 	node6 = 4/6/#MenuYell/0
 	node7 = 4/6/0/#MenuNeedHealth/10
 	node8 = 4/6/6/#MenuNeedAmmo/11
-	node9 = 4/6/4/#MenuInPosition/12
+	node9 = 4/6/4/#MenuNeedOrder/80
 	node10 = 4/4/#MenuSay/0
-	node11 = 4/4/2/#MenuMoveOut/14
+	node11 = 4/4/2/#MenuTaunt/9
 	node12 = 4/4/4/#MenuEnemySpotted/13
 	node13 = 4/4/6/#MenuAllClear/15
 
@@ -682,34 +682,35 @@ start PieMenu AlienMenu
 
 	' Administrative
 	node8 = 0/#MenuAlienComm/0
-	node9 = 0/6/#MenuAlienCommSayingOne/7
-	node10 = 0/2/#MenuAlienCommSayingTwo/8
+	node9 = 0/0/#MenuAlienCommSayingOne/9
+	node10 = 0/6/#MenuAlienCommSayingTwo/10
+	node11 = 0/2/#MenuAlienCommSayingThree/7
 
-	node11 = 6/#MenuAlienUpgrade/0
-	node12 = 6/0/#MenuAlienMovementUpgrades/0
-	node13 = 6/0/0/#MenuAlienUpgradeMoveOne/107
-	node14 = 6/0/6/#MenuAlienUpgradeMoveTwo/108
-	node15 = 6/0/2/#MenuAlienUpgradeMoveThree/109
-	node16 = 6/6/#MenuAlienSensoryUpgrades/0
-	node17 = 6/6/4/#MenuAlienUpgradeSenOne/110
-	node18 = 6/6/6/#MenuAlienUpgradeSenTwo/111
-	node19 = 6/6/0/#MenuAlienUpgradeSenThree/112
-	node20 = 6/4/#MenuAlienDefenseUpgrades/0
-	node21 = 6/4/6/#MenuAlienUpgradeDefOne/101
-	node22 = 6/4/4/#MenuAlienUpgradeDefTwo/102
-	node23 = 6/4/2/#MenuAlienUpgradeDefThree/103
+	node12 = 6/#MenuAlienUpgrade/0
+	node13 = 6/0/#MenuAlienMovementUpgrades/0
+	node14 = 6/0/0/#MenuAlienUpgradeMoveOne/107
+	node15 = 6/0/6/#MenuAlienUpgradeMoveTwo/108
+	node16 = 6/0/2/#MenuAlienUpgradeMoveThree/109
+	node17 = 6/6/#MenuAlienSensoryUpgrades/0
+	node18 = 6/6/4/#MenuAlienUpgradeSenOne/110
+	node19 = 6/6/6/#MenuAlienUpgradeSenTwo/111
+	node20 = 6/6/0/#MenuAlienUpgradeSenThree/112
+	node21 = 6/4/#MenuAlienDefenseUpgrades/0
+	node22 = 6/4/6/#MenuAlienUpgradeDefOne/101
+	node23 = 6/4/4/#MenuAlienUpgradeDefTwo/102
+	node24 = 6/4/2/#MenuAlienUpgradeDefThree/103
 
-	node24 = 2/#MenuAlienBuild/0
+	node25 = 2/#MenuAlienBuild/0
 	
-	node25 = 2/0/#MenuAlienBuildUpgrades/0
-	node26 = 2/0/0/#MenuAlienMovementChamber/94
-	node27 = 2/0/6/#MenuAlienSensoryChamber/93
-	node28 = 2/0/2/#MenuAlienDefenseChamber/92
+	node26 = 2/0/#MenuAlienBuildUpgrades/0
+	node27 = 2/0/0/#MenuAlienMovementChamber/94
+	node28 = 2/0/6/#MenuAlienSensoryChamber/93
+	node29 = 2/0/2/#MenuAlienDefenseChamber/92
 
-	node29 = 2/2/#MenuAlienAdvBuild/0
-	node30 = 2/2/0/#MenuAlienOffensiveChamber/91
-	node31 = 2/2/4/#MenuAlienHive/95
-	node32 = 2/2/2/#MenuAlienResourceTower/90
+	node30 = 2/2/#MenuAlienAdvBuild/0
+	node31 = 2/2/0/#MenuAlienOffensiveChamber/91
+	node32 = 2/2/4/#MenuAlienHive/95
+	node33 = 2/2/2/#MenuAlienResourceTower/90
 end
 
 start PieMenu AlienCombatMenu
@@ -739,25 +740,26 @@ start PieMenu AlienCombatMenu
 
 	' Administrative
 	node7 = 0/#MenuAlienComm/0
-	node8 = 0/6/#MenuAlienCommSayingOne/7
-	node9 = 0/2/#MenuAlienCommSayingTwo/8
+	node8 = 0/0/#MenuAlienCommSayingOne/9
+	node9 = 0/6/#MenuAlienCommSayingTwo/10
+	node10 = 0/2/#MenuAlienCommSayingThree/7
 	
-	node10 = 6/#MenuAlienUpgrade/0
-	node11 = 6/0/#MenuAlienMovementUpgrades/0
-	node12 = 6/0/0/#MenuAlienUpgradeMoveOne/107
-	node13 = 6/0/6/#MenuAlienUpgradeMoveTwo/108
-	node14 = 6/0/2/#MenuAlienUpgradeMoveThree/109
-	node15 = 6/6/#MenuAlienSensoryUpgrades/0
-	node16 = 6/6/4/#MenuAlienUpgradeSenOne/110
-	node17 = 6/6/6/#MenuAlienUpgradeSenTwo/111
-	node18 = 6/6/0/#MenuAlienUpgradeSenThree/112
-	node19 = 6/4/#MenuAlienDefenseUpgrades/0
-	node20 = 6/4/6/#MenuAlienUpgradeDefOne/101
-	node21 = 6/4/4/#MenuAlienUpgradeDefTwo/102
-	node22 = 6/4/2/#MenuAlienUpgradeDefThree/103
+	node11 = 6/#MenuAlienUpgrade/0
+	node12 = 6/0/#MenuAlienMovementUpgrades/0
+	node13 = 6/0/0/#MenuAlienUpgradeMoveOne/107
+	node14 = 6/0/6/#MenuAlienUpgradeMoveTwo/108
+	node15 = 6/0/2/#MenuAlienUpgradeMoveThree/109
+	node16 = 6/6/#MenuAlienSensoryUpgrades/0
+	node17 = 6/6/4/#MenuAlienUpgradeSenOne/110
+	node18 = 6/6/6/#MenuAlienUpgradeSenTwo/111
+	node19 = 6/6/0/#MenuAlienUpgradeSenThree/112
+	node20 = 6/4/#MenuAlienDefenseUpgrades/0
+	node21 = 6/4/6/#MenuAlienUpgradeDefOne/101
+	node22 = 6/4/4/#MenuAlienUpgradeDefTwo/102
+	node23 = 6/4/2/#MenuAlienUpgradeDefThree/103
 
-	node23 = 2/#MenuUnlockHiveTwo/118
-	node24 = 2/2/#MenuUnlockHiveThree/126
+	node24 = 2/#MenuUnlockHiveTwo/118
+	node25 = 2/2/#MenuUnlockHiveThree/126
 end
 
 start MarqueeComponent SelectionBox

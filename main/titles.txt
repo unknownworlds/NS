@@ -540,7 +540,7 @@ Comms
 
 MenuTalk
 {
-Talk
+Order
 }
 
 MenuAttacked
@@ -585,7 +585,7 @@ MenuAllClear
 
 MenuYell
 {
-Yell
+Request
 }
 
 MenuSay
@@ -621,6 +621,11 @@ MenuNeedAmmo
 MenuFollowMe
 {
 "Follow me"
+}
+
+MenuWeldMe
+{
+"Weld me"
 }
 
 MenuCovering
@@ -1054,6 +1059,50 @@ Demote
 }
 
 //////////////////////////////////////////////////
+// Teammate order texts
+//////////////////////////////////////////////////
+
+TeammateOrder0
+{
+Weld %s
+}
+
+TeammateOrder1
+{
+Follow %s
+}
+
+TeammateOrder2
+{
+%s is covering you
+}
+
+TeammateOrder3
+{
+%s
+}
+
+TeammateOrder4
+{
+Heal %s
+}
+
+TeammateOrder5
+{
+Follow %s
+}
+
+TeammateOrder6
+{
+%s is covering
+}
+
+TeammateOrder7
+{
+%s
+}
+
+//////////////////////////////////////////////////
 // Don't localize these, they are sprite names: //
 //  (sprites/640(or 320)name.spr)               //
 //////////////////////////////////////////////////
@@ -1140,7 +1189,7 @@ Need healing
 
 MenuAlienCommSayingThree
 {
-Need backup
+Follow me
 }
 
 MenuAlienCommSayingsEast

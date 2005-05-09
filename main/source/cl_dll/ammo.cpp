@@ -165,7 +165,14 @@ void WeaponsResource :: LoadWeaponSprites( WEAPON *pWeapon )
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-WEAPON* WeaponsResource::GetWeapon( int iId ) { return rgWeapons[iId].iId ? &rgWeapons[iId] : NULL; }
+WEAPON* WeaponsResource::GetWeapon( int iId ) 
+{ 
+	if( iId < 0 || iId >= MAX_WEAPONS ) { return NULL; }
+	return rgWeapons[iId].iId ? &rgWeapons[iId] : NULL; 
+}
+
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 WEAPON* WeaponsResource::GetWeaponSlot( int slot, int pos ) { return rgSlots[slot][pos]; }
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

@@ -170,6 +170,152 @@
 			<Tool
 				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
 		</Configuration>
+		<Configuration
+			Name="Playtest|Win32"
+			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
+			IntermediateDirectory="$(ConfigurationName)"
+			ConfigurationType="2"
+			UseOfMFC="0"
+			ATLMinimizesCRunTimeLibraryUsage="FALSE"
+			DeleteExtensionsOnClean="$(TargetPath);*.obj;*.ilk;*.pdb;*.tlb;*.tli;*.tlh;*.tmp;*.rsp;*.bat">
+			<Tool
+				Name="VCCLCompilerTool"
+				Optimization="3"
+				GlobalOptimizations="TRUE"
+				InlineFunctionExpansion="2"
+				EnableIntrinsicFunctions="TRUE"
+				OptimizeForProcessor="0"
+				AdditionalIncludeDirectories="&quot;$(SolutionDir)&quot;;U:\inlcude\stlport;U:\include\vgui;U:\include\nexus;U:\include\libpng;U:\include\fmod;U:\include\lua;U:\include\particle;U:\include\zlib"
+				PreprocessorDefinitions="NDEBUG;WIN32;_WINDOWS;AVH_CLIENT;$(NOINHERIT);AVH_PLAYTEST_BUILD;BALANCE_ENABLED"
+				StringPooling="TRUE"
+				RuntimeLibrary="0"
+				RuntimeTypeInfo="TRUE"
+				UsePrecompiledHeader="0"
+				PrecompiledHeaderFile=""
+				AssemblerListingLocation="$(IntDir)/"
+				ObjectFile="$(IntDir)/"
+				ProgramDataBaseFileName="$(IntDir)/"
+				WarningLevel="3"
+				WarnAsError="TRUE"
+				SuppressStartupBanner="TRUE"
+				DebugInformationFormat="0"
+				CompileAs="0"/>
+			<Tool
+				Name="VCCustomBuildTool"/>
+			<Tool
+				Name="VCLinkerTool"
+				AdditionalDependencies="winmm.lib ws2_32.lib particles.lib vgui.lib liblua.lib liblualib.lib libpng.lib zlib.lib"
+				OutputFile="$(SolutionDir)..\cl_dlls\client.dll"
+				SuppressStartupBanner="TRUE"
+				AdditionalLibraryDirectories="U:\release"
+				IgnoreDefaultLibraryNames=""
+				ProgramDatabaseFile=""
+				MapFileName=""
+				SubSystem="2"
+				ImportLibrary="$(IntDir)cl_dll.lib"
+				TargetMachine="1"/>
+			<Tool
+				Name="VCMIDLTool"
+				PreprocessorDefinitions="NDEBUG"
+				MkTypLibCompatible="TRUE"
+				SuppressStartupBanner="TRUE"
+				TargetEnvironment="1"
+				TypeLibraryName=".\Release/cl_dll.tlb"
+				HeaderFileName=""/>
+			<Tool
+				Name="VCPostBuildEventTool"/>
+			<Tool
+				Name="VCPreBuildEventTool"/>
+			<Tool
+				Name="VCPreLinkEventTool"/>
+			<Tool
+				Name="VCResourceCompilerTool"
+				PreprocessorDefinitions="NDEBUG"
+				Culture="1033"/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"/>
+			<Tool
+				Name="VCWebDeploymentTool"/>
+			<Tool
+				Name="VCManagedWrapperGeneratorTool"/>
+			<Tool
+				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
+		</Configuration>
+		<Configuration
+			Name="Playtest - balance disabled|Win32"
+			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
+			IntermediateDirectory="$(ConfigurationName)"
+			ConfigurationType="2"
+			UseOfMFC="0"
+			ATLMinimizesCRunTimeLibraryUsage="FALSE"
+			DeleteExtensionsOnClean="$(TargetPath);*.obj;*.ilk;*.pdb;*.tlb;*.tli;*.tlh;*.tmp;*.rsp;*.bat">
+			<Tool
+				Name="VCCLCompilerTool"
+				Optimization="3"
+				GlobalOptimizations="TRUE"
+				InlineFunctionExpansion="2"
+				EnableIntrinsicFunctions="TRUE"
+				OptimizeForProcessor="0"
+				AdditionalIncludeDirectories="&quot;$(SolutionDir)&quot;;U:\inlcude\stlport;U:\include\vgui;U:\include\nexus;U:\include\libpng;U:\include\fmod;U:\include\lua;U:\include\particle;U:\include\zlib"
+				PreprocessorDefinitions="NDEBUG;WIN32;_WINDOWS;AVH_CLIENT;AVH_PLAYTEST_BUILD;$(NOINHERIT)"
+				StringPooling="TRUE"
+				RuntimeLibrary="0"
+				RuntimeTypeInfo="TRUE"
+				UsePrecompiledHeader="0"
+				PrecompiledHeaderFile=""
+				AssemblerListingLocation="$(IntDir)/"
+				ObjectFile="$(IntDir)/"
+				ProgramDataBaseFileName="$(IntDir)/"
+				WarningLevel="3"
+				WarnAsError="TRUE"
+				SuppressStartupBanner="TRUE"
+				DebugInformationFormat="0"
+				CompileAs="0"/>
+			<Tool
+				Name="VCCustomBuildTool"/>
+			<Tool
+				Name="VCLinkerTool"
+				AdditionalDependencies="winmm.lib ws2_32.lib particles.lib vgui.lib liblua.lib liblualib.lib libpng.lib zlib.lib"
+				OutputFile="$(SolutionDir)..\cl_dlls\client.dll"
+				SuppressStartupBanner="TRUE"
+				AdditionalLibraryDirectories="U:\release"
+				IgnoreDefaultLibraryNames=""
+				ProgramDatabaseFile=""
+				MapFileName=""
+				SubSystem="2"
+				ImportLibrary="$(IntDir)cl_dll.lib"
+				TargetMachine="1"/>
+			<Tool
+				Name="VCMIDLTool"
+				PreprocessorDefinitions="NDEBUG"
+				MkTypLibCompatible="TRUE"
+				SuppressStartupBanner="TRUE"
+				TargetEnvironment="1"
+				TypeLibraryName=".\Release/cl_dll.tlb"
+				HeaderFileName=""/>
+			<Tool
+				Name="VCPostBuildEventTool"/>
+			<Tool
+				Name="VCPreBuildEventTool"/>
+			<Tool
+				Name="VCPreLinkEventTool"/>
+			<Tool
+				Name="VCResourceCompilerTool"
+				PreprocessorDefinitions="NDEBUG"
+				Culture="1033"/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"/>
+			<Tool
+				Name="VCWebDeploymentTool"/>
+			<Tool
+				Name="VCManagedWrapperGeneratorTool"/>
+			<Tool
+				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
+		</Configuration>
 	</Configurations>
 	<References>
 	</References>
@@ -193,6 +339,20 @@
 						Optimization="2"
 						AdditionalIncludeDirectories=""/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest - balance disabled|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="ammo_secondary.cpp">
@@ -205,6 +365,20 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Developer - release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest - balance disabled|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
@@ -227,6 +401,20 @@
 						Optimization="2"
 						AdditionalIncludeDirectories=""/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest - balance disabled|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="battery.cpp">
@@ -239,6 +427,20 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Developer - release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest - balance disabled|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
@@ -261,6 +463,20 @@
 						Optimization="2"
 						AdditionalIncludeDirectories=""/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest - balance disabled|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="com_weapons.cpp">
@@ -273,6 +489,20 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Developer - release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest - balance disabled|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
@@ -295,6 +525,20 @@
 						Optimization="2"
 						AdditionalIncludeDirectories=""/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest - balance disabled|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="demo.cpp">
@@ -307,6 +551,20 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Developer - release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest - balance disabled|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
@@ -329,6 +587,20 @@
 						Optimization="2"
 						AdditionalIncludeDirectories=""/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest - balance disabled|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="ev_common.cpp">
@@ -341,6 +613,20 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Developer - release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest - balance disabled|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
@@ -363,6 +649,20 @@
 						Optimization="2"
 						AdditionalIncludeDirectories=""/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest - balance disabled|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="flashlight.cpp">
@@ -375,6 +675,20 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Developer - release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest - balance disabled|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
@@ -397,6 +711,20 @@
 						Optimization="2"
 						AdditionalIncludeDirectories=""/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest - balance disabled|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="geiger.cpp">
@@ -409,6 +737,20 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Developer - release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest - balance disabled|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
@@ -431,6 +773,20 @@
 						Optimization="2"
 						AdditionalIncludeDirectories=""/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest - balance disabled|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="hud.cpp">
@@ -443,6 +799,20 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Developer - release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest - balance disabled|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
@@ -465,6 +835,20 @@
 						Optimization="2"
 						AdditionalIncludeDirectories=""/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest - balance disabled|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="hud_redraw.cpp">
@@ -477,6 +861,20 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Developer - release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest - balance disabled|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
@@ -499,6 +897,20 @@
 						Optimization="2"
 						AdditionalIncludeDirectories=""/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest - balance disabled|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="hud_spectator.cpp">
@@ -511,6 +923,20 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Developer - release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest - balance disabled|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
@@ -533,6 +959,20 @@
 						Optimization="2"
 						AdditionalIncludeDirectories=""/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest - balance disabled|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="in_camera.cpp">
@@ -545,6 +985,20 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Developer - release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest - balance disabled|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
@@ -567,6 +1021,20 @@
 						Optimization="2"
 						AdditionalIncludeDirectories=""/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest - balance disabled|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="inputw32.cpp">
@@ -579,6 +1047,20 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Developer - release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest - balance disabled|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
@@ -601,6 +1083,20 @@
 						Optimization="2"
 						AdditionalIncludeDirectories=""/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest - balance disabled|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="menu.cpp">
@@ -618,6 +1114,20 @@
 						Optimization="2"
 						AdditionalIncludeDirectories=""/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest - balance disabled|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="message.cpp">
@@ -630,6 +1140,20 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Developer - release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest - balance disabled|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
@@ -654,6 +1178,22 @@
 						Optimization="2"
 						AdditionalIncludeDirectories=""/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest|Win32"
+					ExcludedFromBuild="TRUE">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest - balance disabled|Win32"
+					ExcludedFromBuild="TRUE">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="parsemsg.cpp">
@@ -666,6 +1206,20 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Developer - release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest - balance disabled|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
@@ -688,6 +1242,20 @@
 						Optimization="2"
 						AdditionalIncludeDirectories=""/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest - balance disabled|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\pm_shared\pm_math.cpp">
@@ -700,6 +1268,20 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Developer - release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest - balance disabled|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
@@ -722,6 +1304,20 @@
 						Optimization="2"
 						AdditionalIncludeDirectories=""/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest - balance disabled|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="saytext.cpp">
@@ -734,6 +1330,20 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Developer - release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest - balance disabled|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
@@ -756,6 +1366,20 @@
 						Optimization="2"
 						AdditionalIncludeDirectories=""/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest - balance disabled|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="statusbar.cpp">
@@ -768,6 +1392,20 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Developer - release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest - balance disabled|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
@@ -790,6 +1428,20 @@
 						Optimization="2"
 						AdditionalIncludeDirectories=""/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest - balance disabled|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="StudioModelRenderer.cpp">
@@ -802,6 +1454,20 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Developer - release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest - balance disabled|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
@@ -824,6 +1490,20 @@
 						Optimization="2"
 						AdditionalIncludeDirectories=""/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest - balance disabled|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="train.cpp">
@@ -836,6 +1516,20 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Developer - release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest - balance disabled|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
@@ -858,6 +1552,20 @@
 						Optimization="2"
 						AdditionalIncludeDirectories=""/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest - balance disabled|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="util.cpp">
@@ -870,6 +1578,20 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Developer - release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest - balance disabled|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
@@ -892,6 +1614,20 @@
 						Optimization="2"
 						AdditionalIncludeDirectories=""/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest - balance disabled|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="vgui_ClassMenu.cpp">
@@ -904,6 +1640,20 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Developer - release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest - balance disabled|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
@@ -926,6 +1676,20 @@
 						Optimization="2"
 						AdditionalIncludeDirectories=""/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest - balance disabled|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="vgui_ControlConfigPanel.cpp">
@@ -938,6 +1702,20 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Developer - release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest - balance disabled|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
@@ -960,6 +1738,20 @@
 						Optimization="2"
 						AdditionalIncludeDirectories=""/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest - balance disabled|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\game_shared\vgui_grid.cpp">
@@ -972,6 +1764,20 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Developer - release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest - balance disabled|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
@@ -994,6 +1800,20 @@
 						Optimization="2"
 						AdditionalIncludeDirectories=""/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest - balance disabled|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="vgui_int.cpp">
@@ -1006,6 +1826,20 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Developer - release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest - balance disabled|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
@@ -1028,6 +1862,20 @@
 						Optimization="2"
 						AdditionalIncludeDirectories=""/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest - balance disabled|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\game_shared\vgui_loadtga.cpp">
@@ -1040,6 +1888,20 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Developer - release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest - balance disabled|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
@@ -1062,6 +1924,20 @@
 						Optimization="2"
 						AdditionalIncludeDirectories=""/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest - balance disabled|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="vgui_SchemeManager.cpp">
@@ -1074,6 +1950,20 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Developer - release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest - balance disabled|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
@@ -1096,6 +1986,20 @@
 						Optimization="2"
 						AdditionalIncludeDirectories=""/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest - balance disabled|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\game_shared\vgui_scrollbar2.cpp">
@@ -1108,6 +2012,20 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Developer - release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest - balance disabled|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
@@ -1130,6 +2048,20 @@
 						Optimization="2"
 						AdditionalIncludeDirectories=""/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest - balance disabled|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\game_shared\vgui_slider2.cpp">
@@ -1142,6 +2074,20 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Developer - release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest - balance disabled|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
@@ -1164,6 +2110,20 @@
 						Optimization="2"
 						AdditionalIncludeDirectories=""/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest - balance disabled|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="vgui_TeamFortressViewport.cpp">
@@ -1176,6 +2136,20 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Developer - release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest - balance disabled|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
@@ -1198,6 +2172,20 @@
 						Optimization="2"
 						AdditionalIncludeDirectories=""/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest - balance disabled|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="view.cpp">
@@ -1210,6 +2198,20 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Developer - release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest - balance disabled|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
@@ -1232,6 +2234,20 @@
 						Optimization="2"
 						AdditionalIncludeDirectories=""/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest - balance disabled|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\game_shared\voice_status.cpp">
@@ -1249,6 +2265,20 @@
 						Optimization="2"
 						AdditionalIncludeDirectories=""/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest - balance disabled|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\game_shared\voice_vgui_tweakdlg.cpp">
@@ -1261,6 +2291,20 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Developer - release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest - balance disabled|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
@@ -1286,6 +2330,20 @@
 							Optimization="2"
 							AdditionalIncludeDirectories=""/>
 					</FileConfiguration>
+					<FileConfiguration
+						Name="Playtest|Win32">
+						<Tool
+							Name="VCCLCompilerTool"
+							Optimization="2"
+							AdditionalIncludeDirectories=""/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Playtest - balance disabled|Win32">
+						<Tool
+							Name="VCCLCompilerTool"
+							Optimization="2"
+							AdditionalIncludeDirectories=""/>
+					</FileConfiguration>
 				</File>
 				<File
 					RelativePath="ev_hldm.cpp">
@@ -1298,6 +2356,20 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Developer - release|Win32">
+						<Tool
+							Name="VCCLCompilerTool"
+							Optimization="2"
+							AdditionalIncludeDirectories=""/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Playtest|Win32">
+						<Tool
+							Name="VCCLCompilerTool"
+							Optimization="2"
+							AdditionalIncludeDirectories=""/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Playtest - balance disabled|Win32">
 						<Tool
 							Name="VCCLCompilerTool"
 							Optimization="2"
@@ -1320,6 +2392,20 @@
 							Optimization="2"
 							AdditionalIncludeDirectories=""/>
 					</FileConfiguration>
+					<FileConfiguration
+						Name="Playtest|Win32">
+						<Tool
+							Name="VCCLCompilerTool"
+							Optimization="2"
+							AdditionalIncludeDirectories=""/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Playtest - balance disabled|Win32">
+						<Tool
+							Name="VCCLCompilerTool"
+							Optimization="2"
+							AdditionalIncludeDirectories=""/>
+					</FileConfiguration>
 				</File>
 				<File
 					RelativePath="hl\hl_objects.cpp">
@@ -1337,6 +2423,20 @@
 							Optimization="2"
 							AdditionalIncludeDirectories=""/>
 					</FileConfiguration>
+					<FileConfiguration
+						Name="Playtest|Win32">
+						<Tool
+							Name="VCCLCompilerTool"
+							Optimization="2"
+							AdditionalIncludeDirectories=""/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Playtest - balance disabled|Win32">
+						<Tool
+							Name="VCCLCompilerTool"
+							Optimization="2"
+							AdditionalIncludeDirectories=""/>
+					</FileConfiguration>
 				</File>
 				<File
 					RelativePath="hl\hl_weapons.cpp">
@@ -1349,6 +2449,20 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Developer - release|Win32">
+						<Tool
+							Name="VCCLCompilerTool"
+							Optimization="2"
+							AdditionalIncludeDirectories=""/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Playtest|Win32">
+						<Tool
+							Name="VCCLCompilerTool"
+							Optimization="2"
+							AdditionalIncludeDirectories=""/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Playtest - balance disabled|Win32">
 						<Tool
 							Name="VCCLCompilerTool"
 							Optimization="2"
@@ -1378,6 +2492,20 @@
 							Optimization="2"
 							AdditionalIncludeDirectories=""/>
 					</FileConfiguration>
+					<FileConfiguration
+						Name="Playtest|Win32">
+						<Tool
+							Name="VCCLCompilerTool"
+							Optimization="2"
+							AdditionalIncludeDirectories=""/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Playtest - balance disabled|Win32">
+						<Tool
+							Name="VCCLCompilerTool"
+							Optimization="2"
+							AdditionalIncludeDirectories=""/>
+					</FileConfiguration>
 				</File>
 				<File
 					RelativePath="..\mod\AvHAlienAbilities.cpp">
@@ -1390,6 +2518,20 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Developer - release|Win32">
+						<Tool
+							Name="VCCLCompilerTool"
+							Optimization="2"
+							AdditionalIncludeDirectories=""/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Playtest|Win32">
+						<Tool
+							Name="VCCLCompilerTool"
+							Optimization="2"
+							AdditionalIncludeDirectories=""/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Playtest - balance disabled|Win32">
 						<Tool
 							Name="VCCLCompilerTool"
 							Optimization="2"
@@ -1421,6 +2563,20 @@
 							Optimization="2"
 							AdditionalIncludeDirectories=""/>
 					</FileConfiguration>
+					<FileConfiguration
+						Name="Playtest|Win32">
+						<Tool
+							Name="VCCLCompilerTool"
+							Optimization="2"
+							AdditionalIncludeDirectories=""/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Playtest - balance disabled|Win32">
+						<Tool
+							Name="VCCLCompilerTool"
+							Optimization="2"
+							AdditionalIncludeDirectories=""/>
+					</FileConfiguration>
 				</File>
 				<File
 					RelativePath="..\mod\AvHBasePlayerWeaponConstants.h">
@@ -1436,6 +2592,20 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Developer - release|Win32">
+						<Tool
+							Name="VCCLCompilerTool"
+							Optimization="2"
+							AdditionalIncludeDirectories=""/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Playtest|Win32">
+						<Tool
+							Name="VCCLCompilerTool"
+							Optimization="2"
+							AdditionalIncludeDirectories=""/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Playtest - balance disabled|Win32">
 						<Tool
 							Name="VCCLCompilerTool"
 							Optimization="2"
@@ -1458,6 +2628,20 @@
 							Optimization="2"
 							AdditionalIncludeDirectories=""/>
 					</FileConfiguration>
+					<FileConfiguration
+						Name="Playtest|Win32">
+						<Tool
+							Name="VCCLCompilerTool"
+							Optimization="2"
+							AdditionalIncludeDirectories=""/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Playtest - balance disabled|Win32">
+						<Tool
+							Name="VCCLCompilerTool"
+							Optimization="2"
+							AdditionalIncludeDirectories=""/>
+					</FileConfiguration>
 				</File>
 				<File
 					RelativePath="..\mod\AvHBite2.cpp">
@@ -1470,6 +2654,20 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Developer - release|Win32">
+						<Tool
+							Name="VCCLCompilerTool"
+							Optimization="2"
+							AdditionalIncludeDirectories=""/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Playtest|Win32">
+						<Tool
+							Name="VCCLCompilerTool"
+							Optimization="2"
+							AdditionalIncludeDirectories=""/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Playtest - balance disabled|Win32">
 						<Tool
 							Name="VCCLCompilerTool"
 							Optimization="2"
@@ -1492,6 +2690,20 @@
 							Optimization="2"
 							AdditionalIncludeDirectories=""/>
 					</FileConfiguration>
+					<FileConfiguration
+						Name="Playtest|Win32">
+						<Tool
+							Name="VCCLCompilerTool"
+							Optimization="2"
+							AdditionalIncludeDirectories=""/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Playtest - balance disabled|Win32">
+						<Tool
+							Name="VCCLCompilerTool"
+							Optimization="2"
+							AdditionalIncludeDirectories=""/>
+					</FileConfiguration>
 				</File>
 				<File
 					RelativePath="..\mod\AvHClaws.cpp">
@@ -1504,6 +2716,20 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Developer - release|Win32">
+						<Tool
+							Name="VCCLCompilerTool"
+							Optimization="2"
+							AdditionalIncludeDirectories=""/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Playtest|Win32">
+						<Tool
+							Name="VCCLCompilerTool"
+							Optimization="2"
+							AdditionalIncludeDirectories=""/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Playtest - balance disabled|Win32">
 						<Tool
 							Name="VCCLCompilerTool"
 							Optimization="2"
@@ -1526,6 +2752,20 @@
 							Optimization="2"
 							AdditionalIncludeDirectories=""/>
 					</FileConfiguration>
+					<FileConfiguration
+						Name="Playtest|Win32">
+						<Tool
+							Name="VCCLCompilerTool"
+							Optimization="2"
+							AdditionalIncludeDirectories=""/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Playtest - balance disabled|Win32">
+						<Tool
+							Name="VCCLCompilerTool"
+							Optimization="2"
+							AdditionalIncludeDirectories=""/>
+					</FileConfiguration>
 				</File>
 				<File
 					RelativePath="..\mod\AvHDivineWind.cpp">
@@ -1538,6 +2778,20 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Developer - release|Win32">
+						<Tool
+							Name="VCCLCompilerTool"
+							Optimization="2"
+							AdditionalIncludeDirectories=""/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Playtest|Win32">
+						<Tool
+							Name="VCCLCompilerTool"
+							Optimization="2"
+							AdditionalIncludeDirectories=""/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Playtest - balance disabled|Win32">
 						<Tool
 							Name="VCCLCompilerTool"
 							Optimization="2"
@@ -1560,6 +2814,20 @@
 							Optimization="2"
 							AdditionalIncludeDirectories=""/>
 					</FileConfiguration>
+					<FileConfiguration
+						Name="Playtest|Win32">
+						<Tool
+							Name="VCCLCompilerTool"
+							Optimization="2"
+							AdditionalIncludeDirectories=""/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Playtest - balance disabled|Win32">
+						<Tool
+							Name="VCCLCompilerTool"
+							Optimization="2"
+							AdditionalIncludeDirectories=""/>
+					</FileConfiguration>
 				</File>
 				<File
 					RelativePath="..\mod\AvHGrenadeGun.cpp">
@@ -1572,6 +2840,20 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Developer - release|Win32">
+						<Tool
+							Name="VCCLCompilerTool"
+							Optimization="2"
+							AdditionalIncludeDirectories=""/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Playtest|Win32">
+						<Tool
+							Name="VCCLCompilerTool"
+							Optimization="2"
+							AdditionalIncludeDirectories=""/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Playtest - balance disabled|Win32">
 						<Tool
 							Name="VCCLCompilerTool"
 							Optimization="2"
@@ -1594,6 +2876,20 @@
 							Optimization="2"
 							AdditionalIncludeDirectories=""/>
 					</FileConfiguration>
+					<FileConfiguration
+						Name="Playtest|Win32">
+						<Tool
+							Name="VCCLCompilerTool"
+							Optimization="2"
+							AdditionalIncludeDirectories=""/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Playtest - balance disabled|Win32">
+						<Tool
+							Name="VCCLCompilerTool"
+							Optimization="2"
+							AdditionalIncludeDirectories=""/>
+					</FileConfiguration>
 				</File>
 				<File
 					RelativePath="..\mod\AvHHeavyMachineGun.cpp">
@@ -1606,6 +2902,20 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Developer - release|Win32">
+						<Tool
+							Name="VCCLCompilerTool"
+							Optimization="2"
+							AdditionalIncludeDirectories=""/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Playtest|Win32">
+						<Tool
+							Name="VCCLCompilerTool"
+							Optimization="2"
+							AdditionalIncludeDirectories=""/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Playtest - balance disabled|Win32">
 						<Tool
 							Name="VCCLCompilerTool"
 							Optimization="2"
@@ -1628,6 +2938,20 @@
 							Optimization="2"
 							AdditionalIncludeDirectories=""/>
 					</FileConfiguration>
+					<FileConfiguration
+						Name="Playtest|Win32">
+						<Tool
+							Name="VCCLCompilerTool"
+							Optimization="2"
+							AdditionalIncludeDirectories=""/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Playtest - balance disabled|Win32">
+						<Tool
+							Name="VCCLCompilerTool"
+							Optimization="2"
+							AdditionalIncludeDirectories=""/>
+					</FileConfiguration>
 				</File>
 				<File
 					RelativePath="..\mod\AvHKnife.cpp">
@@ -1640,6 +2964,20 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Developer - release|Win32">
+						<Tool
+							Name="VCCLCompilerTool"
+							Optimization="2"
+							AdditionalIncludeDirectories=""/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Playtest|Win32">
+						<Tool
+							Name="VCCLCompilerTool"
+							Optimization="2"
+							AdditionalIncludeDirectories=""/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Playtest - balance disabled|Win32">
 						<Tool
 							Name="VCCLCompilerTool"
 							Optimization="2"
@@ -1662,6 +3000,20 @@
 							Optimization="2"
 							AdditionalIncludeDirectories=""/>
 					</FileConfiguration>
+					<FileConfiguration
+						Name="Playtest|Win32">
+						<Tool
+							Name="VCCLCompilerTool"
+							Optimization="2"
+							AdditionalIncludeDirectories=""/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Playtest - balance disabled|Win32">
+						<Tool
+							Name="VCCLCompilerTool"
+							Optimization="2"
+							AdditionalIncludeDirectories=""/>
+					</FileConfiguration>
 				</File>
 				<File
 					RelativePath="..\mod\AvHMarineWeapon.cpp">
@@ -1674,6 +3026,20 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Developer - release|Win32">
+						<Tool
+							Name="VCCLCompilerTool"
+							Optimization="2"
+							AdditionalIncludeDirectories=""/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Playtest|Win32">
+						<Tool
+							Name="VCCLCompilerTool"
+							Optimization="2"
+							AdditionalIncludeDirectories=""/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Playtest - balance disabled|Win32">
 						<Tool
 							Name="VCCLCompilerTool"
 							Optimization="2"
@@ -1705,6 +3071,20 @@
 							Optimization="2"
 							AdditionalIncludeDirectories=""/>
 					</FileConfiguration>
+					<FileConfiguration
+						Name="Playtest|Win32">
+						<Tool
+							Name="VCCLCompilerTool"
+							Optimization="2"
+							AdditionalIncludeDirectories=""/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Playtest - balance disabled|Win32">
+						<Tool
+							Name="VCCLCompilerTool"
+							Optimization="2"
+							AdditionalIncludeDirectories=""/>
+					</FileConfiguration>
 				</File>
 				<File
 					RelativePath="..\mod\AvHMine.cpp">
@@ -1717,6 +3097,20 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Developer - release|Win32">
+						<Tool
+							Name="VCCLCompilerTool"
+							Optimization="2"
+							AdditionalIncludeDirectories=""/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Playtest|Win32">
+						<Tool
+							Name="VCCLCompilerTool"
+							Optimization="2"
+							AdditionalIncludeDirectories=""/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Playtest - balance disabled|Win32">
 						<Tool
 							Name="VCCLCompilerTool"
 							Optimization="2"
@@ -1739,6 +3133,20 @@
 							Optimization="2"
 							AdditionalIncludeDirectories=""/>
 					</FileConfiguration>
+					<FileConfiguration
+						Name="Playtest|Win32">
+						<Tool
+							Name="VCCLCompilerTool"
+							Optimization="2"
+							AdditionalIncludeDirectories=""/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Playtest - balance disabled|Win32">
+						<Tool
+							Name="VCCLCompilerTool"
+							Optimization="2"
+							AdditionalIncludeDirectories=""/>
+					</FileConfiguration>
 				</File>
 				<File
 					RelativePath="..\mod\AvHPistol.cpp">
@@ -1751,6 +3159,20 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Developer - release|Win32">
+						<Tool
+							Name="VCCLCompilerTool"
+							Optimization="2"
+							AdditionalIncludeDirectories=""/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Playtest|Win32">
+						<Tool
+							Name="VCCLCompilerTool"
+							Optimization="2"
+							AdditionalIncludeDirectories=""/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Playtest - balance disabled|Win32">
 						<Tool
 							Name="VCCLCompilerTool"
 							Optimization="2"
@@ -1773,6 +3195,20 @@
 							Optimization="2"
 							AdditionalIncludeDirectories=""/>
 					</FileConfiguration>
+					<FileConfiguration
+						Name="Playtest|Win32">
+						<Tool
+							Name="VCCLCompilerTool"
+							Optimization="2"
+							AdditionalIncludeDirectories=""/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Playtest - balance disabled|Win32">
+						<Tool
+							Name="VCCLCompilerTool"
+							Optimization="2"
+							AdditionalIncludeDirectories=""/>
+					</FileConfiguration>
 				</File>
 				<File
 					RelativePath="..\mod\AvHSonicGun.cpp">
@@ -1785,6 +3221,20 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Developer - release|Win32">
+						<Tool
+							Name="VCCLCompilerTool"
+							Optimization="2"
+							AdditionalIncludeDirectories=""/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Playtest|Win32">
+						<Tool
+							Name="VCCLCompilerTool"
+							Optimization="2"
+							AdditionalIncludeDirectories=""/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Playtest - balance disabled|Win32">
 						<Tool
 							Name="VCCLCompilerTool"
 							Optimization="2"
@@ -1807,6 +3257,20 @@
 							Optimization="2"
 							AdditionalIncludeDirectories=""/>
 					</FileConfiguration>
+					<FileConfiguration
+						Name="Playtest|Win32">
+						<Tool
+							Name="VCCLCompilerTool"
+							Optimization="2"
+							AdditionalIncludeDirectories=""/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Playtest - balance disabled|Win32">
+						<Tool
+							Name="VCCLCompilerTool"
+							Optimization="2"
+							AdditionalIncludeDirectories=""/>
+					</FileConfiguration>
 				</File>
 				<File
 					RelativePath="..\mod\AvHSpitGun.cpp">
@@ -1819,6 +3283,20 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Developer - release|Win32">
+						<Tool
+							Name="VCCLCompilerTool"
+							Optimization="2"
+							AdditionalIncludeDirectories=""/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Playtest|Win32">
+						<Tool
+							Name="VCCLCompilerTool"
+							Optimization="2"
+							AdditionalIncludeDirectories=""/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Playtest - balance disabled|Win32">
 						<Tool
 							Name="VCCLCompilerTool"
 							Optimization="2"
@@ -1841,6 +3319,20 @@
 							Optimization="2"
 							AdditionalIncludeDirectories=""/>
 					</FileConfiguration>
+					<FileConfiguration
+						Name="Playtest|Win32">
+						<Tool
+							Name="VCCLCompilerTool"
+							Optimization="2"
+							AdditionalIncludeDirectories=""/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Playtest - balance disabled|Win32">
+						<Tool
+							Name="VCCLCompilerTool"
+							Optimization="2"
+							AdditionalIncludeDirectories=""/>
+					</FileConfiguration>
 				</File>
 				<File
 					RelativePath="..\mod\AvHStomp.cpp">
@@ -1853,6 +3345,20 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Developer - release|Win32">
+						<Tool
+							Name="VCCLCompilerTool"
+							Optimization="2"
+							AdditionalIncludeDirectories=""/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Playtest|Win32">
+						<Tool
+							Name="VCCLCompilerTool"
+							Optimization="2"
+							AdditionalIncludeDirectories=""/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Playtest - balance disabled|Win32">
 						<Tool
 							Name="VCCLCompilerTool"
 							Optimization="2"
@@ -1875,6 +3381,20 @@
 							Optimization="2"
 							AdditionalIncludeDirectories=""/>
 					</FileConfiguration>
+					<FileConfiguration
+						Name="Playtest|Win32">
+						<Tool
+							Name="VCCLCompilerTool"
+							Optimization="2"
+							AdditionalIncludeDirectories=""/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Playtest - balance disabled|Win32">
+						<Tool
+							Name="VCCLCompilerTool"
+							Optimization="2"
+							AdditionalIncludeDirectories=""/>
+					</FileConfiguration>
 				</File>
 				<File
 					RelativePath="..\mod\AvHUmbraGun.cpp">
@@ -1887,6 +3407,20 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Developer - release|Win32">
+						<Tool
+							Name="VCCLCompilerTool"
+							Optimization="2"
+							AdditionalIncludeDirectories=""/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Playtest|Win32">
+						<Tool
+							Name="VCCLCompilerTool"
+							Optimization="2"
+							AdditionalIncludeDirectories=""/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Playtest - balance disabled|Win32">
 						<Tool
 							Name="VCCLCompilerTool"
 							Optimization="2"
@@ -1909,6 +3443,20 @@
 							Optimization="2"
 							AdditionalIncludeDirectories=""/>
 					</FileConfiguration>
+					<FileConfiguration
+						Name="Playtest|Win32">
+						<Tool
+							Name="VCCLCompilerTool"
+							Optimization="2"
+							AdditionalIncludeDirectories=""/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Playtest - balance disabled|Win32">
+						<Tool
+							Name="VCCLCompilerTool"
+							Optimization="2"
+							AdditionalIncludeDirectories=""/>
+					</FileConfiguration>
 				</File>
 				<File
 					RelativePath="..\mod\AvHWelder.cpp">
@@ -1921,6 +3469,20 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Developer - release|Win32">
+						<Tool
+							Name="VCCLCompilerTool"
+							Optimization="2"
+							AdditionalIncludeDirectories=""/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Playtest|Win32">
+						<Tool
+							Name="VCCLCompilerTool"
+							Optimization="2"
+							AdditionalIncludeDirectories=""/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Playtest - balance disabled|Win32">
 						<Tool
 							Name="VCCLCompilerTool"
 							Optimization="2"
@@ -2124,6 +3686,18 @@
 						Name="VCCLCompilerTool"
 						ObjectFile="$(IntDir)/$(InputName)1.obj"/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						ObjectFile="$(IntDir)/$(InputName)1.obj"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest - balance disabled|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						ObjectFile="$(IntDir)/$(InputName)1.obj"/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\ui\ChatPanel.h">
@@ -2140,6 +3714,20 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Developer - release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest - balance disabled|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
@@ -2166,6 +3754,20 @@
 						Optimization="2"
 						AdditionalIncludeDirectories=""/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest - balance disabled|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\ui\FadingImageLabel.cpp">
@@ -2179,6 +3781,20 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Developer - release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest - balance disabled|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
@@ -2211,6 +3827,20 @@
 						Optimization="2"
 						AdditionalIncludeDirectories=""/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest - balance disabled|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\ui\MarqueeComponent.h">
@@ -2238,6 +3868,20 @@
 						Optimization="2"
 						AdditionalIncludeDirectories=""/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest - balance disabled|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\ui\PieMenu.h">
@@ -2254,6 +3898,20 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Developer - release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest - balance disabled|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
@@ -2289,6 +3947,20 @@
 						Optimization="2"
 						AdditionalIncludeDirectories=""/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest - balance disabled|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\ui\SliderPlus.h">
@@ -2305,6 +3977,20 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Developer - release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest - balance disabled|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
@@ -2334,6 +4020,20 @@
 						Optimization="2"
 						AdditionalIncludeDirectories=""/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest - balance disabled|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\ui\UIComponent.h">
@@ -2350,6 +4050,20 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Developer - release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest - balance disabled|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
@@ -2376,6 +4090,20 @@
 						Optimization="2"
 						AdditionalIncludeDirectories=""/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest - balance disabled|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\ui\UIFactory.h">
@@ -2392,6 +4120,20 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Developer - release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest - balance disabled|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
@@ -2418,6 +4160,20 @@
 						Optimization="2"
 						AdditionalIncludeDirectories=""/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest - balance disabled|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\ui\UIManager.h">
@@ -2439,6 +4195,20 @@
 						Optimization="2"
 						AdditionalIncludeDirectories=""/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest - balance disabled|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\ui\UIPieMenu.h">
@@ -2455,6 +4225,20 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Developer - release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest - balance disabled|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
@@ -2484,6 +4268,20 @@
 						Optimization="2"
 						AdditionalIncludeDirectories=""/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest - balance disabled|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\mod\AnimationUtil.h">
@@ -2499,6 +4297,20 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Developer - release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest - balance disabled|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
@@ -2524,6 +4336,20 @@
 						Optimization="2"
 						AdditionalIncludeDirectories=""/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest - balance disabled|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\mod\AvHAlienWeapon.h">
@@ -2539,6 +4365,20 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Developer - release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest - balance disabled|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
@@ -2564,6 +4404,20 @@
 						Optimization="2"
 						AdditionalIncludeDirectories=""/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest - balance disabled|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\mod\AvHBaseInfoLocation.cpp">
@@ -2576,6 +4430,20 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Developer - release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest - balance disabled|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
@@ -2601,6 +4469,20 @@
 						Optimization="2"
 						AdditionalIncludeDirectories=""/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest - balance disabled|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\mod\AvHClientUtil.h">
@@ -2616,6 +4498,20 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Developer - release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest - balance disabled|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
@@ -2647,6 +4543,20 @@
 						Optimization="2"
 						AdditionalIncludeDirectories=""/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest - balance disabled|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\mod\AvHEntityHierarchy.h">
@@ -2667,6 +4577,20 @@
 						Optimization="2"
 						AdditionalIncludeDirectories=""/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest - balance disabled|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\mod\AvHFont.cpp">
@@ -2679,6 +4603,20 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Developer - release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest - balance disabled|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
@@ -2704,6 +4642,20 @@
 						Optimization="2"
 						AdditionalIncludeDirectories=""/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest - balance disabled|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\mod\AvHHud.cpp">
@@ -2716,6 +4668,20 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Developer - release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest - balance disabled|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
@@ -2744,6 +4710,20 @@
 						Optimization="2"
 						AdditionalIncludeDirectories=""/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest - balance disabled|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\mod\AvHLogoutComponent.cpp">
@@ -2756,6 +4736,20 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Developer - release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest - balance disabled|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
@@ -2781,6 +4775,20 @@
 						Optimization="2"
 						AdditionalIncludeDirectories=""/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest - balance disabled|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\mod\AvHMapExtents.h">
@@ -2801,6 +4809,20 @@
 						Optimization="2"
 						AdditionalIncludeDirectories=""/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest - balance disabled|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\mod\AvHMinimap.h">
@@ -2816,6 +4838,20 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Developer - release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest - balance disabled|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
@@ -2859,6 +4895,20 @@
 						Optimization="2"
 						AdditionalIncludeDirectories=""/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest - balance disabled|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\mod\AvHOrder.h">
@@ -2874,6 +4924,20 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Developer - release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest - balance disabled|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
@@ -2899,6 +4963,20 @@
 						Optimization="2"
 						AdditionalIncludeDirectories=""/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest - balance disabled|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\mod\AvHOverviewMap.h">
@@ -2914,6 +4992,20 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Developer - release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest - balance disabled|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
@@ -2939,6 +5031,20 @@
 						Optimization="2"
 						AdditionalIncludeDirectories=""/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest - balance disabled|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\mod\AvHPieMenuHandler.h">
@@ -2954,6 +5060,20 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Developer - release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest - balance disabled|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
@@ -2979,6 +5099,20 @@
 						Optimization="2"
 						AdditionalIncludeDirectories=""/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest - balance disabled|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\mod\AvHScriptManager.cpp">
@@ -2991,6 +5125,20 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Developer - release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest - balance disabled|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
@@ -3016,6 +5164,20 @@
 						Optimization="2"
 						AdditionalIncludeDirectories=""/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest - balance disabled|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\mod\AvHScrollHandler.cpp">
@@ -3028,6 +5190,20 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Developer - release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest - balance disabled|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
@@ -3053,6 +5229,20 @@
 						Optimization="2"
 						AdditionalIncludeDirectories=""/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest - balance disabled|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\mod\AvHSharedMovementInfo.cpp">
@@ -3065,6 +5255,20 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Developer - release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest - balance disabled|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
@@ -3090,6 +5294,20 @@
 						Optimization="2"
 						AdditionalIncludeDirectories=""/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest - balance disabled|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\mod\AvHSharedUtil.h">
@@ -3105,6 +5323,20 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Developer - release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest - balance disabled|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
@@ -3130,6 +5362,20 @@
 						Optimization="2"
 						AdditionalIncludeDirectories=""/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest - balance disabled|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\mod\AvHSpriteAPI.h">
@@ -3150,6 +5396,20 @@
 						Optimization="2"
 						AdditionalIncludeDirectories=""/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest - balance disabled|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\mod\AvHTeamHierarchy.h">
@@ -3165,6 +5425,20 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Developer - release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest - balance disabled|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
@@ -3196,6 +5470,20 @@
 						Optimization="2"
 						AdditionalIncludeDirectories=""/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest - balance disabled|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\mod\AvHTechTree.cpp">
@@ -3222,6 +5510,20 @@
 						Optimization="2"
 						AdditionalIncludeDirectories=""/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest - balance disabled|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\mod\AvHTooltip.h">
@@ -3242,6 +5544,20 @@
 						Optimization="2"
 						AdditionalIncludeDirectories=""/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest - balance disabled|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\mod\AvHUIFactory.h">
@@ -3257,6 +5573,20 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Developer - release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest - balance disabled|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
@@ -3288,6 +5618,20 @@
 						Optimization="2"
 						AdditionalIncludeDirectories=""/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest - balance disabled|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\mod\CollisionUtil.h">
@@ -3303,6 +5647,20 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Developer - release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Playtest - balance disabled|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						Optimization="2"
@@ -3331,6 +5689,20 @@
 							Optimization="2"
 							AdditionalIncludeDirectories=""/>
 					</FileConfiguration>
+					<FileConfiguration
+						Name="Playtest|Win32">
+						<Tool
+							Name="VCCLCompilerTool"
+							Optimization="2"
+							AdditionalIncludeDirectories=""/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Playtest - balance disabled|Win32">
+						<Tool
+							Name="VCCLCompilerTool"
+							Optimization="2"
+							AdditionalIncludeDirectories=""/>
+					</FileConfiguration>
 				</File>
 				<File
 					RelativePath="..\mod\AvHParticleSystem.h">
@@ -3346,6 +5718,20 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Developer - release|Win32">
+						<Tool
+							Name="VCCLCompilerTool"
+							Optimization="2"
+							AdditionalIncludeDirectories=""/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Playtest|Win32">
+						<Tool
+							Name="VCCLCompilerTool"
+							Optimization="2"
+							AdditionalIncludeDirectories=""/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Playtest - balance disabled|Win32">
 						<Tool
 							Name="VCCLCompilerTool"
 							Optimization="2"
@@ -3371,6 +5757,20 @@
 							Optimization="2"
 							AdditionalIncludeDirectories=""/>
 					</FileConfiguration>
+					<FileConfiguration
+						Name="Playtest|Win32">
+						<Tool
+							Name="VCCLCompilerTool"
+							Optimization="2"
+							AdditionalIncludeDirectories=""/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Playtest - balance disabled|Win32">
+						<Tool
+							Name="VCCLCompilerTool"
+							Optimization="2"
+							AdditionalIncludeDirectories=""/>
+					</FileConfiguration>
 				</File>
 				<File
 					RelativePath="..\mod\AvHParticleTemplate.h">
@@ -3391,6 +5791,20 @@
 							Optimization="2"
 							AdditionalIncludeDirectories=""/>
 					</FileConfiguration>
+					<FileConfiguration
+						Name="Playtest|Win32">
+						<Tool
+							Name="VCCLCompilerTool"
+							Optimization="2"
+							AdditionalIncludeDirectories=""/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Playtest - balance disabled|Win32">
+						<Tool
+							Name="VCCLCompilerTool"
+							Optimization="2"
+							AdditionalIncludeDirectories=""/>
+					</FileConfiguration>
 				</File>
 				<File
 					RelativePath="..\mod\AvHParticleTemplateClient.h">
@@ -3406,6 +5820,20 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Developer - release|Win32">
+						<Tool
+							Name="VCCLCompilerTool"
+							Optimization="2"
+							AdditionalIncludeDirectories=""/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Playtest|Win32">
+						<Tool
+							Name="VCCLCompilerTool"
+							Optimization="2"
+							AdditionalIncludeDirectories=""/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Playtest - balance disabled|Win32">
 						<Tool
 							Name="VCCLCompilerTool"
 							Optimization="2"

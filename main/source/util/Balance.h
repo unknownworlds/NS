@@ -15,42 +15,6 @@
 #include "../Balance.txt"	//default balancing source - this used to be ../Balance.txt
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-// BALANCE_VAR(x) macro - the heart of the balance system, ties value
-// to default balance source if PLAYTEST_BUILD is enabled, uses 
-// hardcoded value otherwise.  Place the name of the varaible #define
-// in Balance.txt as the value in the macro.
-//
-// BALANCE_LISTENER(x) macro - for registering global
-// BalanceChangeListeners (see below), reverts to no operation 
-// if AVH_PLAYTEST_BUILD isn't enabled.
-//
-// BALANCE_FIELD_LISTENER(x,y) macro - for registering field-specific
-// BalanceChangeListeners, reverts to no operation if 
-// BALANCE_ENABLED isn't defined
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-#ifdef BALANCE_ENABLED //use Balance.txt values on server, no-source/explicitly set values for client
-	#ifdef SERVER
-		#define BALANCE_DEFNAME BalanceVarContainerFactory::getDefaultFilename()
-	#else
-		#define BALANCE_DEFNAME ""
-	#endif
-
-	inline void BALANCE_LISTENER(const BalanceChangeListener* object) { BalanceValueContainerFactory::get(BALANCE_DEFNAME)->addListener(object); }
-	inline void BALANCE_FIELD_LISTENER(const BalanceChangeListener* object, const char* field) { BalanceValueContainerFactory::get(BALANCE_DEFNAME)->addListener(object,field); }
-
-	#define BALANCE_VAR(name) GetBalanceVar(#name,name)	//requires macro for string-izing of name
-	inline int GetBalanceVar(const char* name, const int value)				{ BalanceValueContainerFactory::get(BALANCE_DEFNAME)->get(name,value); }
-	inline float GetBalanceVar(const char* name, const float value)			{ BalanceValueContainerFactory::get(BALANCE_DEFNAME)->get(name,value); }
-	inline float GetBalanceVar(const char* name, const double value)		{ BalanceValueContainerFactory::get(BALANCE_DEFNAME)->get(name,(float)value); }
-	inline std::string GetBalanceVar(const char* name, const char* value)	{ BalanceValueContainerFactory::get(BALANCE_DEFNAME)->get(name,value); }
-#else
-	#define BALANCE_VAR(name) name						//hardcodes the value at compile time
-	#define BALANCE_LISTENER(object)
-	#define BALANCE_FIELD_LISTENER(object,name)
-#endif //BALANCE_ENABLED
-
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // BalanceValueContainerFactory -- facade that creates, stores, and 
 // maintains BalanceValueContainer objects.  Multiple calls with the 
 // same parameter will return the same object.  The (void) function 
@@ -208,5 +172,41 @@ public:
 protected:
 	BalanceValueContainer(void);
 };
+
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// BALANCE_VAR(x) macro - the heart of the balance system, ties value
+// to default balance source if PLAYTEST_BUILD is enabled, uses 
+// hardcoded value otherwise.  Place the name of the varaible #define
+// in Balance.txt as the value in the macro.
+//
+// BALANCE_LISTENER(x) macro - for registering global
+// BalanceChangeListeners (see below), reverts to no operation 
+// if AVH_PLAYTEST_BUILD isn't enabled.
+//
+// BALANCE_FIELD_LISTENER(x,y) macro - for registering field-specific
+// BalanceChangeListeners, reverts to no operation if 
+// BALANCE_ENABLED isn't defined
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+#ifdef BALANCE_ENABLED //use Balance.txt values on server, no-source/explicitly set values for client
+	#ifdef SERVER
+		#define BALANCE_DEFNAME BalanceValueContainerFactory::getDefaultFilename()
+	#else
+		#define BALANCE_DEFNAME ""
+	#endif
+
+	inline void BALANCE_LISTENER(const BalanceChangeListener* object) { BalanceValueContainerFactory::get(BALANCE_DEFNAME)->addListener(object); }
+	inline void BALANCE_FIELD_LISTENER(const BalanceChangeListener* object, const char* field) { BalanceValueContainerFactory::get(BALANCE_DEFNAME)->addListener(field,object); }
+
+	#define BALANCE_VAR(name) GetBalanceVar(#name,name)	//requires macro for string-izing of name
+	inline int GetBalanceVar(const char* name, const int value)				{ return BalanceValueContainerFactory::get(BALANCE_DEFNAME)->get(name,value); }
+	inline float GetBalanceVar(const char* name, const float value)			{ return BalanceValueContainerFactory::get(BALANCE_DEFNAME)->get(name,value); }
+	inline float GetBalanceVar(const char* name, const double value)		{ return BalanceValueContainerFactory::get(BALANCE_DEFNAME)->get(name,(float)value); }
+	inline std::string GetBalanceVar(const char* name, const char* value)	{ return BalanceValueContainerFactory::get(BALANCE_DEFNAME)->get(name,value); }
+#else
+	#define BALANCE_VAR(name) name						//hardcodes the value at compile time
+	#define BALANCE_LISTENER(object)
+	#define BALANCE_FIELD_LISTENER(object,name)
+#endif //BALANCE_ENABLED
 
 #endif //BALANCE_H

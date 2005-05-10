@@ -246,7 +246,7 @@ OBJ = \
 
 $(DLLNAME)_$(ARCH).$(SHLIBEXT) : neat $(OBJ)
 	$(LD) $(LDPRELIBS) -o $@ $(OBJ) $(LDPOSTLIBS) 
-	release: $(DLLNAME)_$(ARCH).$(SHLIBEXT)
+release: $(DLLNAME)_$(ARCH).$(SHLIBEXT)
 	strip $(DLLNAME)_$(ARCH).$(SHLIBEXT)
 	zip $(DLLNAME)_$(ARCH).zip $(DLLNAME)_$(ARCH).$(SHLIBEXT)
 curl:

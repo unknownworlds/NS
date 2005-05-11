@@ -31,7 +31,7 @@ TEXT_OBJDIR=$(TEXT_SRCDIR)/obj
 UTIL_OBJDIR=$(UTIL_SRCDIR)/obj
 OUTPUT_DIR=../../hlds_l/ns/dlls
 
-BASE_CFLAGS=-Dstricmp=strcasecmp -D_strnicmp=strncasecmp -Dstrnicmp=strncasecmp -DAVH_SERVER -DLINUX  -DVALVE_DLL -DQUIVER -DVOXEL -DQUAKE2 -DDEDICATED -DSWDS -D_STLP_USE_GLIBC
+BASE_CFLAGS=-Dstricmp=strcasecmp -D_strnicmp=strncasecmp -Dstrnicmp=strncasecmp -DAVH_SERVER -DLINUX  -DVALVE_DLL -DQUIVER -DVOXEL -DQUAKE2 -DDEDICATED -DSWDS -D_STLP_USE_GLIBC -DAVH_PLAYTEST_BUILD
 
 #full optimization
 CFLAGS=$(BASE_CFLAGS) -w -Wall -nostdinc++ -ffor-scope -fPIC -mcpu=i486 -O3 -pipe  -funroll-loops -fdelayed-branch -malign-loops=4 -malign-jumps=4 -malign-functions=4  
@@ -50,7 +50,7 @@ LDPRELIBS= $(CFLAGS) -shared \
            -Wl,-Map,ns_map.txt \
            $(LINKDIRS)
 
-LDPOSTLIBS= -Wl,-Bstatic -lstlport_gcc -lstdc++ -lsupc++ -llua -llualib\
+LDPOSTLIBS= -Wl,-Bstatic -lstlport_gcc -lstdc++ -lsupc++ -llua -llualib -lparticleMP\
 	-Wl,-Bdynamic -lm -lgcc -lgcc_eh
 # -lgcc -lgcc_eh -lelf
 DO_CC=$(CC) $(CFLAGS) $(INCLUDEDIRS) -o $@ -c $<
@@ -116,6 +116,7 @@ OBJ = \
 	$(DLL_OBJDIR)/pathcorner.o \
 	$(DLL_OBJDIR)/plane.o \
 	$(DLL_OBJDIR)/plats.o \
+	$(DLL_OBJDIR)/rpg.o \
 	$(DLL_OBJDIR)/player.o \
 	$(DLL_OBJDIR)/satchel.o \
 	$(DLL_OBJDIR)/shotgun.o \
@@ -181,6 +182,7 @@ OBJ = \
 	$(MOD_OBJDIR)/AvHMiniMap.o \
 	$(MOD_OBJDIR)/AvHMovementUtil.o \
 	$(MOD_OBJDIR)/AvHNetworkMessages.o \
+	$(MOD_OBJDIR)/AvHNexusServer.o \
 	$(MOD_OBJDIR)/AvHOrder.o \
 	$(MOD_OBJDIR)/AvHParasiteGun.o \
 	$(MOD_OBJDIR)/AvHParticleSystem.o \

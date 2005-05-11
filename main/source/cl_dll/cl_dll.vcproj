@@ -113,7 +113,7 @@
 				EnableIntrinsicFunctions="TRUE"
 				OptimizeForProcessor="0"
 				AdditionalIncludeDirectories="&quot;$(SolutionDir)&quot;;U:\inlcude\stlport;U:\include\vgui;U:\include\nexus;U:\include\libpng;U:\include\fmod;U:\include\lua;U:\include\particle;U:\include\zlib"
-				PreprocessorDefinitions="NDEBUG;WIN32;_WINDOWS;AVH_CLIENT;$(NOINHERIT)"
+				PreprocessorDefinitions="NDEBUG;WIN32;_WINDOWS;AVH_CLIENT;AVH_PLAYTEST_BUILD;$(NOINHERIT)"
 				StringPooling="TRUE"
 				RuntimeLibrary="0"
 				RuntimeTypeInfo="TRUE"

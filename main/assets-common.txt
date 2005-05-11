@@ -173,6 +173,7 @@ sprites/structurescursor.spr
 sprites/topdownbg.spr
 sprites/topdownbottom.spr
 sprites/topdowntop.spr
+sprites/query.spr
 
 ; New font rendering
 sprites/font_aria*.*

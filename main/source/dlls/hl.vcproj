@@ -27,7 +27,7 @@
 				InlineFunctionExpansion="2"
 				EnableIntrinsicFunctions="TRUE"
 				AdditionalIncludeDirectories="&quot;$(SolutionDir)&quot;;U:\include\stlport;U:\include\nexus;U:\include\lua;U:\include\particle"
-				PreprocessorDefinitions="NDEBUG;WIN32;_WINDOWS;QUIVER;VOXEL;QUAKE2;VALVE_DLL;AVH_SERVER;$(NOINHERIT)"
+				PreprocessorDefinitions="NDEBUG;WIN32;_WINDOWS;QUIVER;VOXEL;QUAKE2;VALVE_DLL;AVH_SERVER;AVH_PLAYTEST_BUILD;$(NOINHERIT)"
 				StringPooling="TRUE"
 				MinimalRebuild="TRUE"
 				RuntimeLibrary="0"
@@ -46,7 +46,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="winmm.lib ws2_32.lib particles.lib liblua.lib liblualib.lib nexus_server.lib ssleay32.lib libeay32.lib"
+				AdditionalDependencies="winmm.lib ws2_32.lib particles.lib liblua.lib liblualib.lib ssleay32.lib libeay32.lib"
 				OutputFile="$(SolutionDir)..\dlls\ns.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"

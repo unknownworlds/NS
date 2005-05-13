@@ -536,7 +536,9 @@ void AvHSUResupplyFriendliesInRange(int inNumEntitiesToCreate, AvHPlayer* inPlay
 
 		// Give player entity
 		//AvHSUBuildTechForPlayer(inMessageID, thePlayer->pev->origin, inPlayer);
-		BOOL theHelpedPlayer = AvHHealth::GiveHealth(thePlayer);
+		
+		// puzl: 1017 combat resupply amount
+		BOOL theHelpedPlayer = AvHHealth::GiveHealth(thePlayer, BALANCE_VAR(kPointsPerHealth));
 
 		if(!theHelpedPlayer)
 		{

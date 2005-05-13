@@ -577,11 +577,15 @@ void AvHHealth::Spawn(void)
 	this->pev->iuser3 = AVH_USER3_MARINEITEM;
 }
 
-BOOL AvHHealth::GiveHealth(CBaseEntity* inOther)
+BOOL AvHHealth::GiveHealth(CBaseEntity* inOther, float points)
 {
 	BOOL theSuccess = FALSE;
 
-	float thePointsPerHealth = BALANCE_VAR(kPointsPerHealth);
+// puzl: 1017
+// Amount of health to give is now a paramater to allow us to vary the resupply amount for the armoury
+
+//	float thePointsPerHealth = BALANCE_VAR(kPointsPerHealth)
+	
 	
 	AvHPlayer* thePlayer = dynamic_cast<AvHPlayer*>(inOther);
 	if(thePlayer && thePlayer->GetIsRelevant() && thePlayer->GetIsMarine())
@@ -589,7 +593,7 @@ BOOL AvHHealth::GiveHealth(CBaseEntity* inOther)
 		float thePlayerMaxHealth = AvHPlayerUpgrade::GetMaxHealth(thePlayer->pev->iuser4, thePlayer->GetUser3(), thePlayer->GetExperienceLevel());
 		if(thePlayer->pev->health < thePlayerMaxHealth)
 		{
-			float thePointsGiven = min(thePointsPerHealth, (thePlayerMaxHealth - thePlayer->pev->health));
+			float thePointsGiven = min(points, (thePlayerMaxHealth - thePlayer->pev->health));
 			
 			thePlayer->pev->health += thePointsGiven;
 			
@@ -613,7 +617,8 @@ BOOL AvHHealth::GiveHealth(CBaseEntity* inOther)
 
 void AvHHealth::Touch(CBaseEntity* inOther)
 {
-	if(AvHHealth::GiveHealth(inOther))
+	// puzl: 1017 medpack health amount
+	if(AvHHealth::GiveHealth(inOther, BALANCE_VAR(kPointsPerHealth)))
 	{
 		UTIL_Remove(this);
 	}
@@ -2323,10 +2328,12 @@ void AvHArmory::ResupplyUse(CBaseEntity* inActivator, CBaseEntity* inCaller, USE
 	{
         if(thePlayer->GetCanBeResupplied())
         {
-            // Give health back occasionally
-            bool theGiveHealthIfNeeded = (RANDOM_LONG(0, 3) == 0);
-            
-            thePlayer->Resupply(theGiveHealthIfNeeded);
+			// puzl: 1017
+//            // Give health back occasionally
+//            bool theGiveHealthIfNeeded = (RANDOM_LONG(0, 3) == 0);
+//            
+			// resupply gives 10 health each use
+			thePlayer->Resupply(true);		
 
             // Always play "getting ammo" sound when ammo or health are needed, to indicate to player when to stop pressing +use
             EMIT_SOUND(thePlayer->edict(), CHAN_WEAPON, kArmoryResupplySound, .3f, ATTN_NORM);

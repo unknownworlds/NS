@@ -126,7 +126,8 @@ private:
 class AvHHealth : public AvHPlayerEquipment
 {
 public:
-	static BOOL GiveHealth(CBaseEntity* inOther);
+	// puzl: 1017 GiveHealth now takes the amount as a paramater.
+	static BOOL GiveHealth(CBaseEntity* inOther, float points);
 
 	void Precache( void );
 	void Spawn( void );

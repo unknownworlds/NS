@@ -8355,7 +8355,6 @@ bool AvHPlayer::GetCanBeResupplied() const
             theCanBeResupplied = true;
         }
     }
-
     return theCanBeResupplied;
 }
 
@@ -8373,7 +8372,8 @@ bool AvHPlayer::Resupply(bool inGiveHealth)
 
         if(inGiveHealth)
         {
-            if(AvHHealth::GiveHealth(this))
+			// puzl: 1017 armoury gives 10 health per use
+            if(AvHHealth::GiveHealth(this, BALANCE_VAR(kPointsPerArmouryHealth)))
             {
                 // Play event for each person helped
                 //PLAYBACK_EVENT_FULL(0, this->edict(), gPhaseInEventID, 0, this->pev->origin, (float *)&g_vecZero, 0.0, 0.0, 0, 0, 0, 0 );

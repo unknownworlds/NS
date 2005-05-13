@@ -232,6 +232,7 @@
 #define kPheromonesBaseDistance 500
 #define kPheromonesLevelDistance 200
 #define kPointsPerHealth 50
+#define kPointsPerArmouryHealth 10
 #define kPrimalScreamRange 500
 #define kPrototypeLabBuildTime 20
 #define kPrototypeLabCost 40

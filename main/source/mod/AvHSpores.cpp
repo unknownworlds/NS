@@ -131,7 +131,9 @@ void AvHSporeProjectile::SporeCloudThink()
 			if(theEntity->pev->team != this->pev->team)
 			{
 				// Don't do damage to heavy armor
-				if(!thePlayer->GetHasHeavyArmor())
+				// puzl: 1019 
+				// Spores can't damage commanders
+				if(!thePlayer->GetHasHeavyArmor() && !thePlayer->GetIsInTopDownMode() )
 				{
 					// Spores don't stack, so don't do damage too often
 					float theTimeOfLastSporeDamage = thePlayer->GetTimeOfLastSporeDamage();

@@ -208,7 +208,7 @@ protected:
 
 	void			SetSelectID(int inSelectID);
 
-	virtual void	TriggerDeathAudioVisuals();
+	virtual void	TriggerDeathAudioVisuals(bool isRecycled=false);
 
 	void			UpdateAutoBuild(float inTimePassed);
 

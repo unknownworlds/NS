@@ -664,15 +664,21 @@ void AvHBaseBuildable::Killed(entvars_t* pevAttacker, int iGib)
 	this->mKilled = true;
     this->mInternalSetConstructionComplete = false;
 
-	this->TriggerDeathAudioVisuals();
-
+	// puzl: 980
+	// Less smoke for recycled buildings
+	this->TriggerDeathAudioVisuals(iGib == GIB_RECYCLED);
+	
 	if(!this->GetIsOrganic())
 	{
-		Vector vecSrc = Vector( (float)RANDOM_FLOAT( pev->absmin.x, pev->absmax.x ), (float)RANDOM_FLOAT( pev->absmin.y, pev->absmax.y ), (float)0 );
-		vecSrc = vecSrc + Vector( (float)0, (float)0, (float)RANDOM_FLOAT( pev->origin.z, pev->absmax.z ) );
-		UTIL_Sparks(vecSrc);
+		// More sparks for recycled buildings
+		int numSparks = ( iGib == GIB_RECYCLED ) ? 7 : 3;
+		for ( int i=0; i < numSparks; i++ ) {
+			Vector vecSrc = Vector( (float)RANDOM_FLOAT( pev->absmin.x, pev->absmax.x ), (float)RANDOM_FLOAT( pev->absmin.y, pev->absmax.y ), (float)0 );
+			vecSrc = vecSrc + Vector( (float)0, (float)0, (float)RANDOM_FLOAT( pev->origin.z, pev->absmax.z ) );
+			UTIL_Sparks(vecSrc);
+		}
 	}
-
+	// :puzl
 	this->TriggerRemoveTech();
 
 	AvHSURemoveEntityFromHotgroupsAndSelection(this->entindex());
@@ -772,7 +778,10 @@ void AvHBaseBuildable::RecycleComplete()
         // Play "+ resources" event
         AvHSUPlayNumericEventAboveStructure(thePointsBack, this);
 
-		this->Killed(this->pev, 0);
+		// puzl: 980
+		// Less smoke and more sparks  for recycled buildings
+		this->Killed(this->pev, GIB_RECYCLED);
+		// :puzl
 	}
 }
 
@@ -1227,7 +1236,7 @@ void AvHBaseBuildable::UpdateTechSlots()
 	}
 }
 
-void AvHBaseBuildable::TriggerDeathAudioVisuals()
+void AvHBaseBuildable::TriggerDeathAudioVisuals(bool isRecycled)
 {
 	AvHClassType theTeamType = AVH_CLASS_TYPE_UNDEFINED;
 	AvHTeam* theTeam = GetGameRules()->GetTeam((AvHTeamNumber)this->pev->team);
@@ -1244,13 +1253,16 @@ void AvHBaseBuildable::TriggerDeathAudioVisuals()
 		
 	case AVH_CLASS_TYPE_MARINE:
 		// lots of smoke
+		// puzl: 980
+		// Less smoke for recycled buildings
+		int smokeScale = isRecycled ? 15 : 25;
 		MESSAGE_BEGIN( MSG_BROADCAST, SVC_TEMPENTITY );
 		WRITE_BYTE( TE_SMOKE );
 		WRITE_COORD( RANDOM_FLOAT( pev->absmin.x, pev->absmax.x ) );
 		WRITE_COORD( RANDOM_FLOAT( pev->absmin.y, pev->absmax.y ) );
 		WRITE_COORD( RANDOM_FLOAT( pev->absmin.z, pev->absmax.z ) );
 		WRITE_SHORT( g_sModelIndexSmoke );
-		WRITE_BYTE( 25 ); // scale * 10
+		WRITE_BYTE( smokeScale ); // scale * 10
 		WRITE_BYTE( 10 ); // framerate
 		MESSAGE_END();
 		break;

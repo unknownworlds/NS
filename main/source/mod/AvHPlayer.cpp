@@ -3375,6 +3375,10 @@ void AvHPlayer::Init()
     this->mClientSpecialPASOrigin.x = this->mClientSpecialPASOrigin.y = this->mClientSpecialPASOrigin.z = 0.0f;
     this->mTimeOfLastPASUpdate = -1;
 
+	// puzl: 984
+	// record the last time the player attempted to go to the readyroom
+	this->mTimeOfLastF4 = -1.0f;
+
     this->mTimeOfLastTeleport = -1;
     this->mTimeOfLastHelpText = -1;
     this->mTimeOfLastUse = -1;
@@ -6003,8 +6007,7 @@ void AvHPlayer::InternalAlienUpgradesRegenerationThink()
 
 void AvHPlayer::ProcessEntityBlip(CBaseEntity* inEntity)
 {
-    const float kAlienFriendlyBlipRange = 1500;
-    //const float kAlienEnemyBlipRange = 1500;
+    const float kAlienEnemyBlipRange = 1500;
     
     // Is player alien?
     bool theIsAlien = this->GetIsAlien(true);
@@ -8086,6 +8089,16 @@ bool AvHPlayer::GetHasGivenOrder() const
 void AvHPlayer::SetHasGivenOrder(bool inState)
 {
     this->mHasGivenOrder = inState;
+}
+
+float AvHPlayer::GetTimeLastF4() const
+{
+    return this->mTimeOfLastF4;
+}
+
+void AvHPlayer::SetTimeLastF4(float inTime)
+{
+    this->mTimeOfLastF4=inTime;
 }
 
 float AvHPlayer::GetTimeStartedTopDown() const

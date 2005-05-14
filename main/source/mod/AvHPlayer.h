@@ -298,6 +298,8 @@ public:
 	virtual void	GiveNamedItem(const char *szName, bool inSendMessage = false);
 	int				GetNumberOfItems();
 	void			GiveResources(float inResources);
+	float           GetTimeLastF4() const;
+	void            SetTimeLastF4(float inTime);
 	float			GetTimeStartedTopDown() const;
 	float			GetTimeOfLastConstructUse() const;
 	void			SetTimeOfLastConstructUse(float inTime);
@@ -626,7 +628,8 @@ private:
 	bool				mClientInTopDownMode;
 	bool				mInTopDownMode;
 	int					mTimeStartedTopDown;
-	
+
+	float				mTimeOfLastF4;
 	float				mTimeOfLastSaying;
 	AvHMessageID		mLastSaying;
 	bool				mIsSpeaking;
@@ -686,6 +689,7 @@ private:
 	Vector				mSpecialPASOrigin;
 	Vector				mClientSpecialPASOrigin;
 	float				mTimeOfLastPASUpdate;
+
 
 	bool				mClientIsAlien;
 
@@ -778,7 +782,7 @@ private:
 	bool				mNeedsTeamUpdate;
 	bool				mSendTeamUpdate;
 	bool				mSendSpawnScreenFade;
-
+	
 	int					mDigestee;
 	float				mTimeOfLastDigestDamage;
 	float				mTimeOfLastCombatThink;

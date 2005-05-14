@@ -63,6 +63,7 @@
 
 // Messages
 #define kReadyRoomMessage				"ReadyRoomMessage"
+#define kReadyRoomThrottleMessage		"ReadyRoomThrottleMessage"
 #define kReinforcementMessage			"ReinforcementMessage"
 #define kReinforcingMessage				"ReinforcingMessage"
 #define kObserverMessage				"ObserverMessage"

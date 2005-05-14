@@ -337,9 +337,20 @@ BOOL AvHGamerules::ClientCommand( CBasePlayer *pPlayer, const char *pcmd )
 			{
 				if(!theAvHPlayer->GetIsBeingDigested())
 				{
-					theAvHPlayer->SetPlayMode(PLAYMODE_READYROOM, true);
+					// puzl: 984
+					// Add a throttle on the readyroom key
+					const static int kReadyRoomThrottleTimeout=2.0f;
+					if ( (theAvHPlayer->GetTimeLastF4() == -1.0f) || 
+						 (gpGlobals->time > theAvHPlayer->GetTimeLastF4() + kReadyRoomThrottleTimeout) )  
+					{
+						theAvHPlayer->SendMessage(kReadyRoomThrottleMessage);
+						theAvHPlayer->SetTimeLastF4(gpGlobals->time);
+					}
+					else if ( gpGlobals->time < theAvHPlayer->GetTimeLastF4() + kReadyRoomThrottleTimeout )
+					{
+						theAvHPlayer->SetPlayMode(PLAYMODE_READYROOM, true);
+					}
 				}
-
 				theSuccess = true;
 			}
 		}

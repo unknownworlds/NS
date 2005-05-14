@@ -409,6 +409,11 @@ ReadyRoomMessage
 You are in the Ready Room.  Walk through an entrance to join a team or observe the game.
 }
 
+ReadyRoomThrottleMessage
+{
+You must press the key twice to return to the Ready Room
+}
+
 ReinforcementMessage
 {
 You are waiting in line to spawn back in.

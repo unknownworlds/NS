@@ -160,6 +160,7 @@
 #define kHiveHealRadius 500
 #define kHiveHealth 7000
 #define kHiveRegenerationAmount 2
+#define kHiveSightRange 3000
 #define kInfantryPortalBuildTime 10
 #define kInfantryPortalCost 20
 #define kInfantryPortalHealth 2500

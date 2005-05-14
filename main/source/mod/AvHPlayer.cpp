@@ -6007,7 +6007,9 @@ void AvHPlayer::InternalAlienUpgradesRegenerationThink()
 
 void AvHPlayer::ProcessEntityBlip(CBaseEntity* inEntity)
 {
-    const float kAlienEnemyBlipRange = 1500;
+   	// puzl: 982
+	// Make alien hivesight range a balance var
+    const float kAlienFriendlyBlipRange = BALANCE_VAR(kHiveSightRange);
     
     // Is player alien?
     bool theIsAlien = this->GetIsAlien(true);

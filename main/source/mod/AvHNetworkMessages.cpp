@@ -1621,7 +1621,7 @@ union float_converter
 			particle_template.GetStartingVelocityParams( vel_params );
 			for( int counter = 0; counter < 8; counter++ ) { WRITE_LONG( vel_params[counter] ); }
 			particle_template.GetGravity( gravity );
-			for( int counter = 0; counter < 8; counter++ ) { WRITE_COORD( gravity[counter] ); }
+			for( int counter = 0; counter < 3; counter++ ) { WRITE_COORD( gravity[counter] ); }
 			WRITE_COORD( particle_template.GetMaxAlpha() );
 			WRITE_LONG( particle_template.GetParticleSystemIndexToGenerate() );
 			WRITE_LONG( particle_template.GetFlags() );

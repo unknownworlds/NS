@@ -254,7 +254,9 @@ int CHudDeathNotice :: MsgFunc_DeathMsg( const char *pszName, int iSize, void *p
 	}
 
 	// Find the sprite in the list
-	int spr = gHUD.GetSpriteIndex( killed_with.c_str() );
+	char killed_with_spritename[32];
+	sprintf(killed_with_spritename, "d_%s", killed_with.c_str());
+	int spr = gHUD.GetSpriteIndex( killed_with_spritename );
 
 	rgDeathNoticeList[i].iId = spr;
 
@@ -275,7 +277,7 @@ int CHudDeathNotice :: MsgFunc_DeathMsg( const char *pszName, int iSize, void *p
 		{
 			ConsolePrint( rgDeathNoticeList[i].szVictim );
 
-			if ( !strcmp( killed_with.c_str(), "d_world" ) )
+			if ( !strcmp( killed_with.c_str(), "world" ) )
 			{
 				ConsolePrint( " died" );
 			}
@@ -297,7 +299,7 @@ int CHudDeathNotice :: MsgFunc_DeathMsg( const char *pszName, int iSize, void *p
 			ConsolePrint( rgDeathNoticeList[i].szVictim );
 		}
 
-		if ( !killed_with.empty() && killed_with != "d_world" && !rgDeathNoticeList[i].iTeamKill )
+		if ( !killed_with.empty() && killed_with != "world" && !rgDeathNoticeList[i].iTeamKill )
 		{
 			ConsolePrint( " with " );
 
@@ -306,7 +308,7 @@ int CHudDeathNotice :: MsgFunc_DeathMsg( const char *pszName, int iSize, void *p
 				killed_with = "d_gluon gun";
 			if ( killed_with == "gauss" )
 				killed_with = "d_tau cannon";
-			ConsolePrint( killed_with.c_str()+2 ); // skip over the "d_" part
+			ConsolePrint( killed_with.c_str()); // skip over the "d_" part
 		}
 
 		ConsolePrint( "\n" );

@@ -202,7 +202,9 @@ bool AvHMine::GetDropLocation(Vector& outLocation, Vector* outAngles) const
 	{
 		CBaseEntity* theEntity = CBaseEntity::Instance( tr.pHit );
 		
-        if (!dynamic_cast<AvHDeployedMine*>(theEntity))
+		// puzl: 981
+		// Mines can't be planted on players or buildings
+        if (!dynamic_cast<AvHDeployedMine*>(theEntity) && !dynamic_cast<AvHPlayer *>(theEntity) && !dynamic_cast<AvHBaseBuildable *>(theEntity))
         {
     
             int kOffset = 8;

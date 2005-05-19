@@ -3792,7 +3792,7 @@ void AvHHud::SetHelpMessage(const string& inHelpText, bool inForce, float inNorm
 	if(inForce || gEngfuncs.pfnGetCvarFloat(kvAutoHelp))
 	{
 		float theReticleX = kHelpMessageLeftEdgeInset;
-		float theReticleY = kHelpMessageTopEdgeInset - 0.15f;
+		float theReticleY = kHelpMessageTopEdgeInset - 0.03f; // + 0.15f;
 		bool theCentered = false;
 
 		if(this->GetInTopDownMode())

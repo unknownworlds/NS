@@ -2905,7 +2905,7 @@ int AvHHud::PlayHUDNot(const char* pszName, int iSize, void* pbuf)
 	{
 		// Push back icon
 		HUDNotificationType theNotification;
-		theNotification.mStructureID = (AvHMessageID)message_id;
+		theNotification.mStructureID = (AvHMessageID)sound; //message_id;
 		theNotification.mTime = this->mTimeOfCurrentUpdate;
 		theNotification.mLocation = Vector(location_x, location_y, 0.0f);
 

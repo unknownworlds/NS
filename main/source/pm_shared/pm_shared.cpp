@@ -1268,11 +1268,13 @@ bool NS_CheckOffsetFromOrigin(float inX, float inY, float inZ, vec3_t& outNormal
 
     if (trace.fraction < 1)
     {
+        // tankefugl: Don't weight it if surface normal is too plane
+		if (trace.plane.normal[2] > 0.7)
+			return true;
         
         // Weight the normal based on how close the intersection is.
 
         vec3_t normal;
-        
         VectorScale(trace.plane.normal, 1.0f / (trace.fraction + 0.1f), normal);
         VectorAdd(normal, outNormal, outNormal);
 
@@ -1440,15 +1442,15 @@ void NS_UpdateWallsticking()
 
 			// tankefugl: fix to allow skulks to climb walls oriented 45 degrees in the x-y plane
 			// it also allows for easier climbing around courners
-			wallsticking |= NS_CheckOffsetFromOrigin(pmove->forward[0], pmove->forward[1], pmove->forward[2], theSurfaceNormal);
-			if (wallsticking)
-				VectorScale(theSurfaceNormal, 5, theSurfaceNormal);
+			//wallsticking |= NS_CheckOffsetFromOrigin(pmove->forward[0], pmove->forward[1], pmove->forward[2], theSurfaceNormal);
+			//if (wallsticking)
+			//	VectorScale(theSurfaceNormal, 5, theSurfaceNormal);
 			// :tankefugl
 
-            wallsticking |= NS_CheckOffsetFromOrigin(theMinPoint[0], theMinPoint[1], theMinPoint[2], theSurfaceNormal);
-            wallsticking |= NS_CheckOffsetFromOrigin(theMinPoint[0], theMaxPoint[1], theMinPoint[2], theSurfaceNormal);
-            wallsticking |= NS_CheckOffsetFromOrigin(theMaxPoint[0], theMinPoint[1], theMinPoint[2], theSurfaceNormal);
-            wallsticking |= NS_CheckOffsetFromOrigin(theMaxPoint[0], theMaxPoint[1], theMinPoint[2], theSurfaceNormal);
+            //wallsticking |= NS_CheckOffsetFromOrigin(theMinPoint[0], theMinPoint[1], theMinPoint[2], theSurfaceNormal);
+            //wallsticking |= NS_CheckOffsetFromOrigin(theMinPoint[0], theMaxPoint[1], theMinPoint[2], theSurfaceNormal);
+            //wallsticking |= NS_CheckOffsetFromOrigin(theMaxPoint[0], theMinPoint[1], theMinPoint[2], theSurfaceNormal);
+            //wallsticking |= NS_CheckOffsetFromOrigin(theMaxPoint[0], theMaxPoint[1], theMinPoint[2], theSurfaceNormal);
 
             wallsticking |= NS_CheckOffsetFromOrigin(theMinPoint[0], theMinPoint[1], theMaxPoint[2], theSurfaceNormal);
             wallsticking |= NS_CheckOffsetFromOrigin(theMinPoint[0], theMaxPoint[1], theMaxPoint[2], theSurfaceNormal);
@@ -1460,24 +1462,30 @@ void NS_UpdateWallsticking()
             if (wallsticking)
             {
 				// tankefugl: 0000972 
-				if (theSurfaceNormal[2] < 0.95 && pmove->waterjumptime == 0)
+				if (/*theSurfaceNormal[2] < 0.95 && */ pmove->waterjumptime == 0)
 				{
-					VectorCopy(theSurfaceNormal, gSurfaceNormal);
-
-					if (theSurfaceNormal[2] < 0.7) 
+					float dotNormalView = DotProduct(pmove->forward, theSurfaceNormal);
+					vec3_t tempNormal = {0, 0, 0};
+					bool checkedDownOffset = NS_CheckOffsetFromOrigin(0, 0, theMinPoint[2] * 2, tempNormal);
+		            if (dotNormalView < 0.7 && (checkedDownOffset == false))
 					{
-						vec3_t theDispVect;
-						VectorScale(theSurfaceNormal, -5, theDispVect);
-						VectorAdd(pmove->origin, theDispVect, theDispVect);
+						VectorCopy(theSurfaceNormal, gSurfaceNormal);
 
-						pmtrace_t wallclimbTrace = NS_PlayerTrace(pmove, pmove->origin, theDispVect, PM_NORMAL, -1);
-						
-						if (wallclimbTrace.fraction < 1)
+						if (theSurfaceNormal[2] < 0.7) 
 						{
-							VectorCopy(wallclimbTrace.endpos, pmove->origin);
+							vec3_t theDispVect;
+							VectorScale(theSurfaceNormal, theMinPoint[0], theDispVect);
+							VectorAdd(pmove->origin, theDispVect, theDispVect);
+
+							pmtrace_t wallclimbTrace = NS_PlayerTrace(pmove, pmove->origin, theDispVect, PM_NORMAL, -1);
+							
+							if (wallclimbTrace.fraction < 1)
+							{
+								VectorCopy(wallclimbTrace.endpos, pmove->origin);
+							}
 						}
 					}
-                
+
 					// Set wall sticking to true.
 		            SetUpgradeMask(&pmove->iuser4, MASK_WALLSTICKING);
 				}
@@ -5188,7 +5196,7 @@ void PM_Jump (void)
     }
 
 	// tankefugl: 0000972 walljump
-	if (GetHasUpgrade(pmove->iuser4, MASK_WALLSTICKING) && (pmove->cmd.buttons & IN_JUMP) && !(pmove->oldbuttons & IN_JUMP) && (gSurfaceNormal[2] < 0.5))
+	if (GetHasUpgrade(pmove->iuser4, MASK_WALLSTICKING) && (pmove->cmd.buttons & IN_JUMP) && !(pmove->oldbuttons & IN_JUMP) && (gSurfaceNormal[2] < 0.3))
 	{
 		vec3_t theJumpVect;
 		VectorScale(pmove->forward, pmove->maxspeed, pmove->velocity);

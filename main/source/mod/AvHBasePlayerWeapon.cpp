@@ -712,8 +712,7 @@ bool AvHBasePlayerWeapon::ProcessValidAttack(void)
 	// puzl: 497 call GetEnabledState instead of testing directly
 	int enabledState=this->GetEnabledState();
 
-	// tankefugl: 0000996 - added check vs m_fInReload
-	if(this->m_pPlayer->pev->viewmodel && ( enabledState == 1) && (m_fInReload == FALSE))
+	if(this->m_pPlayer->pev->viewmodel && ( enabledState == 1))
 	{
 		// don't fire underwater
 		if((this->m_pPlayer->pev->waterlevel == 3) && !this->GetFiresUnderwater())

@@ -1422,7 +1422,7 @@ void NS_UpdateWallsticking()
 		if (pmove->waterjumptime < 0)
 			pmove->waterjumptime = 0;
 		
-		if(!(pmove->cmd.buttons & IN_DUCK) && !(pmove->oldbuttons & IN_JUMP) && (pmove->waterlevel < 2)) //&& ((pmove->onground != -1) || (pmove->numtouch > 0)))
+		if((pmove->cmd.buttons & IN_DUCK) && !(pmove->oldbuttons & IN_JUMP) && (pmove->waterlevel < 2)) 
 //		if(!(pmove->cmd.buttons & IN_DUCK)) //&& ((pmove->onground != -1) || (pmove->numtouch > 0)))
 		// :tankefugl
         {
@@ -1430,6 +1430,7 @@ void NS_UpdateWallsticking()
             vec3_t theMinPoint;
             vec3_t theMaxPoint;
             
+			// TODO: SCALE BY FPS DEPENDANCY
             VectorScale(kWallstickingDistanceCheck, -1, theMinPoint);
             VectorCopy(kWallstickingDistanceCheck, theMaxPoint);
             
@@ -1464,10 +1465,10 @@ void NS_UpdateWallsticking()
 				// tankefugl: 0000972 
 				if (/*theSurfaceNormal[2] < 0.95 && */ pmove->waterjumptime == 0)
 				{
-					float dotNormalView = DotProduct(pmove->forward, theSurfaceNormal);
+					//float dotNormalView = DotProduct(pmove->forward, theSurfaceNormal);
 					vec3_t tempNormal = {0, 0, 0};
 					bool checkedDownOffset = NS_CheckOffsetFromOrigin(0, 0, theMinPoint[2] * 2, tempNormal);
-		            if (dotNormalView < 0.7 && (checkedDownOffset == false))
+		            if (/*dotNormalView < 0.7 && */(checkedDownOffset == false))
 					{
 						VectorCopy(theSurfaceNormal, gSurfaceNormal);
 
@@ -5198,12 +5199,19 @@ void PM_Jump (void)
 	// tankefugl: 0000972 walljump
 	if (GetHasUpgrade(pmove->iuser4, MASK_WALLSTICKING) && (pmove->cmd.buttons & IN_JUMP) && !(pmove->oldbuttons & IN_JUMP) && (gSurfaceNormal[2] < 0.3))
 	{
-		vec3_t theJumpVect;
-		VectorScale(pmove->forward, pmove->maxspeed, pmove->velocity);
+		vec3_t theDirectionVec;
+		VectorCopy(pmove->velocity, theDirectionVec);
+		if (Length(theDirectionVec) == 0.0f)
+			VectorCopy(pmove->forward, theDirectionVec);
+
+		VectorNormalize(theDirectionVec);
+
+		VectorScale(theDirectionVec, pmove->maxspeed + 50, pmove->velocity);
 		pmove->velocity[2] += 100;
 		
-		VectorScale(gSurfaceNormal, 50, theJumpVect);
-		VectorAdd(theJumpVect, pmove->velocity, pmove->velocity);
+		//vec3_t theJumpVect;
+		//VectorScale(gSurfaceNormal, 50, theJumpVect);
+		//VectorAdd(theJumpVect, pmove->velocity, pmove->velocity);
 
 		PM_PlayStepSound( PM_MapTextureTypeStepType( pmove->chtexturetype ), 1.0 );
 

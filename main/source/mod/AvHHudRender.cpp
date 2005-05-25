@@ -1154,30 +1154,10 @@ void AvHHud::DrawDisplayOrder()
 
 		int theStringHeight = this->GetHudStringHeight();
 
-//		float mSelectionBoxX1 = 0.25f * ScreenWidth();
-//		float mSelectionBoxY1 = 0.08f * ScreenHeight();
-//		float mSelectionBoxX2 = mSelectionBoxX1 + 0.50f * ScreenWidth();
-//		float mSelectionBoxY2 = mSelectionBoxY1 + 0.08f * ScreenWidth();
-
-//		float mIconX1 = mSelectionBoxX1 + 0.01f * ScreenWidth();
-//		float mIconY1 = mSelectionBoxY1 + 0.01f * ScreenWidth();
-//		float mIconX2 = mIconX1 + 0.06f * ScreenWidth();
-//		float mIconY2 = mIconY1 + 0.06f * ScreenWidth();
-
-//		AvHSpriteSetRenderMode(kRenderTransAdd);
-//		AvHSpriteSetColor(r / 255.0, g / 255.0, b / 255.0, 0.3 * theFade);
-//		AvHSpriteSetDrawMode(kSpriteDrawModeFilled);
-//		AvHSpriteDraw(sprite, 0, mSelectionBoxX1 + 1, mSelectionBoxY1 + 1, mSelectionBoxX2 - 1, mSelectionBoxY2 - 1, 0, 0, 1, 1);
-		
-//		AvHSpriteSetRenderMode(kRenderTransAdd);
-//		AvHSpriteSetColor(r / 255.0, g / 255.0, b / 255.0, 0.7 * theFade);
-//		AvHSpriteSetDrawMode(kSpriteDrawModeBorder);
-//		AvHSpriteDraw(sprite, 0, mSelectionBoxX1, mSelectionBoxY1, mSelectionBoxX2, mSelectionBoxY2, 0, 0, 1, 1);
-		
-		float mIconX1 = 0.45f * ScreenWidth();
+		float mIconX1 = 0.47f * ScreenWidth();
 		float mIconY1 = 0.10f * ScreenHeight();
-		float mIconX2 = mIconX1 + 0.10f * ScreenWidth();
-		float mIconY2 = mIconY1 + 0.10f * ScreenWidth();
+		float mIconX2 = mIconX1 + 0.06f * ScreenWidth();
+		float mIconY2 = mIconY1 + 0.06f * ScreenWidth();
 
 		float mTextX1 = 0.50f * ScreenWidth();
 
@@ -1196,7 +1176,6 @@ void AvHHud::DrawDisplayOrder()
 			this->DrawHudStringCentered(mTextX1, mIconY2, ScreenWidth(), this->mDisplayOrderText1.c_str(), r, g, b);
 			this->DrawHudStringCentered(mTextX1, mIconY2 + theStringHeight, ScreenWidth(), this->mDisplayOrderText2.c_str(), r, g, b);
 		}
-
 
 //		float mTextX1 = mIconX2 + 0.02 * ScreenWidth();
 //		this->DrawHudString(mTextX1, mIconY1, ScreenWidth(), this->mDisplayOrderText1.c_str(), r, g, b);

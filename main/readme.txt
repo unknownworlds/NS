@@ -1,144 +1,199 @@
 --------------------------------------------------------------------------
-- Natural Selection - http://www.natural-selection.org - v2.0 - 07/30/03 - 
+- Natural Selection - http://www.naturalselection.com - v3.1 - 05/14/05 - 
 --------------------------------------------------------------------------
 
 The NS Team
 -----------
 
-Charles "Flayra" Cleveland
-flayra@overmind.org
-Project leader, programming, game design
+Charlie Cleveland 
+[ "Flayra" :: game director ] 
 
-Cory "Squeal Like A Pig" Strader
-cory.strader@verizon.net
-Lead artist	- World concept, level textures, player textures, structure design and textures
+Jon Chapman 
+[ "Merkaba" :: level designer, level tech R&D, 2D art - ns_hera ] 
+
+Joel Rubicam
+[ "grepdashv" :: qa lead ] 
+
+Florian Schwarzer 
+[ "Nemesis Zero" :: project manager ] 
+
+Karl Patrick 
+[ "Cagey" :: programmer ] 
+
+David Monks 
+[ "MaDMaXX" :: sound effects ] 
+
+Harry Walsh
+[ "puzl" :: programmer ] 
+
+Mark Windle
+[ "Zunni" :: relations manager ] 
+
+Petter Rønningen
+[ "tankefugl" :: programmer ] 
+
+Joseph Stone
+[ "Alpha|UK" :: 3D art ] 
+
+Ozgur Yigit
+[ "gazOzz" :: 2D art ]
+
+
+Retired Members
+-------------
+
+Cory Strader
+[ "Squeal Like A Pig" :: lead artist - level textures, alien concepts, alien skins, marine skins ] 
 
 Josh McHugh
-vze2chp9@verizon.net
-Artist - Alien player models, shotgun model, marine equipment models
+[ "Beaner" :: artist - shotgun, turrets (concept + models), alien models ] 
 
 Mike Wislocki
-mike@squarewaveinteractive.com
-Artist - Flash, marine weapons
-
-Kevin "Relic25" Roberts
-relic25@ec.rr.com
-Level designer, 2D art, particle effects, ns_bast
-
-Jon "Merkaba" Chapman
-merkaba@onthebog.net
-Level designer, level tech R&D, 2D art, ns_hera
-
-Ned "MonsieurEvil" Pyle
-monsieurevil@natural-selection.org
-Public relations, network engineer, system maintainence, general, Jack of All Trades
+[ "BathroomMonkey" :: artist - lmg, hmg, pistol, gl, knife, old flash website ] 
 
 Jeff Paris
-jparis@ngenre.com
-Writer, world-builder, manual
+[ "jparis" :: writer, world-builder ] 
 
-Alex "Mojo" Boylan
-mojo@planethalflife.com
-Animator - building animations, alien animations
+Alex Boylan 
+[ "Mojo" :: animator - building animations, alien animations ] 
 
-Phil "Def One" Mayfield
-alien_51@hotmail.com
-Animator - Most player animations, all view model animations, trailer CG
+Phil Mayfield
+[ "Def one" :: animator - marine and alien view models ] 
 
-Joe "joev" Vaughan
-joev@jarhedz.com
-Site admin, database programmer, DBA, linux helper 
+Joe Vaughan 
+[ "joev" :: development manager, code - and server monkey ] 
 
-Max McGuire
-mmcguire@ironlore.com
-Additional programming
+Max Mcguire 
+[ "maxwell" :: programmer ] 
+
+Kevin Roberts
+[ "Relic25" :: level designer, 2D art - ns_bast ] 
+
+Ned Pyle
+[ "MonsieurEvil" :: public relations, network engineer, general ] 
+
+Guy Rabiller
+[ "smedic" :: player animations ] 
+
+Spencer MacDonald
+[ "Voogru" :: programmer ] 
+
+Tom Grim
+[ "ElvenThief" :: programmer ]
 
 
-Other credits
+Level Designers
 -------------
+
+Nelson Ferryman
+[ "manah" :: ns_caged ] 
+
+Andrew Weldon
+[ "KungFuSquirrel" :: ns_eclipse, ns_veil ] 
+
+Marty Rolek
+[ "Greedo386" :: ns_lost ] 
+
+Jake Griffith 
+[ "Ekaj" :: co_core ] 
+
+Galen Surlak-Ramsey
+[ "devildog" :: ns_nancy :: contact ] 
+
+Ken Banks
+[ "Ken20Banks" :: ns_nothing ] 
+
+Mike Rosser
+[ "Cadaver" :: ns_origin ] 
+
+Tom Dilazaro
+[ "tommyd" :: ns_tanith, co_pulse, co_faceoff ] 
+
+Juan José Alfaro 
+[ "Mendasp" :: Leader of the ns_bast reconstruction, co_sava ] 
+
+Michael Schouten
+[ "Olmy" :: ns_eon ] 
+
+Matthew Rye
+[ "ChromeAngel" :: co_angst ] 
+
+Pär Fredriksson
+[ "Drunken.Monkey" :: ns_ayumi ] 
+
+Jordi Carazo
+[ "blueman" :: co_ulysses ] 
+
+Juha Lipsonen
+[ "quazilin" :: ns_metal ] 
+
+Devin Afshin
+[ "Lazer" :: Leader of the ns_nancy reconstruction ] 
+
+Ben Ives
+[ "MrBen" :: ns_eclipse, ns_nothing, ns_veil (maintainer) ] 
+
+Paul Traylor (edit, unpublish, ) 
+[ "KungFuDiscoMonkey" :: ns_altair ] 
+
+Craig Bryson
+[ "Drath" :: co_niveus ]
+
+
+Other Credits
+-------------
+
 Jeremy Soule
-jeremy@jeremysoule.com
-Music
+[ orchestral music ] 
 
-Andrew King
-andrew@squarewaveinteractive.com
-Flash
+Hugo SilvÃ©rio 
+[ "[Dr]Hugo" :: player animations ] 
 
-Adam Otcasek
-adam@squarewaveinteractive.com
-Website design
+Max Mcgill
+[ Marine and commander voice acting (all male voices) ] 
 
-Guy "smedic" Rabiller
-grabiller@3dvf.net
-Alien player animations
+Lani Minella 
+[ Alien, hive and command console voice acting ] 
 
-Scott "Superfly" Haraldsen
-haraldsen@earthlink.net
-Sound effects (game and trailer)
+Oliver Richter
+[ "Hypergrip" :: Ambient music, co_daimos ] 
 
-Dave "MaDMaXX" Monks
-Dave@MaDMaXX.Demon.co.uk
-Additional sound effects
+Emmanuel F. Korahais
+[ "BrigadierWolf" :: artist ] 
 
-Oliver "Hypergrip" Richter
-Hypergrip@gmx.de
-Additional ambient music
+Matt Vasquez 
+[ "Cloud King" :: Gorge Bilebomb model ]
 
-Max Mcgill 
-maxtoo@earthlink.net
-Marine voice acting
+Ydnar
+[ Shaderlab textures (ns_bast) ] 
 
-Lani Minella
-lani@audiogodz.com
-Alien, Hive and Commander voice acting
+Nick Coombe
+[ "Crinity" :: level design consulting ] 
 
-Hugo "[Dr]Hugo" Silvério
-drhugo@uol.com.br
-Player animations
+Jason Childress
+[ "JayDog" :: artist - marine hands model and rigging, hive model ] 
 
-Nelson "manah" Ferryman
-manah@planethalflife.com
-Mapper - ns_caged
+Josh Buck
+[ "Westward" :: artist - marine model, rigging, animation, level 1 model ] 
 
-Andrew "KungFuSquirrel" Weldon
-aweldon@planethalflife.com
-Mapper - ns_eclipse, ns_veil, extra work on ns_nothing
+Todd Calder
+[ "Comprox" :: misc 2D art, mirroring, readyroom.org ] 
 
-Galen "DevilDog" Surlak-Ramsey
-devildog@planetavp.com
-Mapper - ns_nancy (RIP)
+Daniel Polcari
+[ "TyrNemesis" :: map qa ] 
 
-Ken "Ken20Banks" Banks
-ken20banks@yahoo.com
-Mapper - ns_nothing
+Gareth Eckley
+[ "Grendel" :: QA organizing ] 
 
-Tom "tommyd" Dilazaro
-tjd159@psu.edu
-Mapper - ns_tanith
+Nicolas Wincour 
+[ "Marik_Steele" :: Community Lead ] 
 
-Mike "Cadaver" Rosser
-mike@cadaveruk.fsnet.co.uk
-Mapper - ns_origin
+jarHedz 
+[ "Gamers at Heart" :: server support ] 
 
-Marty "Greedo386" Rolek
-mrolek@ucla.edu
-Mapper - ns_lost
+playZen
+[ "Enlightened Gaming" :: server support ]
 
-Jake "Ekaj" Griffith
-ekaj_niop@hotmail.com
-Mapper - ns_mineshaft
-
-Mark "Fam" James
-fam@readyroom.org
-Manual layout
-
-Daniel "Coil" Johnson
-danj@Princeton.EDU
-Slideshow, miscellaneous other stuff
-
-Gareth "Grendel" Eckley
-games_design@hotmail.com
-Playtest lead
 
 
 Natural Selection uses technology from:
@@ -164,15 +219,13 @@ Josh Buck
 Steve Ashley
 Jason Childress
 Russell "Doomaniac" Weed
-Nick "Crinity" Coombe
-Nemesis Zero
 Maria "Mara" Cruzado
-The NS IRC operators (Commando, eBnar, Insane, Necrotic, pielemius, Scythe, shoven, BoZman20, chalupamonk, Cyanide, DOOManiac, Kenichi, KungFuSquirrel, Mouse, Us3r)
-The NS Forum Admins and Moderators (Coil, Comprox, Nemesis Zero, SpyderMonkey, Fam, Greedo386, humbaba, Marik Steele, rob6264, Talesin)
+The NS IRC operators
+The NS Forum Admins and Moderators
 Stainless Steel Studios
 Thai Hut
 Beran Peters
-The NS playtesters, veterans, and beta server ops (we couldn't have done it without you!)
+The NS playtesters (we couldn't have done it without you!)
 
 Natural Selection and all content is Copyright (C) 2003 Charles G. Cleveland
 "Natural Selection" is a trademark owned by Charles G. Cleveland

@@ -5978,16 +5978,16 @@ void AvHHud::UpdateSelection()
 	// Change context sensitive cursor depending on current position
 	//if(this->mSelected.size() > 0)
 	//{
-	if(this->mGhostBuilding == MESSAGE_NULL)
-	{
-		Vector theCurrentMouseRay;
- 		CreatePickingRay(theCurrentX, theCurrentY, theCurrentMouseRay);
-
-		int theTargetIndex;
-		AvHOrderTargetType theTargetType;
-		Vector theTargetLocation;
-		AvHUser3 theUser3 = AVH_USER3_NONE;
-		AvHOrderType theOrderType = AvHGetDefaultOrderType(this->GetHUDTeam(), this->GetVisualOrigin(), theCurrentMouseRay, theTargetIndex, theTargetLocation, theUser3, theTargetType);
+//	if(this->mGhostBuilding == MESSAGE_NULL)
+//	{
+//		Vector theCurrentMouseRay;
+ //		CreatePickingRay(theCurrentX, theCurrentY, theCurrentMouseRay);
+//
+//		int theTargetIndex;
+//		AvHOrderTargetType theTargetType;
+//		Vector theTargetLocation;
+//		AvHUser3 theUser3 = AVH_USER3_NONE;
+//		AvHOrderType theOrderType = AvHGetDefaultOrderType(this->GetHUDTeam(), this->GetVisualOrigin(), theCurrentMouseRay, theTargetIndex, theTargetLocation, theUser3, theTargetType);
 		// Test UI blocking
 //		theOrderType = ORDERTYPEL_DEFAULT;
 //		if(!AvHSHUGetIsRegionBlockedByUI((float)theCurrentX/ScreenWidth, (float)theCurrentY/ScreenHeight))
@@ -6004,7 +6004,7 @@ void AvHHud::UpdateSelection()
 				//this->SetCursor(theOrderType);
 //			}
 		//}
-	}
+//	}
 	//}
 
 	if(this->mLeftMouseEnded)

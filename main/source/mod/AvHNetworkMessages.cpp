@@ -1513,7 +1513,9 @@ union float_converter
 		BEGIN_READ( buffer, size );
 			order.SetReceiver( READ_BYTE() );
 			order.SetOrderType( (AvHOrderType)READ_BYTE() );
-			READ_BYTE(); //this is a redundant byte because SetOrderType automatically sets the target type as well.
+			// puzl: 1050
+			// This byte is needed as SetOrderType isn't the only mechanism for changing it
+			order.SetOrderTargetType((AvHOrderTargetType)READ_BYTE()); //this is a redundant byte because SetOrderType automatically sets the target type as well.
 			switch( order.GetOrderTargetType() )
 			{
 			case ORDERTARGETTYPE_LOCATION:

@@ -2480,13 +2480,41 @@ void AvHTeam::UpdateResources()
         this->mLastResourceUpdateTime = theCurrentTime;
     }
 }
-
+// puzl: 1041
+// o Added back in steamid based authids 
+#ifdef AVH_PLAYTEST_BUILD
+// Function that is backwards-compatible with WON ids 
+string AvHSUGetPlayerAuthIDString(edict_t* inPlayer)
+{
+	const char* kSteamIDInvalidID = "-1";
+	string thePlayerAuthID;
+	
+	// Try to get SteamID
+	const char* theSteamID = g_engfuncs.pfnGetPlayerAuthId(inPlayer);
+	if(strcmp(theSteamID, kSteamIDInvalidID))
+	{
+		thePlayerAuthID = theSteamID;
+	}
+	// If that fails, get WonID and put it into a string
+	else
+	{
+		int theWonID = g_engfuncs.pfnGetPlayerWONId(inPlayer);
+		thePlayerAuthID = MakeStringFromInt(theWonID);
+	}
+	
+	return thePlayerAuthID;
+}
+#endif
 AvHServerPlayerData* AvHTeam::GetServerPlayerData(edict_t* inEdict)
 {
+#ifdef AVH_PLAYTEST_BUILD
+	string theNetworkID = AvHSUGetPlayerAuthIDString(inEdict);
+#else
 	string theNetworkID = AvHNexus::getNetworkID(inEdict);
+#endif
 	return &this->mServerPlayerData[theNetworkID];
 }
-
+// :puzl
 void AvHTeam::UpdateServerPlayerData()
 {
 	const float kServerPlayerDataUpdateInterval = 1.0f;

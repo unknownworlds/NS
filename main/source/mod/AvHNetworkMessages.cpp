@@ -1513,9 +1513,7 @@ union float_converter
 		BEGIN_READ( buffer, size );
 			order.SetReceiver( READ_BYTE() );
 			order.SetOrderType( (AvHOrderType)READ_BYTE() );
-			// puzl: 1050
-			// This byte is needed as SetOrderType isn't the only mechanism for changing it
-			order.SetOrderTargetType((AvHOrderTargetType)READ_BYTE()); //this is a redundant byte because SetOrderType automatically sets the target type as well.
+			//order.SetOrderTargetType((AvHOrderTargetType)READ_BYTE()); //this is a redundant byte because SetOrderType automatically sets the target type as well.
 			switch( order.GetOrderTargetType() )
 			{
 			case ORDERTARGETTYPE_LOCATION:
@@ -1533,6 +1531,9 @@ union float_converter
 			}
 			order.SetUser3TargetType( (AvHUser3)READ_BYTE() );
 			order.SetOrderCompleted( READ_BYTE() );
+			// puzl: 1050
+			// Need to sync the order status as it is only manipulated by the serverside state machine
+			order.SetOrderStatus( READ_BYTE() );
 		END_READ();
 	}
 #else
@@ -1541,7 +1542,7 @@ union float_converter
 		MESSAGE_BEGIN( MSG_ONE, g_msgSetOrder, NULL, pev );
 			WRITE_BYTE( order.GetReceiver() );
 			WRITE_BYTE( order.GetOrderType() );
-			WRITE_BYTE( order.GetOrderTargetType() ); //this is a redundant byte because SetOrderType automatically sets the target type as well.
+			//WRITE_BYTE( order.GetOrderTargetType() ); //this is a redundant byte because SetOrderType automatically sets the target type as well.
 			switch( order.GetOrderTargetType() )
 			{
 			case ORDERTARGETTYPE_LOCATION:
@@ -1559,6 +1560,9 @@ union float_converter
 			}
 			WRITE_BYTE( order.GetTargetUser3Type() );
 			WRITE_BYTE( order.GetOrderCompleted() );
+			// puzl: 1050
+			// Need to sync the order status as it is only manipulated by the serverside state machine
+			WRITE_BYTE( order.GetOrderStatus() );			
 		MESSAGE_END();
 	}
 #endif

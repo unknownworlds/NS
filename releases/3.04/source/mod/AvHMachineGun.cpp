@@ -171,7 +171,7 @@ void AvHMachineGun::Spawn()
 	Precache();
 
 	this->m_iId = AVH_WEAPON_MG;
-	this->m_iDefaultAmmo = BALANCE_IVAR(kMGMaxClip)*BALANCE_IVAR(kMarineSpawnClips);
+	this->m_iDefaultAmmo = BALANCE_IVAR(kMGMaxClip)*(BALANCE_IVAR(kMarineSpawnClips) + 1);
 
     // Set our class name
 	this->pev->classname = MAKE_STRING(kwsMachineGun);

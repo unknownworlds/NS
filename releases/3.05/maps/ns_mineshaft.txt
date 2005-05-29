@@ -1,0 +1,92 @@
+map: ns_mineshaft
+Author: Ekaj
+Contact: PM me on the www.natural-selection.org forums
+
+Thanks to, in no particular order...
+Flayra
+SquealLikeAPig
+FilthyPanda (he made the custom rock textures)
+Ken20Banks
+Yamazaki
+Mazy
+Chalupamonk
+Monsieur Evil
+Grendel
+DOOManiac
+Tommyd
+KungFuSquirrel
+Relic25
+Merkaba
+Coil
+SpaceApe
+Ferret
+Professional Victim
+Badmofo
+Fam
+Nemisis Zero
+Plaguebearer
+Silver Fox
+BoZmAn20
+Comprox
+Blueman
+Manah
+Khaim
+Internecine
+BitchSLAP
+Cyanide
+Storm
+Greedo
+Who? Me?
+Ion Storm (Deus Ex=best game ever)
+Valve Software
+Craig Mullins (a very good artist, www.goodbrush.com)
+Feng Zhu (more great art, www.artbyfeng.com)
+The NS play testers/vets and dev team members
+
+-chart:
+
+Object names  Objects/Maxobjs  Memory / Maxmem  Fullness
+------------  ---------------  ---------------  --------
+models            163/400        10432/25600    (40.8%)
+planes          30394/32767     607880/655340   (92.8%)
+vertexes        23512/65535     282144/786420   (35.9%)
+nodes           11285/32767     270840/786408   (34.4%)
+texinfos        11698/32767     467920/1310680  (35.7%)
+faces           17615/65535     352300/1310700  (26.9%)
+clipnodes       31921/32767     255368/262136   (97.4%)
+leaves           5939/8192      166292/229376   (72.5%)
+marksurfaces    23212/65535      46424/131070   (35.4%)
+surfedges       79207/512000    316828/2048000  (15.5%)
+edges           41687/256000    166748/1024000  (16.3%)
+texdata          [variable]    1468396/4194304  (35.0%)
+lightdata        [variable]    1659465/4194304  (39.6%)
+visdata          [variable]     187400/2097152  ( 8.9%)
+entdata          [variable]      28442/524288   ( 5.4%)
+52 textures referenced
+=== Total BSP file data space used: 6286879 bytes ===
+
+Map Information:
+Solids: 5031
+Faces: 30828
+PointEntities: 115
+SolidEntities: 162
+Unique Textures: 52
+.rmf size: 12,469 kb
+
+Textures:
+=== Texture usage is at 1.40 mb (of 4.00 mb MAX) ===
+
+Compile times and command lines:
+CSG: -chart -hullfile C:\games\hl\ns\nshulls.txt 
+=== 123.64 seconds elapsed [2m 3s] ===
+
+BSP:
+=== 93.48 seconds elapsed [1m 33s] ===
+
+VIS: -full
+=== 746.98 seconds elapsed [12m 26s] ===
+
+RAD: -chart -bounce 1 -extra -gamma 0.9 -smooth 80 -sparse 
+=== 3431.46 seconds elapsed [57m 11s] ===
+
+My computer is a P4 2.4 with a 512 stick of DDR RAM.

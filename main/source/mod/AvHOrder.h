@@ -33,6 +33,10 @@ public:
 	float				GetTimeOrderCompleted() const;
 	void				SetTimeOrderCompleted(float inTime);
 #endif
+
+#ifndef AVH_SERVER
+	void				SetOrderStatus(int inOrderStatus);
+#endif
 						
 // Shared			
 						AvHOrder();
@@ -41,6 +45,7 @@ public:
 	EntityInfo			GetReceiver() const;
 	int					GetTargetIndex() const;
 	AvHOrderType		GetOrderType() const;
+	int 				GetOrderStatus() const;
 	AvHOrderTargetType	GetOrderTargetType() const;
 	AvHUser3			GetTargetUser3Type() const;
 	void				GetLocation(vec3_t& outPosition) const;

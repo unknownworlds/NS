@@ -280,6 +280,19 @@ bool AvHOrder::GetOrderCancelled() const
 	return (this->mOrderStatus == kOrderStatusCancelled);
 }
 
+// puzl: 1050
+// Need to sync the order status as it is only manipulated by the serverside state machine
+int AvHOrder::GetOrderStatus() const
+{
+	return this->mOrderStatus;
+}
+#ifndef AVH_SERVER
+void AvHOrder::SetOrderStatus(int inOrderStatus)
+{
+	this->mOrderStatus=inOrderStatus;
+}
+#endif
+
 bool AvHOrder::GetOrderCompleted() const
 {
 	return (this->mOrderStatus == kOrderStatusComplete);

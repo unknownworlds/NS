@@ -1747,7 +1747,7 @@ void AvHInfantryPortal::SetHasBeenBuilt()
 
 	SetThink(&AvHInfantryPortal::PortalThink);
 	this->pev->nextthink = gpGlobals->time + kInfantryPortalThinkTime; 
-	this->pev->effects |= kInfantryPortalLightEffect;
+	// this->pev->effects |= kInfantryPortalLightEffect;
 }
 
 void AvHInfantryPortal::Precache()
@@ -1820,7 +1820,7 @@ void AvHInfantryPortal::ResetReinforcingPlayer(bool inSuccess)
 void AvHInfantryPortal::UpdateOnRecycle(void)
 {
 	this->ResetReinforcingPlayer(false);
-	this->pev->effects &= ~kInfantryPortalLightEffect;
+	// this->pev->effects &= ~kInfantryPortalLightEffect;
 }
 
 void AvHInfantryPortal::UpdateOnRemove(void)

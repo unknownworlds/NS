@@ -2518,36 +2518,34 @@ void AvHHud::DrawSelectionAndBuildEffects()
 		gEngfuncs.pEventAPI->EV_SetSolidPlayers(-1);
 
 		int localPlayerIndex = gEngfuncs.GetLocalPlayer()->index;
+		int currentteam = gEngfuncs.GetLocalPlayer()->curstate.team;
+		int maxclients = gEngfuncs.GetMaxClients();
 
-		physent_t *thePlayer = gEngfuncs.pEventAPI->EV_GetPhysent(localPlayerIndex);
-		if (thePlayer)
+		physent_t* theEntity = NULL;
+		int theNumEnts = pmove->numphysent;
+		for (int i = 0; i < theNumEnts; i++)
 		{
-			physent_t* theEntity = NULL;
-			int theNumEnts = pmove->numphysent;
-			for (int i = 0; i < theNumEnts; i++)
+			theEntity = gEngfuncs.pEventAPI->EV_GetPhysent(i);
+			if(theEntity)
 			{
-				theEntity = gEngfuncs.pEventAPI->EV_GetPhysent(i);
-				if(theEntity)
+				if (localPlayerIndex != theEntity->info)
 				{
-					if (localPlayerIndex != theEntity->info)
+					int theEntityIndex = theEntity->info;
+					list<int>::iterator theSelectedIterator = find(theSelectedList.begin(), theSelectedList.end(), theEntityIndex);
+					if (theSelectedIterator == theSelectedList.end()) 
 					{
-						int theEntityIndex = theEntity->info;
-						list<int>::iterator theSelectedIterator = find(theSelectedList.begin(), theSelectedList.end(), theEntityIndex);
-						if (theSelectedIterator == theSelectedList.end()) 
+						bool theIsPlayer = ((theEntityIndex >= 1) && (theEntityIndex <= maxclients));
+						bool theSameTeam = (theEntity->team == currentteam );
+						
+						if (isCommander && (theIsPlayer || theSameTeam))
 						{
-							bool theIsPlayer = ((theEntityIndex >= 1) && (theEntityIndex <= gEngfuncs.GetMaxClients()));
-							bool theSameTeam = (theEntity->team == thePlayer->team );
-							
-							if (isCommander && (theIsPlayer || theSameTeam))
+							this->DrawBuildHealthEffectsForEntity(theEntityIndex, 0.2);
+						}
+						else if (maintanceWeaponSelected && theSameTeam && !theIsPlayer)
+						{
+							if (AvHTraceLineAgainstWorld(gEngfuncs.GetLocalPlayer()->origin, theEntity->origin) == 1.0f)
 							{
-								this->DrawBuildHealthEffectsForEntity(theEntityIndex, 0.2);
-							}
-							else if (maintanceWeaponSelected && theSameTeam && !theIsPlayer)
-							{
-								if (AvHTraceLineAgainstWorld(gEngfuncs.GetLocalPlayer()->origin, theEntity->origin) == 1.0f)
-								{
-									this->DrawBuildHealthEffectsForEntity(theEntityIndex, 0.3);
-								}
+								this->DrawBuildHealthEffectsForEntity(theEntityIndex, 0.3);
 							}
 						}
 					}

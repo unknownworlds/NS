@@ -1224,7 +1224,7 @@ bool AvHPlayer::ExecuteMessage(AvHMessageID inMessageID, bool inInstantaneous, b
 				break;
 			case WEAPON_DROP:
 				if(!this->DropItem())
-					this->SendMessageOnce(kWeaponCantBeDropped, true);
+					this->SendMessageOnce(kWeaponCantBeDropped, TOOLTIP);
 				break;
 
 			case ADMIN_VOTEDOWNCOMMANDER:
@@ -3240,7 +3240,7 @@ void AvHPlayer::ItemPostFrame(void)
     {
         if((this->pev->button & IN_ATTACK) || (this->pev->button & IN_ATTACK2) || (this->pev->button & IN_RELOAD))
         {
-            this->SendMessageOnce(kReadyRoomMessage, true);
+            this->SendMessageOnce(kReadyRoomMessage, TOOLTIP);
         }
     }
 
@@ -4167,7 +4167,7 @@ void AvHPlayer::HandleTopDownInput()
                             if(!this->GiveOrderToSelection(ORDERTYPEL_DEFAULT, this->mAttackTwoPressedWorldPos))
                             {
                                 // This location better be off the map or something, default orders should nearly always go through
-                                this->SendMessage(kInvalidOrderGiven, true);
+                                this->SendMessage(kInvalidOrderGiven, TOOLTIP);
                             }
                             else
                             {
@@ -6802,7 +6802,7 @@ void AvHPlayer::PreThink( void )
         PROFILE_START()
         if(this->mQueuedThinkMessage != "")
         {
-            this->SendMessage(this->mQueuedThinkMessage.c_str(), true);
+            this->SendMessage(this->mQueuedThinkMessage.c_str(), TOOLTIP);
             this->mQueuedThinkMessage = "";
         }
         if(this->mPendingCommand)
@@ -7238,7 +7238,7 @@ void AvHPlayer::SetViewForUser3()
 
 }
 
-bool AvHPlayer::SendMessage(const char *pMessage, bool inIsToolTip)
+bool AvHPlayer::SendMessage(const char *pMessage, SHOWMESSAGE_TYPE type)
 {
     bool theSuccess = false;
 
@@ -7248,7 +7248,7 @@ bool AvHPlayer::SendMessage(const char *pMessage, bool inIsToolTip)
         string theMessage(pMessage);
         if(theMessage != this->mLastMessageSent)
         {
-            UTIL_ShowMessage2(pMessage, this, inIsToolTip);
+            UTIL_ShowMessage2(pMessage, this, type);
             
             this->mLastMessageSent = theMessage;
             
@@ -7270,7 +7270,7 @@ bool AvHPlayer::SendMessage(const char *pMessage, bool inIsToolTip)
     return theSuccess;
 }
 
-bool AvHPlayer::SendMessageOnce(const char *pMessage, bool inIsToolTip)
+bool AvHPlayer::SendMessageOnce(const char *pMessage, SHOWMESSAGE_TYPE type)
 {
     bool theSentMessage = false;
 
@@ -7282,7 +7282,7 @@ bool AvHPlayer::SendMessageOnce(const char *pMessage, bool inIsToolTip)
     {
         // If not
         // Call SendMessage
-        theSentMessage = this->SendMessage(pMessage, inIsToolTip);
+        theSentMessage = this->SendMessage(pMessage, type);
 
         this->mLastMessageSent = theMessage;
 
@@ -7544,7 +7544,7 @@ void AvHPlayer::SetPlayMode(AvHPlayMode inPlayMode, bool inForceSpawn)
             
             this->StartObservingIfNotAlready();
 
-            this->SendMessage(kReinforcingMessage, true);
+            this->SendMessage(kReinforcingMessage, TOOLTIP);
             this->mHasLeftReadyRoom = true;
             break;
 
@@ -7574,7 +7574,7 @@ void AvHPlayer::SetPlayMode(AvHPlayMode inPlayMode, bool inForceSpawn)
 
 		case PLAYMODE_REINFORCINGCOMPLETE:
 			this->pev->playerclass = PLAYMODE_REINFORCINGCOMPLETE;
-			this->SendMessage(kReinforcementComplete, false);
+			this->SendMessage(kReinforcementComplete, NORMAL);
 			break;
         }
 
@@ -7827,7 +7827,7 @@ void AvHPlayer::SetUser3(AvHUser3 inUser3, bool inForceChange, bool inGiveWeapon
         if(theMessage != "")
         {
             // Send instructions to player
-            this->SendMessageOnce(theMessage.c_str(), true);
+            this->SendMessageOnce(theMessage.c_str(), TOOLTIP);
         }
 		this->LogEmitRoleChange(); 
     }

@@ -986,12 +986,12 @@ void UTIL_ShowMessage( const char *pString, CBaseEntity *pEntity)
 	NetMsg_HudText( pEntity->pev, string( pString ) );
 }
 
-void UTIL_ShowMessage2( const char *pString, CBaseEntity *pEntity, bool inIsAutoHelp)
+void UTIL_ShowMessage2( const char *pString, CBaseEntity *pEntity, SHOWMESSAGE_TYPE type)
 {
 	if ( !pEntity || !pEntity->IsNetClient() )
 		return;
-	
-	NetMsg_HudText2( pEntity->pev, string( pString ), inIsAutoHelp ? 1 : 0 );
+
+	NetMsg_HudText2( pEntity->pev, string( pString ), type );
 }
 
 

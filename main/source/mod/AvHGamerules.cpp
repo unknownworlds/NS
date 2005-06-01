@@ -458,11 +458,11 @@ void AvHGamerules::RewardPlayerForKill(AvHPlayer* inPlayer, CBaseEntity* inTarge
 					AvHClassType theClassType = inPlayer->GetClassType();
 					if(theClassType == AVH_CLASS_TYPE_MARINE)
 					{
-						inPlayer->SendMessageOnce(kMarinePointsAwarded, true);
+						inPlayer->SendMessageOnce(kMarinePointsAwarded, TOOLTIP);
 					}
 					else if(theClassType == AVH_CLASS_TYPE_ALIEN)
 					{
-						inPlayer->SendMessageOnce(kAlienPointsAwarded, true);
+						inPlayer->SendMessageOnce(kAlienPointsAwarded, TOOLTIP);
 					}
 
 					// Increment resource score in tourny mode
@@ -3504,7 +3504,7 @@ void AvHGamerules::UpdateCountdown(float inTime)
 				}
 
 				FOR_ALL_ENTITIES(kAvHPlayerClassName, AvHPlayer*)
-					theEntity->SendMessageOnce(theMessage, true);
+					theEntity->SendMessageOnce(theMessage, TOOLTIP);
 				END_FOR_ALL_ENTITIES(kAvHPlayerClassName)
 
 				this->mTimeLastWontStartMessageSent = inTime;
@@ -3808,7 +3808,7 @@ void AvHGamerules::UpdateVictoryStatus(void)
 					UTIL_ScreenFade(theEntity, theFadeColor, 1.0f, 0.0f, 255, FFADE_OUT | FFADE_STAYOUT);
 				}
 				theEntity->PlayHUDSound(theHUDSound);
-				theEntity->SendMessage(theVictoryMessage);
+				theEntity->SendMessage(theVictoryMessage, CENTER);
 
 				// Final game time update to all clients have same winning time
 				this->SendGameTimeUpdate(true);

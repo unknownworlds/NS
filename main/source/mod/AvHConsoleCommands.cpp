@@ -566,7 +566,7 @@ BOOL AvHGamerules::ClientCommand( CBasePlayer *pPlayer, const char *pcmd )
 					{
 						bool theIsToolTip = (theMode == 2);
 
-						theAvHPlayer->SendMessage(theTooltipText, theIsToolTip);
+						theAvHPlayer->SendMessage(theTooltipText, (theIsToolTip)?TOOLTIP:NORMAL);
 					}
 					
 					theSuccess = true;
@@ -614,7 +614,7 @@ BOOL AvHGamerules::ClientCommand( CBasePlayer *pPlayer, const char *pcmd )
 					//}
 				}
 				
-				theTargetPlayer->SendMessage(theToolTip.c_str(), true);
+				theTargetPlayer->SendMessage(theToolTip.c_str(), TOOLTIP);
 				theSuccess = true;
 			}
 			else
@@ -889,12 +889,12 @@ BOOL AvHGamerules::ClientCommand( CBasePlayer *pPlayer, const char *pcmd )
 			uint32 theParticleIndex;
 			if(gParticleTemplateList.GetTemplateIndexWithName(theName, theParticleIndex))
 			{
-				theAvHPlayer->SendMessage(kEditingParticleSystem, true);
+				theAvHPlayer->SendMessage(kEditingParticleSystem, TOOLTIP);
 				NetMsg_EditPS( theAvHPlayer->pev, theParticleIndex );
 			}
 			else
 			{
-				theAvHPlayer->SendMessage(kNoParticleSystem, true);
+				theAvHPlayer->SendMessage(kNoParticleSystem, TOOLTIP);
 			}
 			theSuccess = true;
 		}
@@ -1419,7 +1419,7 @@ BOOL AvHGamerules::ClientCommand( CBasePlayer *pPlayer, const char *pcmd )
 			}
 			else
 			{
-				theAvHPlayer->SendMessage(kSpectatorsNotAllowed, true);
+				theAvHPlayer->SendMessage(kSpectatorsNotAllowed, TOOLTIP);
 			}
 			theSuccess = true;
 		}

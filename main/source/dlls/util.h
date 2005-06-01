@@ -265,7 +265,8 @@ extern void			UTIL_ParticleEffect		( const Vector &vecOrigin, const Vector &vecD
 extern void			UTIL_ScreenShake		( const Vector &center, float amplitude, float frequency, float duration, float radius );
 extern void			UTIL_ScreenShakeAll		( const Vector &center, float amplitude, float frequency, float duration );
 extern void			UTIL_ShowMessage		( const char *pString, CBaseEntity *pPlayer);
-extern void			UTIL_ShowMessage2		( const char *pString, CBaseEntity *pPlayer, bool inIsToolTip = false);
+typedef enum { NORMAL = 0, TOOLTIP = 1, CENTER = 2} SHOWMESSAGE_TYPE;
+extern void			UTIL_ShowMessage2		( const char *pString, CBaseEntity *pPlayer, SHOWMESSAGE_TYPE type = NORMAL);
 extern void			UTIL_ShowMessageAll		( const char *pString );
 extern void			UTIL_ScreenFadeAll		( const Vector &color, float fadeTime, float holdTime, int alpha, int flags );
 extern void			UTIL_ScreenFade			( CBaseEntity *pEntity, const Vector &color, float fadeTime, float fadeHold, int alpha, int flags );

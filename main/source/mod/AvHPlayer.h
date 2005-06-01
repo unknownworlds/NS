@@ -428,8 +428,8 @@ public:
     void			SetResources(float inResources, bool inPlaySound = false);
 
 	// Send messages to player's screen
-	bool			SendMessage(const char* pMessage, bool inIsToolTip = false);
-	bool			SendMessageOnce(const char* pMessage, bool inIsToolTip = false);
+	bool			SendMessage(const char* pMessage, SHOWMESSAGE_TYPE type = NORMAL);
+	bool			SendMessageOnce(const char* pMessage, SHOWMESSAGE_TYPE type = NORMAL);
 	bool			SendMessageNextThink(const char* pMessage);
 
 	virtual int		GetEffectivePlayerClass();

@@ -2029,6 +2029,21 @@ void AvHHud::ModifyAmbientSoundEntryIfChanged(bool inSoundOn, int inSoundIndex, 
 	}
 }
 
+// tankefugl:
+void AvHHud::SetCenterText(const char* inText)
+{
+	LocalizeString(inText, this->mCenterText);
+	this->mCenterTextTime = this->mTimeOfLastUpdate;
+}
+
+void AvHHud::ClearCenterText()
+{
+	this->mCenterText.clear();
+	this->mCenterTextTime = -1;
+}
+
+// :tankefugl
+
 // Look at incoming order.  If we are one of the receivers, play a HUD sound
 // indicating our new order
 void AvHHud::OrderNotification(const AvHOrder& inOrder)
@@ -2547,6 +2562,9 @@ void AvHHud::ResetGame(bool inMapChanged)
 	this->mDisplayOrderText1 = "";
 	this->mDisplayOrderText2 = "";
 	this->mDisplayOrderText3 = "";
+
+	this->mCenterText.clear();
+	this->mCenterTextTime = -1;
 	// :tankefugl
 }
 

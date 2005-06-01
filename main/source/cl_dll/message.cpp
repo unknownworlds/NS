@@ -686,10 +686,18 @@ int CHudMessage::MsgFunc_HudText2( const char *pszName,  int iSize, void *pbuf )
 	string content;
 	int flags;
 	NetMsg_HudText2( pbuf, iSize, content, flags );
-	bool theIsAutoHelp = (flags & 1) != 0;
 	
-	gHUD.AddTooltip(content.c_str(), theIsAutoHelp);
-	
+	switch (flags)
+	{
+		case 2:
+			gHUD.SetCenterText(content.c_str());
+			break;
+		default:
+			bool theIsAutoHelp = (flags & 1) != 0;
+			gHUD.AddTooltip(content.c_str(), theIsAutoHelp);
+			break;
+	}
+
 	return 2;
 }
 

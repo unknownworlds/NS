@@ -1576,12 +1576,12 @@ There are too many webs nearby.
 
 TeamOneWon
 {
-The marines won the game!
+The TSA Marines have exterminated the alien infestation
 }
 
 TeamTwoWon
 {
-The aliens won the game!
+The alien Kharaa have eradicated the human presence
 }
 
 GameDraw

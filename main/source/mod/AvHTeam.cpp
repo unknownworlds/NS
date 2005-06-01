@@ -1059,7 +1059,7 @@ void AvHTeam::SetGameStarted(bool inGameStarted)
 						theMessage = kYouAreDefending;
 					}
 
-					theEntity->SendMessage(theMessage.c_str(), false);
+					theEntity->SendMessage(theMessage.c_str(), NORMAL);
 				}
 			}
 		END_FOR_ALL_ENTITIES(kAvHPlayerClassName);

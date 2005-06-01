@@ -1107,6 +1107,33 @@ void AvHHud::DrawOrderText(const AvHOrder& inOrder)
 	// :tankefugl	
 }
 
+// tankefugl:
+#define CENTER_TEXT_LENGTH	10
+#define CENTER_TEXT_FADEOUT	2
+void AvHHud::DrawCenterText()
+{
+	if ((this->mCenterTextTime > -1) && (this->mTimeOfLastUpdate < this->mCenterTextTime + CENTER_TEXT_LENGTH + CENTER_TEXT_FADEOUT))
+	{
+		int theR, theG, theB;
+		this->GetPrimaryHudColor(theR, theG, theB, false, false);
+
+		if (this->mTimeOfLastUpdate > this->mCenterTextTime + CENTER_TEXT_LENGTH) 
+		{
+			float fraction = this->mTimeOfLastUpdate - (this->mCenterTextTime + CENTER_TEXT_LENGTH);
+			fraction = 1 - fraction / CENTER_TEXT_FADEOUT;
+			theR *= fraction;
+			theG *= fraction;
+			theB *= fraction;
+		}
+
+		int posX = 0.5 * ScreenWidth() - this->mFont.GetStringWidth(this->mCenterText.c_str()) / 2;
+		int posY = 0.4 * ScreenHeight();
+
+		this->mFont.DrawString(posX, posY, this->mCenterText.c_str(), theR, theG, theB);
+	}
+}
+// :tankefugl
+
 // tankefugl: 0000992
 void AvHHud::SetDisplayOrder(int inOrderType, int inOrderIndex, string inText1, string inText2, string inText3)
 {
@@ -2639,6 +2666,7 @@ void AvHHud::Render()
 		        this->DrawReticleInfo();
 	    	    this->DrawPlayerNames();
 		        this->DrawToolTips();
+				this->DrawCenterText();
             }
 
         }

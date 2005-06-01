@@ -430,7 +430,7 @@ static int sendMessage(lua_State* inState)
 				AvHPlayer* thePlayer = dynamic_cast<AvHPlayer*>(theEntity);
 				if(thePlayer)
 				{
-					thePlayer->SendMessage(theCString, true);
+					thePlayer->SendMessage(theCString, TOOLTIP);
 					theSuccess = true;
 				}
 			}

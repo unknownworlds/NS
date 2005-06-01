@@ -433,7 +433,18 @@ public:
 
     float           GetServerVariableFloat(const char* inName) const;
 
+	// tankefugl:
+	void			SetCenterText(const char* inText);
+	void			DrawCenterText();
+	void			ClearCenterText();
+	// :tankefugl
+
 private:
+
+	// tankefugl:
+	std::string		mCenterText;
+	float			mCenterTextTime;
+	// :tankefugl
 
     bool            GetCommanderLabelText(std::string& outCommanderName) const;
 

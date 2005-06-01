@@ -133,13 +133,13 @@ bool AvHWebProjectile::CreateWeb()
 						else
 						{
 							// Send player message indicating they've reached the limit for this particular area
-							thePlayer->SendMessage(kTooManyWebsNearby, true);
+							thePlayer->SendMessage(kTooManyWebsNearby, TOOLTIP);
 						}
 					}
 					else
 					{
 						// Send player message indicating they've reached the limit
-						thePlayer->SendMessage(kTooManyWebs, true);
+						thePlayer->SendMessage(kTooManyWebs, TOOLTIP);
 					}
 				}
 			}

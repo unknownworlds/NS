@@ -1919,7 +1919,7 @@ void AvHCommandStation::CommandTouch(CBaseEntity* pOther)
 			// Check to see if we already have a commander and don't make the person a commander if so
 			if(GetGameRules()->GetNumCommandersOnTeam(theStationTeamNumber) == 0)
 			{
-				thePlayer->SendMessage(kHelpTextCSAttractMode, true);
+				thePlayer->SendMessage(kHelpTextCSAttractMode, TOOLTIP);
 			}
 		}
 	}
@@ -1967,7 +1967,7 @@ void AvHCommandStation::CommandUse( CBaseEntity* pActivator, CBaseEntity* pCalle
 						}
 						else
 						{
-							thePlayer->SendMessage(kCommandStationDestroyed, true);
+							thePlayer->SendMessage(kCommandStationDestroyed, TOOLTIP);
 						}
 					}
 					else
@@ -1980,13 +1980,13 @@ void AvHCommandStation::CommandUse( CBaseEntity* pActivator, CBaseEntity* pCalle
 					// The player somehow touches the command station while still a commander
 					if(thePlayer->GetUser3() != AVH_USER3_COMMANDER_PLAYER)
 					{
-						thePlayer->SendMessage(kCommandStationInUse, true);
+						thePlayer->SendMessage(kCommandStationInUse, TOOLTIP);
 					}
 				}
 			}
 			else
 			{
-				thePlayer->SendMessage(kCommandStationForOtherTeam, true);
+				thePlayer->SendMessage(kCommandStationForOtherTeam, TOOLTIP);
 			}
 		}
 	}

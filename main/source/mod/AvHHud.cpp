@@ -2089,7 +2089,7 @@ void AvHHud::OrderNotification(const AvHOrder& inOrder)
 			this->PlayHUDSound(theSound);
 
 			// tankefugl: 0000992 | 0001052 
-			if (thePopup && (this->GetInTopDownMode() == false))
+			if (thePopup && (this->GetInTopDownMode() == false) && (inOrder.GetOrderActive()))
 			{
 				this->SetDisplayOrder(2, this->GetFrameForOrderType(theOrderType), "", "", "");
 			}

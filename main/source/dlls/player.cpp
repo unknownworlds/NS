@@ -1560,8 +1560,8 @@ void CBasePlayer::PlayerDeathThink(void)
 	// wait for all buttons released
 	if (pev->deadflag == DEAD_DEAD)
 	{
-		if (fAnyButtonDown)
-			return;
+		//if (fAnyButtonDown)
+		//	return;
 
 		//if ( g_pGameRules->FPlayerCanRespawn( this ) )
 		//{

@@ -1422,7 +1422,7 @@ void NS_UpdateWallsticking()
 		if (pmove->waterjumptime < 0)
 			pmove->waterjumptime = 0;
 		
-		if((pmove->cmd.buttons & IN_DUCK) && !(pmove->oldbuttons & IN_JUMP) && (pmove->waterlevel < 2)) 
+		if(!(pmove->cmd.buttons & IN_DUCK) && !(pmove->oldbuttons & IN_JUMP) && (pmove->waterlevel < 2)) 
 //		if(!(pmove->cmd.buttons & IN_DUCK)) //&& ((pmove->onground != -1) || (pmove->numtouch > 0)))
 		// :tankefugl
         {

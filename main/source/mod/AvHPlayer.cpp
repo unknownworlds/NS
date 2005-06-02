@@ -5863,7 +5863,7 @@ void AvHPlayer::InternalAlienUpgradesCloakingThink()
     }
 	// :joev
 	else
-    {
+    { 
         // If we have cloaking upgrade
         int theCloakingLevel = AvHGetAlienUpgradeLevel(this->pev->iuser4, MASK_UPGRADE_7);
         if(theCloakingLevel > 0)
@@ -6363,6 +6363,12 @@ void AvHPlayer::InternalAlienThink()
                 this->mIsScreaming = false;
             }
         }
+
+		// Uncloak if we are charging
+		if(GetHasUpgrade(this->pev->iuser4, MASK_ALIEN_MOVEMENT))
+		{
+			this->TriggerUncloak();
+		}
     }
 }
 

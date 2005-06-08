@@ -68,7 +68,7 @@
 
 // Build in code to help playtest.  Choose neither, AVH_PLAYTEST_BUILD, or AVH_PLAYTEST_BUILD _and_ AVH_LAN_PLAYTEST_BUILD
 #ifdef DEBUG
-#define AVH_PLAYTEST_BUILD
+//#define AVH_PLAYTEST_BUILD
 //#define AVH_LAN_PLAYTEST_BUILD
 #endif
 

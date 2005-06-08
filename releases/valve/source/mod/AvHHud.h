@@ -818,4 +818,7 @@ private:
 
 };
 
+AvHHud& getHUD();
+#define gHUD (getHUD())
+
 #endif

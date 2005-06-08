@@ -4,36 +4,37 @@
 const int slashchr =  '\\';
 #define kAvHModDir					((const char*)("ns"))
 
+#ifdef AVH_SERVER
+#include "common/mathlib.h"
+#include "common/const.h"
+#include "engine/edict.h"
+#include "engine/eiface.h"
+#include "dlls/enginecallback.h"
+#else
+#include "cl_dll/wrect.h"
+#include "cl_dll/cl_dll.h"
+#include "dlls/extdll.h"
+#endif
+
+
 const char* getModDirectory(void)
 {
-//#ifdef __linux__
-//	return kAvHModDir;
-//#else
-//	static char theModDirectory[512];
-//	static bool theIsComputed = false;
-//	#define thisFileString __FILE__
+	static char theModDirectory[512];
+	static bool theIsComputed = false;
 
-//	if(!theIsComputed)
-//	{
-//		const char* thisFileName = thisFileString;
-//		strcpy(theModDirectory,thisFileName);
-//		//theModDirectory = <blah>/[mod_directory]/source/mod/AvHConstants.cpp
-//		char* pos = strrchr(theModDirectory,slashchr);
-//		for(int counter = 0; counter < 3; ++counter) //remove three slahses and everything that comes after
-//		{
-//			*pos = '\0';
-//			pos = strrchr(theModDirectory,slashchr); //point to next slash
-//		}
-		//theModDirectory = <blah>/[mod_directory]
-		//pos+1 = [mod_directory]
-//		char temp[512];
-//		strcpy(temp,pos+1); //use temp so we don't overwrite ourselves on copy.
-//		strcpy(theModDirectory,temp); //theModDirectory now holds the correct directory name
-//		theIsComputed = true; //don't compute this again
-//	}
-//	return theModDirectory;
-//#endif
-	return "ns";
+	if(!theIsComputed)
+	{
+		strcpy(theModDirectory, "ns305");
+#ifdef AVH_SERVER
+		GET_GAME_DIR(theModDirectory);
+#else
+		const char *pchGameDirT = gEngfuncs.pfnGetGameDirectory();
+		strcpy(theModDirectory, pchGameDirT);
+#endif
+
+		theIsComputed = true; //don't compute this again
+	}
+	return theModDirectory;
 }
 
 const char* getModName(void)

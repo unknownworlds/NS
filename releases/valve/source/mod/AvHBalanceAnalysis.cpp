@@ -23,7 +23,7 @@
 
 #ifdef AVH_CLIENT
 #include "mod/AvHHud.h"
-extern AvHHud gHUD;
+//extern AvHHud gHUD;
 #endif
 
 AvHEconomy::AvHEconomy(const AvHTechNodes& inTechNodes, int inInitialResources, int inInitialTowers, bool inMarine, MessageIDListType inTargetTechList)

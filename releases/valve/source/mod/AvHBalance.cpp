@@ -166,7 +166,7 @@ void AvHGamerules::BalanceChanged()
 }
 #endif
 
-static string theBalanceFileName = string(getModDirectory()) + "/Balance.txt";
+
 
 #ifdef AVH_PLAYTEST_BUILD
 
@@ -176,7 +176,8 @@ void AvHGamerules::ReadBalanceData()
 	this->mBalanceFloats.clear();
 
     fstream inFile;
-    inFile.open(theBalanceFileName.c_str(), ios::in);
+	static string theBalanceFileName = string(getModDirectory()) + "/Balance.txt";
+	inFile.open(theBalanceFileName.c_str(), ios::in);
 	
     if(inFile.is_open())
     {
@@ -236,7 +237,8 @@ void AvHGamerules::ReadBalanceData()
 void AvHGamerules::RecordBalanceData()
 {
     fstream theOutfile;
-    theOutfile.open(theBalanceFileName.c_str(), ios::out);
+	static string theBalanceFileName = string(getModDirectory()) + "/Balance.txt";
+	theOutfile.open(theBalanceFileName.c_str(), ios::out);
     if(theOutfile.is_open())
 	{
 		// Write out header

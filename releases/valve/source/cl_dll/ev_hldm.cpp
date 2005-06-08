@@ -36,7 +36,7 @@
 #include <string.h>
 
 static int tracerCount[ 32 ];
-extern AvHHud gHUD;
+//extern AvHHud gHUD;
 
 #include "r_studioint.h"
 #include "com_model.h"

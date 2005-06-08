@@ -47,7 +47,11 @@ cl_enginefunc_t gEngfuncs;
 // Instead of using default Half-life HUD, use more flexible one I've added
 //CHud gHUD;
 //UIHud gHUD("StratHL/ui.txt", new AvHUIFactory());
-AvHHud gHUD((string(getModDirectory()) + "/ui.txt").c_str(), new AvHUIFactory());
+
+AvHHud& getHUD() {
+	static AvHHud theGlobalHud( (string(getModDirectory()) + string("/ui.txt")).c_str(), new AvHUIFactory());
+	return theGlobalHud;
+}
 
 TeamFortressViewport *gViewPort = NULL;
 

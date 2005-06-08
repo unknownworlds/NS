@@ -29,7 +29,7 @@ class TeamFortressViewport;
 
 class AvHHud;
 #include "mod/AvHHud.h"
-extern AvHHud gHUD;
+//extern AvHHud gHUD;
 
 #include "wrect.h"
 #include "cl_dll.h"

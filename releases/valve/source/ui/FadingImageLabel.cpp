@@ -431,7 +431,7 @@ void FadingImageLabel::SetFadeState(bool inNewState)
         // set fade to state
         this->mFadeToVisibiltyState = inNewState;
 
-        float theCurrentTime = ::gHUD.m_flTime;
+        float theCurrentTime = gHUD.m_flTime;
 
         // set new fade to time in case a change was specified during a change
         this->mTimeToFade = min(this->mBaseFadeTime, (theCurrentTime - this->mTimeVisChanged));

@@ -1,0 +1,12 @@
+co_ulysses_b6
+
+10/01/2004
+__________
+
+
+Changes:
+
+:: Added drips and steam FX all over the map.
+:: Added sounds and ambient.
+
+Jordi Carazo :: bLuEMaN

@@ -1,0 +1,72 @@
+<HTML>
+<BODY>
+<PRE>
+<!-- Manpage converted by man2html 3.0.1 -->
+       curl_multi_add_handle - add an easy handle to a multi ses-
+       sion
+
+
+</PRE>
+<H2>SYNOPSIS</H2><PRE>
+       #include &lt;curl/curl.h&gt;
+
+       CURLMcode curl_multi_add_handle(CURLM *multi_handle,  CURL
+       *easy_handle);
+
+
+</PRE>
+<H2>DESCRIPTION</H2><PRE>
+       Adds  a standard easy handle to the multi stack. This will
+       make this multi handle control the specified easy  handle.
+
+       When  an  easy handle has been added to a multi stack, you
+       can not and you must not use curl_easy_perform()  on  that
+       handle!
+
+
+</PRE>
+<H2>RETURN VALUE</H2><PRE>
+       CURLMcode  type,  general  libcurl  multi  interface error
+       code.
+
+
+</PRE>
+<H2>SEE ALSO</H2><PRE>
+       <B>curl_multi_cleanup(3)</B>,<B>curl_multi_init(3)</B>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</PRE>
+<HR>
+<ADDRESS>
+Man(1) output converted with
+<a href="http://www.oac.uci.edu/indiv/ehood/man2html.html">man2html</a>
+</ADDRESS>
+</BODY>
+</HTML>

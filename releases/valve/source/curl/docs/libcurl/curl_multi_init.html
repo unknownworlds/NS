@@ -1,0 +1,74 @@
+<HTML>
+<BODY>
+<PRE>
+<!-- Manpage converted by man2html 3.0.1 -->
+       curl_multi_init - Start a multi session
+
+
+</PRE>
+<H2>SYNOPSIS</H2><PRE>
+       <B>#include</B> <B>&lt;curl/curl.h&gt;</B>
+
+       <B>CURLM</B> <B>*curl_multi_init(</B> <B>);</B>
+
+
+</PRE>
+<H2>DESCRIPTION</H2><PRE>
+       This  function  returns a CURLM handle to be used as input
+       to all the other multi-functions, sometimes refered to  as
+       a  multi  handle on some places in the documentation. This
+       init   call   MUST   have   a   corresponding   call    to
+       <I>curl</I><B>_</B><I>multi</I><B>_</B><I>cleanup</I> when the operation is complete.
+
+
+</PRE>
+<H2>RETURN VALUE</H2><PRE>
+       If  this  function  returns NULL, something went wrong and
+       you cannot use the other curl functions.
+
+
+</PRE>
+<H2>SEE ALSO</H2><PRE>
+       <B>curl_multi_cleanup(3)</B>,<B>curl_global_init(3)</B>,<B>curl_easy_init(3)</B>
+
+
+</PRE>
+<H2>BUGS</H2><PRE>
+       Surely there are some, you tell me!
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</PRE>
+<HR>
+<ADDRESS>
+Man(1) output converted with
+<a href="http://www.oac.uci.edu/indiv/ehood/man2html.html">man2html</a>
+</ADDRESS>
+</BODY>
+</HTML>

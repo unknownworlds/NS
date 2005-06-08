@@ -214,6 +214,7 @@ const float kSkulkRotationLookAhead = 75;
 const vec3_t kWallstickingDistanceCheck = { 5, 5, 5 };
 // tankefugl: 0000972 
 vec3_t gSurfaceNormal = { 0, 0, 0 };
+bool canWallJump = false;
 // :tankefugl
 
 #ifdef AVH_CLIENT
@@ -1410,6 +1411,7 @@ void PM_ParticleAxes(vec3_t origin, vec3_t angles)
 
 void NS_UpdateWallsticking()
 {
+	canWallJump = true;
 
     SetUpgradeMask(&pmove->iuser4, MASK_WALLSTICKING, false);
 
@@ -1485,6 +1487,10 @@ void NS_UpdateWallsticking()
 								VectorCopy(wallclimbTrace.endpos, pmove->origin);
 							}
 						}
+					}
+					else
+					{
+						canWallJump = false;
 					}
 
 					// Set wall sticking to true.
@@ -5198,7 +5204,7 @@ void PM_Jump (void)
     }
 
 	// tankefugl: 0000972 walljump
-	if (GetHasUpgrade(pmove->iuser4, MASK_WALLSTICKING) && (pmove->cmd.buttons & IN_JUMP) && !(pmove->oldbuttons & IN_JUMP) && (gSurfaceNormal[2] < 0.3))
+	if (canWallJump && (GetHasUpgrade(pmove->iuser4, MASK_WALLSTICKING) && (pmove->cmd.buttons & IN_JUMP) && !(pmove->oldbuttons & IN_JUMP) && (gSurfaceNormal[2] < 0.3)))
 	{
 		vec3_t theDirectionVec;
 		VectorCopy(pmove->velocity, theDirectionVec);

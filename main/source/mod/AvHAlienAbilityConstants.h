@@ -57,7 +57,9 @@ const float		kChargeROF				= 5.0f;
 
 const int		kAlienCloakRenderMode			= kRenderTransTexture;
 const int		kAlienCloakAmount				= 25;
-const int		kAlienStructureCloakAmount		= 10;
+// puzl: 1061   full cloaking
+const int		kAlienStructureCloakAmount		= 0;
+// :puzl
 
 const int		kAlienSelfCloakingBaseOpacity	= 130;
 

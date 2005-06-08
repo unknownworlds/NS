@@ -24,7 +24,6 @@ const char* getModDirectory(void)
 
 	if(!theIsComputed)
 	{
-		strcpy(theModDirectory, "ns305");
 #ifdef AVH_SERVER
 		GET_GAME_DIR(theModDirectory);
 #else

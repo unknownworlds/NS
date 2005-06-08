@@ -4,6 +4,10 @@
 
 #include "cl_dll/cl_util.h"
 
+#include "cl_dll/wrect.h"
+#include "cl_dll/cl_dll.h"
+#include "dlls/extdll.h"
+
 // Number of characters per row in the font sprite.
 const int kNumCharsPerRow = 16;
 
@@ -22,14 +26,13 @@ bool AvHFont::Load(const char* inFileName)
     theSpriteFileName += ".spr";
 
     std::string theWidthFileName;
-    theWidthFileName  = getModDirectory();
-    theWidthFileName += "/";
-    theWidthFileName += inFileName;
+    theWidthFileName = inFileName;
     theWidthFileName += ".dat";
     
-    FILE* file = fopen(theWidthFileName.c_str(), "rb");
+	int length=0;
+	char *fontFileContents = (char *)gEngfuncs.COM_LoadFile( (char *)theWidthFileName.c_str(), 5, &length);
 
-    if (file != NULL)
+    if ( fontFileContents && length )
     {
 
         struct LABC
@@ -39,17 +42,17 @@ bool AvHFont::Load(const char* inFileName)
             long c;
         };
 
-        LABC labc[256];
-        fread(labc, sizeof(LABC), 256, file);
+        LABC *labc=(LABC *)fontFileContents;
+//        fread(labc, sizeof(LABC), 256, file);
 
-        for (int i = 0; i < 256; ++i)
+        for (int i = 0; i < 256 && i < (length/sizeof(LABC)) ; ++i)
         {
             mCharWidth[i].a = labc[i].a;
             mCharWidth[i].b = labc[i].b;
             mCharWidth[i].c = labc[i].c;
         }
         
-        fclose(file);
+        gEngfuncs.COM_FreeFile(fontFileContents);
     }
     else
     {

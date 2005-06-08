@@ -12,6 +12,7 @@
 #include "mod/AvHPlayerUpgrade.h"
 #include "mod/AvHSpriteAPI.h"
 #include "mod/AvHSprites.h"
+#include "mod/AvHClientVariables.h"
 
 using std::string;
 
@@ -414,14 +415,30 @@ void AvHOverviewMap::KillOldAlerts(float inCurrentTime)
 void AvHOverviewMap::DrawMiniMap(const DrawInfo& inDrawInfo)
 {
 
+	// puzl: 1064
+	// Use labelled minimaps if cl_labelmaps is 1
+
     // Load the mini-map sprite if it's not already loaded.
+	static string lastMiniMapName="";
+	if ( mMapName != "") {
+		int drawLabels=CVAR_GET_FLOAT(kvLabelMaps);
+		string theMiniMapName = AvHMiniMap::GetSpriteNameFromMap(ScreenWidth(), mMapName, drawLabels);
+		if ( lastMiniMapName != theMiniMapName )
+		{
+			mMiniMapSprite = Safe_SPR_Load(theMiniMapName.c_str());
 
-    if (!mMiniMapSprite && (mMapName != ""))
-    {
-        string theMiniMapName = AvHMiniMap::GetSpriteNameFromMap(ScreenWidth(), mMapName);
-        mMiniMapSprite = Safe_SPR_Load(theMiniMapName.c_str());
-    }
+			// We want to preserve the last minimap even if we fail.  There's no point in failing again until the player
+			// changes the value of the cvar.
+			lastMiniMapName=theMiniMapName;
 
+			// Draw normal minimap if no labelled map exists ( for custom maps )
+			if ( !mMiniMapSprite && drawLabels ) {
+				theMiniMapName = AvHMiniMap::GetSpriteNameFromMap(ScreenWidth(), mMapName, 0);
+				mMiniMapSprite = Safe_SPR_Load(theMiniMapName.c_str());
+			}
+		}
+	}
+	// :puzl
     if (!mMiniMapSprite)
     {
         return;

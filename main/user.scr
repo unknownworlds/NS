@@ -49,6 +49,13 @@ DESCRIPTION INFO_OPTIONS
 		SetInfo
 	}
 
+	"cl_labelmaps"
+	{
+		"Draw location names"
+		{ BOOL }
+		{ "1" }
+	}
+
 	"cl_centerentityid"
 	{
 		"Center player names"

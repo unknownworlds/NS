@@ -218,13 +218,18 @@ bool AvHMiniMap::Process()
 
 
 #ifdef AVH_CLIENT
-string AvHMiniMap::GetSpriteNameFromMap(int inSpriteWidth, const string& inMapName)
+string AvHMiniMap::GetSpriteNameFromMap(int inSpriteWidth, const string& inMapName, int useLabels)
 {
 	char theWidthString[128];
 	sprintf(theWidthString, "%d", inSpriteWidth);
-	
-	string theMiniMapName = kMiniMapSpritesDirectory + string("/") /*+ string(theWidthString)*/ + inMapName + string(".spr");
-	//string theMiniMapName = kMiniMapSpritesDirectory + string("/") + inMapName + string(".spr");
+	// puzl: 1064
+	// insert _labelled into the filename before ".spr"
+	string extraname="";
+	if ( useLabels == 1 ) {
+		extraname="_labelled";
+	}
+	string theMiniMapName = kMiniMapSpritesDirectory + string("/") /*+ string(theWidthString)*/ + inMapName + extraname + string(".spr");
+	// :puzl
 	return theMiniMapName;
 }
 
@@ -325,7 +330,10 @@ bool AvHMiniMap::WriteMapToSprite()
 	if(!this->GetIsProcessing())
 	{
 		// Open file
-		string theSpriteFileName = string(getModDirectory()) + string("/") + GetSpriteNameFromMap(0, this->mMapName);
+		// puzl: 1064
+		// We always want to use the normal filename when generating a minimap
+		string theSpriteFileName = string(getModDirectory()) + string("/") + GetSpriteNameFromMap(0, this->mMapName, 0);
+		// :puzl
 		FILE* theFile = fopen(theSpriteFileName.c_str(), "wb");
 		if(theFile)
 		{

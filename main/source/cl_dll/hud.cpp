@@ -33,7 +33,7 @@
 
 #include "mod/AvHNetworkMessages.h"
 #include "ui/ChatPanel.h"
-
+#include "mod/AvHClientVariables.h"
 // tankefugl: duck toggle
 bool g_bDuckToggled;
 // :tankefugl
@@ -207,6 +207,7 @@ void CHud :: Init( void )
 	cl_lw = gEngfuncs.pfnGetCvarPointer( "cl_lw" );
 
     CVAR_CREATE( "cl_showspeed", "0", 0);
+	CVAR_CREATE( kvLabelMaps, "0", FCVAR_ARCHIVE);
 
 	m_pSpriteList = NULL;
 

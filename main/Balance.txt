@@ -27,9 +27,9 @@
 #define kArmoryCost 10
 #define kArmoryHealth 2400
 #define kArmoryUpgradeCost 30
-#define kArmoryUpgradeTime 180
+#define kArmoryUpgradeTime 160
 #define kArmsLabBuildTime 19
-#define kArmsLabCost 25
+#define kArmsLabCost 20
 #define kArmsLabHealth 2200
 #define kBalanceAverageTeamSize 6
 #define kBalanceFuncResourceTime 15
@@ -98,7 +98,7 @@
 #define kElectricalUpgradeResearchTime 30
 #define kEnsnareTime 2
 #define kEvolutionCost 0
-#define kEvolutionGestateTime 2
+#define kEvolutionGestateTime 3
 #define kFadeArmorUpgrade 100
 #define kFadeBaseArmor 150
 #define kFadeBaseSpeed 240
@@ -154,7 +154,7 @@
 #define kHeavyArmorAbsorbPercent 95
 #define kHeavyArmorCost 15
 #define kHeavyArmorResearchCost 40
-#define kHeavyArmorResearchTime 100
+#define kHeavyArmorResearchTime 110
 #define kHiveBuildTime 180
 #define kHiveCost 40
 #define kHiveHealRadius 500
@@ -166,7 +166,7 @@
 #define kInfantryPortalHealth 2500
 #define kJetpackCost 15
 #define kJetpacksResearchCost 35
-#define kJetpacksResearchTime 50
+#define kJetpacksResearchTime 60
 #define kKNDamage 30
 #define kKillRewardMax 3
 #define kKillRewardMin 1
@@ -210,7 +210,7 @@
 #define kNumSameAlienStructuresAllowedInRadius 8
 #define kNumWebsAllowedInRadius 8
 #define kObservatoryBuildTime 15
-#define kObservatoryCost 20
+#define kObservatoryCost 15
 #define kObservatoryHealth 1700
 #define kObservatoryXYDetectionRadius 900
 #define kOffenseChamberBuildTime 11
@@ -277,7 +277,7 @@
 #define kShotgunCost 10
 #define kSiegeBuildTime 10
 #define kSiegeCost 15
-#define kSiegeDamage 380
+#define kSiegeDamage 400
 #define kSiegeHealth 2000
 #define kSiegeROF 4
 #define kSiegeTurretRange 1100
@@ -415,7 +415,7 @@
 #define kParasiteEnergyCost 0.30
 #define kParasiteROF 0.50
 #define kPhaseGateDelay 2.00
-#define kPhaseGateDepartureInterval 0.80
+#define kPhaseGateDepartureInterval 0.50
 #define kPrimalScreamDamageModifier 0.30
 #define kPrimalScreamDuration 4.00
 #define kPrimalScreamEnergyCost 0.45

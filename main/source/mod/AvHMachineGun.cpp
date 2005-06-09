@@ -5,7 +5,7 @@
 // Charles G. Cleveland, or in accordance with the terms and conditions stipulated in
 // the agreement/contract under which the contents have been supplied.
 //
-// Purpose: 
+// Purpose:
 //
 // $Workfile: AvHMachineGun.cpp $
 // $Date: 2002/11/22 21:28:16 $
@@ -147,24 +147,24 @@ void AvHMachineGun::Precache()
 	AvHMarineWeapon::Precache();
 
 	PRECACHE_UNMODIFIED_MODEL(kMGEjectModel);
-	
+
 	PRECACHE_UNMODIFIED_SOUND(kMGFireSound1);
 	PRECACHE_UNMODIFIED_SOUND(kMGReloadSound);
-	
+
 	PRECACHE_UNMODIFIED_MODEL(kGenericWallpuff);
-	
+
 	this->mEvent = PRECACHE_EVENT(1, kMGEventName);
 }
 
 
-void AvHMachineGun::Spawn() 
-{ 
-    AvHMarineWeapon::Spawn(); 
+void AvHMachineGun::Spawn()
+{
+    AvHMarineWeapon::Spawn();
 
 	Precache();
 
 	this->m_iId = AVH_WEAPON_MG;
-	this->m_iDefaultAmmo = BALANCE_VAR(kMGMaxClip)*BALANCE_VAR(kMarineSpawnClips);
+	this->m_iDefaultAmmo = BALANCE_VAR(kMGMaxClip)*(BALANCE_VAR(kMarineSpawnClips) + 1);
 
     // Set our class name
 	this->pev->classname = MAKE_STRING(kwsMachineGun);
@@ -172,4 +172,4 @@ void AvHMachineGun::Spawn()
 	SET_MODEL(ENT(this->pev), kMGWModel);
 
 	FallInit();// get ready to fall down.
-} 
+}

@@ -5,7 +5,7 @@
 // Charles G. Cleveland, or in accordance with the terms and conditions stipulated in
 // the agreement/contract under which the contents have been supplied.
 //
-// Purpose: 
+// Purpose:
 //
 // $Workfile: AvHPistol.cpp $
 // $Date: 2002/11/22 21:28:17 $
@@ -153,7 +153,7 @@ bool AvHPistol::GetHasMuzzleFlash() const
 }
 
 bool AvHPistol::GetMustPressTriggerForEachShot() const
-{ 
+{
 	return true;
 }
 
@@ -170,19 +170,19 @@ void AvHPistol::Precache()
 	PRECACHE_UNMODIFIED_SOUND(kHGFireSound1);
 	PRECACHE_UNMODIFIED_SOUND(kHGReloadSound);
 	PRECACHE_UNMODIFIED_MODEL(kGenericWallpuff);
-	
+
 	this->mEvent = PRECACHE_EVENT(1, kHGEventName);
 }
 
 
-void AvHPistol::Spawn() 
-{ 
-    AvHMarineWeapon::Spawn(); 
+void AvHPistol::Spawn()
+{
+    AvHMarineWeapon::Spawn();
 
 	Precache();
 
 	this->m_iId = AVH_WEAPON_PISTOL;
-	this->m_iDefaultAmmo = BALANCE_VAR(kHGMaxClip)*BALANCE_VAR(kMarineSpawnClips);
+	this->m_iDefaultAmmo = BALANCE_VAR(kHGMaxClip)*(BALANCE_VAR(kMarineSpawnClips) + 1);
 
     // Set our class name
 	this->pev->classname = MAKE_STRING(kwsPistol);
@@ -190,5 +190,5 @@ void AvHPistol::Spawn()
 	SET_MODEL(ENT(this->pev), kHGWModel);
 
 	FallInit();// get ready to fall down.
-} 
+}
 

@@ -6,6 +6,7 @@
 ; ns_altair
 maps/ns_altair.*
 sprites/minimaps/ns_altair.spr
+sprites/minimaps/ns_altair_labelled.spr
 
 ; ns_ayumi
 ns_ayumi.wad
@@ -13,7 +14,7 @@ maps/ns_ayumi.*
 sound/ns_ayumi/*.*
 sprites/minimaps/ns_ayumi.spr
 sprites/ns_ayumi/*.spr
-
+sprites/minimaps/ns_ayumi_labelled.spr
 
 ; ns_bast
 ns_bast.wad
@@ -21,24 +22,25 @@ maps/ns_bast.*
 models/ns_bast/*.mdl
 sprites/minimaps/ns_bast.spr
 sprites/ns_bast/*.spr
-
+sprites/minimaps/ns_bast_labelled.spr
 
 ; ns_caged
 maps/ns_caged.*
 sound/ns_caged/*.wav
 sprites/minimaps/ns_caged.spr
-
+sprites/minimaps/ns_caged_labelled.spr
 
 ; ns_eclipse
 ns_eclipse.wad
 maps/ns_eclipse.*
 sprites/minimaps/ns_eclipse.spr
+sprites/minimaps/ns_eclipse_labelled.spr
 
 ; ns_eon
 ns_eon.wad
 maps/ns_eon.*
 sprites/minimaps/ns_eon.spr
-
+sprites/minimaps/ns_eon_labelled.spr
 
 ; ns_hera
 ns_hera.wad
@@ -47,14 +49,14 @@ models/ns_hera/*.mdl
 models/chair1.mdl
 sprites/minimaps/ns_hera.spr
 sprites/hera_fog.spr
-
+sprites/minimaps/ns_hera_labelled.spr
 
 ; ns_lost
 ns_lost.wad
 maps/ns_lost.*
 sound/ns_lost/*.mp3
 sprites/minimaps/ns_lost.spr
-
+sprites/minimaps/ns_lost_labelled.spr
 
 ; ns_metal
 ns_metal.wad
@@ -62,7 +64,7 @@ maps/ns_metal.*
 ;models/ns_metal/*.mdl
 sprites/minimaps/ns_metal.spr
 sprites/ns_metal/*.spr
-
+sprites/minimaps/ns_metal_labelled.spr
 
 ; ns_nancy
 ns_nancy.wad
@@ -70,7 +72,7 @@ maps/ns_nancy.*
 models/ns_nancy/*.mdl
 sound/ns_nancy/*.wav
 sprites/minimaps/ns_nancy.spr
-
+sprites/minimaps/ns_nancy_labelled.spr
 
 ; ns_nothing
 ns_nothing.wad
@@ -78,14 +80,14 @@ maps/ns_nothing.*
 models/ns_nothing/*.mdl
 sprites/minimaps/ns_nothing.spr
 sprites/ns_nothing/*.spr
-
+sprites/minimaps/ns_nothing_labelled.spr
 
 ; ns_origin
 maps/ns_origin.*
 models/ns_origin/*.mdl
 sound/ns_origin/*.wav
 sprites/minimaps/ns_origin.spr
-
+sprites/minimaps/ns_origin_labelled.spr
 
 ; ns_tanith
 ns_tanith.wad
@@ -93,12 +95,12 @@ maps/ns_tanith.*
 models/ns_tanith/*.mdl
 sprites/minimaps/ns_tanith.spr
 sprites/ns_tanith/*.spr
-
+sprites/minimaps/ns_tanith_labelled.spr
 
 ; ns_veil
 maps/ns_veil.*
 sprites/minimaps/ns_veil.spr
-
+sprites/minimaps/ns_veil_labelled.spr
 
 ; 
 ; Combat Maps

@@ -1375,7 +1375,10 @@ void AvHTraceLine(const Vector& vecStart, const Vector& vecEnd, IGNORE_MONSTERS 
 
             edict_t* theEdict = pList[i]->edict();
 
-            if (theEdict != pentIgnore)
+			
+			// tankefugl: Added check to remove testing of spectators
+			if ((!(pList[i]->pev->iuser1 > 0 || pList[i]->pev->flags & FL_SPECTATOR)) && theEdict != pentIgnore)
+//            if (theEdict != pentIgnore)
             {
 
                 float t = NS_TraceLineAgainstEntity(pList[i]->entindex(), gpGlobals->time, theRayOrigin, theRayDirection);        

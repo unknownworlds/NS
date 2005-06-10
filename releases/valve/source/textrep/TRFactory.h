@@ -18,7 +18,7 @@
 //===============================================================================
 #ifndef TRFACTORY_H
 #define TRFACTORY_H
-
+#include <strstream>
 #include "textrep/TRDescription.h"
 #include "string.h"
 
@@ -28,11 +28,11 @@ class TRFactory
 {
 public:
     // Read all the descriptions from the file
-    static  bool    ReadDescriptions(const string& inRelativePathFilename, TRDescriptionList& outDescriptionList);
+    static  bool    ReadDescriptions(strstream& trstream, TRDescriptionList& outDescriptionList);
     static  bool    WriteDescriptions(const string& inRelativePathFilename, const TRDescriptionList& inDescriptionList, const string& inHeader);
 
 private:
-    static  bool    ReadDescription(fstream& infile, TRDescription& outDescription);
+    static  bool    ReadDescription(strstream& infile, TRDescription& outDescription);
     static  bool    WriteDescription(fstream& outfile, const TRDescription& inDescription);
 
 	static  bool	charIsWhiteSpace(char inChar);

@@ -49,7 +49,7 @@ cl_enginefunc_t gEngfuncs;
 //UIHud gHUD("StratHL/ui.txt", new AvHUIFactory());
 
 AvHHud& getHUD() {
-	static AvHHud theGlobalHud( (string(getModDirectory()) + string("/ui.txt")).c_str(), new AvHUIFactory());
+	static AvHHud theGlobalHud( "ui.txt", new AvHUIFactory());
 	return theGlobalHud;
 }
 

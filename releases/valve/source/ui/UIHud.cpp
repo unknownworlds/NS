@@ -2,6 +2,9 @@
 #include "textrep/TRFactory.h"
 #include "cl_dll/cl_util.h"
 #include "cl_dll/hud.h"
+#include "cl_dll/wrect.h"
+#include "cl_dll/cl_dll.h"
+#include "dlls/extdll.h"
 #include "vgui_Scheme.h"
 #include "vgui_Panel.h"
 #include "mod/AvHClientVariables.h"
@@ -39,15 +42,24 @@ UIHud::UIHud(const string& inFilename, UIFactory* inFactory) : CHud(), mFilename
     // Init cursor variables
     this->mArrowBitmap = NULL;
     this->mArrowCursor = NULL;
+    // Open file specified by relative path name
+	char		*pbuffer = NULL;
+	int len;
+	// Read them in from proper file
+	pbuffer = (char *)gEngfuncs.COM_LoadFile( (char *)inFilename.c_str(), 5, &len ); // Use malloc
 
-	if(TRFactory::ReadDescriptions(mFilename, this->mDescriptionList))
-	{
-	}
-	else
-	{
-		// TODO: Emit error
-	}
+	if ( pbuffer ) {
+		strstream trstream(pbuffer, len);
 
+		if(TRFactory::ReadDescriptions(trstream, this->mDescriptionList))
+		{
+		}
+		else
+		{
+			// TODO: Emit error
+		}
+		gEngfuncs.COM_FreeFile(pbuffer);
+	}
     this->mSchemeManager = NULL;
 }
 

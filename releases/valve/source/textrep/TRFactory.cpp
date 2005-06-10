@@ -25,35 +25,30 @@
 
 const int maxLineLength = 256;
 
-bool TRFactory::ReadDescriptions(const string& inRelativePathFilename, TRDescriptionList& outDescriptionList)
+bool TRFactory::ReadDescriptions(strstream &trstream, TRDescriptionList& outDescriptionList)
 {
 	bool theSuccess = false;
 	bool theDescriptionRead = false;
+	int count=0;
+	do
+	{
+		// Try to read the next description in
+		TRDescription theNextDescription;
+		theDescriptionRead = ReadDescription(trstream, theNextDescription);
 
-    // Open file specified by relative path name
-    fstream infile;
-    infile.open(inRelativePathFilename.c_str(), ios::in);
-
-    if(infile.is_open())
-    {
-		do
+		// add it to the description list
+		if(theDescriptionRead)
 		{
-			// Try to read the next description in
-			TRDescription theNextDescription;
-			theDescriptionRead = ReadDescription(infile, theNextDescription);
+			count++;
+			// Function is successful if at least one description was found
+			outDescriptionList.push_back(theNextDescription);
+			theSuccess = true;
+		}
+		else {
+			int a=0;
+		}
 
-	        // add it to the description list
-			if(theDescriptionRead)
-			{
-				// Function is successful if at least one description was found
-				outDescriptionList.push_back(theNextDescription);
-				theSuccess = true;
-			}
-
-		} while(theDescriptionRead);
-
-        infile.close();
-    }
+	} while(theDescriptionRead);
 	return theSuccess;
 }
 
@@ -93,7 +88,7 @@ bool TRFactory::WriteDescriptions(const string& inRelativePathFilename, const TR
 }
 
 // TODO: Add case-insensitivity
-bool TRFactory::ReadDescription(fstream& infile, TRDescription& outDescription)
+bool TRFactory::ReadDescription(strstream& infile, TRDescription& outDescription)
 {
     bool theSuccess = false;
     string currentLine;

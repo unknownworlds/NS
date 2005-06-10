@@ -2059,22 +2059,37 @@ void AvHGamerules::PreWorldPrecacheInitParticles()
 
 	// Load up the particle systems from modname.ps then levelname.ps
 	TRDescriptionList theDescriptionList;
-	string theLevelBaseSystemFile = string(getModDirectory()) + "/" + kBasePSName;
-    if(TRFactory::ReadDescriptions(theLevelBaseSystemFile, theDescriptionList))
+
+	char		*pbuffer = NULL;
+	int len;
+	// Read them in from proper file
+	pbuffer = (char *)LOAD_FILE_FOR_ME( kBasePSName, &len ); // Use malloc
+	ASSERT(pbuffer);
+
+	strstream trstream(pbuffer, len);
+	if(TRFactory::ReadDescriptions(trstream, theDescriptionList))
 	{
 		gParticleTemplateList.CreateTemplates(theDescriptionList);
 	}
 	theDescriptionList.clear();
+	FREE_FILE(pbuffer);
 
 	// TODO: the level name isn't populated yet for some reason
 	const char* theCStrLevelName = STRING(gpGlobals->mapname);
 	if(theCStrLevelName && !FStrEq(theCStrLevelName, ""))
 	{
 		string theLevelName = theCStrLevelName;
-		string theLevelParticleSystemFile = string(getModDirectory()) + string("/") + theLevelName + string(".ps");
-		if(TRFactory::ReadDescriptions(theLevelParticleSystemFile, theDescriptionList))
-		{
-			gParticleTemplateList.CreateTemplates(theDescriptionList);
+		string theLevelParticleSystemFile = theLevelName + string(".ps");
+		// Read them in from proper file
+		pbuffer = (char *)LOAD_FILE_FOR_ME( (char *)theLevelParticleSystemFile.c_str(), &len ); // Use malloc
+		if ( pbuffer ) {
+
+			strstream trstream(pbuffer, len);
+			if(TRFactory::ReadDescriptions(trstream, theDescriptionList))
+			{
+				gParticleTemplateList.CreateTemplates(theDescriptionList);
+			}
+			FREE_FILE(pbuffer);
 		}
 	}
 }

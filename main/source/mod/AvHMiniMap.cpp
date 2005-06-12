@@ -62,7 +62,7 @@ bool AvHMiniMap::GetIsProcessing(float* outPercentageDone) const
 {
 	bool theIsProcessing = false;
 	
-	if(this->mIsProcessing)
+	if(this->mIsProcessing || (this->mNumSamplesProcessed == this->mNumSamplesToProcess && this->mNumSamplesProcessed > 0))
 	{
 		if(outPercentageDone)
 		{
@@ -327,7 +327,7 @@ bool AvHMiniMap::WriteMapToSprite()
 {
 	bool theSuccess = false;
 
-	if(!this->GetIsProcessing())
+	if(this->GetIsProcessing())
 	{
 		// Open file
 		// puzl: 1064
@@ -434,6 +434,14 @@ void AvHMiniMap::WriteMapToSprite(FILE* inFileHandle)
 bool AvHMiniMap::WriteSpritesIfJustFinished()
 {
 	bool theSuccess = false;
+
+	// test
+	char test[255];
+	sprintf(test, "this->GetIsProcessing() = %d, this->mNumSamplesProcessed = %d, this->mNumSamplesToProcess = %d\n", this->GetIsProcessing(), this->mNumSamplesProcessed, this->mNumSamplesToProcess);
+	gEngfuncs.pfnConsolePrint(test);
+
+	// :test
+
 
 	if(this->GetIsProcessing() && (this->mNumSamplesProcessed == this->mNumSamplesToProcess))
 	{

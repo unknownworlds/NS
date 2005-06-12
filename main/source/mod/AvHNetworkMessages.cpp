@@ -1182,6 +1182,7 @@ union float_converter
 					height = READ_LONG();
 					*map = new uint8[num_samples];
 					finished = false;
+					break;
 				case 1:
 				{
 					int packet_samples = READ_BYTE();
@@ -1189,9 +1190,12 @@ union float_converter
 					{
 						(*map)[processed_samples++] = READ_BYTE();
 					}
+					finished = false;
+					break;
 				}
 				case 2:
 					finished = true;
+					break;
 			}
 		END_READ();
 	}

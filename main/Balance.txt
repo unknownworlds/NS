@@ -103,7 +103,7 @@
 #define kFadeBaseArmor 150
 #define kFadeBaseSpeed 240
 #define kFadeCost 50
-#define kFadeGestateTime 23
+#define kFadeGestateTime 25
 #define kFadeHealth 300
 #define kFootstepFadeScalar 1300
 #define kFootstepGorgeScalar 500
@@ -127,7 +127,7 @@
 #define kGorgeBaseArmor 50
 #define kGorgeBaseSpeed 170
 #define kGorgeCost 10
-#define kGorgeGestateTime 17
+#define kGorgeGestateTime 10
 #define kGorgeHealth 150
 #define kGrenDetonateTime 2
 #define kGrenadeDamage 125
@@ -175,7 +175,7 @@
 #define kLerkBaseArmor 30
 #define kLerkBaseSpeed 175
 #define kLerkCost 30
-#define kLerkGestateTime 20
+#define kLerkGestateTime 15
 #define kLerkHealth 125
 #define kMGDamage 10
 #define kMGMaxAmmo 250
@@ -221,7 +221,7 @@
 #define kOnosBaseArmor 600
 #define kOnosBaseSpeed 240
 #define kOnosCost 75
-#define kOnosGestateTime 38
+#define kOnosGestateTime 35
 #define kOnosHealth 700
 #define kOrganicStructureHealRate 5
 #define kParasiteDamage 10
@@ -285,7 +285,7 @@
 #define kSkulkBaseArmor 10
 #define kSkulkBaseSpeed 290
 #define kSkulkCost 0
-#define kSkulkGestateTime 7
+#define kSkulkGestateTime 3
 #define kSkulkHealth 70
 #define kSpikeDamage 16
 #define kSpitGDamage 30

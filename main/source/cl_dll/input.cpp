@@ -1327,7 +1327,12 @@ int CL_ButtonBits( int bResetState )
 	{
 		bits |= IN_ATTACK;
 	}
-	
+
+	if ( in_speed.state & 3 )
+	{
+		bits |= IN_WALK;
+	}
+
 	// tankefugl: duck toggle
 	if ( g_bDuckToggled )
 	{
@@ -1416,6 +1421,7 @@ int CL_ButtonBits( int bResetState )
 	if ( bResetState )
 	{
 		in_attack.state &= ~2;
+		in_speed.state &= ~2;
 		in_duck.state &= ~2;
 		in_jump.state &= ~2;
 		in_forward.state &= ~2;

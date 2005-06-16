@@ -1469,12 +1469,12 @@ void NS_UpdateWallsticking()
 				{
 					//float dotNormalView = DotProduct(pmove->forward, theSurfaceNormal);
 					vec3_t tempNormal = {0, 0, 0};
-					bool checkedDownOffset = NS_CheckOffsetFromOrigin(0, 0, theMinPoint[2] * 2, tempNormal);
+					bool checkedDownOffset = NS_CheckOffsetFromOrigin(0, 0, theMinPoint[2], tempNormal);
 		            if (/*dotNormalView < 0.7 && */(checkedDownOffset == false))
 					{
 						VectorCopy(theSurfaceNormal, gSurfaceNormal);
 
-						if (theSurfaceNormal[2] < 0.7) 
+						if (/*theSurfaceNormal[2] < 0.7 && */(pmove->cmd.buttons & IN_WALK)) 
 						{
 							vec3_t theDispVect;
 							VectorScale(theSurfaceNormal, theMinPoint[0], theDispVect);
@@ -4366,7 +4366,7 @@ void PM_AlienAbilities()
 			AvHMUGetEnergyCost(AVH_ABILITY_LEAP, theEnergyCost);
 			// tankefugl: 0000972 
 			// Add highjacked "watertime" to release leaping skulk from wall
-			pmove->waterjumptime = 75;
+			// pmove->waterjumptime = 75;
 			// :tankefugl
 		}
 
@@ -5207,8 +5207,8 @@ void PM_Jump (void)
 	if (canWallJump && (GetHasUpgrade(pmove->iuser4, MASK_WALLSTICKING) && (pmove->cmd.buttons & IN_JUMP) && !(pmove->oldbuttons & IN_JUMP) && (gSurfaceNormal[2] < 0.3)))
 	{
 		vec3_t theDirectionVec;
-		VectorCopy(pmove->velocity, theDirectionVec);
-		if (Length(theDirectionVec) == 0.0f)
+		//VectorCopy(pmove->velocity, theDirectionVec);
+		//if (Length(theDirectionVec) == 0.0f)
 			VectorCopy(pmove->forward, theDirectionVec);
 
 		VectorNormalize(theDirectionVec);

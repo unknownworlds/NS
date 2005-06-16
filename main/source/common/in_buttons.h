@@ -30,7 +30,7 @@
 #define IN_MOVELEFT	(1 << 9)
 #define IN_MOVERIGHT (1 << 10)
 #define IN_ATTACK2	(1 << 11)
-#define IN_RUN      (1 << 12)
+#define IN_WALK      (1 << 12)
 #define IN_RELOAD	(1 << 13)
 #define IN_ALT1		(1 << 14)
 #define IN_SCORE	(1 << 15)   // Used by client.dll for when scoreboard is held down

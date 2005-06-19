@@ -655,7 +655,14 @@ void ClientCommand( edict_t *pEntity )
 		// max total length is 192 ...and we're adding a string below ("Unknown command: %s\n")
 		strncpy( command, pcmd, 127 );
 		command[127] = '\0';
-
+		// puzl: 1071
+		// Remove printf formatting
+		for ( int i=0; i < 127; i++ ) {
+			if ( command[i] == '%' ) {
+				command[i] = ' ';
+			}
+		}
+		// :puzl
 		// tell the user they entered an unknown command
 		ClientPrint( &pEntity->v, HUD_PRINTCONSOLE, UTIL_VarArgs( "Unknown command: %s\n", command ) );
 	}

@@ -12,7 +12,7 @@
 #include "mod/AvHPlayerUpgrade.h"
 #include "mod/AvHSpriteAPI.h"
 #include "mod/AvHSprites.h"
-
+#include "mod/AvHClientVariables.h"
 using std::string;
 
 
@@ -20,10 +20,10 @@ class DrawingOrderSort
 {
 
 public:
-	
+
 	bool operator()(const DrawableEntity& entity1, const DrawableEntity& entity2)
 	{
-		
+
         // Draw resource nodes all the way on the bottom.
 
 		if (entity1.mUser3 == AVH_USER3_FUNC_RESOURCE)
@@ -52,13 +52,13 @@ public:
 		{
 			return true;
         }
-		
+
         // Draw players on top of structures.
 
         return (entity1.mEntityNumber > entity2.mEntityNumber);
-		
+
 	}
-	
+
 };
 
 AvHOverviewMap::AvHOverviewMap()
@@ -89,9 +89,9 @@ void AvHOverviewMap::Clear()
 
 void AvHOverviewMap::GetSpriteForEntity(const DrawableEntity& entity, int& outSprite, int& outFrame, int& outRenderMode)
 {
-    
+
     outRenderMode = kRenderTransTexture;
-    
+
     if ((this->mUser3 == AVH_USER3_COMMANDER_PLAYER) || (entity.mUser3 == AVH_USER3_UNKNOWN))
     {
         outSprite = Safe_SPR_Load(kCommBlipSprite);
@@ -115,7 +115,7 @@ void AvHOverviewMap::GetColorForEntity(const DrawableEntity& entity, float& outR
     }
     else if (entity.mTeam == TEAM_IND)
     {
-        
+
         if (entity.mUser3 == AVH_USER3_WELD)
         {
             outR = 1.0;
@@ -168,7 +168,7 @@ void AvHOverviewMap::GetColorForEntity(const DrawableEntity& entity, float& outR
                 // Color squads.
 
                 int localPlayerSquad;
-                
+
                 if (g_iUser1 == OBS_NONE)
                 {
                     localPlayerSquad = gHUD.GetCurrentSquad();
@@ -182,7 +182,7 @@ void AvHOverviewMap::GetColorForEntity(const DrawableEntity& entity, float& outR
 
                 if (mUser3 != AVH_USER3_COMMANDER_PLAYER)
                 {
-                    if (entity.mIsLocalPlayer || 
+                    if (entity.mIsLocalPlayer ||
                         (entity.mSquadNumber != 0 &&
                          entity.mSquadNumber == localPlayerSquad))
                     {
@@ -207,7 +207,7 @@ void AvHOverviewMap::GetColorForEntity(const DrawableEntity& entity, float& outR
 
 void AvHOverviewMap::DrawMiniMapEntity(const DrawInfo& inDrawInfo, const DrawableEntity& inEntity)
 {
-	
+
     if (!GetHasData())
 	{
         return;
@@ -229,10 +229,10 @@ void AvHOverviewMap::DrawMiniMapEntity(const DrawInfo& inDrawInfo, const Drawabl
     int theRenderMode;
 
 	GetSpriteForEntity(inEntity, theSprite, theFrame, theRenderMode);
-	
+
     if (theSprite > 0)
 	{
-        
+
         int theSprWidth = SPR_Width(theSprite, theFrame);
 		int theSprHeight = SPR_Height(theSprite, theFrame);
 
@@ -249,7 +249,7 @@ void AvHOverviewMap::DrawMiniMapEntity(const DrawInfo& inDrawInfo, const Drawabl
 
         bool isPlayer = inEntity.mUser3 == AVH_USER3_MARINE_PLAYER || inEntity.mUser3 == AVH_USER3_HEAVY; //heavy used for player in minimap system
 		bool theIsWaypoint = inEntity.mUser3 == AVH_USER3_WAYPOINT;
-	
+
         float w = theSprWidth * scale;
         float h = theSprHeight * scale;
 
@@ -258,13 +258,13 @@ void AvHOverviewMap::DrawMiniMapEntity(const DrawInfo& inDrawInfo, const Drawabl
 
         float x = entityMiniMapX - w / 2.0f;
         float y = entityMiniMapY - h / 2.0f;
-        
+
         if (theIsWaypoint)
         {
-                
+
             float theFractionalLastUpdate = mLastUpdateTime - (int)mLastUpdateTime;
-        
-            if (theFractionalLastUpdate < .25f) 
+
+            if (theFractionalLastUpdate < .25f)
             {
     	        return;
             }
@@ -279,12 +279,12 @@ void AvHOverviewMap::DrawMiniMapEntity(const DrawInfo& inDrawInfo, const Drawabl
             GetColorForEntity(inEntity, r, g, b);
 
             AvHSpriteSetColor(r, g, b);
-            
+
             // If it's the local player, draw the FOV.
 
             if (inEntity.mIsLocalPlayer && mUser3 != AVH_USER3_COMMANDER_PLAYER)
             {
-                
+
                 int theSprite = Safe_SPR_Load("sprites/fov.spr");
                 int theFrame  = 0;
 
@@ -298,7 +298,7 @@ void AvHOverviewMap::DrawMiniMapEntity(const DrawInfo& inDrawInfo, const Drawabl
                 float y2 = entityMiniMapY - h2 / 2;
 
                 AvHSpriteSetRotation(-inEntity.mAngleRadians * 180 / M_PI, x2, y2 + h2 / 2);
-                
+
                 AvHSpriteSetColor(1, 1, 1);
                 AvHSpriteSetRenderMode(kRenderTransAdd);
                 AvHSpriteDraw(theSprite, theFrame, x2, y2, x2 + w2, y2 + h2, 0, 0, 1, 1);
@@ -362,7 +362,7 @@ void AvHOverviewMap::DrawMiniMapEntity(const DrawInfo& inDrawInfo, const Drawabl
                 }
 
                 AvHSpriteSetRenderMode(renderMode);
-                
+
                 float r, g, b;
                 GetColorForEntity(inEntity, r, g, b);
 
@@ -373,7 +373,7 @@ void AvHOverviewMap::DrawMiniMapEntity(const DrawInfo& inDrawInfo, const Drawabl
             }
 
         }
-	
+
     }
 
 }
@@ -414,13 +414,30 @@ void AvHOverviewMap::KillOldAlerts(float inCurrentTime)
 void AvHOverviewMap::DrawMiniMap(const DrawInfo& inDrawInfo)
 {
 
-    // Load the mini-map sprite if it's not already loaded.
+	// puzl: 1064
+	// Use labelled minimaps if cl_labelmaps is 1
 
-    if (!mMiniMapSprite && (mMapName != ""))
-    {
-        string theMiniMapName = AvHMiniMap::GetSpriteNameFromMap(ScreenWidth(), mMapName);
-        mMiniMapSprite = Safe_SPR_Load(theMiniMapName.c_str());
-    }
+    // Load the mini-map sprite if it's not already loaded.
+	static string lastMiniMapName="";
+	if ( mMapName != "") {
+		int drawLabels=CVAR_GET_FLOAT(kvLabelMaps);
+		string theMiniMapName = AvHMiniMap::GetSpriteNameFromMap(ScreenWidth(), mMapName, drawLabels);
+		if ( lastMiniMapName != theMiniMapName )
+		{
+			mMiniMapSprite = Safe_SPR_Load(theMiniMapName.c_str());
+
+			// We want to preserve the last minimap even if we fail.  There's no point in failing again until the player
+			// changes the value of the cvar.
+			lastMiniMapName=theMiniMapName;
+
+			// Draw normal minimap if no labelled map exists ( for custom maps )
+			if ( !mMiniMapSprite && drawLabels ) {
+				theMiniMapName = AvHMiniMap::GetSpriteNameFromMap(ScreenWidth(), mMapName, 0);
+				mMiniMapSprite = Safe_SPR_Load(theMiniMapName.c_str());
+			}
+		}
+	}
+	// :puzl
 
     if (!mMiniMapSprite)
     {
@@ -434,14 +451,14 @@ void AvHOverviewMap::DrawMiniMap(const DrawInfo& inDrawInfo)
     float mapYCenter = (mMapExtents.GetMaxMapY() + mMapExtents.GetMinMapY()) / 2;
 
 	float aspectRatio = mapXSize / mapYSize;
-	
+
     float xScale;
     float yScale;
 
     if(mapXSize > mapYSize)
 	{
 		xScale = 1.0f;
-		yScale = mapYSize / mapXSize;	
+		yScale = mapYSize / mapXSize;
 	}
 	else
 	{
@@ -464,7 +481,7 @@ void AvHOverviewMap::DrawMiniMap(const DrawInfo& inDrawInfo)
     AvHSpriteSetRotation(0, 0, 0);
 
     // TODO this should be based on a flag not the user3
-    
+
     if (mUser3 == AVH_USER3_COMMANDER_PLAYER)
     {
         // Use the small map if it's the commander view.
@@ -499,7 +516,7 @@ void AvHOverviewMap::DrawAlerts(const DrawInfo& inDrawInfo)
 
     int theWidth  = inDrawInfo.mWidth;
     int theHeight = inDrawInfo.mHeight;
-    
+
     AvHSpriteEnableClippingRect(true);
     AvHSpriteSetClippingRect(theX, theY, theX + theWidth, theY + theHeight);
 
@@ -516,7 +533,7 @@ void AvHOverviewMap::DrawAlerts(const DrawInfo& inDrawInfo)
 
     for (unsigned int i = 0; i < mAlertList.size(); ++i)
     {
-        
+
         float maxAlertSize = 5;
 		float minAlertSize = 0.4;
 
@@ -530,11 +547,11 @@ void AvHOverviewMap::DrawAlerts(const DrawInfo& inDrawInfo)
 
         float w = theSprWidth * scale;
         float h = theSprHeight * scale;
-        
+
         float cx = mAlertList[i].mX;
         float cy = mAlertList[i].mY;
-        
-        WorldToMiniMapCoords(inDrawInfo, cx, cy); 
+
+        WorldToMiniMapCoords(inDrawInfo, cx, cy);
 
         float angle = dt * 180;
 
@@ -551,20 +568,20 @@ void AvHOverviewMap::DrawAlerts(const DrawInfo& inDrawInfo)
         AvHSpriteSetRotation(angle, cx, cy);
         AvHSpriteDraw(theSprite, theFrame, cx - w / 2, cy - h / 2, cx + w / 2, cy + h / 2, 0, 0, 1, 1);
     }
-    
+
 }
 
 void AvHOverviewMap::AddAlert(float x, float y)
 {
-    
+
     MapAlert alert;
 
     alert.mStartTime  = mLastUpdateTime;
     alert.mExpireTime = mLastUpdateTime + BALANCE_FVAR(kAlertExpireTime) / 5;
-    
+
     alert.mX = x;
     alert.mY = y;
-    
+
     mAlertList.push_back(alert);
 
 }
@@ -581,11 +598,11 @@ void AvHOverviewMap::Draw(const DrawInfo& inDrawInfo)
 
     AvHSpriteEnableClippingRect(true);
     AvHSpriteSetClippingRect(theX, theY, theX + theCompWidth, theY + theCompHeight);
-    
+
     // Draw the minimap background.
 
     DrawMiniMap(inDrawInfo);
-    
+
     // Draw the entities on the minimap.
 
     if (mUser3 == AVH_USER3_COMMANDER_PLAYER)
@@ -599,33 +616,33 @@ void AvHOverviewMap::Draw(const DrawInfo& inDrawInfo)
 	}
 
     // Draw the way points as entities.
-    
+
     {
-    
+
         for (MapOrderListType::const_iterator theIter = mMapOrderList.begin(); theIter != mMapOrderList.end(); theIter++)
 	    {
             DrawableEntity drawableEntity;
-        
+
             drawableEntity.mUser3 = AVH_USER3_WAYPOINT;
             drawableEntity.mX = theIter->mX;
             drawableEntity.mY = theIter->mY;
-        
+
             DrawMiniMapEntity(inDrawInfo, drawableEntity);
 	    }
-    
+
     }
 
     // Draw the alerts.
 
     DrawAlerts(inDrawInfo);
-  
+
     // Draw the reticle.
 
 	if(this->mUser3 == AVH_USER3_COMMANDER_PLAYER)
 	{
-		
+
         int theFrame = 0;
-		
+
         if (!this->mReticleSprite)
 		{
 			this->mReticleSprite = Safe_SPR_Load(kReticleSprite);
@@ -662,16 +679,16 @@ int AvHOverviewMap::GetEntityAtWorldPosition(float inWorldX, float inWorldY, flo
 
 	for (int i = 0; i < (int)mDrawableEntityList.size(); ++i)
 	{
-                
+
         float dx = mDrawableEntityList[i].mX - inWorldX;
         float dy = mDrawableEntityList[i].mY - inWorldY;
-        
+
         if (dx * dx + dy * dy < inRadius * inRadius)
         {
             return mDrawableEntityList[i].mEntityNumber;
         }
-	
-	}    
+
+	}
 
     return 0;
 
@@ -726,25 +743,25 @@ void AvHOverviewMap::Update(float inCurrentTime)
 
 void AvHOverviewMap::UpdateDrawData(float inCurrentTime)
 {
-    
+
     int theLocalPlayerIndex;
-    
+
     if (g_iUser1 == OBS_NONE)
     {
 	    cl_entity_s* thePlayer = gEngfuncs.GetLocalPlayer();
-	    theLocalPlayerIndex = thePlayer->index;    
+	    theLocalPlayerIndex = thePlayer->index;
     }
     else
     {
         theLocalPlayerIndex = g_iUser2;
     }
-    
+
     cl_entity_s* thePlayer = gEngfuncs.GetEntityByIndex(theLocalPlayerIndex);
     mTeam = (AvHTeamNumber)(thePlayer->curstate.team);
 
-	// Clear list of drawable entities 
+	// Clear list of drawable entities
 	this->mDrawableEntityList.clear();
-	
+
 	// Get all entities
 	MapEntityMap theEntityList;
 	gHUD.GetEntityHierarchy().GetEntityInfoList(theEntityList);
@@ -773,11 +790,11 @@ void AvHOverviewMap::UpdateDrawData(float inCurrentTime)
 
         // Get additional information about the entity from the client state.
 
-		cl_entity_t* clientEntity = gEngfuncs.GetEntityByIndex(theDrawableEntity.mEntityNumber);        
-        
+		cl_entity_t* clientEntity = gEngfuncs.GetEntityByIndex(theDrawableEntity.mEntityNumber);
+
         if(clientEntity)
 		{
-		
+
 			if (clientEntity->index >= 32)
 			{
 				theDrawableEntity.mAngleRadians = clientEntity->angles[1] * M_PI / 180;
@@ -785,19 +802,19 @@ void AvHOverviewMap::UpdateDrawData(float inCurrentTime)
 
 			// Update the information for this entity from the client information
 			// if they're in the local player's PVS.
-        
+
 			// We really want to check if the client data is more recent than the
 			// minimap data, but I don't know how to get the timestamp on the minimap
 			// data.
-			
+
 			if (clientEntity->curstate.messagenum >= thePlayer->curstate.messagenum)
 			{
-			
+
 				//theDrawableEntity.mUser3 = (AvHUser3)(clientEntity->curstate.iuser3);
 
 				// Brush entities don't have the correct position information, so
 				// don't update them from the client data.
-            
+
 
 				if (theDrawableEntity.mUser3 != AVH_USER3_WELD)
 				{
@@ -809,28 +826,28 @@ void AvHOverviewMap::UpdateDrawData(float inCurrentTime)
 			}
 			else
 			{
-			
+
 				// If the difference between the minimap position and the client data
 				// position is less than the minimap quantization error, then use
 				// the client position to avoid popping when the entity goes out of the
 				// PVS.
-			
+
 				float dx = fabs(theDrawableEntity.mX - clientEntity->origin.x);
 				float dy = fabs(theDrawableEntity.mY - clientEntity->origin.y);
-			
+
 				if (dx < kPositionNetworkConstant && dy < kPositionNetworkConstant)
 				{
 					theDrawableEntity.mX = clientEntity->origin.x;
 					theDrawableEntity.mY = clientEntity->origin.y;
 				}
-			
+
 			}
 
 			if (theDrawableEntity.mUser3 != AVH_USER3_COMMANDER_PLAYER)
 			{
     			this->mDrawableEntityList.push_back(theDrawableEntity);
 			}
-		
+
 		}
 	}
 
@@ -849,7 +866,7 @@ void AvHOverviewMap::UpdateOrders(const OrderListType& inOrderList, const Entity
     {
         return;
     }
-    
+
     for (OrderListType::const_iterator theIter = inOrderList.begin(); theIter != inOrderList.end(); ++theIter)
     {
 
@@ -861,18 +878,18 @@ void AvHOverviewMap::UpdateOrders(const OrderListType& inOrderList, const Entity
 		{
 		    theDrawWaypoint = true;
 	    }
-    
+
         if (theDrawWaypoint)
         {
 
             vec3_t position;
             theIter->GetLocation(position);
-            
+
             MapOrder mapOrder;
 
             mapOrder.mX = position[0];
             mapOrder.mY = position[1];
-            
+
             mMapOrderList.push_back(mapOrder);
 
         }

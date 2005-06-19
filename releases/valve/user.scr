@@ -32,7 +32,7 @@
 
 
 // Half-Life User Info Configuration Layout Script (stores last settings chosen, too)
-// File generated:  Mon Jul 05 15:16:31 AM
+// File generated:  Sun Jun 19 15:41:20 AM
 //
 //
 // Cvar	-	Setting
@@ -49,11 +49,18 @@ DESCRIPTION INFO_OPTIONS
 		SetInfo
 	}
 
+	"cl_labelmaps"
+	{
+		"Draw location names"
+		{ BOOL }
+		{ "1" }
+	}
+
 	"cl_centerentityid"
 	{
 		"Center player names"
 		{ BOOL }
-		{ "1" }
+		{ "0" }
 	}
 
 	"cl_highdetail"
@@ -88,14 +95,14 @@ DESCRIPTION INFO_OPTIONS
 	{
 		"Weapon fast-switch"
 		{ BOOL }
-		{ "0" }
+		{ "1" }
 	}
 
 	"cl_musicenabled"
 	{
 		"Music enabled"
 		{ BOOL }
-		{ "0" }
+		{ "1" }
 	}
 
 	"cl_musicvolume"

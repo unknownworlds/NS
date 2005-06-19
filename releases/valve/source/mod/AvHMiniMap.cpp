@@ -14,7 +14,7 @@ const int kGroundEndPaletteIndex = 254;
 const int kHitNothingPaletteIndex = 255;
 
 #ifdef AVH_SERVER
-// Network message: 
+// Network message:
 //	0: means start processing, pass map name then num samples to process, map width, map height
 //	1: means update, pass num pixels, then data
 //	2: means end processing
@@ -56,7 +56,7 @@ AvHMiniMap::~AvHMiniMap()
 bool AvHMiniMap::GetIsProcessing(float* outPercentageDone) const
 {
 	bool theIsProcessing = false;
-	
+
 	if(this->mIsProcessing)
 	{
 		if(outPercentageDone)
@@ -65,7 +65,7 @@ bool AvHMiniMap::GetIsProcessing(float* outPercentageDone) const
 		}
 		theIsProcessing = true;
 	}
-	
+
 	return theIsProcessing;
 }
 
@@ -99,7 +99,7 @@ void AvHMiniMap::BuildMiniMap(const char* inMapName, AvHPlayer* inPlayer, const 
 
 	this->mMinViewHeight = inMapExtents.GetMinViewHeight();//inMinViewHeight;
 	this->mMaxViewHeight = inMapExtents.GetMaxViewHeight();//inMaxViewHeight;
-	
+
 	this->mIsProcessing = true;
 
 	// Tell player to rebuild minimap
@@ -115,55 +115,55 @@ void AvHMiniMap::BuildMiniMap(const char* inMapName, AvHPlayer* inPlayer, const 
 bool AvHMiniMap::Process()
 {
 	bool theProcessingComplete = false;
-	
+
 	if(this->GetIsProcessing())
 	{
 		// Process x pixels
 		// If we've calculated them all, return true
-		
+
 		// positive y on component is down, but that means negative y in world
 		float theDiffY = this->mMaxY - this->mMinY;
-		
+
 		// left to right
 		float theDiffX = this->mMaxX - this->mMinX;
-		
+
 		// Preserve map aspect ratio
 		float theMapAspectRatio = (this->mMaxX - this->mMinX)/(this->mMaxY - this->mMinY);
-		
+
 		float theXScale, theYScale;
 		if(theMapAspectRatio > 1.0f)
 		{
 			theXScale = 1.0f;
-			theYScale = 1.0f/theMapAspectRatio;	
+			theYScale = 1.0f/theMapAspectRatio;
 		}
 		else
 		{
-			theXScale = 1.0f/theMapAspectRatio;	
+			theXScale = 1.0f/theMapAspectRatio;
 			theYScale = 1.0f;
 		}
-		
+
 		float theMapCenterX = (this->mMinX + this->mMaxX)/2.0f;
 		float theMapCenterY = (this->mMinY + this->mMaxY)/2.0f;
 
 		const int kNumPixelsPerCall = 50;
 		char theSampleArray[kNumPixelsPerCall];
 		memset(theSampleArray, 0, kNumPixelsPerCall);
-		
+
 		for(int i = 0; (i < kNumPixelsPerCall) && (this->mNumSamplesProcessed < this->mNumSamplesToProcess); i++)
 		{
 			int theSampleIndex = this->mNumSamplesProcessed;
 			int theX = theSampleIndex % this->mMapWidth;
 			int theY = theSampleIndex/this->mMapWidth;
-			
+
 			// Initialize the value to outside the map
 			int theValue = kHitNothingPaletteIndex;
-			
+
 			// Account for map center and aspect ratio
 			float theXComponent = (theX/(float)this->mMapWidth) - .5f;
 			float theYComponent = (theY/(float)this->mMapHeight) - .5f;
 			float theCurrentX = theMapCenterX + theXComponent*theDiffX*theXScale;
 			float theCurrentY = theMapCenterY - theYComponent*theDiffY*theYScale;
-			
+
 			// If the point is inside our map boundaries, do the trace
 			if((theCurrentX >= this->mMinX) && (theCurrentX <= this->mMaxX) && (theCurrentY >= this->mMinY) && (theCurrentY <= this->mMaxY))
 			{
@@ -172,27 +172,27 @@ bool AvHMiniMap::Process()
 				int theUserThree = 0;
 				float theHitHeight;
 				float theHeightGradient = 0.0f;
-				
+
 				if(AvHSHUTraceVerticalTangible(theCurrentX, theCurrentY, this->mMaxViewHeight, theUserThree, theHitHeight))
 				{
 					// TODO: Modify trace to return world brushes that are hit
 					// Set color to "world brush hit", it will be changed if an entity was hit
 					theValue = kHitWorldPaletteIndex;
-					
+
 
 					theHitHeight = min(mMaxViewHeight, max(theHitHeight, mMinViewHeight));
 					theHeightGradient = 1.0f - (this->mMaxViewHeight - theHitHeight)/(this->mMaxViewHeight - this->mMinViewHeight);
 					theValue = kGroundStartPaletteIndex + (kGroundEndPaletteIndex - kGroundStartPaletteIndex)*theHeightGradient;
-			   
+
 				}
 			}
-			
+
 			int theIndex = theX + theY*this->mMapWidth;
 			ASSERT(theIndex < this->mNumSamplesToProcess);
 			this->mMap[theIndex] = theValue;
 
 			theSampleArray[i] = theValue;
-			
+
 			this->mNumSamplesProcessed++;
 		}
 
@@ -208,7 +208,7 @@ bool AvHMiniMap::Process()
 				WRITE_BYTE(theSampleArray[j]);
 			}
 		MESSAGE_END();
-		
+
 		if(this->mNumSamplesProcessed == this->mNumSamplesToProcess)
 		{
 			theProcessingComplete = true;
@@ -219,7 +219,7 @@ bool AvHMiniMap::Process()
 			MESSAGE_END();
 		}
 	}
-	
+
 	return theProcessingComplete;
 }
 
@@ -227,13 +227,18 @@ bool AvHMiniMap::Process()
 
 
 #ifdef AVH_CLIENT
-string AvHMiniMap::GetSpriteNameFromMap(int inSpriteWidth, const string& inMapName)
+string AvHMiniMap::GetSpriteNameFromMap(int inSpriteWidth, const string& inMapName, int useLabels)
 {
 	char theWidthString[128];
 	sprintf(theWidthString, "%d", inSpriteWidth);
-	
-	string theMiniMapName = kMiniMapSpritesDirectory + string("/") /*+ string(theWidthString)*/ + inMapName + string(".spr");
-	//string theMiniMapName = kMiniMapSpritesDirectory + string("/") + inMapName + string(".spr");
+	// puzl: 1064
+	// insert _labelled into the filename before ".spr"
+	string extraname="";
+	if ( useLabels == 1 ) {
+		extraname="_labelled";
+	}
+	string theMiniMapName = kMiniMapSpritesDirectory + string("/") /*+ string(theWidthString)*/ + inMapName + extraname + string(".spr");
+	// :puzl
 	return theMiniMapName;
 }
 
@@ -246,13 +251,13 @@ void AvHMiniMap::InitializePalette()
 	//		char theFillChar = i % 256;
 	//		memset(this->mMap + i*this->mMapWidth, theFillChar, this->mMapWidth);
 	//	}
-	//	
-	
+	//
+
 	// Set colors in image to use palette
 	memset(this->mPalette, 0, 256*3);
 
 	float theGradient = 0.0f;
-	
+
 	for(int i = 0; i < 256; i++)
 	{
 		const int kHitWorldR = 29;
@@ -264,11 +269,11 @@ void AvHMiniMap::InitializePalette()
 		const int kBorderB = 189;
 
 		uint8* theColor = this->mPalette + i*3;
-		
+
 		if (i >= kGroundStartPaletteIndex && i <= kGroundEndPaletteIndex)
 		{
 			// Ground start to end
-			
+
 			// Set color according to height, blending to hit world color
 			theGradient = (float)(i - kGroundStartPaletteIndex)/(kGroundEndPaletteIndex - kGroundStartPaletteIndex);
 			theColor[0] = (int)(theGradient*kHitWorldR);
@@ -287,7 +292,7 @@ void AvHMiniMap::InitializePalette()
 		}
 		else
 		{
-		
+
 			switch(i)
 			{
 			// On map but inaccessible
@@ -296,7 +301,7 @@ void AvHMiniMap::InitializePalette()
                 theColor[1] = 0;
                 theColor[2] = 0;
 				break;
-				
+
 			case kHitWorldPaletteIndex:
 				theColor[0] = kHitWorldR;
 				theColor[1] = kHitWorldG;
@@ -310,7 +315,7 @@ void AvHMiniMap::InitializePalette()
 				theColor[2] = 189;
 				break;
 				*/
-				
+
 			}
 
 		}
@@ -343,7 +348,7 @@ int AvHMiniMap::ReceiveFromNetworkStream()
 
 		this->mMapHeight = READ_LONG();
 		theBytesRead += 4;
-		
+
 		this->mMap = new uint8[this->mNumSamplesToProcess];
 		memset(this->mMap, 0, this->mNumSamplesToProcess);
 
@@ -386,7 +391,7 @@ bool AvHMiniMap::WriteMapToSprite()
 	if(!this->GetIsProcessing())
 	{
 		// Open file
-		string theSpriteFileName = string(getModDirectory()) + string("/") + GetSpriteNameFromMap(0, this->mMapName);
+		string theSpriteFileName = string(getModDirectory()) + string("/") + GetSpriteNameFromMap(0, this->mMapName, 0);
 		FILE* theFile = fopen(theSpriteFileName.c_str(), "wb");
 		if(theFile)
 		{
@@ -395,17 +400,17 @@ bool AvHMiniMap::WriteMapToSprite()
 
 			// Copy data
 			memcpy(this->mSpriteData, this->mMap, kSpriteWidth*kSpriteHeight);
-			
+
 			int theNumFrames = 1;
 			this->WriteMapToSprite(theFile);
-			
+
 			fclose(theFile);
-			
+
 			theSuccess = true;
 		}
 	}
-	
-	return theSuccess;	
+
+	return theSuccess;
 }
 
 void AvHMiniMap::WriteMapToSprite(FILE* inFileHandle)
@@ -415,7 +420,7 @@ void AvHMiniMap::WriteMapToSprite(FILE* inFileHandle)
 
     const int spriteWidth  = 256;
     const int spriteHeight = 256;
-    
+
     int numXFrames = mMapWidth / spriteWidth;
     int numYFrames = mMapHeight / spriteHeight;
 
@@ -436,9 +441,9 @@ void AvHMiniMap::WriteMapToSprite(FILE* inFileHandle)
 	spritetemp.synctype = ST_SYNC;
 	spritetemp.version = SPRITE_VERSION;
 	spritetemp.ident = IDSPRITEHEADER;
-	
+
 	SafeWrite(inFileHandle, &spritetemp, sizeof(spritetemp));
-	
+
 	short cnt = 256;
 	SafeWrite(inFileHandle, (void *) &cnt, sizeof(cnt));
 	SafeWrite(inFileHandle, this->mPalette, cnt*3);
@@ -450,14 +455,14 @@ void AvHMiniMap::WriteMapToSprite(FILE* inFileHandle)
 
 		    spriteframetype_t theType = SPR_SINGLE;
 		    SafeWrite ( inFileHandle, &theType,  sizeof(theType));
-		    
+
 		    dspriteframe_t	frametemp;
-		    
+
 		    frametemp.origin[0] = 0;
 		    frametemp.origin[1] = 0;
 		    frametemp.width = spriteWidth;
 		    frametemp.height = spriteHeight;
-		    
+
 		    SafeWrite (inFileHandle, &frametemp, sizeof (frametemp));
 
             for (int i = 0; i < spriteHeight; ++i)
@@ -470,14 +475,14 @@ void AvHMiniMap::WriteMapToSprite(FILE* inFileHandle)
 
 	spriteframetype_t theType = SPR_SINGLE;
 	SafeWrite ( inFileHandle, &theType,  sizeof(theType));
-	
+
 	dspriteframe_t	frametemp;
-	
+
 	frametemp.origin[0] = 0;
 	frametemp.origin[1] = 0;
 	frametemp.width = kSpriteWidth / 2;
 	frametemp.height = kSpriteHeight / 2;
-	
+
 	SafeWrite (inFileHandle, &frametemp, sizeof (frametemp));
     SafeWrite (inFileHandle, mCommanderSpriteData, kSpriteDataPixels / 4);
 
@@ -500,11 +505,11 @@ bool AvHMiniMap::WriteSpritesIfJustFinished()
         {
             for (int y = 0; y < kSpriteHeight / 2; ++y)
             {
-                mCommanderSpriteData[x + y * (kSpriteWidth / 2)] = 
+                mCommanderSpriteData[x + y * (kSpriteWidth / 2)] =
                     mMap[(x * 2) + (y * 2) * kSpriteWidth];
             }
         }
-        
+
         this->DrawEdges(mMap, kSpriteWidth, kSpriteHeight);
         this->DrawEdges(mCommanderSpriteData, kSpriteWidth / 2, kSpriteHeight / 2);
 
@@ -516,7 +521,7 @@ bool AvHMiniMap::WriteSpritesIfJustFinished()
 		this->mNumSamplesProcessed = this->mNumSamplesToProcess = 0;
 		this->mIsProcessing = false;
 	}
-	
+
 	// For each resolution
 	return theSuccess;
 }
@@ -528,14 +533,14 @@ void AvHMiniMap::DrawEdges(uint8* inMap, int width, int height)
 	uint8* newMap = new uint8[numPixels];
 
     memset(newMap, kHitNothingPaletteIndex, numPixels);
-    
+
     for (int y = 1; y < width - 1; ++y)
 	{
 		for (int x = 1; x < height - 1; ++x)
 		{
 
 			int baseIndex = x + y * width;
-			int color = inMap[baseIndex]; 
+			int color = inMap[baseIndex];
 
 			if (color == kHitNothingPaletteIndex)
 			{
@@ -577,7 +582,7 @@ void AvHMiniMap::DrawEdges(uint8* inMap, int width, int height)
 				*/
 
 			}
-			
+
 			newMap[baseIndex] = color;
 
 		}

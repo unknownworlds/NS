@@ -28,21 +28,21 @@ class AvHMiniMap
 public:
 					AvHMiniMap();
 	virtual			~AvHMiniMap();
-				
+
 	bool			GetIsProcessing(float* outPercentageDone = NULL) const;
-	
+
 	#ifdef AVH_SERVER
 	void			BuildMiniMap(const char* inMapName, AvHPlayer* inPlayer, const AvHMapExtents& inMapExtents);
 	bool			Process();
 	#endif
 
 	#ifdef AVH_CLIENT
-	static string	GetSpriteNameFromMap(int inSpriteWidth, const string& inMapName);
+	static string	GetSpriteNameFromMap(int inSpriteWidth, const string& inMapName, int useLabels);
 	int				ReceiveFromNetworkStream();
 	bool			WriteSpritesIfJustFinished();
 	#endif
 
-		
+
 private:
 	#ifdef AVH_CLIENT
 	void			DrawEdges(uint8* inMap, int width, int height);
@@ -50,7 +50,7 @@ private:
 	bool			WriteMapToSprite();
 	void			WriteMapToSprite(FILE* inFileHandle);
 	#endif
-					
+
 	uint8*			mMap;
 	int				mMapWidth;
 	int				mMapHeight;
@@ -64,14 +64,14 @@ private:
 	uint8			mSpriteData[kSpriteDataPixels];
     uint8           mCommanderSpriteData[kSpriteDataPixels / 4];
 	#endif
-	
+
 	float			mMinX;
 	float			mMinY;
 	float			mMaxX;
 	float			mMaxY;
 	float			mMinViewHeight;
 	float			mMaxViewHeight;
-					
+
 	int				mNumSamplesToProcess;
 	int				mNumSamplesProcessed;
 	bool			mIsProcessing;

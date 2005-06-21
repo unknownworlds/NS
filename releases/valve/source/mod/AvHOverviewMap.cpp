@@ -78,6 +78,8 @@ void AvHOverviewMap::Init()
 
 	this->mMiniMapSprite = 0;
 	this->mReticleSprite = 0;
+	// puzl: 1066 reset overview
+	this->mLastMinimapName = "";
 
 	mLastUpdateTime = 0;
 }

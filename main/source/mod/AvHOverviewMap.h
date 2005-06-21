@@ -40,7 +40,7 @@ public:
         float mViewWorldMaxY;
 
         bool mFullScreen;
-    
+   
     };
                                     AvHOverviewMap();
 
@@ -75,7 +75,8 @@ protected:
 
 	AvHUser3						mUser3;
     AvHTeamNumber                   mTeam;
-	
+	// puzl: 1066 the name of the last minimap we loaded
+	string							mLastMinimapName;	
 private:
 	
     void                            WorldToMiniMapCoords(const DrawInfo& inDrawInfo, float& x, float& y);

@@ -79,6 +79,8 @@ void AvHOverviewMap::Init()
 
 	this->mMiniMapSprite = 0;
 	this->mReticleSprite = 0;
+	// puzl: 1066 reset overview map
+	this->mLastMinimapName = "";
 
 	mLastUpdateTime = 0;
 }
@@ -419,17 +421,16 @@ void AvHOverviewMap::DrawMiniMap(const DrawInfo& inDrawInfo)
 	// Use labelled minimaps if cl_labelmaps is 1
 
     // Load the mini-map sprite if it's not already loaded.
-	static string lastMiniMapName="";
 	if ( mMapName != "") {
 		int drawLabels=CVAR_GET_FLOAT(kvLabelMaps);
 		string theMiniMapName = AvHMiniMap::GetSpriteNameFromMap(ScreenWidth(), mMapName, drawLabels);
-		if ( lastMiniMapName != theMiniMapName )
+		if ( mLastMinimapName != theMiniMapName )
 		{
 			mMiniMapSprite = Safe_SPR_Load(theMiniMapName.c_str());
 
 			// We want to preserve the last minimap even if we fail.  There's no point in failing again until the player
 			// changes the value of the cvar.
-			lastMiniMapName=theMiniMapName;
+			mLastMinimapName=theMiniMapName;
 
 			// Draw normal minimap if no labelled map exists ( for custom maps )
 			if ( !mMiniMapSprite && drawLabels ) {

@@ -2422,6 +2422,9 @@ void AvHHud::ResetGame(bool inMapChanged)
 		this->mInfoLocationList.clear();
 	}
 
+	// puzl: 1066 reset overview map on game restart
+	gHUD.GetOverviewMap().Clear();
+
 	AvHParticleSystemManager::Instance()->Reset();
 
 	this->mTechSlotManager.Clear();

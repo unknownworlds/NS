@@ -208,6 +208,7 @@ void CHud :: Init( void )
 
     CVAR_CREATE( "cl_showspeed", "0", 0);
 	CVAR_CREATE( kvLabelMaps, "0", FCVAR_ARCHIVE);
+	CVAR_CREATE( kvGammaRamp, "0", FCVAR_ARCHIVE);
 
 	m_pSpriteList = NULL;
 

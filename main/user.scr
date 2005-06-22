@@ -32,7 +32,7 @@
 
 
 // Half-Life User Info Configuration Layout Script (stores last settings chosen, too)
-// File generated:  Mon Jul 05 15:16:31 AM
+// File generated:  Wed Jun 22 14:28:14 AM
 //
 //
 // Cvar	-	Setting
@@ -60,7 +60,7 @@ DESCRIPTION INFO_OPTIONS
 	{
 		"Center player names"
 		{ BOOL }
-		{ "1" }
+		{ "0" }
 	}
 
 	"cl_highdetail"
@@ -91,6 +91,13 @@ DESCRIPTION INFO_OPTIONS
 		{ "1" }
 	}
 
+	"cl_gammaramp"
+	{
+		"Enable gamma ramp"
+		{ BOOL }
+		{ "1" }
+	}
+
 	"hud_fastswitch"
 	{
 		"Weapon fast-switch"
@@ -102,7 +109,7 @@ DESCRIPTION INFO_OPTIONS
 	{
 		"Music enabled"
 		{ BOOL }
-		{ "0" }
+		{ "1" }
 	}
 
 	"cl_musicvolume"
@@ -137,7 +144,7 @@ DESCRIPTION INFO_OPTIONS
 	{
 		"Decal limit"
 		{ NUMBER 0.000000 4096.000000 }
-		{ "300.000000" }
+		{ "4096.000000" }
 	}
 
 }

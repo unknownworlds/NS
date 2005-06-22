@@ -208,7 +208,10 @@ void AvHReloadableMarineWeapon::Reload(void)
 
 void AvHReloadableMarineWeapon::WeaponIdle(void)
 {
-    if(this->m_flTimeWeaponIdle < UTIL_WeaponTimeBase())
+	// tankefugl: 0000484 - ensures that all idle weapons can fire the empty sound
+	ResetEmptySound();
+
+	if(this->m_flTimeWeaponIdle < UTIL_WeaponTimeBase())
     {
         if((this->m_iClip == 0) && (this->mSpecialReload == kSpecialReloadNone) && m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType])
         {

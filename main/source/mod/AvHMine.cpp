@@ -225,8 +225,10 @@ bool AvHMine::GetDropLocation(Vector& outLocation, Vector* outAngles) const
 		    theSuccess = true;
 		    for(BaseEntityListType::iterator theIter = theEntityList.begin(); theIter != theEntityList.end(); theIter++)
 		    {
+				// puzl: 225 make sure there are no mines within kMineSearchRadius of each other ( 15 units )
 			    CBaseEntity* theCurrentEntity = *theIter;
-			    if(!theCurrentEntity || (theCurrentEntity->pev->flags & FL_CONVEYOR) || AvHSUGetIsExternalClassName(STRING(theCurrentEntity->pev->classname)) || dynamic_cast<CBaseDoor*>(theCurrentEntity) || dynamic_cast<CRotDoor*>(theCurrentEntity))
+			    if(!theCurrentEntity || (theCurrentEntity->pev->flags & FL_CONVEYOR) || AvHSUGetIsExternalClassName(STRING(theCurrentEntity->pev->classname)) || dynamic_cast<CBaseDoor*>(theCurrentEntity) || dynamic_cast<CRotDoor*>(theCurrentEntity)
+					|| dynamic_cast<AvHDeployedMine*>(theCurrentEntity) )
 			    {
 				    theSuccess = false;
 				    break;

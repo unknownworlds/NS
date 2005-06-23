@@ -1986,7 +1986,7 @@ const int	kEntHierFlagDeletion	= 0x02;
 		{
 			index = short_data & kPlayerIndexMask;
 			short_data >>= kNumPlayerIndexBits;
-			ent.mAngle = short_data & kAngleMask;
+			ent.mAngle = (short_data & kAngleMask) * 22.5f;
 			short_data >>= kNumAngleBits;
 			ent.mSquadNumber = short_data & kSquadMask;
 		}

@@ -416,6 +416,19 @@ void W_Precache(void)
 
     PRECACHE_UNMODIFIED_MODEL(kMarineCommanderModel);
     PRECACHE_UNMODIFIED_MODEL(kAlienGestateModel);
+	// puzl: 1072
+	// Added some client side consistency checks.
+	PRECACHE_UNMODIFIED_MODEL("sprites/muzzleflash1.spr");
+	PRECACHE_UNMODIFIED_MODEL("sprites/muzzleflash2.spr"); 
+	PRECACHE_UNMODIFIED_MODEL("sprites/muzzleflash3.spr"); 
+	PRECACHE_UNMODIFIED_MODEL("sprites/digesting.spr"); 
+	PRECACHE_UNMODIFIED_MODEL("sprites/membrane.spr"); 
+	PRECACHE_UNMODIFIED_MODEL("sprites/hera_fog.spr"); 
+	PRECACHE_UNMODIFIED_MODEL("sprites/spore.spr"); 
+	PRECACHE_UNMODIFIED_MODEL("sprites/spore2.spr"); 
+	PRECACHE_UNMODIFIED_MODEL("sprites/umbra.spr"); 
+	PRECACHE_UNMODIFIED_MODEL("sprites/umbra2.spr"); 
+	PRECACHE_UNMODIFIED_MODEL("sprites/webstrand.spr"); 
 
 	UTIL_PrecacheOtherWeapon(kwsMine);
     UTIL_PrecacheOtherWeapon(kwsKnife);

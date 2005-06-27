@@ -455,6 +455,7 @@ private:
 	void			DrawOrders();
 	void			DrawHelpIcons();
 	// tankefugl: 0000971
+	void			GetOrderDirection(vec3_t inTarget, int inOrderType);
 	void			DrawTeammateOrders();
 	// tankefugl: 0000992
 	void			DrawDisplayOrder();
@@ -611,6 +612,7 @@ private:
 	// tankefugl: 0000992
 	float					mDisplayOrderTime;
 	int						mDisplayOrderType;
+	int						mDisplayOrderDirection;
 	int						mDisplayOrderIndex;
 	string					mDisplayOrderText1;
 	string					mDisplayOrderText2;

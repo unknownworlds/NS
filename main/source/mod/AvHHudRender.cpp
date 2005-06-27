@@ -1007,6 +1007,10 @@ void AvHHud::DrawOrderIcon(const AvHOrder& inOrder)
 				//DrawScaledHUDSprite(theSpriteHandle, kRenderNormal, 1, thePosX, thePosY, theWidth, theHeight, theFrame, theStartU, theStartV, theEndU, theEndV);
 				
 			}
+
+			vec3_t orderDir;
+			inOrder.GetLocation(orderDir);
+			this->GetOrderDirection(orderDir, 2);
 		}
 	}
 }
@@ -1185,12 +1189,25 @@ void AvHHud::DrawDisplayOrder()
 		float mIconY1 = 0.10f * ScreenHeight();
 		float mIconX2 = mIconX1 + 0.06f * ScreenWidth();
 		float mIconY2 = mIconY1 + 0.06f * ScreenWidth();
+		float mLeftX  = mIconX1 - 0.06f * ScreenWidth();
+		float mRightX = mIconX2 + 0.06f * ScreenWidth();
 
 		float mTextX1 = 0.50f * ScreenWidth();
 
 		AvHSpriteSetRenderMode(kRenderTransAdd);
         AvHSpriteSetDrawMode(kSpriteDrawModeFilled);
 		AvHSpriteSetColor(1, 1, 1, 1 * theFade);
+
+		int theTeamAdd = 0;
+		if (this->GetIsAlien())
+            theTeamAdd = 2;
+
+		if (this->mDisplayOrderDirection == 1)
+			AvHSpriteDraw(this->mTeammateOrderSprite, TEAMMATE_MARINE_LEFT_ARROW + theTeamAdd, 
+				mLeftX, mIconY1, mIconX1, mIconY2, 0, 0, 1, 1); // Left
+		else if (this->mDisplayOrderDirection == 2)
+			AvHSpriteDraw(this->mTeammateOrderSprite, TEAMMATE_MARINE_RIGHT_ARROW + theTeamAdd, 
+				mIconX2, mIconY1, mRightX, mIconY2, 0, 0, 1, 1); // Right
 
 		if (this->mDisplayOrderType == 1)
 		{
@@ -1213,6 +1230,32 @@ void AvHHud::DrawDisplayOrder()
 // :tankefugl
 
 // tankefugl: 0000971
+void AvHHud::GetOrderDirection(vec3_t inTarget, int inOrderType)
+{
+	if (this->mDisplayOrderType == inOrderType)
+	{
+		// find left/right/none direction for the order popup notificator
+		vec3_t theForward, theRight, theUp, theDir;
+		AngleVectors(v_angles, theForward, theRight, theUp);
+		VectorSubtract(inTarget, v_origin, theDir);
+		theForward[2] = theDir[2] = 0;
+		VectorNormalize(theForward);
+		VectorNormalize(theDir);
+
+		this->mDisplayOrderDirection = 0;
+		// if it is too close to screen center, ignore it
+		if (DotProduct(theForward, theDir) < 0.9f)
+		{
+			// Determine left and right
+			vec3_t theCrossProd = CrossProduct(theForward, theDir);
+			if (theCrossProd[2] > 0.0f)
+				this->mDisplayOrderDirection = 1; // Left
+			else if (theCrossProd[2] < 0.0f)
+				this->mDisplayOrderDirection = 2; // Right
+		}
+	}
+}
+
 void AvHHud::DrawTeammateOrders()
 {
 	TeammateOrderListType::iterator toErase = NULL;
@@ -1224,6 +1267,7 @@ void AvHHud::DrawTeammateOrders()
 
 	for(TeammateOrderListType::iterator theIter = this->mTeammateOrder.begin(); theIter != this->mTeammateOrder.end(); theIter++)
 	{
+		float lastOrder = 0;
 		TeammateOrderType theOrder = (*theIter).second;
 		int theEntIndex = (*theIter).first;
 		float theFade = 1.0f;
@@ -1252,6 +1296,12 @@ void AvHHud::DrawTeammateOrders()
 				VectorCopy(theEntity->origin, theVec);
 				theVec[2] += AvHCUGetIconHeightForPlayer((AvHUser3)theEntity->curstate.iuser3);
 				this->DrawWorldSprite(this->mTeammateOrderSprite, kRenderTransAdd, theVec, theOrder.first, kHelpIconDrawSize, theFade);
+				
+				if (lastOrder < theOrder.second)
+				{
+					lastOrder = theOrder.second;
+					this->GetOrderDirection(theVec, 1);
+				}
 			}
 		}
 	}
@@ -4207,5 +4257,3 @@ void AvHHud::VidInit(void)
 	this->mEnemyBlips.VidInit();
 	this->mFriendlyBlips.VidInit();
 }
-
-

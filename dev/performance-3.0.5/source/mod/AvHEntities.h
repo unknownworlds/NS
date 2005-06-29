@@ -259,7 +259,7 @@ public:
 	void EXPORT		SpecialSoundUse( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value );
 
 	static void			ClearSoundNameList();
-	static StringList	GetSoundNameList();
+	static const StringList&	GetSoundNameList();
 
 private:
 	static StringList	sSoundList;

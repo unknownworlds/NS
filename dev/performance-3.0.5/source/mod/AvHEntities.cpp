@@ -796,7 +796,7 @@ void AvHMP3Audio::ClearSoundNameList()
 	sSoundList.clear();
 }
 
-StringList AvHMP3Audio::GetSoundNameList()
+const StringList& AvHMP3Audio::GetSoundNameList()
 {
 	return sSoundList;
 }

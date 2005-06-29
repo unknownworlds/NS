@@ -1368,7 +1368,7 @@ bool AvHGamerules::GetCanJoinTeamInFuture(AvHPlayer* inPlayer, AvHTeamNumber inT
 	return theCanJoinTeam;
 }
 
-AvHBaseInfoLocationListType AvHGamerules::GetInfoLocations() const
+const AvHBaseInfoLocationListType& AvHGamerules::GetInfoLocations() const
 {
 	return mInfoLocations;
 }

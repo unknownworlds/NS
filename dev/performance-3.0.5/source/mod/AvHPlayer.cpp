@@ -6969,31 +6969,34 @@ void AvHPlayer::InternalCommonThink()
 
 void AvHPlayer::PropagateServerVariables()
 {
+	static float theLastUpdateTime = -1.0f;
+	if ( gpGlobals->time > (theLastUpdateTime + 0.5f ) ) {
 
-    for (int i = 0; i < (signed)mServerVariableList.size(); ++i)
-    {
+		for (int i = 0; i < (signed)mServerVariableList.size(); ++i)
+		{
 
-        std::string theValue = CVAR_GET_STRING( mServerVariableList[i].mName.c_str() );
-        std::string lastValue = mServerVariableList[i].mLastValueSent;
-        
-        if ( mServerVariableList[i].mLastValueSent != theValue)
-        {
+			std::string theValue = CVAR_GET_STRING( mServerVariableList[i].mName.c_str() );
+			std::string lastValue = mServerVariableList[i].mLastValueSent;
+	        
+			if ( mServerVariableList[i].mLastValueSent != theValue)
+			{
 
-            mServerVariableList[i].mLastValueSent = theValue;
-           
-            MESSAGE_BEGIN(MSG_ONE, gmsgServerVar, NULL, this->pev);
+				mServerVariableList[i].mLastValueSent = theValue;
+	           
+				MESSAGE_BEGIN(MSG_ONE, gmsgServerVar, NULL, this->pev);
 
-            WRITE_STRING( mServerVariableList[i].mName.c_str() );
-            WRITE_STRING( mServerVariableList[i].mLastValueSent.c_str() );
+				WRITE_STRING( mServerVariableList[i].mName.c_str() );
+				WRITE_STRING( mServerVariableList[i].mLastValueSent.c_str() );
 
-            MESSAGE_END();
+				MESSAGE_END();
 
-            break; // Only send one message per tick to avoid overflow.
+				break; // Only send one message per tick to avoid overflow.
 
-        }
+			}
 
-    }
-
+		}
+		theLastUpdateTime = gpGlobals->time;
+	}
 }
 
 void AvHPlayer::InternalMarineThink()
@@ -10370,10 +10373,10 @@ void AvHPlayer::UpdateVUser4()
     // Update client with resources (as int)
     int theResources = (short)(this->GetResources(true));
     
-    if(CVAR_GET_FLOAT(kvTesting))
-    {
-        theResources = g_engfuncs.pfnNumberOfEntities();
-    }
+//    if(CVAR_GET_FLOAT(kvTesting))
+//    {
+//        theResources = g_engfuncs.pfnNumberOfEntities();
+//    }
 
     if(this->pev)
     {

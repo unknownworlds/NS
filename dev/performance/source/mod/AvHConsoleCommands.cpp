@@ -380,6 +380,7 @@ BOOL AvHGamerules::ClientCommand( CBasePlayer *pPlayer, const char *pcmd )
 				
 				// Remember current position
 				Vector theCurrentPosition = theAvHPlayer->pev->origin;
+				theCurrentPosition[2] += 32.0f;
 				Vector theCurrentAngles = theAvHPlayer->pev->angles;
 
 				// Switch teams

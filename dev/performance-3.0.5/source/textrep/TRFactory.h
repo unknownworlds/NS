@@ -28,11 +28,12 @@ class TRFactory
 {
 public:
     // Read all the descriptions from the file
-    static  bool    ReadDescriptions(strstream& trstream, TRDescriptionList& outDescriptionList);
+    static  bool    ReadDescriptionsFromStream(strstream& trstream, TRDescriptionList& outDescriptionList);
+    static  bool    ReadDescriptionsFromFile(const string& inRelativePathFilename, TRDescriptionList& outDescriptionList);
     static  bool    WriteDescriptions(const string& inRelativePathFilename, const TRDescriptionList& inDescriptionList, const string& inHeader);
 
 private:
-    static  bool    ReadDescription(strstream& infile, TRDescription& outDescription);
+    static  bool    ReadDescription(istream& infile, TRDescription& outDescription);
     static  bool    WriteDescription(fstream& outfile, const TRDescription& inDescription);
 
 	static  bool	charIsWhiteSpace(char inChar);

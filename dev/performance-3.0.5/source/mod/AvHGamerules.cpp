@@ -2065,6 +2065,9 @@ void AvHGamerules::PreWorldPrecacheInitParticles()
 	// Load up the particle systems from modname.ps then levelname.ps
 	TRDescriptionList theDescriptionList;
 
+
+	bool success=false;
+#ifndef LINUX
 	char		*pbuffer = NULL;
 	int len;
 	// Read them in from proper file
@@ -2072,12 +2075,20 @@ void AvHGamerules::PreWorldPrecacheInitParticles()
 	ASSERT(pbuffer);
 
 	strstream trstream(pbuffer, len);
-	if(TRFactory::ReadDescriptions(trstream, theDescriptionList))
+
+	success=TRFactory::ReadDescriptionsFromStream(trstream, theDescriptionList);
+#else
+        success=TRFactory::ReadDescriptionsFromFile(string(getModDirectory()) + "/" + kBasePSName, theDescriptionList);
+#endif
+
+        if(success)
 	{
 		gParticleTemplateList.CreateTemplates(theDescriptionList);
 	}
 	theDescriptionList.clear();
+#ifndef LINUX
 	FREE_FILE(pbuffer);
+#endif
 
 	// TODO: the level name isn't populated yet for some reason
 	const char* theCStrLevelName = STRING(gpGlobals->mapname);
@@ -2085,17 +2096,26 @@ void AvHGamerules::PreWorldPrecacheInitParticles()
 	{
 		string theLevelName = theCStrLevelName;
 		string theLevelParticleSystemFile = theLevelName + string(".ps");
-		// Read them in from proper file
-		pbuffer = (char *)LOAD_FILE_FOR_ME( (char *)theLevelParticleSystemFile.c_str(), &len ); // Use malloc
-		if ( pbuffer ) {
+#ifndef LINUX
+	        char		*pbuffer = NULL;
+	        int len;
+  	        // Read them in from proper file
+	        pbuffer = (char *)LOAD_FILE_FOR_ME( kBasePSName, &len ); // Use malloc
+	        ASSERT(pbuffer);
 
-			strstream trstream(pbuffer, len);
-			if(TRFactory::ReadDescriptions(trstream, theDescriptionList))
-			{
-				gParticleTemplateList.CreateTemplates(theDescriptionList);
-			}
-			FREE_FILE(pbuffer);
+	        strstream trstream(pbuffer, len);
+
+	        success=TRFactory::ReadDescriptionsFromStream(trstream, theDescriptionList);
+#else
+           	success=TRFactory::ReadDescriptionsFromFile(theLevelParticleSystemFile, theDescriptionList);
+#endif
+		if(success) 
+		{
+			gParticleTemplateList.CreateTemplates(theDescriptionList);
 		}
+#ifndef LINUX
+		FREE_FILE(pbuffer);
+#endif
 	}
 }
 

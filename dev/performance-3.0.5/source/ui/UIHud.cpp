@@ -51,7 +51,7 @@ UIHud::UIHud(const string& inFilename, UIFactory* inFactory) : CHud(), mFilename
 	if ( pbuffer ) {
 		strstream trstream(pbuffer, len);
 
-		if(TRFactory::ReadDescriptions(trstream, this->mDescriptionList))
+		if(TRFactory::ReadDescriptionsFromStream(trstream, this->mDescriptionList))
 		{
 		}
 		else

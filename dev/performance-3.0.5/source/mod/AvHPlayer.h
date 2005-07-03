@@ -812,7 +812,7 @@ private:
 
     int                 mScore;
     int                 mSavedCombatFrags;
-
+	float				mLastUpdateTime;
 #ifdef USE_UPP
 	bool				mAuthorized;
 	int					mAuthMask;

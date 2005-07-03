@@ -3555,7 +3555,7 @@ void AvHPlayer::Init()
     AvHGamerules* theGameRules = GetGameRules();
 
     mServerVariableList.clear();
-    
+    mLastUpdateTime=-1;
     for (i = 0; i < theGameRules->GetNumServerVariables(); ++i)
     {
         mServerVariableList.push_back(ServerVariable());
@@ -6969,8 +6969,8 @@ void AvHPlayer::InternalCommonThink()
 
 void AvHPlayer::PropagateServerVariables()
 {
-	static float theLastUpdateTime = -1.0f;
-	if ( gpGlobals->time > (theLastUpdateTime + 0.5f ) ) {
+
+	if ( gpGlobals->time > (mLastUpdateTime + 0.5f ) ) {
 
 		for (int i = 0; i < (signed)mServerVariableList.size(); ++i)
 		{
@@ -6995,7 +6995,7 @@ void AvHPlayer::PropagateServerVariables()
 			}
 
 		}
-		theLastUpdateTime = gpGlobals->time;
+		mLastUpdateTime = gpGlobals->time;
 	}
 }
 

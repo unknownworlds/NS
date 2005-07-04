@@ -3,7 +3,7 @@
 #include <stdlib.h>
 
 MemoryInputStream::MemoryInputStream(void) : m_pData(NULL), m_DataLen(0), m_ReadPos(0) {}
-MemoryInputStream::MemoryInputStream(uchar* pData, int nLength) : m_pData(pData), m_DataLen(0), m_ReadPos(0) {}
+MemoryInputStream::MemoryInputStream(uchar* pData, int nLength) : m_pData(pData), m_DataLen(nLength), m_ReadPos(0) {}
 
 MemoryInputStream::~MemoryInputStream(void) {}
 

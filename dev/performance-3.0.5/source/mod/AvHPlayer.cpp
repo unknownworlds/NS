@@ -6982,9 +6982,9 @@ void AvHPlayer::PropagateServerVariables()
 			{
 				mServerVariableList[i].mLastValueSent = theValue;
 	           
-#ifdef AVH_SERVER
-				ALERT(at_console, UTIL_VarArgs("Sent server var to %s: %s %s\n", this->mDesiredNetName, mServerVariableList[i].mName.c_str(), mServerVariableList[i].mLastValueSent.c_str()));
-#endif
+//#ifdef AVH_SERVER
+//				ALERT(at_console, UTIL_VarArgs("Sent server var to %s: %s %s\n", this->mDesiredNetName, mServerVariableList[i].mName.c_str(), mServerVariableList[i].mLastValueSent.c_str()));
+//#endif
 
 				MESSAGE_BEGIN(MSG_ONE, gmsgServerVar, NULL, this->pev);
 

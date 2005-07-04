@@ -334,6 +334,8 @@ void SetGameRules(AvHGamerules* inGameRules)
 	g_pGameRules = inGameRules;
 }
 
+// puzl: performance.  We need to throttle the rate at which we read the cvar "sv_cheats" as it is read very frequently
+static float gSvCheatsLastUpdateTime;
 AvHGamerules::AvHGamerules() : mTeamOne(TEAM_ONE), mTeamTwo(TEAM_TWO)
 {
 	this->mGameStarted = false;
@@ -341,7 +343,7 @@ AvHGamerules::AvHGamerules() : mTeamOne(TEAM_ONE), mTeamTwo(TEAM_TWO)
 
 	this->mTeamOne.SetTeamType(AVH_CLASS_TYPE_MARINE);
 	this->mTeamTwo.SetTeamType(AVH_CLASS_TYPE_ALIEN);
-
+	gSvCheatsLastUpdateTime=-1.0f;
 	this->mVictoryTime = -1;
 	this->mMapMode = MAP_MODE_UNDEFINED;
 	this->mLastParticleUpdate = -1;
@@ -1373,13 +1375,14 @@ const AvHBaseInfoLocationListType& AvHGamerules::GetInfoLocations() const
 	return mInfoLocations;
 }
 
+
 bool AvHGamerules::GetCheatsEnabled(void) const
 {
 	static float theCheatsEnabled = CVAR_GET_FLOAT( "sv_cheats" );
-	static float theLastUpdateTime = gpGlobals->time;
-	if ( gpGlobals->time > (theLastUpdateTime + 0.5f ) ) {
+	ALERT(at_console, UTIL_VarArgs("GetCheatsEnabled %f > %f\n", gpGlobals->time, (gSvCheatsLastUpdateTime + 0.5f ))  );
+	if ( gpGlobals->time > (gSvCheatsLastUpdateTime + 0.5f ) ) {
 		theCheatsEnabled = CVAR_GET_FLOAT( "sv_cheats" );
-		theLastUpdateTime = gpGlobals->time;
+		gSvCheatsLastUpdateTime = gpGlobals->time;
 	}
 	return (theCheatsEnabled == 1.0f);
 }
@@ -2810,7 +2813,7 @@ void AvHGamerules::ResetGame(bool inPreserveTeams)
 	// Reset game rules
 	this->mFirstUpdate = true;
 	this->mPreserveTeams = inPreserveTeams;
-
+	gSvCheatsLastUpdateTime=-1.0f;
 	// Reset all players
 //	FOR_ALL_ENTITIES(kAvHPlayerClassName, AvHPlayer*)
 //		theEntity->Reset();
@@ -3052,6 +3055,7 @@ void AvHGamerules::InternalResetGameRules()
 	this->mVictoryTeam = TEAM_IND;
 	this->mVictoryDraw = false;
 	this->mVictoryTime = 0;
+	gSvCheatsLastUpdateTime = -1.0f;
 	this->mCheats.clear();
 	this->mLastParticleUpdate = -1;
 	this->mLastNetworkUpdate = -1;

@@ -9807,14 +9807,15 @@ bool AvHPlayer::GetIsAuthorized(AvHAuthAction inAction, int inParameter) const
 				// check it's an active team
 				if( theTeam == GetGameRules()->GetTeamA()->GetTeamNumber() || theTeam == GetGameRules()->GetTeamB()->GetTeamNumber() )
 				{
-					if( GetGameRules()->GetCheatsEnabled() ) { return true; }	// cheaters can switch
-					if( !GetGameRules()->GetGameStarted() ) { return true; }	// can switch teams before start
-					if( this->GetHasBeenSpectator() ) { return false; }			// spectators have seen everybody
-					for(int counter = TEAM_ACTIVE_BEGIN; counter < TEAM_ACTIVE_END; counter++)
-					{
-						if( theTeam != counter && this->GetHasSeenTeam( (AvHTeamNumber)counter ) )
-						{ return false; }  // we've seen another active team
-					}
+					// tankefugl: 0001042 -- allow switching of teams -- placeholder before Nexus
+					// if( GetGameRules()->GetCheatsEnabled() ) { return true; }	// cheaters can switch
+					// if( !GetGameRules()->GetGameStarted() ) { return true; }	// can switch teams before start
+					// if( this->GetHasBeenSpectator() ) { return false; }			// spectators have seen everybody
+					// for(int counter = TEAM_ACTIVE_BEGIN; counter < TEAM_ACTIVE_END; counter++)
+					// {
+					//		if( theTeam != counter && this->GetHasSeenTeam( (AvHTeamNumber)counter ) )
+					//		{ return false; }  // we've seen another active team
+					// }
 					return true;	// haven't seen another team, authorized to join
 				}
 				return false;		// unknown/inactive team - never grant an unknown permission!

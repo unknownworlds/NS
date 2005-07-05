@@ -91,6 +91,13 @@ DESCRIPTION INFO_OPTIONS
 		{ "1" }
 	}
 
+	"cl_gammaramp"
+	{
+		"Enable gamma ramp"
+		{ BOOL }
+		{ "1" }
+	}
+
 	"hud_fastswitch"
 	{
 		"Weapon fast-switch"

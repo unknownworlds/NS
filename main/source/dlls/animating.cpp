@@ -97,11 +97,18 @@ int CBaseAnimating :: LookupActivityHeaviest ( int activity )
 
 //=========================================================
 //=========================================================
-int CBaseAnimating :: LookupSequence ( const char *label )
+int CBaseAnimating :: LookupSequence ( const char *label, int queue )
 {
 	void *pmodel = GET_MODEL_PTR( ENT(pev) );
 
-	return ::LookupSequence( pmodel, label );
+	if (strcmp(label, this->mPreviousLookupString[queue]) == 0)
+	{
+		return this->mPreviousLookupSequence[queue];
+	}
+
+	strcpy(this->mPreviousLookupSequence[queue], label);
+	this->mPreviousLookupSequence[queue] = ::LookupSequence( pmodel, label );
+	return this->mPreviousLookupSequence[queue];
 }
 
 const char* CBaseAnimating::LookupSequence(int inSequence)

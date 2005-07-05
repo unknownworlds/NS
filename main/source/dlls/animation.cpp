@@ -172,12 +172,12 @@ int LookupSequence( void *pmodel, const char *label )
 	}
 
 	//if(GetGameRules()->GetIsTesting())
-	if(CVAR_GET_FLOAT(kvTesting) > 0)
-	{
-		char theMessage[256];
-		sprintf(theMessage, "%s%s\n", "Couldn't find animation: ", label);
-		ALERT(at_console, theMessage);
-	}
+	//if(CVAR_GET_FLOAT(kvTesting) > 0)
+	//{
+	//	char theMessage[256];
+	//	sprintf(theMessage, "%s%s\n", "Couldn't find animation: ", label);
+	//	ALERT(at_console, theMessage);
+	//}
 
 	return -1;
 }

@@ -1311,7 +1311,7 @@ void CBasePlayer::SetAnimation( PLAYER_ANIM playerAnim )
 	}
 	
 	// Set the gaitsequence
-	gaitDesired = LookupSequence(szAnim);
+	gaitDesired = LookupSequence(szAnim, 1);
 	if(gaitDesired == -1)
 	{
 		gaitDesired = 0;

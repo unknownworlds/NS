@@ -125,7 +125,7 @@ void CBaseMonster :: MakeIdealYaw( Vector vecTarget ) { }
 float CBaseMonster::ChangeYaw ( int yawSpeed ) { return 0; }
 int CBaseAnimating :: LookupActivity ( int activity ) { return 0; }
 int CBaseAnimating :: LookupActivityHeaviest ( int activity ) { return 0; }
-int CBaseAnimating :: LookupSequence ( const char *label ) { return 0; }
+int CBaseAnimating :: LookupSequence ( const char *label, int queue ) { return 0; }
 void CBaseAnimating :: ResetSequenceInfo ( ) { }
 BOOL CBaseAnimating :: GetSequenceFlags( ) { return FALSE; }
 void CBaseAnimating :: DispatchAnimEvents ( float flInterval ) { }

@@ -487,7 +487,7 @@ public:
 	int	 GetSequenceFlags( void );
 	int  LookupActivity ( int activity );
 	int  LookupActivityHeaviest ( int activity );
-	int  LookupSequence ( const char *label );
+	int  LookupSequence ( const char *label, int queue = 0 );
 	const char* LookupSequence(int inSequence);
 	void ResetSequenceInfo ( );
 	void DispatchAnimEvents ( float flFutureInterval = 0.1 ); // Handle events that have happend since last time called up until X seconds into the future
@@ -510,6 +510,10 @@ public:
 	float				m_flLastEventCheck;	// last time the event list was checked
 	BOOL				m_fSequenceFinished;// flag set when StudioAdvanceFrame moves across a frame boundry
 	BOOL				m_fSequenceLoops;	// true if the sequence loops
+
+	// For performance gain during LookupSequence
+	char mPreviousLookupString[3][64];
+	int mPreviousLookupSequence[3];
 };
 
 

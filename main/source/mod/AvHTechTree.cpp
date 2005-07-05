@@ -194,6 +194,21 @@ bool AvHTechTree::GetIsMessageAvailable(const AvHMessageID inMessageID) const
 	const AvHTechNode* Subnode;
 	const AvHTechNode* Node = GetNode(inMessageID);
 
+	// tankefugl: 73
+	// HACK to bypass the node checks when issuing one of the CC UI impulses
+	// Could probably be reworked prettier by assigning nodes to each of these
+	// messages, but this will have to do for now
+	if (inMessageID == COMMANDER_SELECTALL || 
+		inMessageID == COMMANDER_NEXTAMMO || 
+		inMessageID == COMMANDER_NEXTHEALTH || 
+		inMessageID == COMMANDER_NEXTIDLE || 
+		inMessageID == GROUP_SELECT_1 || 
+		inMessageID == GROUP_SELECT_2 || 
+		inMessageID == GROUP_SELECT_3 || 
+		inMessageID == GROUP_SELECT_4 || 
+		inMessageID == GROUP_SELECT_5)
+		return true;
+	// :tankefugl
 	if( Node == NULL ) //not found
 	{ returnVal = false; }
 	else if( Node->getIsResearched() && !Node->getAllowMultiples() ) //can only research once?

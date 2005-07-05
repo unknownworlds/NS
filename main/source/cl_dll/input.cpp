@@ -827,9 +827,9 @@ void IN_Cancel(void)
 
 void IN_Impulse (void)
 {
-	char msg[1024];
-	sprintf(msg, "in_impulse=%s\n", gEngfuncs.Cmd_Argv(1));
-	CenterPrint(msg);
+	//char msg[1024];
+	//sprintf(msg, "in_impulse=%s\n", gEngfuncs.Cmd_Argv(1));
+	//CenterPrint(msg);
 
 	in_impulse = atoi( gEngfuncs.Cmd_Argv(1) );
 }

@@ -106,7 +106,7 @@ int CBaseAnimating :: LookupSequence ( const char *label, int queue )
 		return this->mPreviousLookupSequence[queue];
 	}
 
-	strcpy(this->mPreviousLookupSequence[queue], label);
+	strcpy(this->mPreviousLookupString[queue], label);
 	this->mPreviousLookupSequence[queue] = ::LookupSequence( pmodel, label );
 	return this->mPreviousLookupSequence[queue];
 }

@@ -1379,7 +1379,7 @@ const AvHBaseInfoLocationListType& AvHGamerules::GetInfoLocations() const
 bool AvHGamerules::GetCheatsEnabled(void) const
 {
 	static float theCheatsEnabled = CVAR_GET_FLOAT( "sv_cheats" );
-	ALERT(at_console, UTIL_VarArgs("GetCheatsEnabled %f > %f\n", gpGlobals->time, (gSvCheatsLastUpdateTime + 0.5f ))  );
+	// ALERT(at_console, UTIL_VarArgs("GetCheatsEnabled %f > %f\n", gpGlobals->time, (gSvCheatsLastUpdateTime + 0.5f ))  );
 	if ( gpGlobals->time > (gSvCheatsLastUpdateTime + 0.5f ) ) {
 		theCheatsEnabled = CVAR_GET_FLOAT( "sv_cheats" );
 		gSvCheatsLastUpdateTime = gpGlobals->time;

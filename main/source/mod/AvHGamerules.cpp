@@ -292,6 +292,7 @@ void SetGameRules(AvHGamerules* inGameRules)
 	g_pGameRules = inGameRules;
 }
 
+static float gSvCheatsLastUpdateTime;
 AvHGamerules::AvHGamerules() : mTeamA(TEAM_ONE), mTeamB(TEAM_TWO)
 {
 	this->mGameStarted = false;
@@ -299,7 +300,7 @@ AvHGamerules::AvHGamerules() : mTeamA(TEAM_ONE), mTeamB(TEAM_TWO)
 
 	this->mTeamA.SetTeamType(AVH_CLASS_TYPE_MARINE);
 	this->mTeamB.SetTeamType(AVH_CLASS_TYPE_ALIEN);
-
+	gSvCheatsLastUpdateTime = -1.0f;
 	this->mVictoryTime = -1;
 	this->mMapMode = MAP_MODE_UNDEFINED;
 	this->mLastParticleUpdate = -1;
@@ -1039,7 +1040,12 @@ const AvHBaseInfoLocationListType& AvHGamerules::GetInfoLocations() const
 
 bool AvHGamerules::GetCheatsEnabled(void) const
 {
-	float theCheatsEnabled = CVAR_GET_FLOAT( "sv_cheats" );
+	static float theCheatsEnabled = CVAR_GET_FLOAT( "sv_cheats" );
+	if (gpGlobals->time > (gSvCheatsLastUpdateTime + 0.5f))
+	{
+		theCheatsEnabled = CVAR_GET_FLOAT( "sv_cheats" );
+		gSvCheatsLastUpdateTime = gpGlobals->time;
+	}
 	return (theCheatsEnabled == 1.0f);
 }
 
@@ -2319,6 +2325,7 @@ void AvHGamerules::ResetGame(bool inPreserveTeams)
 	// Reset game rules
 	this->mFirstUpdate = true;
 	this->mPreserveTeams = inPreserveTeams;
+	gSvCheatsLastUpdateTime = -1.0f;
 }
 
 void AvHGamerules::RecalculateMapMode( void )
@@ -2531,7 +2538,7 @@ void AvHGamerules::InternalResetGameRules()
 	this->mSentCountdownMessage = false;
 	this->mTimeWorldReset = gpGlobals->time;
 	this->mCombatAttackingTeamNumber = TEAM_IND;
-
+	gSvCheatsLastUpdateTime = -1.0f;
 	if(this->mLastMapChange == -1)
 	{
 		this->mLastMapChange = gpGlobals->time;

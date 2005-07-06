@@ -817,6 +817,7 @@ private:
 
     int                 mScore;
     int                 mSavedCombatFrags;
+	float				mLastUpdateTime;
 
 	string				mNetworkAddress;
     int                 mLastModelIndex;

@@ -3261,7 +3261,7 @@ void AvHPlayer::Init()
     AvHGamerules* theGameRules = GetGameRules();
 
     mServerVariableList.clear();
-    
+	mLastUpdateTime = -1;
     for (i = 0; i < theGameRules->GetNumServerVariables(); ++i)
     {
         mServerVariableList.push_back(ServerVariable());
@@ -6534,17 +6534,21 @@ void AvHPlayer::InternalCommonThink()
 
 void AvHPlayer::PropagateServerVariables()
 {
-    for (int i = 0; i < (signed)mServerVariableList.size(); ++i)
-    {
-        std::string theValue = CVAR_GET_STRING( mServerVariableList[i].mName.c_str() );
-        
-        if ( mServerVariableList[i].mLastValueSent != theValue)
-        {
-			NetMsg_ServerVar( this->pev, mServerVariableList[i].mName, theValue );
-            mServerVariableList[i].mLastValueSent = theValue;
-            break; // Only send one message per tick to avoid overflow.
-        }
-    }
+	if ( gpGlobals->time > (mLastUpdateTime + 0.5f) )
+	{
+		for (int i = 0; i < (signed)mServerVariableList.size(); ++i)
+		{
+			std::string theValue = CVAR_GET_STRING( mServerVariableList[i].mName.c_str() );
+	        
+			if ( mServerVariableList[i].mLastValueSent != theValue)
+			{
+				NetMsg_ServerVar( this->pev, mServerVariableList[i].mName, theValue );
+				mServerVariableList[i].mLastValueSent = theValue;
+				break; // Only send one message per tick to avoid overflow.
+			}
+		}
+		mLastUpdateTime = gpGlobals->time;
+	}
 }
 
 void AvHPlayer::InternalMarineThink()

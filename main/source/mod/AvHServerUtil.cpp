@@ -607,13 +607,6 @@ bool AvHSUGetIsExternalClassName(const char* inClassName)
 {
 	bool theIsExternal = false;
 	
-	if(inClassName)
-	{
-		char theString[512];
-		sprintf(theString, "Checking entity: %s\n", inClassName);
-		//ALERT(at_logged, theString);
-	}
-	
 	if(inClassName && (!strncmp(inClassName, "adminmod_", 9)))
 	{
 		theIsExternal = true;

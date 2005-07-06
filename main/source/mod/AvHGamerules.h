@@ -213,7 +213,7 @@ public:
 	bool				GetIsTesting(void) const;
 	bool				GetIsValidFutureTeam(AvHPlayer inPlayer, int inTeamNumber) const;
 	bool				GetCanJoinTeamInFuture(AvHPlayer* inPlayer, AvHTeamNumber theTeamNumber, string& outString) const;
-	AvHBaseInfoLocationListType		GetInfoLocations() const;
+	const AvHBaseInfoLocationListType&		GetInfoLocations() const;
 	int					GetMaxWeight(void) const;
 	const char*			GetSpawnEntityName(AvHPlayer* inPlayer) const;
 	Vector				GetSpawnAreaCenter(AvHTeamNumber inTeamNumber) const;

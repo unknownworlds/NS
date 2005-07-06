@@ -9308,7 +9308,7 @@ void AvHPlayer::UpdateParticleTemplates()
 void AvHPlayer::UpdateInfoLocations()
 {
     // Get map location list
-    AvHBaseInfoLocationListType theInfoLocations = GetGameRules()->GetInfoLocations();
+    const AvHBaseInfoLocationListType& theInfoLocations = GetGameRules()->GetInfoLocations();
 
     // Compare with ours, send one down each tick (assumes that previous ones sent don't change)
     int theNumClientInfoLocations = this->mClientInfoLocations.size();
@@ -9459,7 +9459,7 @@ void AvHPlayer::UpdateSoundNames()
     if(this->pev != NULL )      // Not fully connected yet
     {
         // Send list of special sounds
-        StringList theSoundNameList = AvHMP3Audio::GetSoundNameList();
+        const StringList& theSoundNameList = AvHMP3Audio::GetSoundNameList();
         int theNumberOfSounds = theSoundNameList.size();
         int theNumberOfSoundsOnClient = this->mClientSoundNames.size();
         

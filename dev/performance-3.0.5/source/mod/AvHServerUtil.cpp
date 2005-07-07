@@ -290,7 +290,7 @@ char* AvHSUGetGameVersionString()
     
     theGameVersionString = "v"	+ MakeStringFromInt(BALANCE_IVAR(kGameVersionMajor)) 
 								+ "." + MakeStringFromInt(BALANCE_IVAR(kGameVersionMinor))
-								+ "." + MakeStringFromInt(BALANCE_IVAR(kGameVersionRevision));
+								+ "." + MakeStringFromInt(BALANCE_IVAR(kGameVersionRevision)) + "-RC2";
     
     // Add letter on for beta builds
     //#ifdef AVH_SECURE_PRERELEASE_BUILD

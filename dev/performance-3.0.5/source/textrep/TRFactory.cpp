@@ -57,7 +57,7 @@ bool TRFactory::ReadDescriptionsFromFile(const string& inRelativePathFilename, T
 	bool theSuccess = false;
 	bool theDescriptionRead = false;
 	fstream trstream;
-	trstream.open(inRelativePathFilename.c_str());
+	trstream.open(inRelativePathFilename.c_str(), ios::in);
 	if ( trstream.is_open() ) {
 	  do  {
 		// Try to read the next description in

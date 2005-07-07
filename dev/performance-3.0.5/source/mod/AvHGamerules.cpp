@@ -2081,7 +2081,8 @@ void AvHGamerules::PreWorldPrecacheInitParticles()
 
 	success=TRFactory::ReadDescriptionsFromStream(trstream, theDescriptionList);
 #else
-        success=TRFactory::ReadDescriptionsFromFile(string(getModDirectory()) + "/" + kBasePSName, theDescriptionList);
+	string theLevelBaseSystemFile = string(getModDirectory()) + "/" + kBasePSName;
+        success=TRFactory::ReadDescriptionsFromFile(theLevelBaseSystemFile, theDescriptionList);
 #endif
 
         if(success)
@@ -2098,7 +2099,7 @@ void AvHGamerules::PreWorldPrecacheInitParticles()
 	if(theCStrLevelName && !FStrEq(theCStrLevelName, ""))
 	{
 		string theLevelName = theCStrLevelName;
-		string theLevelParticleSystemFile = theLevelName + string(".ps");
+		string theLevelParticleSystemFile = string(getModDirectory()) + string("/") + theLevelName + string(".ps");
 #ifndef LINUX
 	        char		*pbuffer = NULL;
 	        int len;

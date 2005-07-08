@@ -31,7 +31,7 @@ TEXT_OBJDIR=$(TEXT_SRCDIR)/obj
 UTIL_OBJDIR=$(UTIL_SRCDIR)/obj
 OUTPUT_DIR=../../hlds_l/ns/dlls
 
-BASE_CFLAGS=-Dstricmp=strcasecmp -D_strnicmp=strncasecmp -Dstrnicmp=strncasecmp -DAVH_SERVER -DLINUX  -DVALVE_DLL -DQUIVER -DVOXEL -DQUAKE2 -DDEDICATED -DSWDS -D_STLP_USE_GLIBC -DAVH_PLAYTEST_BUILD
+BASE_CFLAGS=-Dstricmp=strcasecmp -D_strnicmp=strncasecmp -Dstrnicmp=strncasecmp -DAVH_SERVER -DLINUX  -DVALVE_DLL -DQUIVER -DVOXEL -DQUAKE2 -DDEDICATED -DSWDS -D_STLP_USE_GLIBC -DAVH_PLAYTEST_BUILD -DUSE_OLDAUTH -DAVH_SECURE_PRERELEASE_BUILD
 
 #full optimization
 CFLAGS=$(BASE_CFLAGS) -w -Wall -nostdinc++ -ffor-scope -fPIC -mcpu=i486 -O3 -pipe  -funroll-loops -fdelayed-branch -malign-loops=4 -malign-jumps=4 -malign-functions=4  
@@ -41,7 +41,7 @@ CFLAGS=$(BASE_CFLAGS) -w -Wall -nostdinc++ -ffor-scope -fPIC -mcpu=i486 -O3 -pip
 
 # add base directory (CGC)
 
-INCLUDEDIRS=-I$(LIBBASE) -I. -I$(LIBBASE)/include -I$(LIBBASE)/include/stlport -I$(LIBBASE)/include/particle -I$(LIBBASE)/include/lua -I../dlls -I../engine -I../common -I../mod -I../game_shared -I../pm_shared -I.. -I/usr/include/c++/3.3/i486-linux -I/usr/include/c++/3.3 -I/usr/include/c++ 
+INCLUDEDIRS=-I$(LIBBASE) -I. -I$(LIBBASE)/include/curl -I$(LIBBASE)/include -I$(LIBBASE)/include/stlport -I$(LIBBASE)/include/particle -I$(LIBBASE)/include/lua -I../dlls -I../engine -I../common -I../mod -I../game_shared -I../pm_shared -I.. -I/usr/include/c++/3.3/i486-linux -I/usr/include/c++/3.3 -I/usr/include/c++ 
 LINKDIRS=  -L$(LIBBASE)/release
 
 SHLIBEXT=so
@@ -50,7 +50,7 @@ LDPRELIBS= $(CFLAGS) -shared \
            -Wl,-Map,ns_map.txt \
            $(LINKDIRS)
 
-LDPOSTLIBS= -Wl,-Bstatic -lstlport_gcc -lstdc++ -lsupc++ -llua -llualib -lparticleMP\
+LDPOSTLIBS= -Wl,-Bstatic -lstlport_gcc -lstdc++ -lsupc++ -llua -llualib -lparticleMP -lcurl \
 	-Wl,-Bdynamic -lm -lgcc -lgcc_eh
 # -lgcc -lgcc_eh -lelf
 DO_CC=$(CC) $(CFLAGS) $(INCLUDEDIRS) -o $@ -c $<
@@ -155,6 +155,7 @@ OBJ = \
 	$(MOD_OBJDIR)/AvHBlink.o \
 	$(MOD_OBJDIR)/AvHBuildable.o \
 	$(MOD_OBJDIR)/AvHBuildingGun.o \
+	$(MOD_OBJDIR)/AvHCurl.o \
 	$(MOD_OBJDIR)/AvHClaws.o \
 	$(MOD_OBJDIR)/AvHCloakable.o \
 	$(MOD_OBJDIR)/AvHConsoleCommands.o \

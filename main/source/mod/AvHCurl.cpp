@@ -24,7 +24,9 @@
 #include "util/Tokenizer.h"
 #include "mod/AvHGamerules.h"
 #include "mod/AvHServerUtil.h"
+#ifndef LINUX
 #define CURL_STATICLIB
+#endif
 #include "curl.h"
 
 extern cvar_t							avh_serverops;
@@ -358,7 +360,7 @@ string BuildUserPassword()
 
 CURLcode PopulateChunkFromURL(const string& inURL, MemoryStruct& outChunk)
 {
-	const int kCurlTimeout = 5;
+	const int kCurlTimeout = 8;
 
 	// init the curl session
 	CURL* theCurlHandle = curl_easy_init();

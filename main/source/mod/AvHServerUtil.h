@@ -131,6 +131,11 @@ Vector AvHSUGetRandomBuildingAngles();
 char* AvHSUGetGameVersionString();
 bool AvHSUGetIsRelevantForTopDownPlayer(const vec3_t& inTopDownPosition, const vec3_t& inEntityPosition, float inScalar = 1.0f);
 const char* AvHSUGetTeamName(int inTeamNumber);
+#ifdef USE_OLDAUTH
+bool AvHSUGetIsValidAuthID(const string& inAuthID);
+string AvHSUGetPlayerAuthIDString(edict_t* inPlayer);
+#endif
+
 void AvHSUKillPlayersTouchingPlayer(AvHPlayer* inPlayer, entvars_t* inInflictor);
 void AvHSUKillBuildablesTouchingPlayer(AvHPlayer* inPlayer, entvars_t* inInflictor);
 void AvHSUBuildingJustCreated(AvHMessageID inBuildID, CBaseEntity* theBuilding, AvHPlayer* inPlayer);

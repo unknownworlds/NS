@@ -274,7 +274,9 @@ extern AvHParticleTemplateListServer    gParticleTemplateList;
 extern AvHSoundListManager              gSoundListManager;
 extern cvar_t                           allow_spectators;
 extern cvar_t                           avh_marinereinforcementcost;
-
+#ifdef USE_OLDAUTH
+extern cvar_t                           avh_uplink;
+#endif
 #ifdef DEBUG
 extern cvar_t                           avh_spawninvulnerabletime;
 #endif
@@ -1962,6 +1964,59 @@ AvHServerPlayerData* AvHPlayer::GetServerPlayerData()
     return theServerPlayerData;
 }
 
+#ifdef USE_OLDAUTH
+int AvHPlayer::GetAuthenticationMask()
+{
+    int theMask = 0;
+    
+    // Get WON id
+    if(this->GetAllowAuth())
+    {
+        // Use cached value if valid
+        theMask = this->mCachedAuthenticationMask;
+
+        // Look it up if uninitialized or Steam isn't ready yet
+        if((theMask == -1) || (theMask == PLAYERAUTH_PENDING))
+        {
+            string theAuthID = AvHSUGetPlayerAuthIDString(this->edict());
+            theMask = GetGameRules()->GetAuthenticationMask(theAuthID);
+
+            // Save cached value
+            this->mCachedAuthenticationMask = theMask;
+        }
+    }
+
+    bool theAllowAuthCheatMask = GetGameRules()->GetCheatsEnabled();
+
+    #ifdef AVH_LAN_PLAYTEST_BUILD
+    theAllowAuthCheatMask = true;
+    #endif
+
+    if(theAllowAuthCheatMask)
+    {
+        theMask |= this->mAuthCheatMask;
+    }
+    return theMask;
+}
+
+bool AvHPlayer::GetAllowAuth() const
+{
+    return (this->mAllowAuth && (avh_uplink.value > 0));
+}
+
+
+void AvHPlayer::SetAllowAuth(bool inAllowAuth)
+{
+    this->mAllowAuth = inAllowAuth;
+}
+
+void AvHPlayer::SetAuthCheatMask(int inAuthCheatMask)
+{
+    this->mAuthCheatMask = inAuthCheatMask;
+}
+
+#endif
+
 bool AvHPlayer::GetCurrentWeaponCannotHolster() const
 {
     bool theCannotHolster = false;
@@ -3274,7 +3329,11 @@ void AvHPlayer::Init()
     this->mResources = 0;
     this->mScore = 0;
     this->mSavedCombatFrags = 0;
-    this->mLastModelIndex = -1;
+	this->mLastModelIndex = -1;
+#ifdef USE_OLDAUTH
+	this->mCachedAuthenticationMask = -1;
+
+#endif
 
     this->mFirstUpdate = true;
     this->mNewMap = true;
@@ -3456,6 +3515,10 @@ void AvHPlayer::Init()
     this->mPreThinkTicks = 0;
 
     this->mDesiredNetName = "";
+#ifdef USE_OLDAUTH
+    this->mAuthCheatMask = 0;
+    this->mAllowAuth = true;
+#endif
 
     this->mTimeOfLastClassAndTeamUpdate = -1;
     this->mEffectivePlayerClassChanged = false;
@@ -9158,6 +9221,7 @@ void AvHPlayer::UpdateEffectiveClassAndTeam()
 			info.frags = this->pev->frags;
 			info.deaths = this->m_iDeaths;
 			info.player_class = this->GetEffectivePlayerClass();
+			info.auth = this->GetAuthenticationMask();
 			info.team = GetGameRules()->GetTeamIndex(this->TeamID());
 			NetMsg_ScoreInfo( info );
             this->mEffectivePlayerClassChanged = false;
@@ -9505,7 +9569,7 @@ void AvHPlayer::UpdateTechNodes()
         if(theTeam)
         {
 			// Propagate and use local tech nodes in combat mode, else use team nodes in NS mode
-            AvHTechTree theTechNodes = theIsCombatMode ? this->mCombatNodes : theTeam->GetTechNodes();
+            AvHTechTree& theTechNodes = theIsCombatMode ? this->mCombatNodes : theTeam->GetTechNodes();
  
             // Now customize nodes for aliens in NS
             if(theIsNSMode && this->GetIsAlien())
@@ -9838,10 +9902,17 @@ bool AvHPlayer::GetIsAuthorized(AvHAuthAction inAction, int inParameter) const
 	}
 }
 
+#ifdef USE_OLDAUTH
+bool AvHPlayer::GetIsMember(const AvHPlayerAuthentication inAuthGroup)
+{
+	return (this->GetAuthenticationMask() & inAuthGroup);
+}
+#else
 bool AvHPlayer::GetIsMember(const string& inAuthGroup) const
 {
 	return false;
 }
+#endif
 
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

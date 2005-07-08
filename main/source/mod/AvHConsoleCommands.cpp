@@ -448,6 +448,18 @@ BOOL AvHGamerules::ClientCommand( CBasePlayer *pPlayer, const char *pcmd )
 		}
 	}
 	#endif
+// puzl: 0001073
+	#ifdef USE_OLDAUTH
+	else if(FStrEq(pcmd, "forceuplink"))
+	{
+		if(theIsDeveloper || theIsDedicatedServer)
+		{
+			this->InitializeAuthentication();
+			UTIL_SayText("Initialized authentication.", theAvHPlayer);
+		}
+		theSuccess = true;
+	}
+	# endif
 	else if(FStrEq(pcmd, kcSetBalanceVar))
 	{
 		if( theAvHPlayer && theAvHPlayer->GetIsAuthorized(AUTH_ACTION_ADJUST_BALANCE,0) )
@@ -1409,7 +1421,12 @@ BOOL AvHGamerules::ClientCommand( CBasePlayer *pPlayer, const char *pcmd )
 			{
 				AvHNexus::handleUnauthorizedJoinTeamAttempt(theAvHPlayer->edict(),TEAM_SPECT);
 			}
+// puzl: 0001073
+#ifdef USE_OLDAUTH			 
+			else if(allow_spectators.value && GetGameRules()->PerformHardAuthorization(theAvHPlayer))
+#else
 			else if(allow_spectators.value)
+#endif
 			{
 				if(theAvHPlayer->GetPlayMode() == PLAYMODE_READYROOM)
 				{
@@ -1544,6 +1561,28 @@ BOOL AvHGamerules::ClientCommand( CBasePlayer *pPlayer, const char *pcmd )
 			theSuccess = true;
 		}
 	}
+// puzl: 0001073
+#ifdef USE_OLDAUTH
+    #ifndef AVH_SECURE_PRERELEASE_BUILD
+	else if(FStrEq(pcmd, kcAuth))
+	{
+		// Toggle auth mask
+		bool theNewState = !theAvHPlayer->GetAllowAuth();
+		theAvHPlayer->SetAllowAuth(theNewState);
+
+		if(theNewState)
+		{
+			UTIL_SayText("Authentication ON\n", theAvHPlayer);
+		}
+		else
+		{
+			UTIL_SayText("Authentication OFF\n", theAvHPlayer);
+		}
+		
+		theSuccess = true;
+	}
+    #endif
+#endif
 	else if(FStrEq(pcmd, kcNumEnts))
 	{
         bool theEnableNumEnts = GetGameRules()->GetCheatsEnabled();

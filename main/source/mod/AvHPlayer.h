@@ -348,7 +348,15 @@ public:
 
 	//Nexus interface - replaces all old auth information
 	bool			GetIsAuthorized(AvHAuthAction inAction, int inParameter) const;
+#ifdef USE_OLDAUTH
+	int				GetAuthenticationMask();
+	bool			GetIsMember(const AvHPlayerAuthentication inAuthGroup);
+	bool			GetAllowAuth() const;
+	void			SetAllowAuth(bool inAllowAuth);
+	void			SetAuthCheatMask(int inAuthCheatMask);
+#else
 	bool			GetIsMember(const string& inAuthGroup) const;
+#endif
 	//END Nexus interface
 
 	float			GetTimeLastPlaying() const;
@@ -847,6 +855,12 @@ private:
 	mutable BalanceIntCollection	mBalanceMapInts;
 	mutable BalanceStringCollection	mBalanceMapStrings;
 	float							mNextBalanceVarUpdate;
+#ifdef USE_OLDAUTH
+	bool				mAllowAuth;
+	int					mAuthCheatMask;
+	int                 mCachedAuthenticationMask;
+#endif
+
 };
 
 typedef vector<AvHPlayer*>	PlayerListType;

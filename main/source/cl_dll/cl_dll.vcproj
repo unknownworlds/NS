@@ -27,7 +27,7 @@
 				Optimization="0"
 				OptimizeForProcessor="0"
 				AdditionalIncludeDirectories="&quot;$(SolutionDir)&quot;;U:\inlcude\stlport;U:\include\vgui;U:\include\nexus;U:\include\libpng;U:\include\fmod;U:\include\lua;U:\include\particle;U:\include\zlib"
-				PreprocessorDefinitions="_DEBUG;_MBCS;DEBUG;WIN32;_WINDOWS;AVH_CLIENT;$(NoInherit)"
+				PreprocessorDefinitions="_DEBUG;_MBCS;DEBUG;WIN32;_WINDOWS;AVH_CLIENT;$(NoInherit);USE_OLDAUTH"
 				MinimalRebuild="TRUE"
 				BasicRuntimeChecks="3"
 				SmallerTypeCheck="TRUE"
@@ -113,7 +113,7 @@
 				EnableIntrinsicFunctions="TRUE"
 				OptimizeForProcessor="0"
 				AdditionalIncludeDirectories="&quot;$(SolutionDir)&quot;;U:\inlcude\stlport;U:\include\vgui;U:\include\nexus;U:\include\libpng;U:\include\fmod;U:\include\lua;U:\include\particle;U:\include\zlib"
-				PreprocessorDefinitions="NDEBUG;WIN32;_WINDOWS;AVH_CLIENT;AVH_PLAYTEST_BUILD;$(NOINHERIT)"
+				PreprocessorDefinitions="NDEBUG;WIN32;_WINDOWS;AVH_CLIENT;AVH_PLAYTEST_BUILD;$(NOINHERIT);USE_OLDAUTH"
 				StringPooling="TRUE"
 				RuntimeLibrary="0"
 				RuntimeTypeInfo="TRUE"
@@ -131,7 +131,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="winmm.lib ws2_32.lib particles.lib vgui.lib liblua.lib liblualib.lib libpng.lib zlib.lib"
+				AdditionalDependencies="winmm.lib ws2_32.lib particles.lib vgui.lib liblua.lib liblualib.lib libpng.lib zlib.lib libcurl.a"
 				OutputFile="$(SolutionDir)..\cl_dlls\client.dll"
 				SuppressStartupBanner="TRUE"
 				AdditionalLibraryDirectories="U:\release"

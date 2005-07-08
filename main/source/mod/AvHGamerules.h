@@ -121,6 +121,11 @@ public:
 typedef vector< pair <string, int> >	MapVoteListType;
 typedef map< int, int >					PlayerMapVoteListType;
 typedef map< int, float >				PlayerVoteTimeType;
+// puzl: 0001073
+#ifdef USE_OLDAUTH
+typedef vector< pair<string, string> >					AuthIDListType;
+typedef map<AvHPlayerAuthentication, AuthIDListType>	AuthMaskListType;
+#endif
 
 class AvHGamerules : public CHalfLifeTeamplay //public CHalfLifeMultiplay/*, public AvHCOCRuleset*/
 {
@@ -128,7 +133,16 @@ public:
 						AvHGamerules();
     virtual				~AvHGamerules();
 
-    // this is the game name that gets seen in the server browser
+// puzl: 0001073
+#ifdef USE_OLDAUTH
+	virtual BOOL		GetIsClientAuthorizedToPlay(edict_t* inEntity, bool inDisplayMessage, bool inForcePending = false) const;
+	virtual bool		PerformHardAuthorization(AvHPlayer* inPlayer) const;
+	virtual int			GetAuthenticationMask(const string& inAuthID) const;
+	const AuthIDListType&	GetServerOpList() const;
+	void				UpdateUplink();
+#endif
+
+	// this is the game name that gets seen in the server browser
 	virtual int			AmmoShouldRespawn( CBasePlayerAmmo *pAmmo );
 	virtual void		BuildableBuilt(AvHBuildable* inBuildable);
 	virtual void		BuildableKilled(AvHBuildable* inBuildable);
@@ -280,6 +294,15 @@ protected:
 	//void				PutPlayerIntoSpectateMode(AvHPlayer* inPlayer) const;
 	virtual void		SendMOTDToClient( edict_t *client );
 
+
+// puzl: 0001073
+#ifdef USE_OLDAUTH
+
+	void				AddAuthStatus(AvHPlayerAuthentication inAuthMask, const string& inWONID, const string& inSteamID);
+	void				DisplayVersioning();
+	void				InitializeAuthentication();
+#endif
+
 private:
 	void				AwardExperience(AvHPlayer* inPlayer, int inTargetLevel, bool inAwardFriendliesInRange = true);
 	void				CalculateMapExtents();
@@ -333,6 +356,11 @@ private:
 	AvHTeam				mTeamB;
 	float				mVictoryTime;
     AvHMapMode			mMapMode;
+// puzl: 0001073
+#ifdef USE_OLDAUTH
+	bool				mUpdatedUplink;
+	AuthIDListType		mServerOpList;
+#endif
 
 	float				mLastParticleUpdate;
 	float				mLastNetworkUpdate;

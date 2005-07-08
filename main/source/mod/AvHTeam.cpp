@@ -2482,6 +2482,7 @@ void AvHTeam::UpdateResources()
 }
 // puzl: 1041
 // o Added back in steamid based authids 
+#ifndef USE_OLDAUTH
 #ifdef AVH_PLAYTEST_BUILD
 // Function that is backwards-compatible with WON ids 
 string AvHSUGetPlayerAuthIDString(edict_t* inPlayer)
@@ -2504,6 +2505,7 @@ string AvHSUGetPlayerAuthIDString(edict_t* inPlayer)
 	
 	return thePlayerAuthID;
 }
+#endif
 #endif
 AvHServerPlayerData* AvHTeam::GetServerPlayerData(edict_t* inEdict)
 {

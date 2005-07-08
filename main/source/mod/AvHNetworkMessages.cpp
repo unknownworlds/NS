@@ -3,7 +3,9 @@
 #include "util/MathUtil.h" //for WrapFloat
 #include "util/STLUtil.h" //for MakeBytesFromHexPairs
 #include "cl_dll/parsemsg.h"
-  
+#ifndef AVH_SERVER
+#include "cl_dll/chudmisc.h"  
+#endif
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // MESSAGE CODES - NEED TO BE INITIALIZED BEFORE CLIENT CONNECTION, OR THEY'D
 // BE LOCAL STATICS INSIDE OF THE FUNCTIONS USING LAZY INSTANTIATION
@@ -45,7 +47,8 @@ void Net_InitializeMessages(void)
 	g_msgMOTD = REG_USER_MSG( "MOTD", -1 );
 	g_msgResetHUD = REG_USER_MSG( "ResetHUD", 0 );
 	g_msgSayText = REG_USER_MSG( "SayText", -1 );
-	g_msgScoreInfo = REG_USER_MSG( "ScoreInfo", 10 );
+	// puzl: 0001073
+	g_msgScoreInfo = REG_USER_MSG( "ScoreInfo", -1 );
 	g_msgServerName = REG_USER_MSG( "ServerName", -1 );
 	g_msgSetFOV = REG_USER_MSG( "SetFOV", 1 );
 	g_msgShake = REG_USER_MSG( "ScreenShake", 6 );
@@ -473,6 +476,7 @@ void Net_InitializeMessages(void)
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+// puzl: 0001073
 #ifndef AVH_SERVER
 	void NetMsg_ScoreInfo( void* const buffer, const int size, ScoreInfo& info )
 	{
@@ -482,7 +486,23 @@ void Net_InitializeMessages(void)
 			info.frags = READ_SHORT();
 			info.deaths = READ_SHORT();
 			info.player_class = READ_BYTE();
+			info.auth = READ_SHORT();
 			info.team = READ_SHORT();
+			char* theString = READ_STRING();
+#ifdef USE_OLDAUTH
+			if(info.auth & PLAYERAUTH_CUSTOM)
+			{
+				//clear the string (I dont think this array is reset anywhere else (since everything is set when the score info message is sent anyways)
+				//so just memset it here to prevent any possible problems.
+				memset(&g_PlayerExtraInfo[info.player_index].customicon, 0, sizeof(g_PlayerExtraInfo[info.player_index].customicon));
+
+				// Read custom icon
+				
+
+				if(theString && strlen(theString) >= 4 && strlen(theString) <= CUSTOM_ICON_LENGTH+2)//make sure the string is within the right size.
+					strncpy(g_PlayerExtraInfo[info.player_index].customicon, theString, sizeof(g_PlayerExtraInfo[info.player_index].customicon)-1);
+			}
+#endif
 		END_READ();
 	}
 #else
@@ -494,7 +514,9 @@ void Net_InitializeMessages(void)
 			WRITE_SHORT( info.frags );
 			WRITE_SHORT( info.deaths );
 			WRITE_BYTE( info.player_class );
+			WRITE_SHORT( info.auth );
             WRITE_SHORT( info.team );
+			WRITE_STRING("0");
 		MESSAGE_END();
 	}
 #endif

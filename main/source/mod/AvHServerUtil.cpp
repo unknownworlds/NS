@@ -241,6 +241,48 @@ const char* AvHSUGetTeamName(int inTeamNumber)
 	return theTeamName;
 }
 
+#ifdef USE_OLDAUTH
+// Steam IDs
+const char* kSteamIDPending = "STEAM_ID_PENDING";
+const char* kSteamIDLocal = "STEAM_ID_LOOPBACK";
+const char* kSteamIDBot = "BOT";
+const char* kSteamIDInvalidID = "-1";
+const char* kSteamIDDefault = "STEAM_0:0:0";
+const char* kSteamIDPrefix = "STEAM_";
+bool AvHSUGetIsValidAuthID(const string& inAuthID)
+{
+	bool theIsValid = true;
+
+	// "0" is WONid that hasn't been entered
+	if((inAuthID == "") || (inAuthID == " ") || (inAuthID == "0") || (inAuthID == kSteamIDDefault) || (inAuthID == kSteamIDInvalidID) || (inAuthID == kSteamIDBot) || (inAuthID == kSteamIDLocal))
+	{
+		theIsValid = false;
+	}
+
+	return theIsValid;
+}
+// Function that is backwards-compatible with WON ids 
+string AvHSUGetPlayerAuthIDString(edict_t* inPlayer)
+{
+	string thePlayerAuthID;
+	
+	// Try to get SteamID
+	const char* theSteamID = g_engfuncs.pfnGetPlayerAuthId(inPlayer);
+	if(strcmp(theSteamID, kSteamIDInvalidID))
+	{
+		thePlayerAuthID = theSteamID;
+	}
+	// If that fails, get WonID and put it into a string
+	else
+	{
+		int theWonID = g_engfuncs.pfnGetPlayerWONId(inPlayer);
+		thePlayerAuthID = MakeStringFromInt(theWonID);
+	}
+	
+	return thePlayerAuthID;
+}
+#endif
+
 void AvHSUKillPlayersTouchingPlayer(AvHPlayer* inPlayer, entvars_t* inInflictor)
 {
 	// If new player is stuck inside another player, kill old player

@@ -196,6 +196,25 @@ ScorePanel::ScorePanel(int x,int y,int wide,int tall) : Panel(x,y,wide,tall)
 	setBgColor(0, 0, 0, 96);
 	m_pCurrentHighlightLabel = NULL;
 	m_iHighlightRow = -1;
+	// puzl: 0001073
+	m_pTrackerIcon = NULL;
+	m_pDevIcon = NULL;
+	m_pPTIcon = NULL;
+	m_pGuideIcon = NULL;
+	m_pServerOpIcon = NULL;
+	m_pContribIcon = NULL;
+	m_pCheatingDeathIcon = NULL;
+	m_pVeteranIcon = NULL;
+	
+	m_pTrackerIcon = vgui_LoadTGANoInvertAlpha("gfx/vgui/640_scoreboardtracker.tga");
+	m_pDevIcon = vgui_LoadTGANoInvertAlpha("gfx/vgui/640_scoreboarddev.tga");
+	m_pPTIcon = vgui_LoadTGANoInvertAlpha("gfx/vgui/640_scoreboardpt.tga");
+	m_pGuideIcon = vgui_LoadTGANoInvertAlpha("gfx/vgui/640_scoreboardguide.tga");
+	m_pServerOpIcon = vgui_LoadTGANoInvertAlpha("gfx/vgui/640_scoreboardserverop.tga");
+	m_pContribIcon = vgui_LoadTGANoInvertAlpha("gfx/vgui/640_scoreboardcontrib.tga");
+	m_pCheatingDeathIcon = vgui_LoadTGANoInvertAlpha("gfx/vgui/640_scoreboardcd.tga");
+	m_pVeteranIcon = vgui_LoadTGANoInvertAlpha("gfx/vgui/640_scoreboardveteran.tga");
+
 	m_iIconFrame = 0;
 	m_iLastFrameIncrementTime = gHUD.GetTimeOfLastUpdate();
 	
@@ -346,10 +365,12 @@ void ScorePanel::Initialize( void )
 	m_fLastKillTime = 0;
 	m_iPlayerNum = 0;
 	m_iNumTeams = 0;
-	for( int counter = 0; counter < MAX_PLAYERS+1; counter++ )
-	{
-		delete g_PlayerExtraInfo[counter].icon;
-	}
+	// puzl: 0001073
+//	for( int counter = 0; counter < MAX_PLAYERS+1; counter++ )
+//	{
+//		delete g_PlayerExtraInfo[counter].icon;
+//	}
+
 	memset( g_PlayerExtraInfo, 0, sizeof g_PlayerExtraInfo );
 	memset( g_TeamInfo, 0, sizeof g_TeamInfo );
 }
@@ -728,6 +749,9 @@ void ScorePanel::FillGrid()
 		extra_player_info_t* theExtraPlayerInfo = &g_PlayerExtraInfo[theSortedRow];
 		int thePlayerClass = theExtraPlayerInfo->playerclass;
 		short theTeamNumber = theExtraPlayerInfo->teamnumber;
+		string theCustomIcon = (string)theExtraPlayerInfo->customicon;
+// puzl: 0001073
+		short thePlayerAuthentication = theExtraPlayerInfo->auth;
 		bool thePlayerIsDead = false;
 		switch( thePlayerClass )
 		{
@@ -1043,11 +1067,121 @@ void ScorePanel::FillGrid()
 					break;
 						
 				case COLUMN_RANK_ICON:
+// puzl: 0001073
+#ifdef USE_OLDAUTH
+					// Check if we have authority.  Right now these override the tracker icons.  Listed in increasing order of "importance".
+					if(thePlayerAuthentication & PLAYERAUTH_CHEATINGDEATH)
+					{
+						// Red
+						pLabel->setImage(m_pCheatingDeathIcon);
+						pLabel->setFgColorAsImageColor(false);
+						m_pCheatingDeathIcon->setColor(BuildColor(255, 69, 9, gHUD.GetGammaSlope()));
+					}
+					if(thePlayerAuthentication & PLAYERAUTH_VETERAN)
+					{
+						// Yellow
+						pLabel->setImage(m_pVeteranIcon);
+						pLabel->setFgColorAsImageColor(false);
+						m_pVeteranIcon->setColor(BuildColor(248, 252, 0, gHUD.GetGammaSlope()));
+					}
+					if(thePlayerAuthentication & PLAYERAUTH_BETASERVEROP)
+					{
+						// Whitish
+						pLabel->setImage(m_pServerOpIcon);
+						pLabel->setFgColorAsImageColor(false);
+						m_pServerOpIcon->setColor(BuildColor(220, 220, 220, gHUD.GetGammaSlope()));
+					}
+					if(thePlayerAuthentication & PLAYERAUTH_CONTRIBUTOR)
+					{
+						// Light blue
+						pLabel->setImage(m_pContribIcon);
+						pLabel->setFgColorAsImageColor(false);
+						m_pContribIcon->setColor(BuildColor(117, 214, 241, gHUD.GetGammaSlope()));
+					}
+					if(thePlayerAuthentication & PLAYERAUTH_GUIDE)
+					{
+						// Magenta
+						pLabel->setImage(m_pGuideIcon);
+						pLabel->setFgColorAsImageColor(false);
+						m_pGuideIcon->setColor(BuildColor(208, 16, 190, gHUD.GetGammaSlope()));
+					}
+					if(thePlayerAuthentication & PLAYERAUTH_PLAYTESTER)
+					{
+						// Orange
+						pLabel->setImage(m_pPTIcon);
+						pLabel->setFgColorAsImageColor(false);
+						m_pPTIcon->setColor(BuildColor(255, 167, 54, gHUD.GetGammaSlope()));
+					}
+					if(thePlayerAuthentication & PLAYERAUTH_DEVELOPER)
+					{
+						// TSA blue
+						pLabel->setImage(m_pDevIcon);
+						pLabel->setFgColorAsImageColor(false);
+						m_pDevIcon->setColor(BuildColor(100, 215, 255, gHUD.GetGammaSlope()));
+					}
+
+					if(thePlayerAuthentication & PLAYERAUTH_SERVEROP)
+					{
+						// Bright green
+						pLabel->setImage(m_pServerOpIcon);
+						pLabel->setFgColorAsImageColor(false);
+						m_pServerOpIcon->setColor(BuildColor(0, 255, 0, gHUD.GetGammaSlope()));
+					}
+
+					// Allow custom icons to override other general icons
+					if(thePlayerAuthentication & PLAYERAUTH_CUSTOM)
+					{
+						if(theCustomIcon != "")
+						{
+							string theIconName = theCustomIcon.substr(0, strlen(theCustomIcon.c_str()) - 3);
+							string theFullCustomIconString = string("gfx/vgui/640_") + theIconName + string(".tga");
+
+							vgui::BitmapTGA *pIcon = GetIconPointer(theCustomIcon);
+
+							//Icon hasnt been loaded, load it now and add it to list of icons.
+							if(pIcon == NULL)
+							{
+								pIcon = vgui_LoadTGANoInvertAlpha(theFullCustomIconString.c_str());
+
+								if(pIcon)
+									m_CustomIconList.push_back( make_pair(pIcon, theCustomIcon) );
+							}
+							
+							if(pIcon)
+							{
+								pLabel->setImage(pIcon);
+								pLabel->setFgColorAsImageColor(false);
+
+								// Parse color (last 3 bytes are the RGB values 1-9)
+								string theColor = theCustomIcon.substr( strlen(theCustomIcon.c_str())-3, 3);
+								int theRed = (MakeIntFromString(theColor.substr(0, 1))/9.0f)*255;
+								int theGreen = (MakeIntFromString(theColor.substr(1, 1))/9.0f)*255;
+								int theBlue = (MakeIntFromString(theColor.substr(2, 1))/9.0f)*255;
+
+								pIcon->setColor(BuildColor(theRed, theGreen, theBlue, gHUD.GetGammaSlope()));
+							}
+						}
+					}
+					
+					if(g_pTrackerUser)
+					{
+						int playerSlot = theSortedRow;
+						int trackerID = gEngfuncs.GetTrackerIDForPlayer(playerSlot);
+
+						if (g_pTrackerUser->IsFriend(trackerID) && trackerID != g_pTrackerUser->GetTrackerID())
+						{
+							pLabel->setImage(m_pTrackerIcon);
+							pLabel->setFgColorAsImageColor(false);
+							m_pTrackerIcon->setColor(Color(255, 255, 255, 0));
+						}
+					}
+#else
 					if( theExtraPlayerInfo->icon )
 					{
 						vgui::Bitmap* image = theExtraPlayerInfo->icon->getImage( this->GetIconFrame() );
 						if( image ) { pLabel->setImage( image ); }
 					}
+#endif
 					break;
                 case COLUMN_SCORE:
                     if(!theIsForEnemy)

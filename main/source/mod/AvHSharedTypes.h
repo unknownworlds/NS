@@ -60,6 +60,7 @@ typedef struct ScoreInfo_s
 	int frags;
 	int deaths;
 	int player_class;
+	int auth;
 	int team;
 } ScoreInfo;
 

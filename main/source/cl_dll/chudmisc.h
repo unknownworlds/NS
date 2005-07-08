@@ -220,6 +220,8 @@ protected:
 };
 
 class ScoreboardIcon;
+// puzl: 0001073
+#define CUSTOM_ICON_LENGTH 32
 
 struct extra_player_info_t
 {
@@ -230,8 +232,10 @@ struct extra_player_info_t
     short frags;
 	short deaths;
 	short playerclass;
+	short auth;
 	short teamnumber;
 	char teamname[MAX_TEAM_NAME];
+	char customicon[CUSTOM_ICON_LENGTH + 3]; //last 3 characters is the color.
 	ScoreboardIcon* icon;
 };
 

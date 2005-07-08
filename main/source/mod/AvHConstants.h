@@ -276,6 +276,25 @@ typedef enum
 	PLAYERCLASS_REINFORCINGCOMPLETE
 } AvHPlayerClass;
 
+// puzl: 0001073
+#ifdef USE_OLDAUTH
+// This is a mask because players can have more then one of these
+typedef enum
+{
+	PLAYERAUTH_NONE = 0,
+	PLAYERAUTH_DEVELOPER = 1,
+	PLAYERAUTH_GUIDE = 2,
+	PLAYERAUTH_SERVEROP = 4,
+	PLAYERAUTH_PLAYTESTER = 8,
+	PLAYERAUTH_CONTRIBUTOR = 16,
+	PLAYERAUTH_CHEATINGDEATH = 32,
+	PLAYERAUTH_VETERAN = 64,
+	PLAYERAUTH_BETASERVEROP = 128,
+	PLAYERAUTH_PENDING = 256,
+	PLAYERAUTH_CUSTOM = 512,
+	PLAYERAUTH_UPP_MODE = 16384
+} AvHPlayerAuthentication;
+#else
 // Mask replaced with explicit string set for GetIsMember function
 const static string PLAYERAUTH_DEVELOPER("dev");
 const static string PLAYERAUTH_PLAYTESTER("pt");
@@ -284,6 +303,7 @@ const static string PLAYERAUTH_CONTRIBUTOR("const");
 const static string PLAYERAUTH_SERVEROP("op");
 const static string PLAYERAUTH_VETERAN("vet");
 const static string PLAYERAUTH_BETASERVEROP("betaop");
+#endif
 
 typedef enum 
 {

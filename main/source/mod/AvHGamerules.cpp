@@ -201,6 +201,16 @@
 #include "mod/AvHNetworkMessages.h"
 #include "mod/AvHNexusServer.h"
 
+// puzl: 0001073
+#ifdef USE_OLDAUTH
+AuthMaskListType						gAuthMaskList;
+extern const char* kSteamIDPending;
+extern const char* kSteamIDLocal;
+extern const char* kSteamIDBot;
+extern const char* kSteamIDInvalidID;
+extern const char* kSteamIDDefault;
+#endif
+
 AvHSoundListManager						gSoundListManager;
 extern AvHVoiceHelper					gVoiceHelper;
 CVoiceGameMgr							g_VoiceGameMgr;
@@ -347,6 +357,38 @@ int	AvHGamerules::WeaponShouldRespawn(CBasePlayerItem *pWeapon)
 	return GR_WEAPON_RESPAWN_NO;
 }
 
+// puzl: 0001073
+#ifdef USE_OLDAUTH //players are authorized by UPP now.
+const AuthIDListType& AvHGamerules::GetServerOpList() const
+{
+	return this->mServerOpList;
+}
+
+bool AvHGamerules::PerformHardAuthorization(AvHPlayer* inPlayer) const
+{
+	bool theAuthorized = true;
+
+	#ifdef AVH_SECURE_PRERELEASE_BUILD
+	if(!this->GetIsClientAuthorizedToPlay(inPlayer->edict(), false, true))
+	{
+		char* theMessage = UTIL_VarArgs(
+			"%s<%s> is not authorized to play on beta NS servers.\n",
+			STRING(inPlayer->pev->netname),
+			AvHSUGetPlayerAuthIDString(inPlayer->edict()).c_str()
+			);
+		ALERT(at_logged, theMessage);
+
+		// Boot player off server
+		inPlayer->Kick();
+
+		theAuthorized = false;
+	}
+	#endif
+
+	return theAuthorized;
+}
+#endif
+
 // Sets the player up to join the team, though they may not respawn in immediately depending
 // on the ruleset and the state of the game.  Assumes 1 or a 2 for team number
 bool AvHGamerules::AttemptToJoinTeam(AvHPlayer* inPlayer, AvHTeamNumber inTeamToJoin, bool inDisplayErrorMessage)
@@ -360,6 +402,10 @@ bool AvHGamerules::AttemptToJoinTeam(AvHPlayer* inPlayer, AvHTeamNumber inTeamTo
 		AvHNexus::handleUnauthorizedJoinTeamAttempt(inPlayer->edict(),inTeamToJoin);
 	}
 	else
+// puzl: 0001073
+#ifdef USE_OLDAUTH
+	if(this->PerformHardAuthorization(inPlayer))
+#endif
 	{
 		int teamA = this->mTeamA.GetTeamNumber();
 		int teamB = this->mTeamB.GetTeamNumber();
@@ -618,6 +664,116 @@ void AvHGamerules::CalculateMapGamma()
 	this->mCalculatedMapGamma = true;
 }
 
+// puzl: 0001073
+#ifdef USE_OLDAUTH
+BOOL AvHGamerules::GetIsClientAuthorizedToPlay(edict_t* inEntity, bool inDisplayMessage, bool inForcePending) const
+{
+	BOOL theIsAuthorized = false;
+
+	#ifndef AVH_SECURE_PRERELEASE_BUILD
+	theIsAuthorized = true;
+	#endif
+
+	#ifdef AVH_SECURE_PRERELEASE_BUILD
+	string theAuthID = AvHSUGetPlayerAuthIDString(inEntity);
+	const char* thePlayerName = STRING(inEntity->v.netname);
+	if(!strcmp(thePlayerName, ""))
+	{
+		thePlayerName = "unknown";
+	}
+
+    // Allow only select players to play
+	int theSecurityMask = PLAYERAUTH_DEVELOPER | PLAYERAUTH_PLAYTESTER  |  PLAYERAUTH_CONTRIBUTOR;
+
+	// If any of these bits are set, allow them to play
+    int theAuthMask = 0;
+
+    // Get the auth mask the cheap way if possible
+    AvHPlayer* thePlayer = dynamic_cast<AvHPlayer*>(CBaseEntity::Instance(inEntity));
+    if(thePlayer)
+    {
+        theAuthMask = thePlayer->GetAuthenticationMask();
+    }
+    else
+    {
+        theAuthMask = GetGameRules()->GetAuthenticationMask(theAuthID);
+    }
+
+	if(theAuthMask & theSecurityMask)
+	{
+		if(inDisplayMessage)
+		{
+			char theAuthenticateString[512];
+			sprintf(theAuthenticateString, "Player (%s -> %s) authenticated as privileged player.\r\n", thePlayerName, theAuthID.c_str());
+			ALERT(at_logged, theAuthenticateString);
+		}
+
+		theIsAuthorized = true;
+	}
+	// Pending
+	else if(theAuthID == kSteamIDPending)
+	{
+		if(!inForcePending)
+		{
+			// The player is authorized
+			theIsAuthorized = true;
+		}
+	}
+	// Local players or bots are always allowed
+	else if((theAuthID == kSteamIDLocal) || (theAuthID == kSteamIDBot))
+	{
+		theIsAuthorized = true;
+	}
+
+	// Display message on failure
+	if(!theIsAuthorized && inDisplayMessage)
+	{
+		char theAuthenticateString[512];
+		sprintf(theAuthenticateString, "Player (%s -> %s) failed authentication.\r\n", thePlayerName, theAuthID.c_str());
+		ALERT(at_logged, theAuthenticateString);
+	}
+
+	#endif
+
+	return theIsAuthorized;
+}
+#endif
+
+// puzl: 0001073
+#ifdef USE_OLDAUTH
+BOOL AvHGamerules::ClientConnected( edict_t *pEntity, const char *pszName, const char *pszAddress, char szRejectReason[ 128 ] )
+{
+	bool theAllowedToConnect = true;
+	BOOL theSuccess = false;
+
+	#ifdef AVH_SECURE_PRERELEASE_BUILD
+	this->UpdateUplink();
+	#endif
+
+	#ifdef AVH_SECURE_PRERELEASE_BUILD
+	theAllowedToConnect = false;
+	theAllowedToConnect = this->GetIsClientAuthorizedToPlay(pEntity, true, false);
+	#endif
+
+	if(theAllowedToConnect)
+	{
+		g_VoiceGameMgr.ClientConnected(pEntity);
+
+		// Play connect sound
+		EMIT_SOUND(pEntity, CHAN_AUTO, kConnectSound, 0.8, ATTN_NORM);
+
+		theSuccess = CHalfLifeTeamplay::ClientConnected(pEntity, pszName, pszAddress, szRejectReason);
+	}
+	else
+	{
+		sprintf(szRejectReason, "Only authorized players can join beta NS servers.\n");
+	}
+
+	return theSuccess;
+}
+
+#else
+
 BOOL AvHGamerules::ClientConnected( edict_t *pEntity, const char *pszName, const char *pszAddress, char szRejectReason[ 128 ] )
 {
 	BOOL theSuccess = false;
@@ -630,6 +786,7 @@ BOOL AvHGamerules::ClientConnected( edict_t *pEntity, const char *pszName, const
 	theSuccess = CHalfLifeTeamplay::ClientConnected(pEntity, pszName, pszAddress, szRejectReason);
 	return theSuccess;
 }
+#endif
 
 
 void AvHGamerules::ClientDisconnected( edict_t *pClient )
@@ -2553,6 +2710,11 @@ void AvHGamerules::InternalResetGameRules()
 	this->mLastWorldEntityUpdate = -1;
 	this->mLastCloakableUpdate = -1;
 	this->mLastVictoryUpdate = -1;
+// puzl: 0001073
+#ifdef USE_OLDAUTH //under UPP, we don't want to reestablish a connection with each new game
+	this->mUpdatedUplink = false;
+#endif
+
 }
 
 void AvHGamerules::CopyDataToSpawnEntity(const AvHSpawn& inSpawnEntity) const
@@ -2640,6 +2802,56 @@ bool AvHGamerules::CanPlayerBeacon(CBaseEntity *inPlayer)
 	}
 	return result;
 }
+
+// puzl: 0001073
+#ifdef USE_OLDAUTH
+unsigned int gTimeLastUpdatedUplink = 0;
+void AvHGamerules::UpdateUplink()
+{
+	#ifdef AVH_SECURE_PRERELEASE_BUILD
+	avh_uplink.value = 1;
+	#endif
+
+	// If authentication is enabled
+	if(!this->mUpdatedUplink && (avh_uplink.value > 0))
+	{
+		// Only allow it once every day -> 500 servers == num queries per hour = 500*75k =  1,500k per hour -> just over a 1 gig a month
+		unsigned int theCurrentSystemTime = AvHSUTimeGetTime();
+		int theUpdateUplinkInterval = (60*60*1000)*24;
+
+		#ifdef AVH_SECURE_PRERELEASE_BUILD
+		theUpdateUplinkInterval = (60*60*1000)/30; // every 30 minutes or so while testing
+		#endif
+
+        #ifdef DEBUG
+        theUpdateUplinkInterval = 0;
+        #endif
+
+		if((gTimeLastUpdatedUplink == 0) || (theCurrentSystemTime > (gTimeLastUpdatedUplink + theUpdateUplinkInterval)))
+		{
+			// Initialize it
+			ALERT(at_logged, "Contacting www.natural-selection.org...\n");
+			this->InitializeAuthentication();
+			//this->DisplayVersioning();
+		}
+		else
+		{
+			//ALERT(at_logged, "You must wait longer before uplinking again.\n");
+		}
+	}
+
+	// If it just turned off, clear auth masks
+	if(this->mUpdatedUplink && !avh_uplink.value)
+	{
+		gAuthMaskList.clear();
+		ALERT(at_logged, "Authentication disabled.\n");
+	}
+
+	this->mUpdatedUplink = avh_uplink.value;
+}
+#endif
+
+
 edict_t* AvHGamerules::SelectSpawnPoint(CBaseEntity* inPlayer, const string& inSpawnEntityName) const
 {
 	bool theDone = false;
@@ -2975,6 +3187,10 @@ void AvHGamerules::Think(void)
 	PROFILE_START();
 	AvHNexus::processResponses();
 	this->RecalculateHandicap();
+// puzl: 0001073
+#ifdef USE_OLDAUTH
+	this->UpdateUplink();
+#endif
 	this->UpdatePlaytesting();
     this->UpdateHLTVProxy();
 	PROFILE_END(kUpdateMisc);

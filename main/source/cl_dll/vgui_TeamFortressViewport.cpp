@@ -2558,6 +2558,8 @@ int TeamFortressViewport::MsgFunc_ScoreInfo( const char *pszName, int iSize, voi
         g_PlayerExtraInfo[info.player_index].frags = info.frags;
 		g_PlayerExtraInfo[info.player_index].deaths = info.deaths;
 		g_PlayerExtraInfo[info.player_index].playerclass = info.player_class;
+		// puzl: 0001073
+		g_PlayerExtraInfo[info.player_index].auth = info.auth;
 		g_PlayerExtraInfo[info.player_index].teamnumber = max( info.team, 0 );
 
 		// Icon is now handled through the ProfileInfo update

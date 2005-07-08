@@ -26,8 +26,8 @@
 				GlobalOptimizations="TRUE"
 				InlineFunctionExpansion="2"
 				EnableIntrinsicFunctions="TRUE"
-				AdditionalIncludeDirectories="&quot;$(SolutionDir)&quot;;U:\include\stlport;U:\include\nexus;U:\include\lua;U:\include\particle"
-				PreprocessorDefinitions="NDEBUG;WIN32;_WINDOWS;QUIVER;VOXEL;QUAKE2;VALVE_DLL;AVH_SERVER;AVH_PLAYTEST_BUILD;$(NOINHERIT)"
+				AdditionalIncludeDirectories="&quot;$(SolutionDir)&quot;;U:\include\stlport;U:\include\nexus;U:\include\lua;U:\include\particle;U:\include\curl"
+				PreprocessorDefinitions="NDEBUG;WIN32;_WINDOWS;QUIVER;VOXEL;QUAKE2;VALVE_DLL;AVH_SERVER;AVH_PLAYTEST_BUILD;$(NOINHERIT);AVH_SECURE_PRERELEASE_BUILD;USE_OLDAUTH"
 				StringPooling="TRUE"
 				MinimalRebuild="TRUE"
 				RuntimeLibrary="0"
@@ -46,7 +46,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="winmm.lib ws2_32.lib particles.lib liblua.lib liblualib.lib ssleay32.lib libeay32.lib"
+				AdditionalDependencies="winmm.lib ws2_32.lib particles.lib liblua.lib liblualib.lib ssleay32.lib libeay32.lib libcurl.lib"
 				OutputFile="$(SolutionDir)..\dlls\ns.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
@@ -98,8 +98,8 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				OptimizeForProcessor="1"
-				AdditionalIncludeDirectories="&quot;$(SolutionDir)&quot;;U:\include\stlport;U:\include\nexus;U:\include\lua;U:\include\particle"
-				PreprocessorDefinitions="_DEBUG;DEBUG;WIN32;_WINDOWS;QUIVER;VOXEL;QUAKE2;VALVE_DLL;AVH_SERVER;$(NOINHERIT)"
+				AdditionalIncludeDirectories="&quot;$(SolutionDir)&quot;;U:\include\stlport;U:\include\nexus;U:\include\lua;U:\include\particle;U:\include\curl"
+				PreprocessorDefinitions="_DEBUG;DEBUG;WIN32;_WINDOWS;QUIVER;VOXEL;QUAKE2;VALVE_DLL;AVH_SERVER;$(NOINHERIT);AVH_SECURE_PRERELEASE_BUILD;USE_OLDAUTH"
 				RuntimeLibrary="1"
 				RuntimeTypeInfo="TRUE"
 				UsePrecompiledHeader="0"
@@ -116,7 +116,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="winmm.lib ws2_32.lib particles.lib liblua.lib liblualib.lib nexus_server.lib ssleay32.lib libeay32.lib"
+				AdditionalDependencies="winmm.lib ws2_32.lib particles.lib liblua.lib liblualib.lib nexus_server.lib ssleay32.lib libeay32.lib libcurl.lib"
 				OutputFile="$(SolutionDir)..\dlls\ns.dll"
 				LinkIncremental="2"
 				SuppressStartupBanner="TRUE"
@@ -2421,6 +2421,9 @@
 			</File>
 			<File
 				RelativePath="..\mod\AvHConstants.h">
+			</File>
+			<File
+				RelativePath="..\mod\AvHCurl.cpp">
 			</File>
 			<File
 				RelativePath="..\mod\AvHEntities.cpp">

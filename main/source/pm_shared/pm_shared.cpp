@@ -5044,7 +5044,7 @@ void PM_Jump (void)
             else
             {
 				// tankefugl: 0000522 reverse lerk flight
-                theThrust = pmove->cmd.forwardmove * kWingThrustBackwardScalar;
+                theThrust = pmove->cmd.forwardmove * kWingThrustForwardScalar; //kWingThrustBackwardScalar;
                 theLift = 200 * (pmove->forward[2] + 0.5) / 1.5;
 
 				if (theLift < 0)

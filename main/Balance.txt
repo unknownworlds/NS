@@ -129,12 +129,12 @@
 #define kGorgeCost 10
 #define kGorgeGestateTime 10
 #define kGorgeHealth 150
-#define kGrenDetonateTime 2
+#define kGrenDetonateTime 0.75
 #define kGrenadeDamage 125
 #define kGrenadeForce 800
 #define kGrenadeLauncherCost 15
 #define kGrenadeRadius 350
-#define kGrenadesResearchCost 20
+#define kGrenadesResearchCost 10
 #define kGrenadesResearchTime 45
 #define kHGDamage 20
 #define kHGMaxAmmo 30
@@ -144,7 +144,7 @@
 #define kHMGMaxAmmo 250
 #define kHMGMaxClip 125
 #define kHandGrenadeDamage 100
-#define kHandGrenadeMaxAmmo 1
+#define kHandGrenadeMaxAmmo 2
 #define kHealingSprayBuildableScalar 5
 #define kHealingSprayDamage 13
 #define kHealingSprayPlayerPercent 4
@@ -389,7 +389,7 @@
 #define kGrenadeLauncherGrenadeReloadTime 1.10
 #define kHGROF 0.20
 #define kHMGROF 0.10
-#define kHandGrenadePrimeTime 1.00
+#define kHandGrenadePrimeTime 0.00
 #define kHealingSprayEnergyCost 0.15
 #define kHealingSprayROF 1.60
 #define kHeavySpeedMultiplier 0.95

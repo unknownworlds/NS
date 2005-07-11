@@ -177,8 +177,8 @@ int	AvHKnife::iItemSlot(void)
 
 int AvHMine::GetItemInfo(ItemInfo *p) const
 {
-	p->iSlot = AVH_FOURTH_SLOT;
-	p->iPosition = 0;
+	p->iSlot = AVH_FIFTH_SLOT;
+	p->iPosition = 1;
 
 	p->pszName = STRING(pev->classname);
 	p->pszAmmo1 = "MineAmmo";
@@ -205,7 +205,7 @@ int AvHMine::GetItemInfo(ItemInfo *p) const
 
 int	AvHMine::iItemSlot(void)
 {
-	return AVH_FOURTH_SLOT + 1;
+	return AVH_FIFTH_SLOT + 1;
 }
 
 
@@ -684,14 +684,14 @@ int	AvHParasiteGun::iItemSlot(void)
 int	AvHGrenade::GetItemInfo(ItemInfo *p) const
 {
     p->iSlot = AVH_FOURTH_SLOT;
-    p->iPosition = 2;
+    p->iPosition = 0;
 
     p->pszName = STRING(pev->classname);
     p->pszAmmo1 = "HandGrenadeAmmo";
     p->iMaxAmmo1 = BALANCE_VAR(kHandGrenadeMaxAmmo);
     p->pszAmmo2 = NULL;
     p->iMaxAmmo2 = BALANCE_VAR(kHandGrenadeDamage);
-    p->iMaxClip = 1;
+    p->iMaxClip = BALANCE_VAR(kHandGrenadeMaxAmmo);;
     p->iFlags = ITEM_FLAG_EXHAUSTIBLE;
     p->iId = AVH_WEAPON_GRENADE;
     p->iWeight = kGrenadeWeaponWeight;

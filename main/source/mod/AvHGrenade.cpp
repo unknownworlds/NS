@@ -56,7 +56,7 @@ const float		kGrenadeParentVelocityScalar    = .4f;
 const float     kGrenadeGravity                 = .8f;
 const float     kGrenadeElasticity              = 0.6f;
 
-const float     kGrenadePrimeAnimationLength    = 2.3f;
+const float     kGrenadePrimeAnimationLength    = 0.0f; //2.3f;
 const float     kGrenadeThrowTimeBeforeRelease	= .3f;
 const float     kGrenadeThrowAnimationLength    = 1.5f;
 
@@ -267,6 +267,10 @@ void AvHGrenade::PrimaryAttack(void)
             m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + kGrenadePrimeAnimationLength;
 	    }
     }
+	else
+	{
+		int a = 0;
+	}
 }
 
 void AvHGrenade::FireProjectiles(void)
@@ -323,7 +327,7 @@ void AvHGrenade::Spawn()
     Precache();
     
     this->m_iId = AVH_WEAPON_GRENADE;
-    this->m_iDefaultAmmo = 1;
+    this->m_iDefaultAmmo = BALANCE_VAR(kHandGrenadeMaxAmmo);
     
     // Set our class name
     this->pev->classname = MAKE_STRING(kwsGrenade);

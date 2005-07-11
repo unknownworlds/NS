@@ -683,7 +683,7 @@ int	AvHParasiteGun::iItemSlot(void)
 
 int	AvHGrenade::GetItemInfo(ItemInfo *p) const
 {
-    p->iSlot = AVH_FOURTH_SLOT;
+    p->iSlot = AVH_FIFTH_SLOT;
     p->iPosition = 0;
 
     p->pszName = STRING(pev->classname);
@@ -701,7 +701,7 @@ int	AvHGrenade::GetItemInfo(ItemInfo *p) const
 
 int	AvHGrenade::iItemSlot(void)
 {
-    return AVH_FOURTH_SLOT + 1;
+    return AVH_FIFTH_SLOT + 1;
 }
 
 

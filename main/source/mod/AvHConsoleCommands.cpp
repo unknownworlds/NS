@@ -386,6 +386,9 @@ BOOL AvHGamerules::ClientCommand( CBasePlayer *pPlayer, const char *pcmd )
 				theAvHPlayer->SetPlayMode(PLAYMODE_READYROOM, true);
 				this->AttemptToJoinTeam(theAvHPlayer, theOtherTeamNumber, false);
 
+				// tankefugl: 0001010 - Boost the player 32 units up to avoid sticking in the ground
+				theCurrentPosition[2] += 32.0f;
+
 				// Set our position again
 				theAvHPlayer->pev->origin = theCurrentPosition;
 				theAvHPlayer->pev->angles = theCurrentAngles;

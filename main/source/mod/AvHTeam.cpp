@@ -538,7 +538,7 @@ void AvHTeam::InitializeTechNodes()
 		// else regular NS
 		if(this->mTeamType == AVH_CLASS_TYPE_MARINE)
 		{
-			this->AddTechNode(MESSAGE_NULL, TECH_COMMAND_CENTER, TECH_NULL, TECH_NULL, false, true);
+			this->AddTechNode(MESSAGE_NULL, TECH_COMMAND_CENTER, TECH_NULL, TECH_NULL, true, true);
 			this->AddTechNode(BUILD_RECYCLE, TECH_NULL, TECH_NULL);
 			this->AddTechNode(BUILD_COMMANDSTATION, TECH_NULL, TECH_NULL);
 

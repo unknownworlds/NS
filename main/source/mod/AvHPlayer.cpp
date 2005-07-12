@@ -9594,9 +9594,26 @@ void AvHPlayer::UpdateTechNodes()
                     theLifeform = ALIEN_LIFEFORM_FIVE;
                     break;
                 }
+				// tankefugl 0001075 : Reset techs to researchable before flagging them otherwise
+                theTechNodes.SetIsResearchable(ALIEN_LIFEFORM_ONE, true);
+                theTechNodes.SetIsResearchable(ALIEN_LIFEFORM_TWO, true);
+                theTechNodes.SetIsResearchable(ALIEN_LIFEFORM_THREE, true);
+                theTechNodes.SetIsResearchable(ALIEN_LIFEFORM_FOUR, true);
+                theTechNodes.SetIsResearchable(ALIEN_LIFEFORM_FIVE, true);
                 theTechNodes.SetIsResearchable(theLifeform, false);
 
-                // If not Gorge, set buildables to be unavailable
+				// tankefugl 0001075 : Reset techs to researchable before flagging them otherwise
+				theTechNodes.SetIsResearchable(ALIEN_EVOLUTION_ONE, true);
+                theTechNodes.SetIsResearchable(ALIEN_EVOLUTION_TWO, true);
+                theTechNodes.SetIsResearchable(ALIEN_EVOLUTION_THREE, true);
+				theTechNodes.SetIsResearchable(ALIEN_EVOLUTION_SEVEN, true);
+				theTechNodes.SetIsResearchable(ALIEN_EVOLUTION_EIGHT, true);
+				theTechNodes.SetIsResearchable(ALIEN_EVOLUTION_NINE, true);
+                theTechNodes.SetIsResearchable(ALIEN_EVOLUTION_TEN, true);
+                theTechNodes.SetIsResearchable(ALIEN_EVOLUTION_ELEVEN, true);
+                theTechNodes.SetIsResearchable(ALIEN_EVOLUTION_TWELVE, true);
+				
+				// If not Gorge, set buildables to be unavailable
                 if(theLifeform != ALIEN_LIFEFORM_TWO)
                 {
                     theTechNodes.SetIsResearchable(ALIEN_BUILD_HIVE, false);
@@ -9608,7 +9625,15 @@ void AvHPlayer::UpdateTechNodes()
                 }
                 else
                 {
-                    // If we have the max hives, disable hives
+					// tankefugl 0001075 : Reset techs to researchable before flagging them otherwise
+                    theTechNodes.SetIsResearchable(ALIEN_BUILD_HIVE, true);
+                    theTechNodes.SetIsResearchable(ALIEN_BUILD_RESOURCES, true);
+                    theTechNodes.SetIsResearchable(ALIEN_BUILD_OFFENSE_CHAMBER, true);
+                    theTechNodes.SetIsResearchable(ALIEN_BUILD_DEFENSE_CHAMBER, true);
+                    theTechNodes.SetIsResearchable(ALIEN_BUILD_MOVEMENT_CHAMBER, true);
+                    theTechNodes.SetIsResearchable(ALIEN_BUILD_SENSORY_CHAMBER, true);
+
+					// If we have the max hives, disable hives
 
                     bool theHasFreeUpgradeCategory = false;
                     MessageIDListType theUnsupportedUpgrades;

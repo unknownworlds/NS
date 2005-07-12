@@ -4611,7 +4611,15 @@ void AvHHud::UpdateCommonUI()
 
 	if(this->GetManager().GetVGUIComponentNamed(this->mPieMenuControl, thePieMenu))
 	{
-		this->UpdateUpgradeCosts();
+		// tankefugl: Added check to ensure that it is only updated when a menu is visible
+		if (thePieMenu->getChildCount() > 0)
+		{
+			vgui::Panel *rootMenu = thePieMenu->getChild(0);
+			if (rootMenu && rootMenu->isVisible())
+			{
+				this->UpdateUpgradeCosts();
+			}
+		}
 
 		PieNode* theCurrentNode = NULL;
 		if(thePieMenu && thePieMenu->GetSelectedNode(theCurrentNode))

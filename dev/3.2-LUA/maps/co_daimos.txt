@@ -1,0 +1,82 @@
+TITLE           : Daimos
+LEVEL FILENAME  : co_daimos.bsp
+AUTHOR          : Oliver "Hypergrip" Richter
+DATE            : 22.02.2005
+CONTACT EMAIL   : hypergrip@gmx.de
+HOMEPAGE URL    : www.hypergrip.de
+---------------------------------------------------------------------
+REQUIRED FILES  : /maps/co_daimos.bsp
+		  /maps/co_daimos.txt (The thing you're reading now)
+		  /models/co_daimos/skulk_pose.mdl
+		  /models/co_daimos/soldier_salute.mdl
+  		  /sound/co_daimos/vocal04.wav
+		  /sound/co_daimos/unworthy.wav
+		  /sound/co_daimos/rr_choir.wav
+		  /gfx/env/daimos_1UP.tga
+		  /gfx/env/daimos_1DN.tga
+		  /gfx/env/daimos_1RT.tga
+		  /gfx/env/daimos_1LF.tga
+		  /gfx/env/daimos_1FT.tga
+		  /gfx/env/daimos_1BK.tga
+
+		  Textures were compiled into the map, so you do not 
+		  need any .WAD files besides those that come with NS
+		  anyway.
+
+---------------------------------------------------------------------
+BACKSTORY       : Daimos is an abandoned outpost that has been bought
+		  by the TSA and slightly modified for use as
+		  training ground.
+		  Small groups of Marines are phased in and fight
+		  Aliens (only god and myself know, where the TSA
+		  gets the Aliens for this training) in a life-like 
+		  enviroment.
+		  The average rate of survivors is at 26,53%.
+		  
+---------------------------------------------------------------------
+EDITOR(S) USED  : Mjoellnir
+
+---------------------------------------------------------------------
+COMPILER(S) USED: ZHLT (XP-Cageys build p15)
+
+---------------------------------------------------------------------
+COMPILE HARDWARE: 1,3GHz, 256MB RAM
+
+COMPILE TIME    : too long... need better hardware
+---------------------------------------------------------------------
+ACKNOWLEDGEMENTS: Missy for providing this nice vocal.
+		  Thanks to PS_Mouse for creating the infested versions
+		  of some textures for me.
+		  The creator of v_wad and the environment map
+		  daimos uses.
+		  Greetings go out to Xeno Kamikaze Corps (www.x-k-c.de)
+		  and Vis Maior (Stonehenge / Albion) as well as
+
+
+===========================
+Changelog:
+===========================
+
+== co_daimos (NS 3.0 final)
+
+o Recreated the whole damn thing from scratch
+
+
+===========================
+FAQ
+===========================
+
+Q: What does "Daimos" mean?
+A: Daimos is a character from the greek mythology. Son of Ares, the god of war, and brother to Phobos (phobos = "fear"). the meaning of Daimos is "panic". 
+
+Q: What is the optimal player count for co_daimos?
+A: The map has been scaled down a bit because it was oversized, anyway I recommend at least 4vs4.
+
+Q: Are there any secrets or eastereggs in co_daimos?
+A: There was a secret room on the "old" Daimos, that has not made it's way into the new version. But maybe there is something new somewhere... 
+
+Q: How long do you work on this map?
+A: I don't count hours.. but it's been quite a lot.
+
+Q: Hyper, you suck!
+A: That is not a question.

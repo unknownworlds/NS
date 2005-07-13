@@ -1,0 +1,41 @@
+==========
+CO_NIVEUS
+==========
+
+STANDARD INFORMATION
+--------------------
+- Title: 		Niveus
+- Filename: 		co_niveus.bsp
+- First Release:	June 2004
+- LAtest Release:	November 2004
+- Author: 		Craig Bryson aka Drath
+- Email Address:        cbryson@gmail.com    	
+
+
+MAP INFORMATION
+---------------
+Game:			Natural Selection (http://www.natural-selection.org)
+Status:			RC5
+Entities:		200
+Editor:			Valve Hammer Editor
+Compiler(s) used:	ZHLT p13
+Compile Hardware:	P4 2.4Ghz, 512 MB RAM
+Compile Time:		1-2 hours
+
+
+CREDITS
+-----------------------------
+- plant model by Psycho-Kinetic Hyper-Geek, animated by Ollj.
+- helix model by Aegis, animated by Drath
+- Sky Map "Arctic Night" by Crinity (taken from http://www.planethalflife.com/crinity).
+- Textures used from eclipse, ayumi and tanith. Much <3 to the creators of these textures
+
+SPECIAL THANKS
+--------------
+- To WHC for their server for playtesting
+- To Ausns for file hosting, and use of their server for playtesting
+- Mendasp for help with env_sprites and .fgds
+- Lethy for help with .res files
+- Aegis for some secret texture work
+- [SuB] and Martigen for supr_pimpage
+- To all of stf and cbf

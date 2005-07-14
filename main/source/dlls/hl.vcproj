@@ -98,7 +98,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				OptimizeForProcessor="1"
-				AdditionalIncludeDirectories="&quot;$(SolutionDir)&quot;;U:\include\stlport;U:\include\nexus;U:\include\lua;U:\include\particle;U:\include\curl"
+				AdditionalIncludeDirectories="&quot;$(SolutionDir)&quot;;U:\include\stlport;U:\include\nexus;U:\include\lua;U:\include\particle;U:\include"
 				PreprocessorDefinitions="_DEBUG;DEBUG;WIN32;_WINDOWS;QUIVER;VOXEL;QUAKE2;VALVE_DLL;AVH_SERVER;$(NOINHERIT);AVH_SECURE_PRERELEASE_BUILD;USE_OLDAUTH"
 				RuntimeLibrary="1"
 				RuntimeTypeInfo="TRUE"

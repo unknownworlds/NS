@@ -26,7 +26,7 @@
 				GlobalOptimizations="TRUE"
 				InlineFunctionExpansion="2"
 				EnableIntrinsicFunctions="TRUE"
-				AdditionalIncludeDirectories="&quot;$(SolutionDir)&quot;;U:\include\stlport;U:\include\nexus;U:\include\lua;U:\include\particle;U:\include\curl"
+				AdditionalIncludeDirectories="&quot;$(SolutionDir)&quot;;U:\include\stlport;U:\include\nexus;U:\include\lua;U:\include\particle;U:\include"
 				PreprocessorDefinitions="NDEBUG;WIN32;_WINDOWS;QUIVER;VOXEL;QUAKE2;VALVE_DLL;AVH_SERVER;AVH_PLAYTEST_BUILD;$(NOINHERIT);AVH_SECURE_PRERELEASE_BUILD;USE_OLDAUTH"
 				StringPooling="TRUE"
 				MinimalRebuild="TRUE"

@@ -352,12 +352,7 @@ void AvHPieMenuHandler::mouseReleased(MouseCode code, Panel* inPanel)
     //	CenterPrint("AvHPieMenuHandler::mouseReleased.\n");
 	
 
-	// puzl : 983 releasing mouse2 closes the popup menu
-	if ( code == MOUSE_RIGHT )	
-	{
-		ClientCmd("-popupmenu");
-		ClosePieMenu();
-	}
+
 //
 //    if(code == MOUSE_RIGHT)
 //    {
@@ -394,6 +389,13 @@ void AvHPieMenuHandler::mouseReleased(MouseCode code, Panel* inPanel)
         {
             NodeCancelled();
         }
+
+	// puzl : 983 releasing a mouse closes the popup menu
+	if ( code == MOUSE_RIGHT || code == MOUSE_LEFT || code == MOUSE_MIDDLE)	
+	{
+		ClientCmd("-popupmenu");
+		ClosePieMenu();
+	}
 //    }
 }
 

@@ -1,0 +1,95 @@
+// 800x600 text scheme file
+
+// Pie menu for marines
+SchemeName = "PieMenuScheme"
+FontName = "Arial"
+FontSize = 12
+FgColor = "255 170 0 255"
+BgColor = "0 0 0 141"
+FgColorArmed = "255 255 255 255"
+BgColorArmed = "255 170 0 67"
+
+// Minimap, radar
+SchemeName = "HierarchyScheme"
+FontName = "Helvetica"
+FontSize = 10
+FgColor = "255 170 0 255"
+BgColor = "40 40 40 128"
+FgColorArmed = "255 255 255 255"
+BgColorArmed = "255 170 0 0"
+
+// Particle editing 
+SchemeName = "PSEScheme"
+FontName = "Arial"
+FontSize = 28
+FgColor = "240 179 17 255"
+BgColor = "50 50 50 141"
+
+// Overwatch
+SchemeName = "OverwatchScheme"
+FontName = "Arial"
+FontSize = 28
+FgColor = "240 179 17 255"
+BgColor = "50 50 50 141"
+
+// Action buttons in lower right
+SchemeName = "ActionButtonScheme"
+FontName = "Arial"
+FontSize = 18
+FgColor = "172 244 255 255"
+BgColor = "0 0 0 0"
+
+// Upper left resources, reinforcements
+SchemeName = "CommanderStatusScheme"
+FontName = "Arial"
+FontSize = 18
+FgColor = "172 244 255 255"
+BgColor = "0 0 0 0"
+
+SchemeName = "MarineStatusScheme"
+FontName = "Arial"
+FontSize = 18
+FgColor = "0 153 255 255"
+BgColor = "0 0 0 0"
+
+// Scoreboard title
+SchemeName = "Scoreboard Title Text"
+FontName = "Arial"
+FontSize = 18
+FgColor = "243 252 10 255"
+BgColor = "0 0 0 0"
+
+// Scoreboard text (ignores color, uses hard-coded team color instead)
+SchemeName = "Scoreboard Small Text"
+FontName = "Arial"
+FontSize = 14
+FgColor = "255 170 0 255"
+BgColor = "0 0 0 141"
+FgColorArmed = "255 255 255 255"
+BgColorArmed = "255 170 0 67"
+
+// Tiny text (used for number of players)
+SchemeName = "Scoreboard Tiny Text"
+FontName = "Arial"
+FontSize = 8
+FgColor = "255 170 0 255"
+BgColor = "0 0 0 141"
+FgColorArmed = "255 255 255 255"
+BgColorArmed = "255 170 0 67"
+
+
+
+// Research area, pop-up text for action buttons
+//SchemeName = "MiddleHelpScheme"
+//FontName = "Helvetica"
+//FontSize = 14
+//FgColor = "172 244 255 255"
+//BgColor = "0 0 0 0"
+
+// Make the logout button obvious
+//SchemeName = "LogoutButtonScheme"
+//FontName = "Arial"
+//FontSize = 34
+//FgColor = "255 255 255 255"
+//BgColor = "0 0 0 0"
+

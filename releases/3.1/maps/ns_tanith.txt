@@ -1,0 +1,26 @@
+tanith v1.1 beta
+2/13/02
+tommyd
+email: tjd159@psu.edu
+
+missing:
+-outside satellite part
+-several models, including 'reactor' model for the reactor room
+-models showing directions
+-a few welds
+-readyroom (ns_ass style!)
+
+changes:
+-smaller by 10%, aimed for faster matches
+-75% reduction in entities, should run very fast
+-texturing overhaul
+-total revamp of MS - no more problems with issuing commands in MS
+-added world models, more to come
+-moved fusion hive
+-new reactor room and surrounding halls
+-fixed aliens-falling-thru-grates
+-HLTV support
+
+aknowledgements:
+Fam (textures)
+shaderlab textures (these are temporary - will be replaced)

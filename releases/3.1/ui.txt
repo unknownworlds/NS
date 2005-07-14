@@ -1,0 +1,915 @@
+'start Label DebugCSPServerInfo
+'    xpos = .3
+'    ypos = .4
+'    width = .1
+'    height = .05
+'    visible = false
+'    alignment = center
+'    scheme = PSEScheme
+'end
+'
+'start Label DebugCSPClientInfo
+'    xpos = .3
+'    ypos = .6
+'    width = .1
+'    height = .05
+'    visible = false
+'    alignment = center
+'    scheme = PSEScheme
+'end
+
+start SpritePanel TopDownHUDTop
+    xpos = 0
+    ypos = 0
+    width = 1
+    height = .25
+    visible = false
+    alignment = center
+    'scheme = TitleFont
+	basesprite = topdowntop
+	rendermode = alphatest
+	valignment = top
+end
+
+start SpritePanel TopDownHUDBottom
+    xpos = 0
+    'ypos = .333
+	ypos = .584
+	'ypos = .99
+    width = 1
+    'height = .6666
+	height = .426
+    visible = false
+    alignment = center
+    'scheme = TitleFont
+	basesprite = topdownbottom
+	rendermode = alphatest
+	valignment = bottom
+end
+
+start Label ReinforcementsLabel
+    xpos = .38
+    'ypos = .025
+    ypos = .019
+    width = .2
+    height = .05
+    visible = false
+    alignment = center
+    scheme = CommanderStatusScheme
+end
+
+start Label CommanderResources
+    xpos = .07
+    ypos = .01
+    'width = .06
+    width = .03
+    height = .06
+    visible = false
+    alignment = center
+    scheme = CommanderStatusScheme
+end
+
+start Label Research
+    xpos = .92
+    ypos = .02
+    width = .06
+    height = .06
+    visible = false
+    alignment = center
+    scheme = ActionButtonScheme
+end
+
+start StaticLabel ResearchBackgroundPanel
+    xpos = .3
+    ypos = .8
+    width = .4
+	' Subtract a little height to make it even with the hierarchy
+    height = .19
+    visible = false
+    alignment = center
+    scheme = ActionButtonScheme
+	'fgcolor = FFAA00FF
+	'bgcolor = A0A0A08D
+	'bgcolor = 0101018D
+
+    'fgcolor = 00ff00CC
+    'bgcolor = 00FF0011
+	'FgColor = "255 170 0 255"
+	'BgColor = "0 0 0 141"
+end
+
+start Label ResearchingLabel
+    xpos = 0
+    ypos = .92
+    width = .06
+    height = .06
+    visible = false
+    alignment = center
+    'fgcolor = 00ff0000
+    'bgcolor = 0000000
+    scheme = ActionButtonScheme
+end
+
+start Label TechHelpText
+    xpos = .35
+    'ypos = .86
+    ypos = .868
+    width = .4
+    height = .05
+    visible = false
+    alignment = center
+    'fgcolor = 00ff0000
+    'bgcolor = 0000000
+    scheme = ActionButtonScheme
+end
+
+start ProgressBar ResearchProgress
+    xpos = .39
+    ypos = .96
+    width = .22
+    height = .01
+    visible = false
+    alignment = center
+    'fgcolor = 00ff00DD
+    'bgcolor = FF000FF
+    'scheme = TitleFont
+	segments = 30
+end
+
+start ProgressBar GenericProgress
+    xpos = .39
+    ypos = .849
+    width = .22
+    height = .01
+    visible = false
+    alignment = center
+    fgcolor = 00ff00DD
+    bgcolor = FF000FF
+'    scheme = TitleFont
+	segments = 30
+end
+
+start ProgressBar AlienProgress
+    xpos = .39
+    ypos = .95
+    width = .22
+    height = .01
+    visible = false
+    alignment = center
+    fgcolor = 00ff00DD
+    bgcolor = FF000FF
+'    scheme = TitleFont
+	segments = 30
+end
+
+' Particle system editor controls
+start Slider2 PSESizeSlider
+    xpos = 0.1
+    ypos = 0.72
+    width = .03
+    height = .27
+    visible = false
+    alignment = center
+    fgcolor = 0000ff01
+    bgcolor = 32323202
+    scheme = HierarchyScheme
+	lowervalue = 1
+	uppervalue = 500
+	rangewindow = 20
+	isvertical = true
+end
+
+start Label PSESizeLabel
+    xpos = .05
+    ypos = .65
+    width = .1
+    height = .03
+    visible = false
+    alignment = center
+    scheme = PSEScheme
+end
+
+start Slider2 PSEScaleSlider
+    xpos = 0.25
+    ypos = 0.72
+    width = .03
+    height = .27
+    visible = false
+    alignment = center
+    fgcolor = 0000ff01
+    bgcolor = 32323202
+    scheme = HierarchyScheme
+	lowervalue = 1
+	uppervalue = 500
+	isvertical = true
+	rangewindow = 20
+end
+
+start Label PSEScaleLabel
+    xpos = .2
+    ypos = .65
+    width = .1
+    height = .03
+    visible = false
+    alignment = center
+    scheme = PSEScheme
+end
+
+start Slider2 PSEGenerationRateSlider
+    xpos = 0.4
+    ypos = 0.72
+    width = .03
+    height = .27
+    visible = false
+    alignment = center
+    fgcolor = 0000ff01
+    bgcolor = 32323202
+    scheme = HierarchyScheme
+	lowervalue = 1
+	uppervalue = 500
+	isvertical = true
+	rangewindow = 20
+end
+
+start Label PSEGenerationRateLabel
+    xpos = .35
+    ypos = .65
+    width = .1
+    height = .03
+    visible = false
+    alignment = center
+    scheme = PSEScheme
+end
+
+start Slider2 PSEParticleLifetimeSlider
+    xpos = 0.6
+    ypos = 0.72
+    width = .03
+    height = .27
+    visible = false
+    alignment = center
+    fgcolor = 0000ff01
+    bgcolor = 32323202
+    scheme = HierarchyScheme
+	lowervalue = 1
+	uppervalue = 500
+	isvertical = true
+	rangewindow = 20
+end
+
+start Label PSEParticleLifetimeLabel
+    xpos = .55
+    ypos = .65
+    width = .1
+    height = .03
+    visible = false
+    alignment = center
+    scheme = PSEScheme
+end
+
+start Slider2 PSEParticleSystemLifetimeSlider
+    xpos = 0.75
+    ypos = 0.72
+    width = .03
+    height = .27
+    visible = false
+    alignment = center
+    fgcolor = 0000ff01
+    bgcolor = 32323202
+    scheme = HierarchyScheme
+	lowervalue = 1
+	uppervalue = 500
+	isvertical = true
+	rangewindow = 20
+end
+
+start Label PSEParticleSystemLifetimeLabel
+    xpos = .7
+    ypos = .65
+    width = .1
+    height = .03
+    visible = false
+    alignment = center
+    scheme = PSEScheme
+end
+
+start Slider2 PSEMaxParticlesSlider
+    xpos = 0.9
+    ypos = 0.72
+    width = .03
+    height = .27
+    visible = false
+    alignment = center
+    fgcolor = 0000ff01
+    bgcolor = 32323202
+    scheme = HierarchyScheme
+	lowervalue = 1
+	uppervalue = 500
+	isvertical = true
+	rangewindow = 20
+end
+
+start Label PSEMaxParticlesLabel
+    xpos = .85
+    ypos = .65
+    width = .1
+    height = .03
+    visible = false
+    alignment = center
+    scheme = PSEScheme
+end
+
+'''''''''''
+' Top row '
+'''''''''''
+start Slider2 PSEDrawModeSlider
+    xpos = 0.1
+    ypos = 0.1
+    width = .03
+    height = .27
+    visible = false
+    alignment = center
+    fgcolor = 0000ff01
+    bgcolor = 32323202
+    scheme = HierarchyScheme
+	lowervalue = 0
+	uppervalue = 5
+	isvertical = true
+	rangewindow = 20
+end
+
+start Label PSEDrawModeLabel
+    xpos = .05
+    ypos = 0.03
+    width = .1
+    height = .03
+    visible = false
+    alignment = center
+    scheme = PSEScheme
+end
+
+start Slider2 PSEGenVelToggleSlider
+    xpos = 0.30
+    ypos = 0.1
+    width = .03
+    height = .27
+    visible = false
+    alignment = center
+    fgcolor = 0000ff01
+    bgcolor = 32323202
+    scheme = HierarchyScheme
+	lowervalue = 0
+	uppervalue = 499
+	isvertical = true
+	rangewindow = 20
+end
+
+start Label PSEGenVelToggleLabel
+    xpos = .25
+    ypos = 0.03
+    width = .1
+    height = .03
+    visible = false
+    alignment = center
+    scheme = PSEScheme
+end
+
+start Slider2 PSEGenVelShapeSlider
+    xpos = 0.45
+    ypos = 0.1
+    width = .03
+    height = .27
+    visible = false
+    alignment = center
+    fgcolor = 0000ff01
+    bgcolor = 32323202
+    scheme = HierarchyScheme
+	lowervalue = 100
+	uppervalue = 499
+	isvertical = true
+	rangewindow = 20
+end
+
+start Label PSEGenVelShapeLabel
+    xpos = .40
+    ypos = 0.03
+    width = .1
+    height = .03
+    visible = false
+    alignment = center
+    scheme = PSEScheme
+end
+
+start Slider2 PSEGenVelParamNumSlider
+    xpos = 0.58
+    ypos = 0.1
+    width = .03
+    height = .27
+    visible = false
+    alignment = center
+    fgcolor = 0000ff01
+    bgcolor = 32323202
+    scheme = HierarchyScheme
+	lowervalue = 1
+	uppervalue = 8
+	isvertical = true
+	rangewindow = 20
+	defaultintvalue = 1
+end
+
+start Label PSEGenVelParamNumLabel
+    xpos = .53
+    ypos = 0.03
+    width = .1
+    height = .03
+    visible = false
+    alignment = center
+    scheme = PSEScheme
+end
+
+start Slider2 PSEGenVelParamValueSlider
+    xpos = 0.7
+    ypos = 0.1
+    width = .03
+    height = .27
+    visible = false
+    alignment = center
+    fgcolor = 0000ff01
+    bgcolor = 32323202
+    scheme = HierarchyScheme
+	lowervalue = -200
+	uppervalue = 200
+	isvertical = true
+	rangewindow = 10
+end
+
+start Label PSEGenVelParamValueLabel
+    xpos = .65
+    ypos = 0.03
+    width = .1
+    height = .03
+    visible = false
+    alignment = center
+    scheme = PSEScheme
+end
+''''''''''''''''''''''''
+' end particle editing '
+''''''''''''''''''''''''
+
+' Put before top down controls, so it doesn't block them
+start ScrollPanel Scroller
+    xpos = 0
+    ypos = 0
+    width = 1
+    height = 1
+    visible = false
+    alignment = center
+end
+
+'start Button LogoutButton
+start LogoutComponent LogoutButton
+    xpos = .82
+    ypos = .03
+    width = .13
+    height = .06
+    visible = false
+    alignment = center
+	text = LogoutText
+    scheme = CommanderStatusScheme
+end
+
+' Leave a little border for scrolling <sigh>
+start ActionButtons ActionButtonsComponent
+    xpos = .771
+    ypos = .745
+	width = .215
+	height = .247
+    scheme = ActionButtonScheme
+'	fgcolor = FFAA00FF
+'	bgcolor = 0000008D
+'	fgcolor = FFAA00FF
+'	bgcolor = DD999966
+    visible = false
+end
+
+
+' List before the pie menu so it is drawn after it
+' Leave a little border for scrolling <sigh>
+start TeamHierarchy Hierarchy
+    'xpos = .012
+    'ypos = 0.72
+    'width = .285
+    'height = .26
+    xpos = .0105
+    ypos = 0.728
+    width = .265
+    height = .247
+    visible = false
+    alignment = center
+	fgcolor = 000000
+	fgcolor = 000000
+    scheme = HierarchyScheme
+end
+
+start TeamHierarchy ShowMapHierarchy
+    xpos = .1
+    ypos = .1
+    width = .8
+    height = .8
+    visible = false
+    alignment = center
+	fgcolor = 000000
+	fgcolor = 000000
+    scheme = HierarchyScheme
+end
+
+start SpritePanel AlienMembrane
+    xpos = 0
+    ypos = 0
+    width = 1
+    height = 1
+    visible = false
+    alignment = center
+	basesprite = additivemembrane
+	rendermode = additive
+	valignment = top
+	'basesprite = ns_solar
+	'rendermode = alphatest
+end
+
+start PieMenu SoldierMenu
+	xpos = 0
+    ypos = 0
+    width = 1
+    height = 1
+    visible = true
+    fgcolor = 0000FFFF
+    bgcolor = 7DA5D2AA
+    nodexspacing = .135
+    nodeyspacing = .12
+    scheme = PieMenuScheme
+	rootname = #MenuMarineRoot
+	defaultimage = sprites/marinenode.spr
+	connectorname = 
+ 
+	' gesturing common for marines and squad leaders
+	node1 = 4/#MenuComms/0
+	node2 = 4/2/#MenuTalk/0
+	node3 = 4/2/4/#MenuFollowMe/7
+	node4 = 4/2/2/#MenuCovering/8
+	node5 = 4/2/0/#MenuWeldMe/14
+	node6 = 4/6/#MenuYell/0
+	node7 = 4/6/0/#MenuNeedHealth/10
+	node8 = 4/6/6/#MenuNeedAmmo/11
+	node9 = 4/6/4/#MenuNeedOrder/80
+	node10 = 4/4/#MenuSay/0
+	node11 = 4/4/2/#MenuTaunt/9
+	node12 = 4/4/4/#MenuEnemySpotted/13
+	node13 = 4/4/6/#MenuAllClear/15
+
+	' Need menu
+	'	Health
+	'	Ammo
+	'	Commander
+	' Tactics
+	'	Covering you
+	'	Follow me/let's move
+	'	Enemy spotted
+	' Banter
+	'	Thanks
+	'	Taunt
+	'	
+	
+	' Use equipment
+	node14 = 6/#MenuWeapon/0
+	node15 = 6/4/#MenuReloadWeapon/2
+	node16 = 6/0/#MenuDropWeapon/3
+	' Switch between light and heavy weapon
+	node17 = 6/6/#MenuNextWeapon/1
+
+	node18 = 2/#MenuAck/81
+	'node19 = 2/0/#MenuNeedOrder/80
+	'node20 = 2/0/#MenuAck/81
+
+	' Administrative
+	node19 = 0/#MenuVoteCommanderDown/6
+end
+
+start PieMenu SoldierCombatMenu
+	xpos = 0
+    ypos = 0
+    width = 1
+    height = 1
+    visible = true
+    fgcolor = 0000FFFF
+    bgcolor = 7DA5D2AA
+    nodexspacing = .135
+    nodeyspacing = .12
+    scheme = PieMenuScheme
+	rootname = #MenuMarineRoot
+	defaultimage = sprites/marinenode.spr
+	connectorname = 
+ 
+	' gesturing common for marines and squad leaders
+	node1 = 4/#MenuComms/0
+	node2 = 4/2/#MenuTalk/0
+	node3 = 4/2/4/#MenuFollowMe/7
+	node4 = 4/2/2/#MenuCovering/8
+	node5 = 4/2/0/#MenuWeldMe/14
+	node6 = 4/6/#MenuYell/0
+	node7 = 4/6/0/#MenuNeedHealth/10
+	node8 = 4/6/6/#MenuNeedAmmo/11
+	node9 = 4/6/4/#MenuNeedOrder/80
+	node10 = 4/4/#MenuSay/0
+	node11 = 4/4/2/#MenuTaunt/9
+	node12 = 4/4/4/#MenuEnemySpotted/13
+	node13 = 4/4/6/#MenuAllClear/15
+
+	' Weaponry to the right
+	node14 = 6/#MenuUpgradeDamage1/23
+	node15 = 6/6/#MenuShotgun/64
+	node16 = 6/4/#MenuUpgradeDamage2/24
+	node17 = 6/4/4/#MenuUpgradeDamage3/25
+	node18 = 6/6/0/#MenuHMG/65
+	node19 = 6/6/4/#MenuGL/66
+	
+	' Misc upgrades to the left
+	node20 = 2/#MenuSupport/0
+	node21 = 2/2/#MenuCommander/0
+	node22 = 2/2/0/#MenuCatalyst/27
+	node23 = 2/2/4/#MenuResupply/31
+	node24 = 2/0/#MenuIntel/0
+	node25 = 2/0/2/#MenuScan/53
+	node26 = 2/0/6/#MenuMotionTracking/33
+	node27 = 2/4/#MenuEquip/0
+	node28 = 2/4/2/#MenuMines/61
+	node29 = 2/4/6/#MenuGrenade/37
+	node30 = 2/4/4/#MenuWelder/62
+
+	' Armor above
+	node31 = 0/#MenuUpgradeArmor1/20
+	node32 = 0/0/#MenuUpgradeArmor2/21
+	node33 = 0/0/2/#MenuJetpack/39
+	node34 = 0/0/6/#MenuHeavyArmor/38
+	node35 = 0/0/0/#MenuUpgradeArmor3/22
+end
+
+start PieMenu AlienMenu
+	xpos = 0
+	ypos = 0
+	width = 1
+	height = 1
+	visible = true
+    fgcolor = FFFFFFFF
+    bgcolor = FFAA00AA
+    nodexspacing = .135
+    'nodexspacing = .09
+    nodeyspacing = .12
+	scheme = PieMenuScheme
+	rootname = #MenuAlienRoot
+	defaultimage = sprites/aliennode.spr
+	'connectorname = alienconnector
+	connectorname = 
+
+	' alien menu
+	node1 = 4/#MenuAlienSmallMorph/0
+ 	node2 = 4/2/#MenuAlienMorphLevel1/113
+	node3 = 4/6/#MenuAlienMorphLevel2/114
+	node4 = 4/4/#MenuAlienBigMorph/0
+	node5 = 4/4/2/#MenuAlienMorphLevel3/115
+	node6 = 4/4/6/#MenuAlienMorphLevel4/116
+	node7 = 4/4/4/#MenuAlienMorphLevel5/117
+
+	' Administrative
+	node8 = 0/#MenuAlienComm/0
+	node9 = 0/0/#MenuAlienCommSayingOne/9
+	node10 = 0/6/#MenuAlienCommSayingTwo/10
+	node11 = 0/2/#MenuAlienCommSayingThree/7
+
+	node12 = 6/#MenuAlienUpgrade/0
+	node13 = 6/0/#MenuAlienMovementUpgrades/0
+	node14 = 6/0/0/#MenuAlienUpgradeMoveOne/107
+	node15 = 6/0/6/#MenuAlienUpgradeMoveTwo/108
+	node16 = 6/0/2/#MenuAlienUpgradeMoveThree/109
+	node17 = 6/6/#MenuAlienSensoryUpgrades/0
+	node18 = 6/6/4/#MenuAlienUpgradeSenOne/110
+	node19 = 6/6/6/#MenuAlienUpgradeSenTwo/111
+	node20 = 6/6/0/#MenuAlienUpgradeSenThree/112
+	node21 = 6/4/#MenuAlienDefenseUpgrades/0
+	node22 = 6/4/6/#MenuAlienUpgradeDefOne/101
+	node23 = 6/4/4/#MenuAlienUpgradeDefTwo/102
+	node24 = 6/4/2/#MenuAlienUpgradeDefThree/103
+
+	node25 = 2/#MenuAlienBuild/0
+	
+	node26 = 2/0/#MenuAlienBuildUpgrades/0
+	node27 = 2/0/0/#MenuAlienMovementChamber/94
+	node28 = 2/0/6/#MenuAlienSensoryChamber/93
+	node29 = 2/0/2/#MenuAlienDefenseChamber/92
+
+	node30 = 2/2/#MenuAlienAdvBuild/0
+	node31 = 2/2/0/#MenuAlienOffensiveChamber/91
+	node32 = 2/2/4/#MenuAlienHive/95
+	node33 = 2/2/2/#MenuAlienResourceTower/90
+end
+
+start PieMenu AlienCombatMenu
+	xpos = 0
+	ypos = 0
+	width = 1
+	height = 1
+	visible = true
+    fgcolor = FFFFFFFF
+    bgcolor = FFAA00AA
+    nodexspacing = .135
+    'nodexspacing = .09
+    nodeyspacing = .12
+	scheme = PieMenuScheme
+	rootname = #MenuAlienRoot
+	defaultimage = sprites/aliennode.spr
+	'connectorname = alienconnector
+	connectorname = 
+
+	' alien menu
+	node1 = 4/#MenuAlienSmallMorph/0
+	node2 = 4/6/#MenuAlienMorphLevel2/114
+	node3 = 4/4/#MenuAlienBigMorph/0
+	node4 = 4/4/2/#MenuAlienMorphLevel3/115
+	node5 = 4/4/6/#MenuAlienMorphLevel4/116
+	node6 = 4/4/4/#MenuAlienMorphLevel5/117
+
+	' Administrative
+	node7 = 0/#MenuAlienComm/0
+	node8 = 0/0/#MenuAlienCommSayingOne/9
+	node9 = 0/6/#MenuAlienCommSayingTwo/10
+	node10 = 0/2/#MenuAlienCommSayingThree/7
+	
+	node11 = 6/#MenuAlienUpgrade/0
+	node12 = 6/0/#MenuAlienMovementUpgrades/0
+	node13 = 6/0/0/#MenuAlienUpgradeMoveOne/107
+	node14 = 6/0/6/#MenuAlienUpgradeMoveTwo/108
+	node15 = 6/0/2/#MenuAlienUpgradeMoveThree/109
+	node16 = 6/6/#MenuAlienSensoryUpgrades/0
+	node17 = 6/6/4/#MenuAlienUpgradeSenOne/110
+	node18 = 6/6/6/#MenuAlienUpgradeSenTwo/111
+	node19 = 6/6/0/#MenuAlienUpgradeSenThree/112
+	node20 = 6/4/#MenuAlienDefenseUpgrades/0
+	node21 = 6/4/6/#MenuAlienUpgradeDefOne/101
+	node22 = 6/4/4/#MenuAlienUpgradeDefTwo/102
+	node23 = 6/4/2/#MenuAlienUpgradeDefThree/103
+
+	node24 = 2/#MenuUnlockHiveTwo/118
+	node25 = 2/2/#MenuUnlockHiveThree/126
+end
+
+start MarqueeComponent SelectionBox
+    xpos = 0
+    ypos = 0
+    width = .1
+    height = .1
+    visible = false
+    alignment = center
+	' 60% opacity
+    fgcolor = 0000BB99
+	' 20% opacity
+    bgcolor = 0000BB33
+end
+
+start Label PieHelpText
+    xpos = .35
+    'ypos = .86
+    ypos = .868
+    width = .4
+    height = .05
+    visible = false
+    alignment = center
+    'fgcolor = 00ff0000
+    'bgcolor = 0000000
+    scheme = ActionButtonScheme
+end
+
+start Label NumUpgradesAvailableText
+    xpos = .35
+    'ypos = .86
+    ypos = .868
+    width = .4
+    height = .05
+    visible = false
+    alignment = center
+    'fgcolor = 00ff0000
+    'bgcolor = 0000000
+    scheme = ActionButtonScheme
+end
+
+start TechImpulsePanel SelectAllImpulsePanel
+	xpos = .245
+	ypos = 0.002
+	width = .075
+	height = .094
+	visible = false
+	alignment = center
+	impulse = 105
+	drawnumber = -1
+end 
+
+start TechImpulsePanel PendingImpulse75Panel
+	xpos = .325
+	ypos = .003
+	width = .05
+	height = .067
+	visible = false
+	alignment = center
+	impulse = 75
+	drawnumber = -1
+end
+
+start TechImpulsePanel PendingImpulse76Panel
+	xpos = .375
+	ypos = .005
+	width = .05
+	height = .065
+	visible = false
+	alignment = center
+	impulse = 76
+	drawnumber = -1
+end
+
+start TechImpulsePanel PendingImpulse77Panel
+	xpos = .425
+	ypos = .005
+	width = .05
+	height = .065
+	visible = false
+	alignment = center
+	impulse = 77
+	drawnumber = -1
+end
+
+start TechImpulsePanel PendingImpulse78Panel
+	xpos = .475
+	ypos = .005
+	width = .05
+	height = .065
+	visible = false
+	alignment = center
+	impulse = 78
+	drawnumber = -1
+end
+
+start TechImpulsePanel PendingImpulse79Panel
+	xpos = .525
+	ypos = .005
+	width = .05
+	height = .065
+	visible = false
+	alignment = center
+	impulse = 79
+	drawnumber = -1
+end
+
+start TechImpulsePanel PendingImpulse123Panel
+	xpos = .02
+	ypos = .48
+	width = .04
+	height = .05
+	visible = false
+	alignment = center
+	impulse = 123
+    scheme = HierarchyScheme
+	drawnumber = 2
+end
+
+start TechImpulsePanel PendingImpulse124Panel
+	xpos = .02
+	ypos = .54
+	width = .04
+	height = .05
+	visible = false
+	alignment = center
+	impulse = 124
+    scheme = HierarchyScheme
+	drawnumber = 2
+end
+
+start TechImpulsePanel PendingImpulse125Panel
+	xpos = .02
+	ypos = .6
+	width = .04
+	height = .05
+	visible = false
+	alignment = center
+	impulse = 125
+    scheme = HierarchyScheme
+	drawnumber = 2
+end
+
+' WARNING: this component must always be last
+start DummyPanel TheLastComponent
+    xpos = 0
+    ypos = 0
+    width = .01
+    height = .01
+    visible = false
+    alignment = center
+end
+

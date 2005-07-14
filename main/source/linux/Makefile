@@ -41,7 +41,7 @@ CFLAGS=$(BASE_CFLAGS) -w -Wall -nostdinc++ -ffor-scope -fPIC -mcpu=i486 -O3 -pip
 
 # add base directory (CGC)
 
-INCLUDEDIRS=-I$(LIBBASE) -I. -I$(LIBBASE)/include/curl -I$(LIBBASE)/include -I$(LIBBASE)/include/stlport -I$(LIBBASE)/include/particle -I$(LIBBASE)/include/lua -I../dlls -I../engine -I../common -I../mod -I../game_shared -I../pm_shared -I.. -I/usr/include/c++/3.3/i486-linux -I/usr/include/c++/3.3 -I/usr/include/c++ 
+INCLUDEDIRS=-I$(LIBBASE) -I. -I$(LIBBASE)/include -I$(LIBBASE)/include/stlport -I$(LIBBASE)/include/particle -I$(LIBBASE)/include/lua -I../dlls -I../engine -I../common -I../mod -I../game_shared -I../pm_shared -I$(LIBBASE)/include/curl -I.. -I/usr/include/c++/3.3/i486-linux -I/usr/include/c++/3.3 -I/usr/include/c++ 
 LINKDIRS=  -L$(LIBBASE)/release
 
 SHLIBEXT=so

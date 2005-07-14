@@ -263,6 +263,7 @@ public:
 	virtual bool		GetIsCombatMode(void) const;
 	virtual AvHTeamNumber	GetCombatAttackingTeamNumber() const;
     virtual bool		GetIsNSMode(void) const;
+    virtual bool		GetIsScriptedMode(void) const;
 	virtual bool		GetIsTrainingMode(void) const;
 
 	int					GetBaseHealthForMessageID(AvHMessageID inMessageID) const;

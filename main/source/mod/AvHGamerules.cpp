@@ -264,6 +264,11 @@ int kProfileRunConfig = 0xFFFFFFFF;
 
 std::string GetLogStringForPlayer( edict_t *pEntity );
 
+// SCRIPTENGINE:
+#include "scriptengine/AvHLUA.h"
+extern AvHLUA *gLUA;
+// :SCRIPTENGINE
+
 const AvHMapExtents& GetMapExtents()
 {
 	return GetGameRules()->GetMapExtents();
@@ -1336,6 +1341,11 @@ AvHTeamNumber AvHGamerules::GetCombatAttackingTeamNumber() const
 bool AvHGamerules::GetIsNSMode(void) const
 {
     return (this->GetMapMode() == MAP_MODE_NS);
+}
+
+bool AvHGamerules::GetIsScriptedMode(void) const
+{
+    return (this->GetMapMode() == MAP_MODE_NSC);
 }
 
 bool AvHGamerules::GetIsHamboneMode() const
@@ -2509,6 +2519,10 @@ void AvHGamerules::RecalculateMapMode( void )
 			else if(!strnicmp(theCStrLevelName, "co_", 3))
 			{
 				this->mMapMode = MAP_MODE_CO;
+			}
+			else if(!strnicmp(theCStrLevelName, "nsc_", 4))
+			{
+				this->mMapMode = MAP_MODE_NSC;
 			}
 		}
 	}
@@ -3688,6 +3702,13 @@ void AvHGamerules::UpdateCheats()
 
 void AvHGamerules::UpdateCountdown(float inTime)
 {
+	if (this->GetIsScriptedMode())
+	{
+		// this->SetGameStarted(true);
+		// TODO: SCRIPTENGINE START
+		return;
+	}
+
 	const float kTimeWontStartInterval = 8.0f;
 	int kSecondsToCountdown = 5;
 
@@ -3864,6 +3885,11 @@ void AvHGamerules::UpdateVictoryStatus(void)
 {
 	bool theCheckVictoryWithCheats = !this->GetCheatsEnabled() || this->GetIsCheatEnabled(kcEndGame1) || this->GetIsCheatEnabled(kcEndGame2);
 
+	if (this->GetIsScriptedMode())
+	{
+		// SCRIPTENGINE: Check for victory status
+	} 
+	else
 	if((this->mVictoryTeam == TEAM_IND) && this->mGameStarted && theCheckVictoryWithCheats && !this->GetIsTrainingMode())
 	{
 		char* theVictoryMessage = NULL;

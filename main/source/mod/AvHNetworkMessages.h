@@ -34,6 +34,11 @@
 #include "AvHEntityHierarchy.h"
 #include "../engine/shake.h"
 #include "../common/weaponinfo.h"
+extern "C" {
+#include <lua.h>
+#include <lualib.h>
+#include <lauxlib.h>
+}
 
 //FUNCTION PROTOTYPES
 #ifdef AVH_SERVER
@@ -107,6 +112,7 @@
 	void NetMsg_SetupMap_Location( entvars_t* const pev, const string& name, const float* const min_extents, const float* const max_extents );
 	void NetMsg_UpdateEntityHierarchy( entvars_t* const pev, const MapEntityMap& NewItems, const EntityListType& OldItems );
 	void NetMsg_IssueOrder(entvars_t* const pev, const int ordertype, const int ordersource, const int ordertarget);
+	void NetMsg_LUAMessage(entvars_t* const pev, lua_State *L);
 
 	//BROADCAST MESSAGE TRANSMISSION
 	void NetMsg_DeathMsg( const int killer_index, const int victim_index, string& weapon_name );
@@ -197,6 +203,8 @@
 	void NetMsg_UpdateCountdown( void* const buffer, const int size, int& countdown );
 	void NetMsg_UpdateEntityHierarchy( void* const buffer, const int size, MapEntityMap& NewItems, EntityListType& OldItems );
 	void NetMsg_IssueOrder( void* const buffer, const int size, int& ordertype, int& ordersource, int& ordertarget );
+	void NetMsg_LUAMessage( void* const buffer, const int size, lua_State *L, int &arguments);
+	// 60
 
 #endif //AVH_SERVER
 

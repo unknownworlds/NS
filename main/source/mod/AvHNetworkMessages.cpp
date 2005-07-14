@@ -24,7 +24,7 @@ int	g_msgAmmoPickup = 0, g_msgAmmoX, g_msgBattery, g_msgCurWeapon, g_msgDamage,	
 	g_msgServerVar, g_msgSetGammaRamp, g_msgSetOrder, g_msgSetParticleTemplates,
 	g_msgSetSelect, g_msgSetRequest, g_msgSetSoundNames, g_msgSetTechNodes, g_msgSetTechSlots,
 	g_msgSetTopDown, g_msgSetupMap, g_msgUpdateCountdown, g_msgUpdateEntityHierarchy,
-	g_msgProfileInfo, g_msgNexusBytes, g_msgIssueOrder;
+	g_msgProfileInfo, g_msgNexusBytes, g_msgIssueOrder, g_msgLUAMessage;
 
 void Net_InitializeMessages(void)
 {
@@ -47,7 +47,6 @@ void Net_InitializeMessages(void)
 	g_msgMOTD = REG_USER_MSG( "MOTD", -1 );
 	g_msgResetHUD = REG_USER_MSG( "ResetHUD", 0 );
 	g_msgSayText = REG_USER_MSG( "SayText", -1 );
-	// puzl: 0001073
 	g_msgScoreInfo = REG_USER_MSG( "ScoreInfo", -1 );
 	g_msgServerName = REG_USER_MSG( "ServerName", -1 );
 	g_msgSetFOV = REG_USER_MSG( "SetFOV", 1 );
@@ -90,9 +89,8 @@ void Net_InitializeMessages(void)
 	g_msgUpdateEntityHierarchy = REG_USER_MSG( "EntHier", -1 );
 	g_msgProfileInfo = REG_USER_MSG( "ProfileInfo", 8 );
 	g_msgNexusBytes = REG_USER_MSG( "NexusBytes", -1 );
-	// tankefugl: 0000971
 	g_msgIssueOrder = REG_USER_MSG( "IssueOrder", 9);
-	// :tankefugl
+	g_msgLUAMessage = REG_USER_MSG( "LUAmsg", -1);
 }
 #endif
 
@@ -2160,3 +2158,84 @@ const int	kEntHierFlagDeletion	= 0x02;
 	}
 #endif
 // :tankefugl
+
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+#ifndef AVH_SERVER
+	void NetMsg_LUAMessage( void* const buffer, const int size, lua_State *L, int &arguments)
+	{
+		BEGIN_READ( buffer, size );
+			arguments = READ_BYTE();
+			for (int i = arguments; i > 0; i--)
+			{
+				if (i == arguments)
+				{	
+					std::string temp = READ_STRING();
+					lua_getglobal(L, temp.c_str());
+					continue;
+				}
+
+				int theLuaType = READ_BYTE();
+				switch (theLuaType)
+				{
+					case LUA_TBOOLEAN:
+						lua_pushboolean(L, READ_BYTE());
+						break;
+					case LUA_TNUMBER:
+						lua_pushnumber(L, (float)(READ_LONG()));
+						break;
+					case LUA_TSTRING:
+						lua_pushstring(L, READ_STRING());
+						break;
+					default:
+						ASSERT(false);
+						break;
+				}
+			}
+		END_READ();
+		arguments--;
+	}
+#else
+	void NetMsg_LUAMessage(entvars_t* const pev, lua_State *L)
+	{
+		luaL_checktype(L, 2, LUA_TSTRING);
+		int arguments = lua_gettop(L);
+		for (int i = 3; i <= arguments; i++)
+		{
+			int theLuaType = lua_type(L, i);
+			if (!(theLuaType == LUA_TBOOLEAN || 
+					theLuaType == LUA_TNUMBER || 
+					theLuaType == LUA_TSTRING))
+				luaL_typerror(L, i, "boolean|number|string");
+		}
+		
+		MESSAGE_BEGIN( MSG_ONE, g_msgLUAMessage, NULL, pev );
+			WRITE_BYTE(arguments - 1);
+			WRITE_STRING(lua_tostring(L, 2));
+			int top = lua_gettop(L);
+			int current = 3;
+			while (current <= top)
+			{
+				int theLuaType = lua_type(L, current);
+				WRITE_BYTE(theLuaType);
+				switch (theLuaType)
+				{
+					case LUA_TBOOLEAN:
+						WRITE_BYTE(lua_toboolean(L, current));
+						break;
+					case LUA_TNUMBER:
+						WRITE_LONG((float)(lua_tonumber(L, current)));
+						break;
+					case LUA_TSTRING:
+						WRITE_STRING(lua_tostring(L, current));
+						break;
+					default:
+						ASSERT(false);
+						break;
+				}
+				current++;
+			}
+		MESSAGE_END();
+		
+	}
+#endif

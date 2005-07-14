@@ -189,7 +189,8 @@ typedef enum
 	MAP_MODE_NS = 1,
 	MAP_MODE_CS = 2,
 	MAP_MODE_DM = 3,
-	MAP_MODE_CO = 4
+	MAP_MODE_CO = 4,
+	MAP_MODE_NSC = 5
 }
 AvHMapMode;
 

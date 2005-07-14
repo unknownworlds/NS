@@ -336,6 +336,7 @@ public:
 	bool			SwitchUIMode(UIMode inNewMode);
 	bool			GetIsCombatMode() const;
     bool			GetIsNSMode() const;
+    bool			GetIsScriptedMode() const;
 		
 	void			HideResearchProgressStatus();
 	void			SetResearchProgressStatus(float inPercentage);
@@ -397,9 +398,8 @@ public:
 
 	int				GameStatus(const char* pszName, int iSize, void* pbuf);
 	int				MiniMap(const char* pszName, int iSize, void* pbuf);
-	// tankefugl: 0000971 
 	int				IssueOrder(const char* pszName, int iSize, void* pbuf);
-	// :tankefugl
+	int				LUAmsg(const char* pszName, int iSize, void* pbuf);
 	int				Progress(const char* pszName, int iSize, void* pbuf);
 	int				SetGmma(const char* pszName, int iSize, void* pbuf);
 	int				SetSelect(const char* pszName, int iSize, void* pbuf);

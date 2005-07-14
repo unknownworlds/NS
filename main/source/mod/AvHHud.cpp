@@ -190,6 +190,11 @@
 #include <sstream>
 #include "mod/AvHNetworkMessages.h"
 
+// SCRIPTENGINE:
+#include "scriptengine/AvHLUA.h"
+#include "scriptengine/AvHLUAUtil.h"
+// :SCRIPTENGINE
+
 //#include "cl_dll/studio_util.h"
 //#include "cl_dll/r_studioint.h"
 
@@ -2570,7 +2575,32 @@ void AvHHud::ResetGame(bool inMapChanged)
 	this->mCenterText.clear();
 	this->mCenterTextTime = -1;
 	// :tankefugl
+
+	// SCRIPTENGINE:
+	if (inMapChanged)
+	{
+		gLUA->Init();
+		gLUA->LoadLUAForMap(this->GetMapName().c_str());
+	}
+	// :SCRIPTENGINE
 }
+
+// SCRIPTENGINE:
+BIND_MESSAGE(LUAmsg);
+int	AvHHud::LUAmsg(const char* pszName, int iSize, void* pbuf)
+{
+	int arguments;
+	lua_State *L = lua_newthread(gLUA->mGlobalContext);
+
+	NetMsg_LUAMessage(pbuf, iSize, L, arguments);
+
+	if (lua_resume(L, arguments))
+	{
+		AvHLUA_OnError(lua_tostring(L, -1));
+	}	
+	return 1;
+}
+// :SCRIPTENGINE
 
 BIND_MESSAGE(SetGmma);
 int	AvHHud::SetGmma(const char* pszName, int iSize, void* pbuf)
@@ -4879,6 +4909,11 @@ bool AvHHud::GetIsCombatMode() const
 bool AvHHud::GetIsNSMode() const
 {
     return (this->mMapMode == MAP_MODE_NS);
+}
+
+bool AvHHud::GetIsScriptedMode() const
+{
+    return (this->mMapMode == MAP_MODE_NSC);
 }
 
 bool AvHHud::GetIsMouseInRegion(int inX, int inY, int inWidth, int inHeight)

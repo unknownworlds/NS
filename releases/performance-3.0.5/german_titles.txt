@@ -1,0 +1,4338 @@
+//TITLES FOR NATURAL SELECTION
+//DO NOT ALTER THIS FILE
+//
+//German translation by MZ.Mars, Ramses, and Nemesis Zero
+//
+// Position command $position x y
+// x & y are from 0 to 1 to be screen resolution independent
+// -1 means center in each dimension
+// Effect command $effect <effect number>
+// effect 0 is fade in/fade out
+// effect 1 is flickery credits
+// effect 2 is write out (training room)
+// Text color r g b command $color
+// fadein time fadeout time / hold time
+// $fadein (message fade in time - per character in effect 2)
+// $fadeout (message fade out time)
+// $holdtime (stay on the screen for this long)
+
+////////////////////
+// Green teletype //
+////////////////////
+$position 0.15 0.15
+$effect 2
+$color 0 200 0
+$color2 0 255 0
+$fadein 0.04
+$fxtime 0.25
+$holdtime 6.0
+$fadeout 0.5
+
+Team_AutoAssign
+{
+Automatisch Zuteilen
+}
+
+Menu_Spectate
+{
+Zuschauen
+}
+
+UndefinedTeam
+{
+Ready Room
+}
+
+Menu_LeaveGame
+{
+Spiel verlassen.
+}
+
+Menu_ReadyRoom
+{
+Ready Room
+}
+
+Menu_Marine1Team
+{
+Marines
+}
+
+Menu_Alien1Team
+{
+Aliens
+}
+
+Marine1Team
+{
+Frontiersmen
+}
+
+Alien1Team
+{
+Kharaa
+}
+
+Marine2Team
+{
+Frontiersmen
+}
+
+Alien2Team
+{
+Kharaa
+}
+
+AutoTeam
+{
+Automatisch zugeteilt.
+}
+
+Muted
+{
+Muted
+}
+
+Unmuted
+{
+Unmuted
+}
+
+No_longer_hear_that_player
+{
+Dieser Spieler ist stummgeschaltet.
+}
+
+// SDK 2.0 Spectator Menu
+Spec_Map
+{
+Map
+}
+
+Spec_Mode1
+{
+Festgestellte Verfolgerkamera.
+}
+
+Spec_Mode2
+{
+Freie Verfolgerkamera.
+}
+
+Spec_Mode3
+{
+Freie Kamera.
+}
+
+Spec_Mode4
+{
+First Person
+}
+
+Spec_Mode5
+{
+Free Map Overview
+}
+
+Spec_Mode6
+{
+Chase Map Overview
+}
+
+Spec_NoTarget
+{
+Keine gueltigen Ziele. Wechsel in Verfolgerkamera nicht moeglich.
+}
+
+Spec_Help
+{
+Druecke F4, um in den Ready Room zu gelangen. Benutze LINKS und RECHTS, SPRINGEN und FEUER, um durch die Perspektiven zu wechseln.
+}
+
+Spec_Help_Text
+{
+Use the following keys to change view styles:
+
+ FIRE1 or RIGHT - Chase next player
+ POPUP-MENU or LEFT - Chase previous player
+ JUMP - Change view modes
+ USE - Change inset window mode
+ 
+ DUCK  - Enable spectator menu
+  
+In Overview Map Mode move around with:
+
+ MOVELEFT - move left
+ MOVERIGHT - move right
+ FORWARD - zoom in
+ BACK - zoom out
+ MOUSE - rotate around map/target
+}
+
+Spec_Slow_Motion
+{
+Slow Motion
+}
+
+Spec_Replay
+{
+Instant Replay
+}
+
+Spec_Help2
+{
+Ihre Text-Nachrichten werden nur von anderen Zuschauern gesehen.
+}
+
+Spec_Only_Help
+{
+}
+
+Directed
+{
+Directed
+}
+
+SpectatorsNotAllowed
+{
+Dieser Server erlaubt momentan keine Zuschauer.
+}
+
+ObsInEyePrefix
+{
+Viewing through eyes of
+}
+
+SpectatorTeam
+{
+Zuschauer
+}
+
+Spectators
+{
+Zuschauer
+}
+
+TEAM
+{
+Team
+}
+
+TEAMS
+{
+Teams
+}
+
+PLAYER
+{
+Spieler
+}
+
+Player_plural
+{
+Spieler
+}
+
+PLAYERS
+{
+Spieler
+}
+
+SCORES
+{
+Scores
+}
+
+SCORE
+{
+Score
+}
+
+DEATHS
+{
+Deaths
+}
+
+LATENCY
+{
+Ping 
+}
+
+VOICE
+{
+Stimme
+}
+
+Unassigned
+{
+Nicht zugewiesen.
+}
+
+Menu_OK
+{
+OK
+}
+
+Points
+{
+Punkte
+}
+
+Cost
+{
+Kosten
+}
+
+NoSpectating
+{
+Zuschauer sind auf diesem Server nicht erlaubt.
+}
+
+// Main game messages
+ReadyRoomMessage
+{
+Dies ist der 'Ready Room'. Mittels der Portale kann man einem Team beitreten oder das Spiel beobachten.
+}
+
+ReinforcementMessage
+{
+Respawn in Kuerze...
+}
+
+ReinforcingMessage
+{
+Respawn...
+}
+
+ObserverMessage
+{
+Zuschauer koennen einem laufenden Spiel nicht beitreten.
+}
+
+CantSwitchTeamsInTournyMode
+{
+Im Tournament-Modus ist der Teamwechsel waehrend eines laufenden Spiels verboten.
+}
+
+CantSwitchTeamsAfterGameStart
+{
+Nach Spielbeginn ist der Teamwechsel verboten.
+}
+
+TooManyPlayersOnTeam
+{
+In diesem Team sind schon zu viele Spieler.
+}
+
+CantJoinAfterSpectating
+{
+Zuschauer koennen einem laufenden Spiel nicht beitreten.
+}
+
+CanOnlyJoinTeamYouveReinforced
+{
+Nachdem man das andere Team gesehen hat, kann man bis zur naechsten Runde die Teams nicht wechseln.
+}
+
+YouCanJoinSoon
+{
+Teambeitritt in Kuerze...
+}
+
+AlreadyOnTeam
+{
+Teamwechsel ist nur vom Ready Room aus moeglich.
+}
+
+SoldierMessage
+{
+Sie sind ein Soldat. Versuchen Sie, den Befehlen des Commanders zu folgen und beschuetzen Sie Ihre Teamkameraden und Gebaeude vor dem Feind, koste es, was es wolle.
+}
+
+ObjectivesVsAliens
+{
+Sie bekaempfen die Aliens. Aliens werden bei den Hives geboren. Um das Spiel zu gewinnen, muessen Sie alle Hives und Aliens ausschalten.
+}
+
+ObjectivesVsMarines
+{
+Du bekaempfst die Marines! Die Marines werden durch Infanterieportale heruebertransportiert. Um das Spiel zu gewinnen, muessen alle Infanterieportale und Marines vernichtet werden.
+}
+
+Handicap
+{
+Handicap
+}
+
+CommanderMessage
+{
+Klicken Sie links oder ziehen Sie den Cursor bei gedrueckter linker Maustaste, um Spieler auszuwaehlen. Mit einem Rechtsklick auf einen Ort, eine Struktur, oder einen Spieler lassen sich Anweisungen vergeben. Klicken Sie auf die Minimap (links unten), um schnell zu anderen Teilen des Levels zu springen. Mit dem menu rechts unten koennen Sie Strukturen bauen und Ihre Soldaten ausruesten.
+}
+
+Commander
+{
+Commander
+}
+
+NoCommander
+{
+Kein Commander
+}
+
+GestationMessage
+{
+Du entwickelst Dich nun in eine andere Lebensform. Sei bereit zu schluepfen ...
+}
+
+CocoonMessage
+{
+You have been cocooned!
+}
+
+YouAreReinforcements
+{
+Sie wurden zur Verstaerkung gerufen!
+}
+
+//////////////
+// Pie menu //
+//////////////
+MenuMarineRoot
+{
+Start
+}
+
+//MenuMarineRoot
+//{
+//!marinenode
+//}
+
+
+MenuComms
+{
+Funk
+}
+
+MenuTalk
+{
+Reden
+}
+
+MenuAttacked
+{
+"Werde angegriffen!"
+}
+
+MenuCheer
+{
+Jubel
+}
+
+MenuCoverMe
+{
+"Deckt mich!"
+}
+
+MenuRetreat
+{
+"Rueckzug!"
+}
+
+MenuInPosition
+{
+"In Position!"
+}
+
+MenuEnemySpotted
+{
+"Feindkontakt."
+}
+
+MenuMoveOut
+{
+"Ausruecken!"
+}
+
+MenuAllClear
+{
+"Gebiet gesichert!"
+}
+
+MenuYell
+{
+Rufen
+}
+
+MenuSay
+{
+Sagen
+}
+
+MenuRogerThat
+{
+"Alles Klar!"
+}
+
+MenuHello
+{
+"Hallo"
+}
+
+MenuNeedHelp
+{
+"Hilfe!"
+}
+
+MenuNeedHealth
+{
+"Brauche Med-Pack"
+}
+
+MenuNeedAmmo
+{
+"Brauche Munition"
+}
+
+MenuFollowMe
+{
+"Folgt mir."
+}
+
+MenuCovering
+{
+"Decke..."
+}
+
+MenuOrders
+{
+Befehle
+}
+
+MenuNeedOrder
+{
+"Brauche Anweisungen."
+}
+
+MenuAck
+{
+"Bestaetigt."
+}
+
+MenuAdmin
+{
+Admin
+}
+
+MenuReadyRoom
+{
+Ready Room
+}
+
+MenuVoteCommanderDown
+{
+Commander abwaehlen.
+}
+
+MenuArea
+{
+Gebiet
+}
+
+MenuMoveTo
+{
+Gehe zu...
+}
+
+MenuGuard
+{
+Bewache
+}
+
+MenuTarget
+{
+Ziel
+}
+
+MenuDeploy
+{
+Einsetzen
+}
+
+MenuIncoming
+{
+Sie kommen.
+}
+
+MenuProceed
+{
+Ruecke vor.
+}
+
+MenuFireTarget
+{
+Feuer auf Ziel.
+}
+
+MenuTaunt
+{
+Spott
+}
+
+MenuTakeCover
+{
+Geh' in Deckung.
+}
+
+MenuReady
+{
+Bereit
+}
+
+MenuDefendObj
+{
+Verteidige
+}
+
+MenuCeaseFire
+{
+Feuer einstellen!
+}
+
+MenuTeam
+{
+Team
+}
+
+MenuBuilding
+{
+Bauen
+}
+
+MenuAttackObj
+{
+Angriff
+}
+
+MenuTaunt
+{
+Spott
+}
+
+MenuHealth
+{
+"Health"
+}
+
+MenuCameraTower
+{
+Kamera
+}
+
+MenuTurret
+{
+Turret
+}
+
+MenuSiegeTurret
+{
+Siege Turret
+}
+
+MenuBlazeOfGlory
+{
+Blaze
+}
+
+MenuProtect
+{
+Beschuetzen
+}
+
+MenuReinforce
+{
+Verstaerkung
+}
+
+MenuArmorUpgrade
+{
+Heavy
+}
+
+MenuRepair
+{
+Reparatur
+}
+
+MenuPowerups
+{
+Stim
+}
+
+MenuAdrenaline
+{
+Adrenalin
+}
+
+MenuDefMatrix
+{
+Def matrix
+}
+
+MenuPhaseGate
+{
+Phase Gate
+}
+
+MenuSelf
+{
+Ich
+}
+
+MenuBuy
+{
+Kaufen
+}
+
+MenuHeavy
+{
+Heavy
+}
+
+MenuShotgun
+{
+Shotgun
+}
+
+MenuHeavyMG
+{
+Heavy MG
+}
+
+MenuLauncher
+{
+Launcher
+}
+
+MenuFlamer
+{
+Flamer
+}
+
+MenuNuke
+{
+Nuke
+}
+
+MenuWeapon
+{
+Waffen
+}
+
+MenuEquipment
+{
+Equipment
+}
+
+MenuUse
+{
+Benutzen
+}
+
+MenuNextWeapon
+{
+Naechste Waffe
+}
+
+MenuJetpacks
+{
+Jet-Packs
+}
+
+MenuReloadWeapon
+{
+Nachladen
+}
+
+MenuDropWeapon
+{
+Fallen lassen
+}
+
+MenuLight
+{
+Licht
+}
+
+MenuAmmo
+{
+Munition
+}
+
+MenuMines
+{
+Minen
+}
+
+MenuGrenades
+{
+Granaten
+}
+
+MenuUpgradeMG
+{
+Upgrade
+}
+
+////////////////////
+// Armor upgrades //
+////////////////////
+
+MenuArmorFull
+{
+Volle Armor
+}
+
+MenuBuyArmorHeavy
+{
+Heavy Armor
+}
+
+MenuBuyArmorMotionTrack
+{
+Motion Tracking
+}
+
+MenuBuyArmorJetpack
+{
+Jet-Packs
+}
+
+MenuBuyArmorLifeSupport
+{
+Sustain
+}
+
+// Rank
+MenuRank
+{
+Rang
+}
+
+MenuPromote
+{
+Befoerdern
+}
+
+MenuDemote
+{
+Degradieren
+}
+
+//////////////////////////////////////////////////
+// Don't localize these, they are sprite names: //
+//  (sprites/640(or 320)name.spr)               //
+//////////////////////////////////////////////////
+MenuAlienRoot
+{
+Start
+}
+
+MenuAlienSmallMorph
+{
+Lebensformen
+}
+
+MenuAlienMorphLevel1
+{
+Skulk
+}
+
+MenuAlienMorphLevel2
+{
+Gorge
+}
+
+MenuAlienBigMorph
+{
+Erweitert
+}
+
+MenuAlienMorphLevel3
+{
+Lerk
+}
+
+MenuAlienMorphLevel4
+{
+Fade
+}
+
+MenuAlienMorphLevel5
+{
+Onos
+}
+
+MenuAlienUpgrade
+{
+Upgrades
+}
+
+MenuAlienComm
+{
+Kommunikation
+}
+
+MenuAlienBuild
+{
+Bauen
+}
+
+MenuAlienAdvBuild
+{
+Erweitert
+}
+
+MenuAlienBuildUpgrades
+{
+Upgrades
+}
+
+
+MenuAlienCommSayingsWest
+{
+Rufen
+}
+
+MenuAlienCommSayingOne
+{
+Kichern
+}
+
+MenuAlienCommSayingTwo
+{
+Brauche Heilung.
+}
+
+MenuAlienCommSayingThree
+{
+Hilfe!
+}
+
+MenuAlienCommSayingsEast
+{
+Sagen
+}
+
+MenuAlienCommSayingFour
+{
+Eindringling!
+}
+
+MenuAlienCommSayingFive
+{
+Angriff!
+}
+
+MenuAlienCommSayingSix
+{
+Ich baue hier.
+}
+
+// Temp artwork, change
+MenuAlienReadyRoom
+{
+Ready Room
+}
+
+MenuAlienUpgradeDefOne
+{
+Carapace
+}
+
+MenuAlienUpgradeDefTwo
+{
+Regenaration
+}
+
+MenuAlienUpgradeDefThree
+{
+Redemption
+}
+
+MenuAlienUpgradeSenOne
+{
+Cloaking
+}
+
+MenuAlienUpgradeSenTwo
+{
+Pheromones
+}
+
+MenuAlienUpgradeSenThree
+{
+Scent of Fear
+}
+
+MenuAlienUpgradeMoveOne
+{
+Celerity
+}
+
+MenuAlienUpgradeMoveTwo
+{
+Adrenaline
+}
+
+MenuAlienUpgradeMoveThree
+{
+Silence
+}
+
+MenuAlienDefenseChamber
+{
+Defense Chamber
+}
+
+MenuAlienSensoryChamber
+{
+Sensory Chamber
+}
+
+MenuAlienMovementChamber
+{
+Movement Chamber
+}
+
+MenuAlienDefenseUpgrades
+{
+Defensive
+}
+
+MenuAlienSensoryUpgrades
+{
+Sensory
+}
+
+MenuAlienMovementUpgrades
+{
+Movement
+}
+
+MenuAlienOffensiveChamber
+{
+Offensive Chamber
+}
+
+MenuAlienResourceTower
+{
+Resource Tower
+}
+
+MenuAlienHive
+{
+Hive
+}
+
+//*//
+// Armor received messages
+$position -1 0.2
+$effect 0
+$fadein 0.5
+$fadeout 0.5
+$holdtime 5.0
+
+ReceiveHeavyArmor
+{
+Ihre Ausruestung wurde zur 'Heavy Armor' verbessert. Sie sind nun besser gepanzert.
+}
+
+ReceiveMotionTrackArmor
+{
+Ihnen wurde nun einen Motion-Tracker in die Ruestung integriert.
+}
+
+ReceiveJetpackArmor
+{
+Sie besitzen nun einen Jet-Pack. Druecken und halten Sie die SPRUNG-Taste, um ihn zu aktivieren.
+}
+
+ReceiveLifeSupportArmor
+{
+Du hast nun ein LifeSupport (TM) System. Wenn du kurz vor dem Tode bist, wirst du geschuetzt sein bis Hilfe eintrifft.
+}
+
+
+
+$position -1 0.35
+$holdtime 3.0
+
+GameStarting
+{
+Das Spiel beginnt in Kuerze...
+}
+
+$holdtime 2.0
+GameBegun
+{
+Das Spiel hat begonnen.
+}
+
+// Overwatch enabled
+//OverwatchActive
+//{
+//Overwatch active
+//}
+
+// Overwatch range string, expecting a float for range
+OverwatchRange
+{
+Target range: %f
+}
+
+// Points awarded
+$position -1 0.25
+$effect 0
+$holdtime 4
+
+MarineAward
+{
+Ihr Team eliminierte einen Gegner!
+}
+
+MarineAwardToLeader
+{
+Ihr Squad erhielt Punkte fuer die Eliminierung eines Gegners!
+}
+
+// Points awarded
+$position -1 0.15
+$effect 0
+$holdtime 3
+MarineAwardToCommander
+{
+Ihr Team verdiente sich Punkte durch die Beseitigung eines Gegners!
+}
+
+// Points awarded
+$position -1 0.25
+$effect 0
+$holdtime 4
+AlienAward
+{
+Der Tod dieses Gegners brachte Dir Resourcen ein!
+}
+
+Defect
+{
+Squad verlassen
+}
+
+WeaponCantBeDropped
+{
+Diese Waffe kann nicht abgelegt werden.
+}
+
+SquadIndicator
+{
+Sie sind in Squad %d
+}
+
+DefectMessageToLeader
+{
+Ein Spieler hat Ihren Squad verlassen.
+}
+
+InvalidOrderGiven
+{
+Ungueltiger Befehl.
+}
+
+$position -1 0.65
+$effect 0
+$holdtime .5
+$fadein .2
+$fadeout .2
+GameWontStart
+{
+Das Spiel beginnt erst, wenn beide Teams Spieler haben.
+}
+
+// Translation note: don't translate "ready"
+GameWontStartUntilReady
+{
+Das spiel wird nicht beginnen, bevor beide Teams "ready" eingeben.
+}
+
+$position -1 0.75
+$effect 0
+$holdtime .7
+$fadein .2
+$fadeout .2
+ReceivingLevelData
+{
+Empfange Level-Daten...
+}
+
+$position -1 0.85
+ReceivingLevelData1
+{
++---
+}
+
+ReceivingLevelData2
+{
+++--
+}
+
+ReceivingLevelData3
+{
++++-
+}
+
+ReceivingLevelData4
+{
+++++
+}
+
+$position -1 0.65
+$effect 0
+$holdtime .5
+$fadein .2
+$fadeout .2
+$position -1 0.9
+EvolvingMessage
+{
+Entwicklungsphase...
+}
+
+VoteCast
+{
+Ihre Stimme wurde gezaehlt.
+}
+
+VoteStarted
+{
+Eine Abstimmung zur Abloesung des Commanders wurde gestartet. Wenn der Commander den Spielverlauf stoert, koennen Sie mithilfe des Pop-Up menus fuer seine Entlassung stimmen.
+}
+
+VoteIllegal
+{
+Zu diesem Zeitpunkt ist eine Abstimmung unzulaessig.
+}
+
+
+AlreadyVoted
+{
+Sie koennen nur einmal pro Runde abstimmen.
+}
+
+VoteFailed
+{
+Die Abstimmung gegen den Commander war nicht erfolgreich.
+}
+
+VoteCancelled
+{
+Die Abstimmung wurde abgebrochen.
+}
+
+VoteSucceeded
+{
+Der Commander wurde abgewaehlt.
+}
+
+BannedFromCommand
+{
+Ihnen ist vorruebergehend das Kommandieren auf diesem Server verboten worden. Viele Server heben ein solches Verbot nach einigen Stunden auf.
+}
+
+MustGestateUp
+{
+Du kannst dich nur in hoehere Lebensformen entwickeln.
+}
+
+MustGestateOnGround
+{
+Du musst auf flachem Boden stehen, um die Entwicklung einzuleiten.
+}
+
+NotWhileDigesting
+{
+Du kannst waehrend der Verdauung eines Gegners keine Entwicklung in eine andere Lebensform einleiten.
+}
+
+NoReadyRoomWhileDigested
+{
+Du kannst nicht in den Ready Room, solange Du einen Marine verdaust.
+}
+
+NeedMoreRoomToGestate
+{
+Du brauchst mehr Platz fuer die Entwicklung.
+}
+
+NeedOneHiveToGestate
+{
+Dein Team benoetigt einen Hive, um diese Lebensform zu entwickeln.
+}
+
+NeedTwoHivesToGestate
+{
+Dein Team benoetigt zwei Hives, um diese Lebensform zu entwickeln.
+}
+
+NeedThreeHivesToGestate
+{
+Dein Team benoetigt drei Hives, um diese Lebensform zu entwickeln.
+}
+
+NeedOneHiveForStructure
+{
+Dein Team benoetigt einen Hive, um diese Struktur zu errichten.
+}
+
+NeedTwoHivesForStructure
+{
+Dein Team benoetigt zwei Hives, um diese Struktur zu errichten.
+}
+
+NeedThreeHivesForStructure
+{
+Dein Team benoetigt drei Hives, um diese Struktur zu errichten.
+}
+
+NeedsAnotherHiveForStructure
+{
+Dein Team braucht einen weiteren Hive, um diese Struktur zu errichten.
+}
+
+MustBeBuilder
+{
+Du must ein Gorge sein, um diese Struktur zu errichten.
+}
+
+UpgradeNotAvailable
+{
+Dieses Upgrade ist momentan nicht verfuegbar.
+}
+
+TooManyStructuresOfThisTypeNearby
+{
+Es sind zu viele Strukturen dieses Typs in der Naehe.
+}
+
+TooManyStructuresInArea
+{
+Es sind zu viele Strukturen in der Naehe.
+}
+
+$holdtime 2.0
+TooManyWebs
+{
+Dein Team hat die maximal zulaessige Anzahl an Webs erreicht.
+}
+
+TooManyWebsNearby
+{
+Es sind zuviele Webs in diesem Bereich.
+}
+
+$position -1 0.35
+$effect 0
+$holdtime 5.0
+TeamOneWon
+{
+Team Eins hat gewonnen!
+}
+
+TeamTwoWon
+{
+Team Zwei hat gewonnen!
+}
+
+GameDraw
+{
+Unendschieden!
+}
+
+RankBeforeGameStart
+{
+Du kannst nur vor dem Start des Spiels den Rang aendern.
+}
+
+DefectAfterGameStart
+{
+Du kannst erst nach Spielbeginn ueberlaufen.
+}
+
+// Tech tree
+MarineResourcePrefix
+{
+Team-Resourcen:
+}
+
+AlienResourcePrefix
+{
+Resourcen:
+}
+
+CarryResourcePrefix
+{
+Traegt %d Resourcen.
+}
+
+Resources
+{
+Resourcen:
+}
+
+
+NumericalEventResources
+{
+Resourcen
+}
+
+NumericalEventHealth
+{
+Health
+}
+
+NumericalEventResourcesDonated
+{
+Resourcen gespendet
+}
+
+NumericalEventAmmo
+{
+Ammo erhalten
+}
+
+
+
+
+AlienEnergyDescription
+{
+Energie
+}
+
+ResourcesDepleted
+{
+Resourcen erschoepft.
+}
+
+Reinforcements
+{
+Verstaerkung
+}
+
+
+WeaponCategory
+{
+Waffen
+}
+
+ArmorCategory
+{
+Armor
+}
+
+BuildCategory
+{
+Bauen
+}
+
+RadioCategory
+{
+Funk
+}
+
+TechNodeLabel_0
+{
+keine
+}
+
+TechNodeHelp_0
+{
+<none>
+}
+
+TechNodeHelp_1
+{
+Wechselt zur naechsten Waffe.
+}
+
+TechNodeHelp_2
+{
+Laedt die aktive Waffe nach.
+}
+
+TechNodeHelp_3
+{
+Laesst Ihre aktive Waffe fallen, um schneller zu werden, oder um sie jemand Anderem zu geben.
+}
+
+TechNodeHelp_5
+{
+Verlaesst das Spiel und bringt Sie zurueck zum Ready Room.  Dort koennen Sie das Team wechseln, Zuschauer werden, oder einfach nur eine Pause einlegen.
+}
+
+TechNodeHelp_6
+{
+Falls der Commander mit Absicht versucht, das Spiel zu ruinieren, koennen Sie Ihn mit dieser Abstimmung von seinem Posten verbannen. Wenn genug Stimmen zusammenkommen, wird er fuer den Rest des Spieles suspendiert.
+}
+
+
+TechNodeLabel_10
+{
+Angegriffen
+}
+
+TechNodeLabel_11
+{
+Attacke
+}
+
+TechNodeLabel_12
+{
+Zerstoeren
+}
+
+TechNodeLabel_13
+{
+Bestaetigt
+}
+
+TechNodeLabel_14
+{
+Focus Team
+}
+
+TechNodeLabel_15
+{
+maechtig
+}
+
+
+TechNodeHelp_7
+{
+"Kichern"
+}
+
+TechNodeHelp_8
+{
+"Brauche Heilung."
+}
+
+TechNodeHelp_9
+{
+"Brauche Hilfe."
+}
+
+TechNodeHelp_10
+{
+"Eindringling."
+}
+
+TechNodeHelp_11
+{
+"ANGRIFF"
+}
+
+TechNodeHelp_12
+{
+"Ich baue hier."
+}
+
+
+
+TechNodeLabel_20
+{
+Armor #1
+}
+
+TechNodeLabel_21
+{
+Armor  #2
+}
+
+TechNodeLabel_22
+{
+Armor  #3
+}
+
+TechNodeLabel_23
+{
+Waffen #1
+}
+
+TechNodeLabel_24
+{
+Waffen #2
+}
+
+TechNodeLabel_25
+{
+Waffen #3
+}
+
+TechNodeHelp_20
+{
+Stufe 1 - Armorverbesserung.
+}
+
+TechNodeHelp_21
+{
+Stufe 2 - Armorverbesserung.
+}
+
+TechNodeHelp_22
+{
+Stufe 3 - Armorverbesserung.
+}
+
+
+TechNodeHelp_23
+{
+Waffen, Minen, Turrets fuegen +10% Schaden zu.
+}
+
+TechNodeHelp_24
+{
+Waffen, Minen, Turrets fuegen +20% Schaden zu.
+}
+
+TechNodeHelp_25
+{
+Waffen, Minen, Turrets fuegen +30% Schaden zu.
+}
+
+TechNodeLabel_26
+{
+Advanced Turret Factory.
+}
+
+TechNodeHelp_26
+{
+Upgrade zur Advanced Turret Factory.
+}
+
+TechNodeLabel_28
+{
+Jet-Packs
+}
+
+TechNodeHelp_28
+{
+Ermoeglicht Jet-Pack Module.
+}
+
+TechNodeLabel_29
+{
+Heavy Armor
+}
+
+TechNodeHelp_29
+{
+Ermoeglicht Heavy Armor.
+}
+
+TechNodeLabel_30
+{
+Distress Beacon
+}
+
+TechNodeHelp_30
+{
+Laesst alle toten Marines am Startpunkt  wiedererscheinen.
+}
+
+TechNodeLabel_31
+{
+Feldmedizinische Technologie.
+}
+
+TechNodeHelp_31
+{
+Ermoeglicht es dem Commander, Healthpacks auszugeben.
+}
+
+TechNodeLabel_32
+{
+Abbrechen.
+}
+
+TechNodeHelp_32
+{
+Forschung abbrechen.
+}
+
+TechNodeLabel_33
+{
+Motion-Tracking
+}
+
+TechNodeHelp_33
+{
+Alle sich bewegenden Feinde werden sichtbar.
+}
+
+TechNodeLabel_34
+{
+Phase Tech
+}
+
+TechNodeHelp_34
+{
+Ermoeglicht Scans und die Errichtung von Phasegates.
+}
+
+TechNodeLabel_35
+{
+Upgrade Tower
+}
+
+TechNodeHelp_35
+{
+Verbessert Resourcen-Foerderungsrate
+}
+
+TechNodeLabel_36
+{
+Electrical defense
+}
+
+TechNodeHelp_36
+{
+Schockt nahe Gegner.
+}
+
+TechNodeLabel_38
+{
+Heavy Armor
+}
+
+TechNodeHelp_38
+{
+Gibt Heavy Armor an die Soldaten aus.
+}
+
+TechNodeLabel_39
+{
+Jet-Pack
+}
+
+TechNodeHelp_39
+{
+Gibt einem Soldaten einen Jet-Pack.
+}
+
+TechNodeLabel_40
+{
+Infanterie-Portal
+}
+
+TechNodeHelp_40
+{
+Startportal der Soldaten
+}
+
+TechNodeLabel_41
+{
+Resource Tower
+}
+
+TechNodeHelp_41
+{
+Foerdert Resourcen.
+}
+
+
+
+TechNodeLabel_43
+{
+Turret Factory
+}
+
+TechNodeHelp_43
+{
+Ermoeglicht Geschuetztuerme (Turrets).
+}
+
+TechNodeLabel_45
+{
+Arms Lab
+}
+
+TechNodeHelp_45
+{
+Entwickelt Waffen und Ruestungserweiterungen.
+}
+
+TechNodeLabel_46
+{
+Prototype Lab
+}
+
+TechNodeHelp_46
+{
+Experimentelle Technologien
+}
+
+TechNodeLabel_48
+{
+Armory
+}
+
+TechNodeHelp_48
+{
+Zugriff auf neue Waffensysteme.
+}
+
+TechNodeLabel_49
+{
+Advanced Armory
+}
+
+TechNodeHelp_49
+{
+Upgrade zur Advanced Armory
+}
+
+
+TechNodeLabel_50
+{
+Nuke Anlage
+}
+
+TechNodeHelp_50
+{
+Ermoeglicht Nuke Konstruktion.
+}
+
+TechNodeLabel_51
+{
+Observatorium
+}
+
+TechNodeHelp_51
+{
+Aufklaerungs-Technologien
+}
+
+TechNodeLabel_52
+{
+Health nanotech
+}
+
+TechNodeHelp_52
+{
+Ermoeglicht es dem Commander, Healthpacks auszugeben.
+}
+
+TechNodeLabel_53
+{
+Scanner Sweep
+}
+
+TechNodeHelp_53
+{
+Erlaubt kurzzeitigen Einblick in ein Gebiet und enthuellt getarnte Gegner.
+}
+
+TechNodeLabel_55
+{
+Phase Gate
+}
+
+TechNodeHelp_55
+{
+Lichtschneller Transporter.
+}
+
+TechNodeLabel_56
+{
+Turret
+}
+
+TechNodeHelp_56
+{
+Errichtet ein Turret.
+}
+
+TechNodeLabel_57
+{
+Siege Turret
+}
+
+TechNodeHelp_57
+{
+Hochleistungs-Schallwellen-Geschuetz mit enormer Druckwelle.
+Kann durch Waende schiessen.
+}
+
+TechNodeLabel_58
+{
+Command Console
+}
+
+TechNodeHelp_58
+{
+Eine Aushilfsconsole.
+}
+
+
+
+TechNodeLabel_59
+{
+Health
+}
+
+TechNodeHelp_59
+{
+Gibt einem Marine 50 Gesundheitspunkte.
+}
+
+TechNodeLabel_60
+{
+Ammo
+}
+
+TechNodeHelp_60
+{
+Ein Magazin fuer jede  beliebige  Waffe.
+}
+
+
+
+TechNodeLabel_61
+{
+Minen
+}
+
+TechNodeHelp_61
+{
+Fuenf Minen
+}
+
+TechNodeLabel_62
+{
+Welder (Schweissbrenner)
+}
+
+TechNodeHelp_62
+{
+Repariert Strukturen und Armor, beeinflusst schweissbare Stellen und verbrennt Netze.
+}
+
+TechNodeLabel_63
+{
+Med Kit
+}
+
+TechNodeLabel_64
+{
+Shotgun
+}
+
+TechNodeHelp_64
+{
+Fuer den Nahkampf
+}
+
+TechNodeLabel_65
+{
+HMG
+}
+
+TechNodeHelp_65
+{
+Hochleistungs-Sturmgewehr.
+}
+
+TechNodeLabel_66
+{
+Grenade Launcher
+}
+
+TechNodeHelp_66
+{
+Grenade Launcher
+}
+
+TechNodeLabel_67
+{
+Nuke
+}
+
+TechNodeHelp_67
+{
+Ablegbare Mini-Atombombe
+}
+
+TechNodeLabel_69
+{
+Recyceln
+}
+
+TechNodeHelp_69
+{
+Zerstoert diese Struktur und erstattet etwas von den Resourcen zurueck.
+}
+
+TechNodeHelp_80
+{
+Bittet Ihren Commander um Anweisungen. Der Commander wird benachrichtigt, dass Sie etwas unternehmen wollen und kann Ihnen Befehle erteilen.
+}
+
+TechNodeHelp_81
+{
+Teilt Ihrem Commander mit, dass Sie seine Anweisungen verstanden haben. Bewegen Sie sich nun zu Ihrem momentanen Waypoint, um Ihre Befehle auszufuehren. Wenn der Auftrag ausgefuehrt wurde, wird der Waypoint verschwinden.
+}
+
+
+
+TechNodeLabel_85
+{
+Bauen
+}
+
+TechNodeHelp_85
+{
+Grundlegendes Aufbaumenu.
+}
+
+TechNodeLabel_86
+{
+Erweitert
+}
+
+TechNodeHelp_86
+{
+Fortgeschrittenes Aufbaumenu.
+}
+
+TechNodeLabel_87
+{
+Beistand
+}
+
+TechNodeHelp_87
+{
+Unterstuetzungsmenu
+}
+
+TechNodeLabel_88
+{
+Ausruesten
+}
+
+TechNodeHelp_89
+{
+Zurueck zum Hauptmenu (ESC)
+}
+
+TechNodeHelp_90
+{
+Erstellt einen Resource Tower: Er sammelt Resourcen. Kann nur auf einer 'Resource Node' (erkennbar an dem weissen Ausstoss) plaziert werden.
+}
+
+TechNodeHelp_91
+{
+Erstellt eine Offense Chamber: Organisches Geschuetz, das feindliche Spieler und Gebaeude angreift. Schaden: 20
+}
+
+TechNodeHelp_92
+{
+Erstellt eine Defense Chamber: Ermoeglicht Defensiv-Upgrades, heilt Spieler und Strukturen.
+}
+
+TechNodeHelp_93
+{
+Erstellt eine Sensory Chamber: Ermoeglicht dem Team Sensor-Upgrades, tarnt befreundete Einheiten und Strukturen im Umkreis. Blockiert Motion-Tracking
+}
+
+//Hinweis an die Uebersetzer: Hier bin ich aktueller als Flayras Version. Lasst's bitte so.
+TechNodeHelp_94
+{
+Erstellt eine Movement Chamber: Ermoeglicht Bewegungs-Updates, teleportiert Aliens zum entferntesten oder zu einem gerade angegriffenen Hive. Regeneriert die Energie naher Aliens.
+}
+
+TechNodeHelp_95
+{
+Erstellt einen Hive: Ermoeglicht hoehere Lebensformen und Faehigkeiten. Kann nur in einer 'Hive Location' erstellt werden.
+}
+
+//Und zum Zweiten...
+TechNodeHelp_101
+{
+Verbessert deine Panzerung. Jeder Level absorbiert 20% mehr Schaden.
+}
+
+TechNodeHelp_102
+{
+Du heilst Dich Stueck fuer Stueck selbst . Hoehere Level beschleunigen Deine Heilung.
+}
+
+TechNodeHelp_103
+{
+Der Hive wird versuchen, dich vor dem Tode zu retten, indem du zur Heilung zu ihm zurueckteleportiert wirst.
+}
+
+TechNodeHelp_104
+{
+Schaerfe - Dein Nahkampfwaffenschaden ist um die Haelfte gesteigert.
+}
+
+TechNodeHelp_105
+{
+Piercing - Dein Fernwaffenschaden ist um die Haelfte gesteigert.
+}
+
+TechNodeHelp_106
+{
+Penetration - Schiesst durch Waende und Ziele (nicht funktionsfaehig)
+}
+
+TechNodeHelp_107
+{
+Erhoeht Deine Maximalgeschwindigkeit dauerhaft.
+}
+
+TechNodeHelp_108
+{
+Regeneriert deine Energie schneller.  Jeder Level erhoeht die Regenerationsrate um 33%.
+}
+
+TechNodeHelp_109
+{
+Jeder Level daempft deinen Geraeusch-Pegel, bis du schliesslich lautlos bist.
+}
+
+TechNodeHelp_110
+{
+Ruhiges Stillstehn macht Dich fast unsichtbar. Jeder Level verkuerzt die Zeit vor Einsetzen der Tarnung.
+}
+
+TechNodeHelp_111
+{
+Feindliche Spieler hinterlassen eine sichtbare Spur. Hoehere Levels verbessern die Reichweite.
+}
+
+TechNodeHelp_112
+{
+Deine Hive Sight zeigt Dir alle Feinde in einem bestimmten Umkreis an.
+}
+
+TechNodeHelp_113
+{
+Entwicklung zum Skulk.  Dies ist eine schnelle, kleine Kreatur, die sich am besten fuer Guerilla-Taktiken eignet.  Kann an Waenden und Decken laufen (mit 'DUCKEN' deaktivierbar).
+}
+
+TechNodeHelp_114
+{
+Entwicklung zum Gorge. Erschafft und entwickelt Resource Towers, Hives, Upgrade – und Offensive Chambers. Schwach in der Schlacht, kann aber befreundete Spieler und Strukturen heilen
+}
+
+TechNodeHelp_115
+{
+Entwicklung zum Lerk. Ermoeglicht vielseitige Kampfunterstuetzung. Er besitzt fernkampffaehige Spikes, sich ausbreitende Spore- und schuetzende Umbra-Wolken. Durch Druck auf die "Sprung"-Taste kannst Du fliegen.  Halte die "Sprung"-Taste gedrueckt, um zu gleiten.
+}
+
+TechNodeHelp_116
+{
+Entwicklung zum Fade. Ein maechtiger Kaempfer mit gewaltigen Klauen, 'Acid Rocket' Angriff und Teleportation.
+}
+
+TechNodeHelp_117
+{
+Entwicklung zum Onos. Gigantisches Alien, das seine Gegner durch Stampfen laehmen, durch feindliche Reihen stuermen, und Gegner verschlingen kann. Dieses Alien kann es mit mehreren Gegnern geleichzeitig aufnehmen.
+}
+
+
+ClassDead
+{
+Dead
+}
+
+ClassDigesting
+{
+Verdaut
+}
+
+ClassCommander
+{
+Commander
+}
+
+ClassHeavyMarine
+{
+Heavy
+}
+
+ClassReinforcing
+{
+Rein
+}
+
+ClassLevel1
+{
+Skulk
+}
+
+ClassLevel2
+{
+Gorge
+}
+
+ClassLevel3
+{
+Lerk
+}
+
+ClassLevel4
+{
+Fade
+}
+
+ClassLevel5
+{
+Onos
+}
+
+ClassGestating
+{
+Gestating
+}
+
+
+Building
+{
+Im Bau:
+}
+
+
+Researching
+{
+In der Entwicklung:
+}
+
+Energy
+{
+Energie: 
+}
+
+Prerequisite
+{
+Benoetigt:
+}
+
+Cost
+{
+Kosten:
+}
+
+NotFullyBuilt
+{
+Nicht vollstaendig gebaut
+}
+
+Recycling
+{
+Wird recycelt...
+}
+
+ReinforcementsText
+{
+Verstaerkungen:
+}
+
+LogoutText
+{
+LOG OUT
+}
+
+BlipStatus_0
+{
+Feind
+}
+
+BlipStatus_1
+{
+Geschwaechter Feind.
+}
+
+BlipStatus_2
+{
+ 
+}
+
+BlipStatus_3
+{
+Wird angegriffen.
+}
+
+BlipStatus_5
+{
+ist ein Gorge.
+}
+
+BlipStatus_6
+{
+ 
+}
+
+BlipStatus_7
+{
+
+}
+
+BlipStatus_8
+{
+
+}
+
+Friend
+{
+Freund
+}
+
+Enemy
+{
+Feind
+}
+
+User3Name_1
+{
+Soldat
+}
+
+User3Name_2
+{
+Commander
+}
+
+User3Name_3
+{
+Skulk
+}
+
+User3Name_4
+{
+Gorge
+}
+
+User3Name_5
+{
+Lerk
+}
+
+User3Name_6
+{
+Fade
+}
+
+User3Name_7
+{
+Onos
+}
+
+User3Name_8
+{
+Embryo
+}
+
+User3Name_15
+{
+Ausruestung
+}
+
+User3Name_17
+{
+Hive
+}
+
+User3Desc_17
+{
+Aliens werden hier geboren, ermoeglicht den Zugang zu hoeheren Lebensformen und Upgrades.
+}
+
+User3FriendlyDesc_17
+{
+Du startest hier. Der Hive wird Dich heilen, wenn Du in der Naehe bist. Er eroeffnet Dir die "Hive Sight", welche Freunde, Feinde und Warnhinweise anzeigt. Verteidige die Hives um jeden Preis.
+}
+
+User3Name_22
+{
+Resource Nozzle
+}
+
+User3Desc_22
+{
+Foerdert Resourcen, wenn ein Resource Tower auf ihr gebaut ist. Diese Resourcen sind unerschoepflich.
+}
+
+User3CommanderDesc_22
+{
+Foerdert Resourcen, wenn ein Resource Tower auf ihr gebaut ist. Diese Resourcen sind unerschoepflich.
+}
+
+User3Name_23
+{
+Command Console
+}
+
+User3Desc_23
+{
+Wird vom Commander der Marines benutzt, um Strukturen zu errichten und neue Technologien zu erforschen.
+}
+
+User3FriendlyDesc_23
+{
+Wird vom Commander der Marines benutzt, um Strukturen zu errichten und neue Technologien zu erforschen. Ihr Commander wird in der oberen Mitte des Bildschirms angezeigt. Hat Ihr Team keinen Commander, so koennen Sie diese Rolle uebernehmen, indem Sie sich zur Command Console begeben und die BENUTZEN-Taste druecken.
+}
+
+User3CommanderDesc_23
+{
+Waehlen Sie die Command Console aus, um zu sehen, wo Sie Infanterie-Portale errichten koennen. Ist die Command Console zerstoert, koennen Sie nicht mehr auf das Commander-Interface zugreifen. Beschuetzen Sie daher die Command Console um jeden Preis.
+}
+
+User3Name_24
+{
+Turret Factory
+}
+
+User3Desc_24
+{
+Ermoeglicht die Errichtung von Sentry Turrets in Reichweite. Turrets brauchen eine intakte Turret Factory, um weiterhin zu funktionieren. Waehlen Sie die Turret Factory an, um ihre Reichweite zu sehen.
+}
+
+User3Name_25
+{
+Armory
+}
+
+User3Desc_25
+{
+Spendet Munition und ermoeglicht die Ausgabe von  Shotguns, Minen und Weldern innerhalb ihrer Reichweite.
+}
+
+User3CommanderDesc_25
+{
+Spendet Munition und ermoeglicht die Konstruktion von Shotguns, Minen und Weldern innerhalb ihrer Reichweite. Waehlen Sie die Armory aus, um sich deren Reichweite anzeigen zu lassen.
+}
+
+User3FriendlyDesc_25
+{
+"Benutzen" Sie die Armory, um kostenlose Munition fuer Ihre aktive Waffe zu erhalten. Ermoeglicht ausserdem die Ausgabe von Shotguns, Minen und Weldern in ihrer Umgebung.
+}
+
+
+User3Name_26
+{
+Advanced Armory
+}
+
+User3Desc_26
+{
+Spendet Munition und erlaubt die Ausgabe von Heavy Machine Guns und Grenade Launchers in ihrem Umkreis.
+}
+
+User3CommanderDesc_26
+{
+Spendet Munition an befreundete Soldaten. Erlaubt die Ausgabe von Heavy Machine Guns und Grenade Launchers in ihrem Umkreis. Waehlen Sie die 'Advanced Armory' aus, um sich ihre Reichweite anzeigen zu lassen
+}
+
+User3FriendlyDesc_26
+{
+"Benutzen" Sie die Advanced Armory um kostenlose Munition fuer Ihre aktive Waffe zu erhalten.  Ermoeglicht ausserdem die Ausgabe von Heavy Machine Guns und Grenade Launchers in ihrer Umgebung.
+}
+
+User3Name_27
+{
+Arms Lab
+}
+
+User3Desc_27
+{
+Ermoeglicht Zugriff auf Armor- und Waffen-Upgrades.
+}
+
+User3Name_28
+{
+Prototype Lab
+}
+
+User3Desc_28
+{
+Ermoeglicht die Entwicklung von Jet-Packs und Heavy Armor.
+}
+
+User3Name_29
+{
+Observatorium
+}
+
+User3Desc_29
+{
+Beobachtet die naehere Umgebung und enttarnt Feinde in seiner Reichweite. Ermoeglicht den Zugang zum Scanner Sweep, Motion-Tracking und das Absetzen eines Notsignals ('Distress Beacon').
+}
+
+User3Name_30
+{
+Chemlab
+}
+
+User3Name_31
+{
+Medlab
+}
+
+User3Desc_32
+{
+Ermoeglicht die Konstruktion von Baby Nuke Atombomben die durch den Commander gelegt werden koennen und automatisch, falls sie nicht zerstoert werden, nach ein paar Sekunden explodieren.
+}
+
+User3Name_33
+{
+Sentry Turret
+}
+
+User3Desc_33
+{
+Feuert automatisch auf in der Naehe befindliche Feinde.
+}
+
+User3FriendlyName_33
+{
+Feuert automatisch auf feindliche Lebensformen und Gebaeude. Schwach gegen hoeher entwickelte oder aufgeruestete Aliens.  Muss in Reichweite einer Turret Factory stehen, um zu funktionieren.  Schaden: 10
+}
+
+User3CommanderName_33
+{
+Feuert automatisch auf feindliche Lebensformen und Gebaeude. Schwach gegen hoeher entwickelte oder aufgeruestete Aliens.  Muss in Reichweite einer Turret Factory stehen, um zu funktionieren. Waehlen Sie das Turret aus, um seine Reichweite  zu sehen. Kann keine getarnten Feinde erfassen. Wirkungsvoll gegen niedrigstufige Aliens.  Schaden: 23
+}
+
+User3Name_34
+{
+Siege Cannon
+}
+
+User3Desc_34
+{
+Automatische Siege Cannon (ASC).  Schall-Waffe fuer den Einsatz gegen Gebaeude, die selbst durch massive Waende schiessen kann, allerdings keine Spieler direkt verletzt. Kann nur gesichtete Ziele angreifen. 
+Reichweite: 400  Schaden: 165 (Doppelt bei Gebaeuden)
+}
+
+User3FriendlyDesc_34
+{
+Automatische Siege Cannon (ASC).  Schall-Waffe fuer den Einsatz gegen Gebaeude, die selbst durch massive Waende schiessen kann, allerdings keine Spieler direkt verletzt. Kann nur gesichtete Ziele angreifen.
+Reichweite: 400  Schaden: 165 (verdoppelt gegen Gebaeude)
+}
+
+User3CommanderDesc_34
+{
+Automatische Siege Cannon (ASC).  Schall-Waffe fuer den Einsatz gegen Gebaeude, die selbst durch massive Waende schiessen kann, allerdings keine Spieler direkt verletzt. Waehlen Sie das ASC aus, um seine Reichweite zu sehen (es kann alles im gruenen Bereich erfassen, soweit ein Marine oder Scanner Sweep es sichtbar machen).
+Reichweite: 400  Schaden: 165 (verdoppelt gegen Gebaeude)
+}
+
+
+User3Name_35
+{
+Resource Tower
+}
+
+User3Desc_35
+{
+Foerdert in regelmaessigen Abstaenden Resourcen.
+}
+
+User3Name_37
+{
+Infanterie-Portal
+}
+
+User3FriendlyDesc_37
+{
+Bringt Soldaten an die Front. Ohne das Infanterie-Portal koennen keine TSA-Soldaten wiedererscheinen, also bewachen Sie es, so gut es geht.
+} 
+
+User3FriendlyDesc_37
+{
+Bringt Soldaten an die Front. Ohne das Infanterie-Portal koennen keine TSA-Soldaten wiedererscheinen, also bewachen Sie es, so gut es geht.
+}	  
+
+User3CommanderDesc_37
+{
+Bringt Soldaten an die Front.  Ohne das Infanterie-Portal koennen keine TSA-Soldaten wiedererscheinen.
+}
+
+User3Name_38
+{
+Nuke
+}
+
+User3Desc_38
+{
+Nuke (Atombombe) macht sich scharf und muss bevor sie zuendet zerstoert werden! Einmal scharf explodiert die Nuke (Atombombe) mit massiven Schaden  fuer Spieler und Strukturen in ihrer Naehe.
+}
+
+User3FriendlyDesc_38
+{
+Nuke (Atombombe) macht sich scharf, verdeidigen Sie sie bis zum Abschluss. Ein mal scharf explodiert die Nuke (Atombombe) mit massivem Schaden  fuer Spieler und Strukturen in ihrer Naehe.
+}
+
+User3CommanderDesc_38
+{
+Nuke (Atombombe) macht sich scharf, verdeidigen Sie sie bis zum Abschluss. Ein mal scharf explodiert die Nuke (Atombombe) mit massivem Schaden  fuer Spieler und Strukturen in ihrer Naehe.
+}
+
+User3Name_39
+{
+Heavy Armor
+}
+
+User3Desc_39
+{
+Aufnehmen, um Heavy Armor zu erhalten. Kann nicht zusammen mit dem Jet-Pack benutzt werden. Schuetzt vor Sporen.
+}
+
+User3Name_40
+{
+Jet-Pack
+}
+
+User3Desc_40
+{
+Aufnehmen, um den Jet-Pack nutzen zu koennen. Kann nicht mit der Heavy Armor kombiniert werden.
+}
+
+User3Name_41
+{
+Phase Gate
+}
+
+User3Desc_41
+{
+Ermoeglicht die Teleportation zu anderen Phase Gates. Treten Sie auf ein Phasegate und druecken Sie 'BENUTZEN', um sich zu teleportieren. Phase Gates koennen von allen Spielern benutzt werden.
+}
+
+User3CommanderDesc_41
+{
+Ermoeglicht Lichtgeschwindigkeitteleportation zu anderen Phase Gates.  Es werden mehrere Phase Gates benoetigt um einen Effekt zu erzielen.  Phase Gates koennen von allen Spielern benutzt werden.
+}
+
+User3Name_42
+{
+Defense Chamber
+}
+
+User3Desc_42
+{
+Heilt langsam befreundete Spieler und Strukturen in ihrer Naehe. Eroeffnet einen Level von Defensiv-Upgrades (Carapace, Regeneration und Redemption).
+}
+
+User3Name_43
+{
+Movement Chamber
+}
+
+User3Desc_43
+{
+Aliens koennen sich hiermit zum am weitesten entfernten oder einem gerade angegriffenen Hive teleportieren.  Erlaubt ein Level von Bewegungs-Upgrades(Celerity, Adrenaline und Silence).  Wird eine Chamber vernichtet, geht auch das entsprechende Upgrade verloren.
+}
+
+User3FriendlyDesc_43
+{
+Gehe zur Chamber und druecke die "BENUTZEN"-Taste, um Dich zu einem Hive zu teleportieren. Eroeffnet einen Level an Movement Upgrades (Celerity, Adrenaline und Silence).
+}
+
+
+User3Name_44
+{
+Offense Chamber
+}
+
+User3Desc_44
+{
+Organisches Geschuetz, feuert automatisch auf feindliche Spieler und Strukturen.
+}
+
+User3Name_45
+{
+Sensory Chamber
+}
+
+User3Desc_45
+{
+Tarnt nahe Aliens. Erlaubt ein Level von Sensory-Upgrades (Cloaking, Pheromones und Scent Of Fear).
+}
+
+
+User3Name_46
+{
+Resource Tower
+}
+
+User3Desc_46
+{
+Foerdert Resourcen fuer den Feind.
+}
+
+User3FriendlyDesc_46
+{
+Foerdert Resourcen fuer Dein Team.
+}
+
+User3Name_47
+{
+Heavy Armor Modul (schwere Ruestung)
+}
+
+User3Desc_47
+{
+Stattet einen Soldaten mit Heavy Armor aus.
+}
+
+User3FriendlyDesc_47
+{
+Stattet einen Soldaten mit Heavy Armor aus.
+}
+
+User3Name_48
+{
+Jet-Pack Modul
+}
+
+User3Desc_48
+{
+Stattet einen Soldaten mit einem Jet-Pack aus.
+}
+
+User3FriendlyDesc_48
+{
+Stattet einen Soldaten mit einem Jet-Pack aus.
+}
+
+User3Name_49
+{
+Advanced Turret Factory
+}
+
+User3Desc_49
+{
+Ermoeglicht die Errichtung von Sentry Turrets und Siege Cannons.
+}
+
+User3FriendlyDesc_49
+{
+Ermoeglicht die Errichtung von Sentry Turrets und Siege Cannons.
+}
+
+User3Name_57
+{
+Mine
+}
+
+User3Desc_57
+{
+Detoniert bei Kontakt.
+}
+
+User3FriendlyDesc_57
+{
+Detonieren bei Kontakt mit dem Feind.
+}
+
+Weapon1Help
+{
+Gore - Gehe nah an Deinen Feind heran und greife an. Schaden: %d Punkte (verdoppelt gegen Strukturen)
+}
+
+Weapon2Help
+{
+Spit - Leichte Fernkampfwaffe, um den Feind auf Distanz zu halten.  Schaden: %d Punkte
+}
+
+Weapon3Help
+{
+Sporen - verschiesst eine Wolke giftiger Sporen, die allen Feinden im Einflussgebiet langsam schadet.
+Schaden: %d Punkte pro Sekunde
+}
+
+Weapon4Help
+{
+Spikes - Praezise Fernkampfwaffe fuer grosse Distanz.  Schaden: %d Punkte
+}
+
+Weapon5Help
+{
+Bite - Toedliche Nahkampfwaffe. Gehe nahe an den Feind heran und beisse zu. Schaden: %d Punkte
+}
+
+Weapon6Help
+{
+Bite - Toedliche Nahkampfwaffe. Gehe nahe an den Feind  heran  und beisse zu. Schaden: %d Punkte
+}
+
+Weapon7Help
+{
+Swipe - Toedlicher Nahkampf-Angriff. Effektiv gegen Spieler und Gebaeude. Schaden: %d Punkte
+}
+
+Weapon8Help
+{
+Webs - Schiesse Troepfchen an zwei gegenueberliegende Waende, und ein Web wird zwischen ihnen erscheinen.  Webs bremsen Gegner und macht sie kurzzeitig kampfunfaehig. Webs koennen mit Weldern verbrannt werden.
+}
+
+Weapon9Help
+{
+Metabolize - Erlaubt die Regeneration von Energie und Schaeden.
+}
+
+Weapon10Help
+{
+Parasit - Infiziert das Ziel mit einem Parasiten und macht es in der Hive Sicht fuer alle Zeit sichtbar. Der Parasit kann nicht entfernt werden. Schaden: %d Punkte
+}
+
+Weapon11Help
+{
+Blink - Quasi-Teleportation.
+}
+
+Weapon12Help
+{
+Xenocide - Explosiver Selbstmordangriff.  Kurz nach der Aktivierung wirst Du detonieren und in deiner Umgebung grosse Verwuestung anrichten.  Schaden: %d Punkte (verdoppelt gegen Strukturen)
+}
+
+Weapon13Help
+{
+Messer - Waffe der Sparsamen und der Verzweifelten. Schaden : %d Punkte
+}
+
+Weapon14Help
+{
+Pistole - Durchschlagkraeftige und auesserst genaue Waffe, aber mit kleinem Magazin. Schaden: %d Punkte
+}
+
+Weapon15Help
+{
+LMG - Praezise Waffe mit hoher Feuerrate und mittelgrossem Magazin. Feuerrate: 10 Kugeln pro Sekunde. Schaden: %d Punkte
+}
+
+Weapon16Help
+{
+Shotgun - Fuer schnelle Ziele und maximalen Schaden auf kurze Distanz. Feuerrate: 10 Pellets pro Schuss. Schaden pro Pellet: %d Punkte
+}
+
+Weapon17Help
+{
+Heavy Machine Gun (HMG) - Schweres Maschienengewehr fuer grosse Ziele und zur Verteidigung. Ihre Ungenauigkeit wird durch hohe Feuerrate und grosse Magazinkapazitaet mehr als wett gemacht. Schaden: %d Punkte pro Kugel (halbiert gegen Strukturen).
+}
+
+Weapon18Help
+{
+Welder - Weniger eine Waffe als ein Werkzeug. Schweisst bestimmte Punkte im Level auf oder zu.  Der Welder kann ausserdem zum Reparieren von Gebaeuden und Armor und zum Verbrennen von Webs benutzt werden.  Schaden: %d Punkte
+}
+
+Weapon19Help
+{
+Minen - Geeignet zur Verteidigung. Explodieren bei Feindannaeherung. Schaden: %d Punkte
+}
+
+Weapon20Help
+{
+Grenade Launcher - Eine wahre Massenvernichtungswaffe. Granaten detonieren nach 4 Sekunden und haben einen grossen Wirkungsradius.  Schaden: %d Punkte (verdoppelt gegen Strukturen)
+}
+
+Weapon21Help
+{
+Leap - Schneller Sprung vorwaerts, verletzt alles in Deinem Weg. Hilfreich zur Fortbewegung und im Kampf. Schaden: %d Punkte
+}
+
+Weapon22Help
+{
+Charge – Laesst Dich wild nach vorne stuermen und alles in Deiner Bahn und beschaedigen. Der Angriff verbraucht nach und nach Energie und endet, sobald Du keine Energie mehr besitzt.  Schaden: Unglaublich.
+}
+
+Weapon23Help
+{
+Umbra - Sondert einen Bakterien-Nebel ab, der feindliche Geschosse abbremst. Jede verbuendete Struktur oder Spieler in der Umbra wird sehr selten getroffen, allerdings wirkt sich dies nicht auf Explosiv-Schaden und Nicht-Projektil-Geschosse aus. Dauer: %d Sekunden.
+}
+
+Weapon24Help
+{
+Primal Scream - Alle Teamkollegen in Reichweite bekommen schneller Energie zurueck, koennen sich schneller bewegen, und richten mehr Schaden an. Hoer Ihre Antwort!
+}
+
+Weapon25Help
+{
+Bile Bomb - Organische Artillerie, die feindliche Gebaeude in sehr grossem Radius beschaedigt. Schaden: %d Punkte (ausschlieslich Gebaeude)
+}
+
+Weapon26Help
+{
+Acid Rocket - Langsam fliegendes Geschoss, das bei Aufprall in eine Saeurewolke zerplatzt. Schaden: %d Punkte
+}
+
+Weapon27Help
+{
+Healing Spray - Bakterielles Spray, das befreundete Spieler und Strukturen heilt und Feinde schaedigt.  Hat geringe Reichweite, kann jedoch durch Strukturen und Waende hindurch wirken. Schaden: %d Punkte
+}
+
+Weapon28Help
+{
+Babbler - Erschafft einen "Babbler", eine schwache Ausfuehrung des Skulks.  Babbler suchen sich ihre Ziele selber, haben jedoch eine sehr gringe Lebensdauer.  Schaden: 20 (Bite), 40 (Xenocide)
+} 
+
+Weapon29Help
+{
+Stomp - Betaeubt Gegner fuer %d Sekunden
+}
+
+Weapon30Help
+{
+Devour - Verschlingt einen nahen Feind, der dann langsam verdaut wird und %d Punkte Schaden pro Sekunde nimmt. Der Onos heilt um diese Anzahl an Punkten. Sollte er vor der vollstaendigen Verdauung des Opfers selbst sterben, kommt dieses stark geschwaecht wieder zum Vorschein.
+}
+
+CommandStationOtherTeam
+{
+Diese Command Console gehoert dem anderen Team.
+}
+
+CommandStationInUse
+{
+Ihr Team hat schon einen Commander, die Command Console kann nicht benutzt werden.
+}
+
+WeaponPreventingCommandStation
+{
+Ihre Waffe verhindert das Benutzen der Command Console.
+}
+
+CommandStationDestroyed
+{
+Diese Commando Console ist zerstoert und kann nicht mehr benutzt werden.
+}
+
+CommandStationWaitTime
+{
+Sie muessen noch etwas warten, bevor Sie die Command Console wieder benutzen koennen.
+}
+
+
+// Particle editing commands
+$position -1 0.7
+NoParticleSystem
+{
+Dieses Partikel-System konnte nicht gefunden werden.
+}
+
+EditingParticleSystem
+{
+Partikel-System wurde gefunden, druecke F7 um es zu bearbeiten
+}
+
+
+// Marine help text
+
+// Armor received messages
+$position -1 0.45
+$effect 0
+$fadein 0.5
+$fadeout 0.5
+$holdtime 5.0
+
+HelpTextCSAttractMode
+{
+Zielen Sie auf die Command Console und druecken Sie Ihre "Benutzen"-Taste, um den Command Mode zu aktivieren.
+}
+
+HelpTextArmoryResupply
+{
+"Benutzen" Sie die Armory, um kostenlose Munition fuer Ihre aktive Waffe zu erhalten.
+}
+
+HelpTextAttackNearbyStation
+{
+Das ist die Commando Console des Feindes, attackieren Sie die Console.
+}
+
+HelpTextBuildTurret
+{
+Zielen Sie auf das Turret und halten Sie Ihre "Benutzen"-Taste gedrueckt, um es zu bauen.
+}
+
+HelpTextBuildTower
+{
+Zielen Sie auf den Resource Tower und halten Sie Ihre "Benutzen"-Taste gedrueckt, um ihn zu bauen.
+}
+
+HelpTextExplainTower
+{
+Dieser aktive 'Resource-Tower' bringt Ihrem Team regelmaessig Resourcen ein.
+}
+
+HelpTextAttackHive
+{
+Sammeln Sie sich mit ihren Teamkammeraden. Finden Sie den Hive und zerstoeren ihn!
+}
+
+HelpTextOtherHiveBuilding
+{
+Nur ein Hive kann auf einmal gebaut werden. Warte etwas.
+}
+
+HelpTextEmptyHiveNotNearby
+{
+Du kannst einen Hive nur an einer freien Hive-Location errichten (suche nach infiziertem Gebiet und einem durchsichtigen Indikator).
+}
+
+HelpTextAttackNearbyHive
+{
+Es ist ein Hive in der Naehe! Zerstoeren Sie ihn, um die Aliens zu stoppen!
+}
+
+HelpTextFriendlyMovementChamber
+{
+Gehe zur Chamber und druecke die "Benutzen"-Taste, um Dich zu einem angegriffenen Hive zu teleportieren! Zusaetzlich regeneriert sie Deine Energie.
+}
+
+HelpTextAttackMovementChamber
+{
+Dies ist eine feindliche Movement Chamber. Sie erlaubt es dem Gegner, sich zu dessen Hive zu teleportieren. Zusaetzlich regeneriert sie seine Energie.
+}
+
+HelpTextFriendlyOffensiveChamber
+{
+Das ist eine Offense Chamber, sie schiesst auf Feinde.
+}
+
+HelpTextAttackOffensiveChamber
+{
+Vorsicht, dies ist eine feindliche Offense Chamber!
+}
+
+HelpTextFriendlyDefensiveChamber
+{
+Diese Defense Chamber regeneriert nahe Spieler und Strukturen.  Dabei stoesst sie jedoch deutlich hoerbare "schluckende" Geraeusche aus...
+}
+
+HelpTextAttackDefensiveChamber
+{
+Dies ist eine feindliche Defensive Chamber. Sie kann gegnerische Spieler und Strukturen heilen.
+}
+
+HelpTextFriendlySensoryChamber
+{
+Dies ist eine Sensory Chamber, sie verbirgt nahe Aliens.
+}
+
+HelpTextAttackSensoryChamber
+{
+Dies ist eine feindliche Sensory Chamber.
+}
+
+HelpTextOpenWeldable
+{
+Dieser Bereich kann mit einem Welder geoeffnet werden.
+}
+
+HelpTextCloseWeldable
+{
+Dieser Bereich kann mit einem Welder geschlossen werden.
+}
+
+HelpTextPhaseGate
+{
+Betreten Sie das Phase Gate und druechen Sie 'BENUTZEN', um den Teleport einzuleiten.
+}
+
+HelpTextAlienPopupMenu
+{
+Benutze Dein "pop-up menu" um Strukturen zu errichten, Upgrades zu entwickeln, und die Teams zu wechseln. (rechte Maustaste).
+}
+
+HelpTextMarinePopupMenu
+{
+Benutzen Sie Ihr "Pop-Up menu" um zu funken, nach Befehlen zu fragen, Teams zu wechseln und fuer vieles mehr (rechte Maustaste).
+}
+
+HelpTextOrder
+{
+Der Commander hat Ihnen einen Befehl erteilt.  Der blaue Kreis auf Ihrem Display zeigt Ihnen Ort und Typ des Befehls.  Benutzen Sie ihr "Pop-Up menu" um Befehle zu erfragen oder zu bestaetigen.
+}
+
+HelpTextCommanderUseable
+{
+Als Commander koennen Sie jeden Schalter durck Linksklick der Maus "Benutzen".
+}
+
+HelpTextMarineCommandMenu
+{
+Druecken Sie Ihre "Pop-Up menu"-Taste um mit Ihrem Team zu kommunizieren (standardmaessig Rechte Maustaste).
+}
+
+HelpTextResourceDropoff
+{
+Sie haben Resouren fuer ihr Team bekommen.
+}
+
+HelpTextJetpacks
+{
+Ihr Commander hat die Jet-Pack Technologie erforscht. Halten Sie Ihre "Sprung"-Taste gedrueckt, um es zu aktivieren.
+}
+
+HelpTextAlienCommandMenu
+{
+Benutze Dein "Pop-Up Menu", um Dich in andere Lebensformen zu entwickeln, und Upgrades zu erhalten (standardmaessig Rechte Maustaste).
+}
+
+HelpTextAttackTower
+{
+Dieser Resource Tower sammelt Resourcen fuer den Feind! Zerstoere ihn!
+}
+
+HelpTextAlienWeapons
+{
+Benutze das Mausrad oder die Zifferntasten, um zwischen den einzelnen Faehigkeiten zu wechseln. Ein rotes Symbol bedeutet, dass die Faehigkeit erst mit mehr Hives freigeschalten wird.
+}
+
+HelpTextAlienResources
+{
+Der blaue Balken link zeigt Deine Resourcen. Du erhaelst Resourcen von den Resource Towers deines Teams.
+}
+
+HelpTextAlienEnergy
+{
+Der gelbe Balken rechts zeigt Deine Energie. Der Einsatz von Faehigkeiten kostet Dich Energie.
+}
+
+HelpTextAlienPendingUpgrades
+{
+Die kleinen blinkenden Symbole am rechten Bildschirmrand zeigen Dir an, dass Du nun neue Eigenschaften entwickeln kannst!  Oeffne das "Pop-Up Menu", um eines dieser Upgrades auszuwaehlen.
+}
+
+HelpTextAlienBuildStructure
+{
+Als ein Arbeiter-Alien kannst Du mithilfe deines "Pop-Up menus" Strukturen erschaffen.
+}
+
+HelpTextAlienBuildStructure
+{
+Eine unfertige Struktur ist in der Naehe. Alien-Strukturen entwickeln sich langsam von alleine, aber als Gorge kannst Du diesen Prozess beschleunigen. Ziele auf die Struktur und halte Deine "Benutzen"-Taste gedrueckt, um sie zu bauen.
+}
+
+HelpTextAlienHiveSight
+{
+Die gluehenden Icons repraesentieren die sog. "hive sight" Deines Teams, die alle befreundeten Einheiten und Strukturen, sowie Gegner mit Parasitenbefall anzeigt.
+}
+
+HelpTextAlienVisionMode
+{
+}
+
+HelpTextAlienCommunication
+{
+Ueber die "Hive Sight" bist Du staendig mit Deinem Team in Kontakt. So werden alle Verbuendeten sofort erfahren, wenn einer von ihnen angegriffen wird - sein Icon wird rot blinken. Achte auf solche Meldungen, und komm' den Anderen zur Hilfe!
+}
+
+HelpTextAlienUnderAttack
+{
+Einer deiner Teamkollegen oder eine Struktur wird angegriffen. Dreh' Dich umher und such nach der Warnmeldung in der Hive Sight.
+}
+
+HelpTextBuilder
+{
+Du bist nun ein Gorge. Meide den Kampf und benutze dein "Pop-Up menu", um unterschiedliche Strukturen zu erschaffen.
+}
+
+HelpTextWeb
+{
+Schiesse Troepfchen an zwei gegenueberliegende Waende, und ein Web wird zwischen ihnen erscheinen.  Webs bremsen Gegner und machen sie kurzzeitig kampfunfaehig.
+}
+
+HelpTextWallwalking
+{
+Du kannst deine "Ducken"-Taste gedrueckt halten, um von Waenden oder Decken abzuspringen.
+}
+
+HelpTextBite
+{
+Gehe nah an den Feind heran und druecke Deine "Feuer" Taste um, ihn zu beissen.
+}
+
+HelpTextFlight
+{
+Versuche durch wiederholtes Druecken der "Springen"-Taste zu fliegen. Du kannst die "Springen"-Taste gedrueckt halten, um zu gleiten.
+}
+
+HelpTextSpores
+{
+Druecke Deine "Feuer"-Taste, um eine Spore-Cloud auszustossen, die Feinde verletzt.
+}
+
+HelpTextAlienResource
+{
+Finde eine Resource Node und baue einen Resource Tower auf ihr, um Resourcen fuer dein Team zu sammeln.
+}
+
+HelpTextPopupMenu
+{
+Die rechte Maustaste (Altern. Feuer) aktiviert das 'Pop-Up Menu'.
+}
+
+HelpTextBuyUpgrade
+{
+Aliens koennen ueber das "Pop-Up menu" neue Faehigkeiten entwickeln.  Versuche es: Halte deine "Pop-Up menu"-Taste (rechte Maustaste) und bewege den Cursor nach rechts.
+}
+
+HelpTextBuyLifeform
+{
+Aliens koennen sich zu neuen Lebensformen weiterentwickeln.  Versuche es: Halte deine "Pop-Up menu"-Taste (rechte Maustaste) , bewege den Curser herunter und dann nach rechts.
+}
+
+HelpTextCommanderGiveOrders
+{
+Rechts-Klicken Sie auf den Boden oder eine Struktur, um einen Befehl erteilen.
+}
+
+HelpTextCommanderSelectPlayers
+{
+Links-Klicken auf einen Spieler oder ziehen Sie ein Rahmen auf, um ihn anzuwaehlen.
+}
+
+HelpTextCommanderLogout
+{
+Sie koennen den Commander-Modus verlassen, indem Sie auf den roten "Log-Out" Button klicken.
+}
+
+// This message isn't in yet
+HelpTextCommanderBuild
+{
+Dieses Gebaeude ist nicht fertig gebaut. Waehlen Sie einen Spieler aus und klicken Sie mit der rechten Maustaste auf das Gebaeude, um einen Baubefehl zu erteilen.
+}
+
+HelpTextCommanderUse
+{
+Tueren, Fahrstuehle und andere Geraete koennen vom Commander "gehackt" werden.  Klicken Sie links, um sie zu aktivieren.
+}
+
+HelpTextCommanderAttack
+{
+Dieses Ziel kann angegriffen werden! Recht-klicken Sie, um den Angriffsbefehl zu erteilen.
+}
+
+HelpTextCommanderWeld
+{
+Dieses Ziel kann gewelded werden. Kaufen Sie einem Spieler einen Welder und klicken Sie mit der Rechten Maustaste, um ihm einen Weld-Befehl zu erteilen.
+}
+
+HelpTextCommanderGet
+{
+Rechts-Klicken Sie hier, um einen Befehl zum Aufnehmen zu erteilen.
+}
+
+HelpTextCommanderUnderAttack
+{
+Sie werden angegriffen!  Druecken Sie ihre "Sprung"-Taste, um zum Alarm zu gehen.
+}
+
+HelpTextCommanderResearchComplete
+{
+Ihre Forschung ist abgeschlossen. Druecken Sie ihre "SPRINGEN" Taste, um zu dem Platz der Forschung zu gelangen.
+}
+
+HelpTextCommanderUpgradeComplete
+{
+Ihr Upgrade ist fertiggestellt. Druecken Sie ihre "SPRINGEN" Taste, um zu der Upgradeten Struktur zu gelangen.
+}
+
+JetpackEnergyHUDText
+{
+Jet-Pack Energie
+}
+
+HelpTextDisableHelp
+{
+Sie koennen diese Tips abschalten, indem Sie in ihrem "multiplayer customization menu " die Option "show hints" abschalten (cl_autohelp 0).
+}
+
+Paralyzed
+{
+Paralysiert
+}
+
+Stunned
+{
+Gelaehmt
+}
+
+Digested
+{
+Wird verdaut...
+}
+
+DigestingPlayer
+{
+Verdaut %s...
+}
+
+Parasited
+{
+Parasit entdeckt
+}
+
+PrimalScreamed
+{
+Primal Scream
+}
+
+Umbraed
+{
+Im Umbra
+}
+
+Webbed
+{
+Verfangen
+}
+
+// Order descriptions
+Order2
+{
+Gehen Sie zum Wegpunkt.
+}
+
+Order3
+{
+Greifen Sie das Ziel an.
+}
+
+Order4
+{
+Bauen Sie %s
+}
+
+Order5
+{
+Bewachen Sie %s
+}
+
+Order6
+{
+Benutze Welder beim Wegpunkt.
+}
+
+Order7
+{
+%s aufnehmen.
+}
+
+Order9
+{
+Halten Sie Ihre Position
+}
+
+Range
+{
+%d Meter
+}
+
+// Timelimit for tourny mode
+GameTime
+{
+Spielzeit
+}
+
+Elapsed
+{
+vergangen
+}
+
+TimeLimit
+{
+Limit
+}
+
+Remaining
+{
+verbleibend
+}
+
+// HLTV 
+Spec_duck
+{
+Press DUCK for Spectator Menu
+}
+
+SPECT_OPTIONS
+{
+Options
+}
+
+CAM_OPTIONS
+{
+Camera Options
+}
+
+SpecMode5Text
+{
+}
+
+OBS_MAP_FREE
+{
+Map free camera
+}
+
+OBS_MAP_CHASE
+{
+Map chase camera
+}
+
+OBS_CHASE_FREE
+{
+Free chase camera
+}
+
+OBS_CHASE_LOCKED
+{
+Locked chase camera
+}
+
+OBS_IN_EYE
+{
+In-eye camera
+}
+
+OBS_ROAMING
+{
+Free look camera
+}
+
+// Official map locations
+testlocation1
+{
+The translated refinery
+}
+
+/////////////
+// ns_bast //
+/////////////
+bastlocation_dockingbay
+{
+Marine Start - Docking Bay 1
+}
+
+bastlocation_mainjunction
+{
+Main Aft Junction
+}
+
+bastlocation_cargolock
+{
+Heavy Lock Door
+}
+
+bastlocation_atmosphericprocessing
+{
+Atmospheric Processing
+}
+
+bastlocation_furnace
+{
+Steam Generation
+}
+
+bastlocation_watertreatment
+{
+Water Treatment
+}
+
+// NOTE: The hyphen in hive location names is important.  Everything before the hyphen is trimmed off when displaying
+// location names for aliens (the hive icons in the upper right of their HUD).  Make sure to follow the convention:
+// Hive Location - name
+bastlocation_feedwatercontrol
+{
+Hive Location - Feedwater Control
+}
+
+bastlocation_trammaintenance
+{
+Tram Maintenance
+}
+
+bastlocation_tramtunnel
+{
+Tram Tunnel
+}
+
+bastlocation_lowerjunction
+{
+Lower Junction
+}
+
+bastlocation_Refinery
+{
+Hive Location - Refinery
+}
+
+bastlocation_emshaft
+{
+EM Drill Shaft
+}
+
+bastlocation_engineroom
+{
+Hive Location - Engine Room
+}
+
+bastlocation_dockinghydraulics
+{
+Docking Hydraulics
+}
+
+bastlocation_maintenancejunction
+{
+Maintenance Junction
+}
+
+bastlocation_ncorridor
+{
+"N" Corridor
+}
+
+bastlocation_observationbridge
+{
+Observation Bridge
+}
+
+bastlocation_starboardairlock
+{
+Starboard Airlock
+}
+
+bastlocation_portairlock
+{
+Port Airlock
+}
+
+bastlocation_maintenanceaccess
+{
+Maintenance Access Duct
+}
+
+bastlocation_pressureequalization
+{
+Pressure Equalization Conduit
+}
+
+bastlocation_starboardcorridor
+{
+Aft Starboard Corridor
+}
+
+bastlocation_filtration
+{
+Feedwater Filtration Access
+}
+
+bastlocation_ventilation
+{
+Ventilation Conduit
+}
+
+bastlocation_databank
+{
+Databank Access
+}
+
+bastlocation_enginecorridor
+{
+Engine Corridor
+}
+
+/////////////
+// ns_hera //
+/////////////
+heralocation_archive
+{
+Hive Location - Archiving
+}
+
+heralocation_processingcorea
+{
+Data Core Alpha
+}
+
+heralocation_reception
+{
+Hera Entrance and Reception
+}
+
+heralocation_holoroom
+{
+Central Monitoring - 'Holoroom'
+}
+
+heralocation_storage
+{
+General Cargo Storage
+}
+
+heralocation_hanger
+{
+Marine Start - Loading bay
+}
+
+heralocation_docking
+{
+Marine Start - Landing Pad
+}
+
+heralocation_processing
+{
+Processing
+}
+
+heralocation_processingcoreb
+{
+Hive Location - Data Core Delta
+}
+
+heralocation_ventilation
+{
+Hive Location - Ventilation 3-C
+}
+
+heralocation_maintenence
+{
+Maintenance
+}
+
+heralocation_fogcorridor
+{
+Maintenance Corridor
+}
+
+heralocation_tube
+{
+Hera Entrance Walkway
+}
+
+// Nothing titles
+nothinglocation_rr
+{
+Space Station Nothing - Sub Sector 77
+}
+
+nothinglocation_ms
+{
+Marine Start - S77 Vestibule
+}
+
+nothinglocation_dock
+{
+Docking Wing 01
+}
+
+nothinglocation_thres1
+{
+The Threshold
+}
+
+nothinglocation_thres2
+{
+The Threshold
+}
+
+nothinglocation_junc1
+{
+The Junction
+}
+
+nothinglocation_junc2
+{
+The Junction
+}
+
+nothinglocation_vent
+{
+Ventilation Chamber
+}
+
+nothinglocation_comm
+{
+Communications Hub 063
+}
+
+nothinglocation_things
+{
+Room With Things
+}
+
+nothinglocation_cargo
+{
+Hive Location - Cargo Bay Foyer
+}
+
+nothinglocation_pipe
+{
+Pipe Room
+}
+
+nothinglocation_paint1
+{
+Painted Corridor
+}
+
+nothinglocation_paint2
+{
+Painted Corridor
+}
+
+nothinglocation_paint3
+{
+Painted Corridor
+}
+
+nothinglocation_quada
+{
+Quad Lift Area
+}
+
+nothinglocation_quad
+{
+Quad Lift
+}
+
+nothinglocation_chamb
+{
+Foreboding Antechamber
+}
+
+nothinglocation_sas1
+{
+Silo Access South
+}
+
+nothinglocation_sas2
+{
+Silo Access South
+}
+
+nothinglocation_silo
+{
+Hive Location - PowerSilo
+}
+
+nothinglocation_san1
+{
+Silo Access North
+}
+
+nothinglocation_san2
+{
+Silo Access North
+}
+
+nothinglocation_mias1
+{
+Miasma Walkway
+}
+
+nothinglocation_mias2
+{
+Miasma Walkway
+}
+
+nothinglocation_mias3
+{
+Miasma Walkway
+}
+
+nothinglocation_gen
+{
+Generator Room
+}
+
+nothinglocation_elev1
+{
+Elevator Shaft 01
+}
+
+nothinglocation_elev2
+{
+Elevator Shaft 02
+}
+
+nothinglocation_eek
+{
+Intimidation
+}
+
+nothinglocation_kismet
+{
+Ominous Kismet
+}
+
+nothinglocation_vae
+{
+Viaduct Access East
+}
+
+nothinglocation_vaw
+{
+Viaduct Access West
+}
+
+nothinglocation_viaduct
+{
+Hive Location - The Great Viaduct
+}
+
+// TANITH info_location data START
+tanith_westenter
+{
+Western Entrance
+}
+
+tanith_marinebase
+{
+Marine Start - Uplink Command
+}
+
+tanith_outsidebase
+{
+Exterior Access Paths
+}
+
+tanith_north
+{
+Northern Corridor
+}
+
+tanith_sat
+{
+External Satellite Relay
+}
+
+tanith_satcomm
+{
+Hive Location - Satellite Communications
+}
+
+tanith_transport
+{
+Chemical Transport Room
+}
+
+tanith_cpu
+{
+Computer Control
+}
+
+tanith_acid
+{
+Acidic Solution Processing
+}
+
+tanith_reactor
+{
+Reactor Room
+}
+
+tanith_enter
+{
+Eastern Entrance
+}
+
+tanith_centerenter
+{
+Central Entrance
+}
+
+tanith_east
+{
+East Access Tunnels
+}
+
+tanith_research
+{
+Research Labs
+}
+
+tanith_rr
+{
+Tanith Ready Room
+}
+tanith_waste
+{
+Hive Location - Waste Handling
+}
+
+tanith_central
+{
+Central Access Tunnels
+}
+
+tanith_storageenter
+{
+Storage Entrance
+}
+
+tanith_cargo
+{
+Cargo Storage
+}
+
+tanith_fusion
+{
+Hive Location - Fusion Reactor
+}
+
+tanith_west
+{
+West Access Corridor
+}
+// TANITH info_location data END
+
+
+// NANCY info_location data START
+nancy_cargo
+{
+Cargo Hold 2
+}
+
+nancy_aux
+{
+Auxillary Command
+}
+
+nancy_engine
+{
+Port Engine Room
+}
+
+nancy_crawl
+{
+Sub-tunnel
+}
+
+nancy_maint
+{
+Maintenance Shaft
+}
+
+nancy_shaft
+{
+Maintenance Shaft
+}
+
+nancy_mother
+{
+Mother
+}
+
+nancy_lockers
+{
+Crew Lockers
+}
+
+nancy_mess
+{
+Mess Hall
+}
+
+nancy_airlock
+{
+Airlock Exchange
+}
+
+nancy_port
+{
+Port Airlock
+}
+
+nancy_bridge
+{
+Bridge
+}
+
+nancy_cockpit
+{
+Cockpit
+}
+
+nancy_star
+{
+Starboard Airlock
+}
+
+nancy_gen
+{
+Auxiliary Generators
+}
+
+nancy_motherinter
+{
+Mother Interface
+}
+
+nancy_subspace
+{
+Subspace Array Interface
+}
+
+nancy_crew
+{
+Crew Quarters
+}
+// NANCY info_location data END
+
+// CAGED info_location data START
+caged_marine
+{
+Marine Spawn - Main Hold
+}
+
+caged_upsewer
+{
+Upper Sewer
+}
+
+caged_dsewer
+{
+Lower Sewer
+}
+
+caged_hive1
+{
+Hive Location - Sewer
+}
+
+caged_hive2
+{
+Hive Location - Ventilation System
+}
+
+caged_hive3
+{
+Hive Location - Generator
+}
+
+caged_pure
+{
+Purification Station 01
+}
+
+caged_central
+{
+Central Processing
+}
+
+caged_vaccess
+{
+Ventilation Access
+}
+
+caged_work
+{
+Stability Monitoring
+}
+
+caged_auxgen
+{
+Auxiliary Generator
+}
+
+caged_service
+{
+Shipping Tunnels
+}
+
+caged_area2
+{
+Upper Shipping Access
+}
+// CAGED info_location data END
+
+// Eclipse info_location... info. (BEGIN)
+eclipse_dock
+{
+Docking Control
+}
+
+eclipse_marinespawn
+{
+Marine Spawn - Cargo Transfer
+}
+
+eclipse_station
+{
+Station Access
+}
+
+eclipse_stationeast
+{
+Station Access East
+}
+
+eclipse_stationalpha
+{
+Station Access Alpha
+}
+
+eclipse_stationwest
+{
+Station Access West
+}
+
+eclipse_triad
+{
+Triad Generator Array
+}
+
+eclipse_triadb
+{
+Triad Access B
+}
+
+eclipse_access1c
+{
+Access Corridor 1C
+}
+
+eclipse_access1b
+{
+Access Corridor 1B
+}
+
+eclipse_access1a
+{
+Primary Access Corridor 1A
+}
+
+eclipse_horseshoe
+{
+The Horseshoe
+}
+
+eclipse_tjunct
+{
+T-Junction
+}
+
+eclipse_keyhole
+{
+The Keyhole
+}
+
+eclipse_maint
+{
+Hive - Maintenance Access
+}
+
+eclipse_south
+{
+South Loop
+}
+
+eclipse_core
+{
+Hive - Computer Core
+}
+
+eclipse_northcore
+{
+North Core Access
+}
+
+eclipse_westcore
+{
+West Core Access
+}
+
+eclipse_subjunct
+{
+Power Sub-Junction 3
+}
+
+eclipse_access1d
+{
+Access Corridor 1D
+}
+
+eclipse_commandnorth
+{
+Command Access North
+}
+
+eclipse_command
+{
+Hive - Eclipse Command
+}
+
+eclipse_genmon
+{
+Primary Generator Monitors
+}
+
+eclipse_commandsouth
+{
+Command Access South
+}
+
+eclipse_access1a
+{
+Access Corridor 1A
+}
+// Eclipse info_location... info. (END)
+
+
+// Veil info_location (START)
+
+veil_marine
+{
+Marine Spawn - Mobile Command Interface
+}
+
+veil_lifteast
+{
+Lift 5 East
+}
+
+veil_swhive
+{
+Hive - Sub-Sector 5B Access
+}
+
+veil_south
+{
+Hive - Cargo Transfer South
+}
+
+veil_southeast
+{
+Hive - The Pipeline
+}
+
+veil_overlook
+{
+The Overlook
+}
+
+veil_topography
+{
+Topographical Analysis
+}
+
+veil_nano
+{
+NanoGrid Status
+}
+
+veil_dome
+{
+The Dome
+}
+
+veil_y
+{
+Y Junction
+}
+
+veil_skylight
+{
+West Skylights
+}
+
+veil_satellite
+{
+Satellite Feed
+}
+
+veil_pod1
+{
+Monitoring Pod 1
+}
+
+veil_pod2
+{
+Monitoring Pod 2
+}
+
+veil_waypointing
+{
+System Waypointing
+}
+
+veil_nanoeast
+{
+NanoGrid Access East
+}
+
+veil_nanowest
+{
+NanoGrid Access West
+}
+
+veil_c12
+{
+Emergency Nozzle C-12
+}
+
+veil_junctionwest
+{
+West Junction
+}
+
+veil_junctioneast
+{
+East Junction
+}
+
+veil_power
+{
+Power Core Status
+}
+
+// Veil info_location (END)
+
+
+
+// Tutorial text
+$position 0.15 0.15
+$effect 2
+$color 0 200 0
+$color2 0 255 0
+$fadein 0.04
+$fxtime 0.1
+$holdtime 6.0
+$fadeout 0.5
+
+TutWelcome
+{
+Welcome to Natural Selection Training.
+
+Here you will learn the basic rules of the game.
+
+Walk through a door to choose your training.
+If you are a new to first-person shooters, marine
+training is recommended.
+}
+
+TutWelcomeMarineTraining
+{
+You've chosen Marine training.  Here you will 
+learn what it takes to be a Frontiersman and how 
+to fight the alien race.
+}
+
+TutWelcomeAlienTraining
+{
+You've chosen Alien training.  Here you will 
+learn how to spread your influence throughout 
+the galaxy, and obliterate the human oppressors.
+}
+

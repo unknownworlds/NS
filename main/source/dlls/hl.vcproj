@@ -5049,6 +5049,40 @@
 				RelativePath="..\textrep\TRTagValuePair.h">
 			</File>
 		</Filter>
+		<Filter
+			Name="scriptengine"
+			Filter="">
+			<File
+				RelativePath="..\scriptengine\AvHLUA.cpp">
+			</File>
+			<File
+				RelativePath="..\scriptengine\AvHLUA.h">
+			</File>
+			<File
+				RelativePath="..\scriptengine\AvHLUABase.cpp">
+			</File>
+			<File
+				RelativePath="..\scriptengine\AvHLUABase.h">
+			</File>
+			<File
+				RelativePath="..\scriptengine\AvHLUAServerEntity.cpp">
+			</File>
+			<File
+				RelativePath="..\scriptengine\AvHLUAServerEvents.cpp">
+			</File>
+			<File
+				RelativePath="..\scriptengine\AvHLUAServerTeam.cpp">
+			</File>
+			<File
+				RelativePath="..\scriptengine\AvHLUATime.cpp">
+			</File>
+			<File
+				RelativePath="..\scriptengine\AvHLUAUtil.cpp">
+			</File>
+			<File
+				RelativePath="..\scriptengine\AvHLUAUtil.h">
+			</File>
+		</Filter>
 	</Files>
 	<Globals>
 	</Globals>

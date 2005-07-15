@@ -3885,9 +3885,40 @@ void AvHGamerules::UpdateVictoryStatus(void)
 {
 	bool theCheckVictoryWithCheats = !this->GetCheatsEnabled() || this->GetIsCheatEnabled(kcEndGame1) || this->GetIsCheatEnabled(kcEndGame2);
 
+	// SCRIPTENGINE VICTORY
 	if (this->GetIsScriptedMode())
 	{
-		// SCRIPTENGINE: Check for victory status
+		AvHObjectiveState teamAstate, teamBstate;
+		teamAstate = this->mTeamA.GetObjectiveManager()->GetObjectivesState();
+		teamBstate = this->mTeamB.GetObjectiveManager()->GetObjectivesState();
+		if (teamAstate != OBJECTIVE_INDETERMINED || teamBstate != OBJECTIVE_INDETERMINED)
+		{
+			// one team is victorious
+			this->mVictoryTime = gpGlobals->time;
+			if (teamAstate == teamBstate)
+			{
+				this->mVictoryTeam = TEAM_SPECT;
+				this->mVictoryDraw = true;
+			}
+			else if (teamAstate == OBJECTIVE_COMPLETED || teamBstate == OBJECTIVE_FAILED)
+				this->mVictoryTeam = this->mTeamA.GetTeamNumber();
+			else if (teamAstate == OBJECTIVE_FAILED || teamBstate == OBJECTIVE_COMPLETED)
+				this->mVictoryTeam = this->mTeamB.GetTeamNumber();
+		}
+		else
+		{
+			// Execute LUA callback OnVictoryCheck
+			AvHTeamNumber vicTeam = gLUA->OnVictoryCheck();
+			if (vicTeam != TEAM_IND)
+			{
+				this->mVictoryTime = gpGlobals->time;
+				this->mVictoryTeam = vicTeam;
+			}
+		}
+		// Execute LUA callback OnVictory
+		if (this->mVictoryTeam != TEAM_IND)
+			gLUA->OnVictory(this->mVictoryTeam);
+
 	} 
 	else
 	if((this->mVictoryTeam == TEAM_IND) && this->mGameStarted && theCheckVictoryWithCheats && !this->GetIsTrainingMode())

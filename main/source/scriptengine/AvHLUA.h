@@ -79,10 +79,15 @@ public:
 	void Init();
 	bool LoadLUAForMap(const char *inMapName);
 
+	// Server events
 	void OnLoad();
+	bool OnStartCheck();
 	void OnStart();
 	void OnStarted();
+	void OnVictory(AvHTeamNumber inTeamToJoin);
+	AvHTeamNumber OnVictoryCheck();
 	void OnJointeam(int inEntindex, AvHTeamNumber inTeamToJoin);
+
 
 	bool mLoaded;
 	
@@ -92,8 +97,21 @@ public:
 	int Suspend(lua_State *L, float delay);
 	int DelayedExecute(lua_State *L, float time);
 
+	bool GetIsRestricted();
+	float GetTime();
+
 private:
 
+	// Flags indicating existing server events
+	bool definedOnLoad;
+	bool definedOnStartCheck;
+	bool definedOnStart;
+	bool definedOnStarted;
+	bool definedOnVictory;
+	bool definedOnVictoryCheck;
+	bool definedOnJointeam;
+
+	// Namespace registration
 	void RegisterNamespace_Time();
 #ifdef AVH_SERVER
 	void RegisterNamespace_Player();
@@ -105,6 +123,9 @@ private:
 	int Resume(lua_State *L, int numargs);
 	float mNextCallTime;
 	LUATimetableType mTimetable;
+
+	// Restricted = reduced LUA library loads
+	bool mIsRestricted;
 
 };
 

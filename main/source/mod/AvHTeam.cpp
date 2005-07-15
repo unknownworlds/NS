@@ -888,6 +888,8 @@ void AvHTeam::ResetGame()
 		this->mGroupTypes[i] = AVH_USER3_NONE;
 	}
 	this->mSelectAllGroup.clear();
+
+	this->mObjectiveManager.Clear();
 }
 
 void AvHTeam::SpawnResourceTower()
@@ -2810,4 +2812,10 @@ EntityListType AvHTeam::GetSelectAllGroup()
 void AvHTeam::SetSelectAllGroup(EntityListType& inGroup)
 {
 	this->mSelectAllGroup = inGroup;
+}
+
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+AvHObjectiveManager *AvHTeam::GetObjectiveManager()
+{
+	return &this->mObjectiveManager;
 }

@@ -2784,6 +2784,12 @@
 				RelativePath="..\mod\AvHNexusTunnelToClient.h">
 			</File>
 			<File
+				RelativePath="..\mod\AvHObjective.cpp">
+			</File>
+			<File
+				RelativePath="..\mod\AvHObjective.h">
+			</File>
+			<File
 				RelativePath="..\mod\AvHOrder.cpp">
 				<FileConfiguration
 					Name="Developer - release|Win32">

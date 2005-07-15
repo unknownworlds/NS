@@ -85,6 +85,7 @@
 #include "mod/AvHServerPlayerData.h"
 #include "mod/AvHTechSlotManager.h"
 #include "mod/AvHAlert.h"
+#include "mod/AvHObjective.h"
 
 class AvHPlayer;
 
@@ -220,6 +221,8 @@ public:
 	EntityListType	GetSelectAllGroup();
 	void			SetSelectAllGroup(EntityListType& inGroup);
 
+	AvHObjectiveManager *GetObjectiveManager();
+
 private:
 	void			AddTechNode(AvHMessageID inMessageID, AvHTechID inTechID, AvHTechID inPrereq1 = TECH_NULL, AvHTechID inPrereq2 = TECH_NULL, bool inAllowMultiples = true, bool inResearched = false);
 	void			SpawnResourceTower();
@@ -332,6 +335,8 @@ private:
 	EntityListType		mSelectAllGroup;
 
 	float				mTimeReinforcementWaveComplete;
+
+	AvHObjectiveManager mObjectiveManager;
 };
 
 #endif

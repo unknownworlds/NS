@@ -27,15 +27,8 @@ AvHLUA::~AvHLUA()
 void AvHLUA::Init()
 {
 	this->mTimetable.clear();
-	bool isRestricted = false;
-
-#ifdef AVH_SERVER
-	this->mNextCallTime = gpGlobals->time + 99999;
-	isRestricted = GetGameRules()->GetIsCombatMode() || GetGameRules()->GetIsNSMode();
-#else
-	this->mNextCallTime = gClientTimeLastUpdate + 99999;
-	isRestricted = gHUD.GetIsCombatMode() || gHUD.GetIsNSMode();
-#endif
+	this->mIsRestricted = this->GetIsRestricted(); 
+	this->mNextCallTime = this->GetTime() + 99999.0f;
 
 	if (this->mGlobalContext != NULL)
 	{
@@ -97,7 +90,7 @@ void AvHLUA::Init()
 	lua_register(this->mGlobalContext, "client", AvHLUABase_Client);
 
 	// SERVER API: non-restricted 
-	if (!isRestricted) 
+	if (!this->mIsRestricted) 
 	{
 
 	}
@@ -109,12 +102,31 @@ void AvHLUA::Init()
 	lua_register(this->mGlobalContext, "client", AvHLUABase_Blank);
 
 	// CLIENT API: non-restricted
-	if (!isRestricted)
+	if (!this->mIsRestricted)
 	{
 
 	}
 #endif
+}
 
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+bool AvHLUA::GetIsRestricted()
+{
+#ifdef AVH_SERVER
+	return !GetGameRules()->GetIsScriptedMode();
+#else
+	return !gHUD.GetIsScriptedMode();
+#endif
+}
+
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+float AvHLUA::GetTime()
+{
+#ifdef AVH_SERVER
+	return gpGlobals->time;
+#else
+	return gClientTimeLastUpdate;
+#endif	
 }
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -126,7 +138,6 @@ bool AvHLUA::LoadLUAForMap(const char *inMapName)
 		filename += "/maps/";
 		filename += inMapName;
 		filename += ".lua";
-	std::string msg;
 	bool result = false;
     
 	if (luaL_loadfile(this->mGlobalContext, filename.c_str()) || lua_pcall(this->mGlobalContext, 0, 0, 0))
@@ -136,6 +147,12 @@ bool AvHLUA::LoadLUAForMap(const char *inMapName)
 	else
 	{
 
+		// enable or disable events based on restriction
+		this->definedOnJointeam = this->definedOnLoad = this->definedOnStart = this->definedOnStarted =
+			this->definedOnVictory = this->definedOnVictoryCheck = this->definedOnStartCheck = 
+			!this->mIsRestricted;
+
+		std::string msg;
 #ifdef AVH_SERVER
 		msg = "[LUA] ";
 #else
@@ -148,12 +165,14 @@ bool AvHLUA::LoadLUAForMap(const char *inMapName)
 
 		this->mLoaded = true;
 		result = true;
-	}
+
 #ifdef AVH_SERVER
-	ALERT(at_console, UTIL_VarArgs("%s", msg.c_str()));
+		ALERT(at_console, UTIL_VarArgs("%s", msg.c_str()));
 #else
-	gEngfuncs.pfnConsolePrint(msg.c_str());
+		gEngfuncs.pfnConsolePrint(msg.c_str());
 #endif
+
+	}
 	return result;
 }
 

@@ -133,6 +133,8 @@ float AvHLUA::GetTime()
 bool AvHLUA::LoadLUAForMap(const char *inMapName)
 {
 	ASSERT(this->mGlobalContext != NULL);
+
+	this->mLoaded = true;
 	std::string filename;
 		filename = getModDirectory();
 		filename += "/maps/";

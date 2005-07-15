@@ -22,7 +22,7 @@ void AvHLUA::OnLoad()
 			return;
 		}
 
-		if (int errorcode = lua_resume(threadState, 2))
+		if (int errorcode = lua_resume(threadState, 0))
 			AvHLUA_OnError(lua_tostring(threadState, -1));
 	}
 }
@@ -41,7 +41,7 @@ bool AvHLUA::OnStartCheck()
 			return false;
 		}
 		
-		if (int errorcode = lua_resume(threadState, 2))
+		if (int errorcode = lua_resume(threadState, 0))
 			AvHLUA_OnError(lua_tostring(threadState, -1));
 
 		// Return the team that won
@@ -65,7 +65,7 @@ void AvHLUA::OnStart()
 			return;
 		}
 
-		if (int errorcode = lua_resume(threadState, 2))
+		if (int errorcode = lua_resume(threadState, 0))
 			AvHLUA_OnError(lua_tostring(threadState, -1));
 	}
 }
@@ -84,7 +84,7 @@ void AvHLUA::OnStarted()
 			return;
 		}
 
-		if (int errorcode = lua_resume(threadState, 2))
+		if (int errorcode = lua_resume(threadState, 0))
 			AvHLUA_OnError(lua_tostring(threadState, -1));
 	}
 }
@@ -104,7 +104,7 @@ void AvHLUA::OnVictory(AvHTeamNumber inTeamNumber)
 		}
 
 		lua_pushnumber(threadState, inTeamNumber);
-		if (int errorcode = lua_resume(threadState, 2))
+		if (int errorcode = lua_resume(threadState, 1))
 			AvHLUA_OnError(lua_tostring(threadState, -1));
 	}
 }
@@ -112,6 +112,11 @@ void AvHLUA::OnVictory(AvHTeamNumber inTeamNumber)
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 AvHTeamNumber AvHLUA::OnVictoryCheck()
 {
+	// GC TEST
+	//int limit = lua_getgcthreshold(this->mGlobalContext);  /* previous limit */
+	//lua_setgcthreshold(this->mGlobalContext, 0);  /* force a GC cicle */
+	//lua_setgcthreshold(this->mGlobalContext, limit);
+
 	if (this->mLoaded && this->definedOnVictoryCheck)
 	{
 		lua_State *threadState = lua_newthread(this->mGlobalContext);
@@ -119,16 +124,19 @@ AvHTeamNumber AvHLUA::OnVictoryCheck()
 		if (!lua_isfunction(threadState, -1))
 		{
 			// not found, mark and exit
-			this->definedOnJointeam = false;
+			this->definedOnVictoryCheck = false;
 			return TEAM_IND;
 		}
 
-		if (int errorcode = lua_resume(threadState, 2))
+		if (int errorcode = lua_resume(threadState, 0))
 			AvHLUA_OnError(lua_tostring(threadState, -1));
+		else
+		{
+			// Return the team that won
+			if (lua_isnumber(threadState, -1))
+			    return (AvHTeamNumber)((int)lua_tonumber(threadState, -1));
+		}
 
-		// Return the team that won
-		if (lua_isnumber(threadState, -1))
-            return (AvHTeamNumber)((int)lua_tonumber(threadState, -1));
 
 	}
 	return TEAM_IND;

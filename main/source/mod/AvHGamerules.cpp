@@ -1427,7 +1427,7 @@ const char*	AvHGamerules::GetSpawnEntityName(AvHPlayer* inPlayer) const
 
 	// If there is no no avh start points, try to start up as CS.  If that doesn't look
 	// right, always return DM spawns.
-	if((this->mMapMode == MAP_MODE_NS) || (this->mMapMode == MAP_MODE_CO))
+	if((this->mMapMode == MAP_MODE_NS) || (this->mMapMode == MAP_MODE_CO) || (this->mMapMode == MAP_MODE_NSC))
 	{
 		// The different cases:
 		// Player just connected to server and hasn't done anything yet OR
@@ -2171,6 +2171,11 @@ void AvHGamerules::PostWorldPrecacheReset(bool inNewMap)
 		this->mStartedCountdown = true;
 	}
 
+	// SCRIPTENGINE: Load map and execute OnLoad
+	gLUA->Init();
+	if (gLUA->LoadLUAForMap(STRING(gpGlobals->mapname)))
+		gLUA->OnLoad();
+
 	//gVoiceHelper.Reset();
 }
 
@@ -2210,6 +2215,12 @@ void AvHGamerules::JoinTeam(AvHPlayer* inPlayer, AvHTeamNumber inTeamToJoin, boo
 		if(theServerPlayerData)
 			theServerPlayerData->SetHasJoinedTeam(true);
 	}
+
+	// SCRIPTENGINE: Join team
+	if (this->GetIsScriptedMode())
+		if (thePrevTeam != inTeamToJoin)
+			gLUA->OnJointeam(inPlayer->entindex(), inTeamToJoin);
+	// :SCRIPTENGINE
 }
 
 // This is called before any entities are spawned, every time the map changes, including the first time
@@ -3117,6 +3128,11 @@ void AvHGamerules::SetGameStarted(bool inGameStarted)
 
 	this->mTeamA.SetGameStarted(inGameStarted);
 	this->mTeamB.SetGameStarted(inGameStarted);
+
+   	// SCRIPTENGINE: OnStart
+	if (this->GetIsScriptedMode())
+		gLUA->OnStarted();
+	// :SCRIPTENGINE
 }
 
 void AvHGamerules::SendMOTDToClient( edict_t *client )
@@ -3177,6 +3193,10 @@ void AvHGamerules::Think(void)
 
 		// Tell all HUDs to reset
 		NetMsg_GameStatus_State( kGameStatusReset, this->mMapMode );
+
+   		// SCRIPTENGINE: Execute OnStart
+		if (this->GetIsScriptedMode())
+			gLUA->OnStart();
 
 		this->mFirstUpdate = false;
 	}

@@ -993,7 +993,7 @@ void CBasePlayer::SetAnimation( PLAYER_ANIM playerAnim )
 	float speed;
 	char szAnim[64];
 	bool theFoundAnim = true;
-	int theDebugAnimations = BALANCE_VAR(kDebugAnimations);
+	int theDebugAnimations = 0; // BALANCE_VAR(kDebugAnimations);
 	bool reloadAnim = false;
 
 	// Make sure the model is set, as gestating models aren't set before the animation starts playing

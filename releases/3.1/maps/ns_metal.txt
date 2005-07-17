@@ -1,4 +1,4 @@
-Metal 27-8-2004
+Metal 16-7-2005
 ===============================================
 
 Natural Selection map : Metal (ns_metal.bsp)
@@ -43,6 +43,14 @@ Drunken.Monkey
 
 
 Changelog :
+
+-------------------------
+
++ update-13
+ 
+* Made MS-start smaller.
+* Fixed 2 location names.
+* Added more cover.
 
 -------------------------
 

@@ -2916,6 +2916,8 @@ void CBasePlayer::PostThink()
 			if ( flFallDamage > pev->health )
 			{//splat
 				// note: play on item channel because we play footstep landing on body channel
+				// puzl: 243 don't play gib sound if being digested
+				if ( AvHGetIsAlien(this->pev->iuser3) || !GetHasUpgrade(this->pev->iuser4, MASK_DIGESTING) ) 
 				EMIT_SOUND(ENT(pev), CHAN_ITEM, "common/bodysplat.wav", 1, ATTN_NORM);
 			}
 

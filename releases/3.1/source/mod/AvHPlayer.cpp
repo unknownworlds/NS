@@ -4810,6 +4810,8 @@ bool AvHPlayer::PlaySaying(AvHMessageID inMessageID)
         case SAYING_4:
         case SAYING_5:
         case SAYING_6:
+		case SAYING_8:
+			// puzl: 0001088  added SAYING_8
             sprintf(theSoundList, kAlienSayingList, (inMessageID - SAYING_1 + 1));
             break;
         }

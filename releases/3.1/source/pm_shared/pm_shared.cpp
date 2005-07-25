@@ -5051,15 +5051,15 @@ void PM_Jump (void)
             else
             {
 				// tankefugl: 0000522 reverse lerk flight
-                theThrust = pmove->cmd.forwardmove * kWingThrustForwardScalar; //kWingThrustBackwardScalar;
-                theLift = 200 * (pmove->forward[2] + 0.5) / 1.5;
-
-				if (theLift < 0)
-                {
-                    theLift = 0;
-                }
-                //theThrust = -pmove->cmd.forwardmove * kWingThrustBackwardScalar;
-                //theLift = 200;
+				// Uncomment to enable backwards flight
+                //theThrust = pmove->cmd.forwardmove * kWingThrustForwardScalar; //kWingThrustBackwardScalar;
+                //theLift = 200 * (pmove->forward[2] + 0.5) / 1.5;
+				//if (theLift < 0)
+                //{
+                //    theLift = 0;
+                //}
+                theThrust = -pmove->cmd.forwardmove * kWingThrustBackwardScalar;
+                theLift = 200;
 				// :tankefugl
             }
 
@@ -5191,8 +5191,8 @@ void PM_Jump (void)
             float projectedSpeed = DotProduct(pmove->velocity, pmove->forward);
 
 			// tankefugl: 0000522 reverse lerk flight
-			if (projectedSpeed < 0)
-				speed *= -1;
+			//if (projectedSpeed < 0)
+			//	speed *= -1;
 			// :tankefugl
 			vec3_t forwardVelocity;
             VectorScale(pmove->forward, speed, forwardVelocity);

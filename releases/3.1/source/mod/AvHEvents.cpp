@@ -757,8 +757,13 @@ void EV_MachineGun(struct event_args_s* args)
 	// General x-punch axis
 	if ( EV_IsLocal( idx ) )
 	{
+		
 		// Multiply punch by upgrade level
-		float theHalfSpread = (kMGXPunch/4.0f)*(theUpgradeLevel+1);
+		//float theHalfSpread = (kMGXPunch/4.0f)*(theUpgradeLevel+1);
+
+		// Changed to ignore upgrade level
+		float theHalfSpread = (kMGXPunch/4.0f);
+		
 		if(theHalfSpread > 0.0f)
 		{
 			V_PunchAxis( 0, gEngfuncs.pfnRandomFloat( -theHalfSpread, theHalfSpread ) );
@@ -843,7 +848,11 @@ void EV_Pistol(struct event_args_s* args)
 	if ( EV_IsLocal( idx ) )
 	{
 		// Multiply punch by upgrade level
-		float theHalfSpread = (kHGXPunch/3.0f)*(theUpgradeLevel+1);
+		//float theHalfSpread = (kHGXPunch/3.0f)*(theUpgradeLevel+1);
+
+		// Changed to ignore upgrade level
+		float theHalfSpread = (kHGXPunch/3.0f);
+
 		if(theHalfSpread > 0.0f)
 		{
 			V_PunchAxis( 0, gEngfuncs.pfnRandomFloat( -theHalfSpread, theHalfSpread ) );
@@ -934,7 +943,12 @@ void EV_SonicGun(struct event_args_s* args)
 	// General x-punch axis
 	if ( EV_IsLocal( idx ) )
 	{
-		float theHalfSpread = (kSGXPunch/3.0f)*(theUpgradeLevel+1);
+		//float theHalfSpread = (kSGXPunch/3.0f)*(theUpgradeLevel+1);
+
+		// Changed to ignore upgrade level
+		float theHalfSpread = (kSGXPunch/3.0f);
+
+
 		if(theHalfSpread > 0.0f)
 		{
 			V_PunchAxis( 0, gEngfuncs.pfnRandomFloat( -theHalfSpread, theHalfSpread ) );
@@ -1033,7 +1047,11 @@ void EV_HeavyMachineGun(struct event_args_s* args)
 	// General x-punch axis
 	if ( EV_IsLocal( idx ) )
 	{
-		float theHalfSpread = (kHMGXPunch/4.0f)*(theUpgradeLevel+1);
+		//float theHalfSpread = (kHMGXPunch/4.0f)*(theUpgradeLevel+1);
+		
+		// Changed to ignore upgrade level
+		float theHalfSpread = (kHMGXPunch/4.0f);
+
 		if(theHalfSpread > 0.0f)
 		{
 			V_PunchAxis( 0, gEngfuncs.pfnRandomFloat( -theHalfSpread, theHalfSpread ) );
@@ -1112,7 +1130,11 @@ void EV_GrenadeGun(struct event_args_s* inArgs)
 	// General x-punch axis
 	if ( EV_IsLocal( idx ) )
 	{
-		float theHalfSpread = (kGGXPunch/2.0f)*(theUpgradeLevel+1);
+		//float theHalfSpread = (kGGXPunch/2.0f)*(theUpgradeLevel+1);
+		
+		// Changed to ignore upgrade level
+		float theHalfSpread = (kGGXPunch/2.0f);
+
 		if(theHalfSpread > 0.0f)
 		{
 			V_PunchAxis( 0, gEngfuncs.pfnRandomFloat( -theHalfSpread, theHalfSpread ) );

@@ -1468,7 +1468,6 @@ void NS_UpdateWallsticking()
             wallsticking |= NS_CheckOffsetFromOrigin(theMaxPoint[0], theMaxPoint[1], theMaxPoint[2], theSurfaceNormal);
 
             VectorNormalize(theSurfaceNormal);
-
             if (wallsticking)
             {
 				// tankefugl: 0000972 
@@ -2918,7 +2917,7 @@ int PM_FlyMove (void)
         {
             for ( i = 0; i < numplanes; i++ )
             {
-                if ( planes[i][2] > 0.7  )
+                if ( planes[i][2] > 0.0  )
                 {// floor or slope
                     PM_ClipVelocity( original_velocity, planes[i], new_velocity, 1 );
                     VectorCopy( new_velocity, original_velocity );
@@ -5220,16 +5219,20 @@ void PM_Jump (void)
 
 		VectorNormalize(theDirectionVec);
 
-		VectorScale(theDirectionVec, pmove->maxspeed + 50, pmove->velocity);
-		pmove->velocity[2] += 100;
+		vec3_t novar;
+		if (!NS_CheckOffsetFromOrigin(theDirectionVec[0] * 5, theDirectionVec[1] * 5, theDirectionVec[2] * 5, novar))
+		{
+			VectorScale(theDirectionVec, pmove->maxspeed + 50, pmove->velocity);
+			pmove->velocity[2] += 100;
 		
-		//vec3_t theJumpVect;
-		//VectorScale(gSurfaceNormal, 50, theJumpVect);
-		//VectorAdd(theJumpVect, pmove->velocity, pmove->velocity);
+			//vec3_t theJumpVect;
+			//VectorScale(gSurfaceNormal, 50, theJumpVect);
+			//VectorAdd(theJumpVect, pmove->velocity, pmove->velocity);
 
-		PM_PlayStepSound( PM_MapTextureTypeStepType( pmove->chtexturetype ), 1.0 );
+			PM_PlayStepSound( PM_MapTextureTypeStepType( pmove->chtexturetype ), 0.4 );
 
-		pmove->waterjumptime = 100;
+			pmove->waterjumptime = 100;
+		}
 	}
 	// :tankefugl
 

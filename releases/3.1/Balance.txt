@@ -129,13 +129,14 @@
 #define kGorgeCost 10
 #define kGorgeGestateTime 10
 #define kGorgeHealth 150
-#define kGrenDetonateTime 0.75
+#define kGrenDetonateTime 2
 #define kGrenadeDamage 125
 #define kGrenadeForce 800
 #define kGrenadeLauncherCost 15
 #define kGrenadeRadius 350
 #define kGrenadesResearchCost 10
 #define kGrenadesResearchTime 45
+#define kHandGrenDetonateTime 0.75
 #define kHGDamage 20
 #define kHGMaxAmmo 30
 #define kHGMaxClip 10

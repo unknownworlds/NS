@@ -378,7 +378,7 @@ void AvHGrenade::CreateProjectile()
 	}
 
 	// How to handle this?  Only generate entity on server, but we should do SOMETHING on the client, no?
-	CGrenade* theGrenade = AvHSUShootServerGrenade(this->m_pPlayer->pev, theStartPosition, theVelocity, BALANCE_VAR(kGrenDetonateTime), true);
+	CGrenade* theGrenade = AvHSUShootServerGrenade(this->m_pPlayer->pev, theStartPosition, theVelocity, BALANCE_VAR(kHandGrenDetonateTime), true);
 	ASSERT(theGrenade);
 
 	theGrenade->pev->dmg = this->mDamage;

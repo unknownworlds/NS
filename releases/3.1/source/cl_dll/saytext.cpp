@@ -247,7 +247,9 @@ void CHudSayText :: SayTextPrint( const char *pszBuf, int iBufSize, int clientIn
 		}
 	}
 
-	strncpy( g_szLineBuffer[i], pszBuf, min(iBufSize -1, MAX_CHARS_PER_LINE-1) );
+	// puzl: 0001087 
+	// don't strip last character ( often resulted in no carriage returns in the log )
+	strncpy( g_szLineBuffer[i], pszBuf, min(iBufSize, MAX_CHARS_PER_LINE-1) );
 
 	// make sure the text fits in one line
 	EnsureTextFitsInOneLineAndWrapIfHaveTo( i );

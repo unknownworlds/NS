@@ -1,4 +1,4 @@
-//TITLES FOR NATURAL SELECTION
+  //TITLES FOR NATURAL SELECTION
 //DO NOT ALTER THIS FILE
 // Position command $position x y 
 // x & y are from 0 to 1 to be screen resolution independent
@@ -20,7 +20,7 @@ Natural Selection is created and maintained by Unknown Worlds Entertainment.  Vi
 
 NS_Site
 {
-Check the front page of www.naturalselection.com for late-breaking news
+Check the front page of www.naturalselection.com for late-breaking news.
 }
 
 Team_AutoAssign
@@ -78,6 +78,13 @@ AutoTeam
 Auto-assigned
 }
 
+ReadyRoomThrottleMessage
+{
+You must press the key twice to return to the readyroom.
+}
+//"or type bind f4 "readyroom; wait; readyroom" for all you moaning ****" - Unnamed dev.
+
+
 Muted
 {
 Muted
@@ -110,8 +117,9 @@ Exclamation
 
 ChooseAnUpgrade
 {
-Choose an upgrade by opening your pop-up menu (right-click by default)!
+Choose an upgrade by opening your pop-up menu (right-click by default).
 }
+
 
 YouAreAttacking
 {
@@ -310,7 +318,7 @@ This server does not currently allow spectators.
 
 ObsInEyePrefix
 {
-Viewing through eyes of
+Looking through eyes of
 }
 
 SpectatorTeam
@@ -409,11 +417,6 @@ ReadyRoomMessage
 You are in the Ready Room.  Walk through an entrance to join a team or observe the game.
 }
 
-ReadyRoomThrottleMessage
-{
-You must press the key twice to return to the Ready Room
-}
-
 ReinforcementMessage
 {
 You are waiting in line to spawn back in.
@@ -451,7 +454,7 @@ There are too many players on this team already.
 
 CantJoinAfterSpectating
 {
-You cannot join the game in progress once you've been a spectator.
+You can not join the game in progress once you've been a spectator.
 }
 
 JoinTeamTooFast
@@ -481,12 +484,12 @@ You are now a soldier.  Try to follow orders from your commander, and do your be
 
 ObjectivesVsAliens
 {
-You are fighting aliens!  Aliens respawn at hives - to win the game, you must kill all the alien hives and then kill the remaining aliens.
+You are fighting the alien menace!  Aliens respawn at hives - to win the game, you must kill all the alien hives and then kill the remaining aliens.
 }
 
 ObjectivesVsMarines
 {
-You are fighting marines!  Marines respawn at infantry portals - to win the game, you must kill all their infantry portals and then kill all remaining marines.
+You are fighting the marine invaders!  Marines respawn at infantry portals - to win the game, you must destroy all their infantry portals and then kill all remaining marines.
 }
 
 Handicap
@@ -1435,7 +1438,7 @@ The game won't start until both sides have players.
 // Translation note: don't translate "ready"
 GameWontStartUntilReady
 {
-Game won't start until both teams type "ready".
+The game won't start until both teams type "ready".
 }
 
 EvolvingMessage
@@ -1576,12 +1579,12 @@ There are too many webs nearby.
 
 TeamOneWon
 {
-The TSA Marines have exterminated the alien infestation
+The marines won the game!
 }
 
 TeamTwoWon
 {
-The alien Kharaa have eradicated the human presence
+The aliens won the game!
 }
 
 GameDraw
@@ -1707,7 +1710,7 @@ Drop your current weapon, to get more speed, or to give to someone else to use.
 
 TechNodeHelp_5
 {
-Leave game and go back to the ready room.  This will let you switch teams, observe the game, or take a break.  Note that excessive Ready Room idling is often frowned upon.
+Leave the game and go back to the ready room.  This will let you switch teams, observe the game, or take a break.  Note that excessive Ready Room idling is often frowned upon.
 }
 
 TechNodeHelp_6
@@ -1961,7 +1964,7 @@ Grenades
 
 TechNodeHelp_37
 {
-Issues one grenade to all soldiers on spawn
+Issues grenades to all soldiers on spawn
 }
 
 TechNodeLabel_38
@@ -2124,7 +2127,7 @@ Siege turret
 
 TechNodeHelp_57
 {
-High-powered turret, fires sonic blast through walls. Only harms structures
+High-powered turret, fires a sonic blast through walls. Only harms structures
 }
 
 TechNodeLabel_58
@@ -2251,7 +2254,7 @@ Remove this structure in exchange for some resources.
 
 TechNodeHelp_80
 {
-Ask your commander for orders.  The commander will be notified that you are looking for something to do, and will give likely you an order
+Ask your commander for orders.  The commander will be notified that you are looking for something to do, and will likely give you an order
 }
 
 TechNodeHelp_81
@@ -2354,7 +2357,7 @@ Regeneration
 
 TechNodeHelp_102
 {
-You automatically heal all damage over time.  Higher levels will heal you faster. Does not stack with your innate regenartion
+You automatically heal damage over time.  Higher levels will heal you faster. Does not stack with your innate regenartion
 }
 
 TechNodeLabel_103
@@ -2364,7 +2367,7 @@ Redemption
 
 TechNodeHelp_103
 {
-The hive will automatically try to save you when you're near death, pulling you back to the hive to heal
+The hive will automatically try to save you when you're near death, pulling you back close to it to heal your wounds
 }
 
 TechNodeHelp_104
@@ -2411,7 +2414,6 @@ TechNodeHelp_109
 {
 Quietens your every action
 }
-// "quiet, quieter, vewwy vewwy quiet" - An unnamed playtester.
 
 TechNodeLabel_110
 {
@@ -2420,7 +2422,7 @@ Cloaking
 
 TechNodeHelp_110
 {
-You gain invisibility.  Fast movements will increase your opacity.  Attacks, observatories and scanner sweeps will uncloak you
+You gain invisibility.  Fast movements will increase your opacity.  Attacks, proximity to observatories and scanner sweeps will uncloak you
 }
 
 TechNodeLabel_111
@@ -2450,7 +2452,7 @@ Skulk
 
 TechNodeHelp_113
 {
-Gestate to Skulk.  This is a fast, small alien that is best suited for one on one combat, harassment and guerilla tactics.  Can climb walls (disable with the "duck" key)
+Gestate into a Skulk.  This is a fast, small alien that is best suited for one on one combat, harassment and guerilla tactics.  Can climb walls (disable with the "duck" key)
 }
 
 TechNodeLabel_114
@@ -2460,7 +2462,7 @@ Gorge
 
 TechNodeHelp_114
 {
-Gestate to Gorge.  Creates and grows resource towers, hives, upgrade chambers and turrets.  Weak in combat, but good as support unit since it can heal friends and friendly structures
+Gestate into a Gorge.  Creates and grows resource towers, hives, upgrade chambers and turrets.  Weak in combat, but good as support unit since it can heal friends and friendly structures
 }
 
 TechNodeLabel_115
@@ -2470,7 +2472,7 @@ Lerk
 
 TechNodeHelp_115
 {
-Gestate to Lerk.  Provides versatile combat support.  Has long-range spike shooting, choking area-effect spores and protective "umbra" ability.  Fly by tapping the jump key.  Glide by holding the jump key while in the air
+Gestate into a Lerk.  Provides versatile combat support.  Has a bite attack, choking area-effect spores and a protective "umbra" ability.  Fly by tapping the jump key.  Glide by holding the jump key while in the air
 }
 
 TechNodeLabel_116
@@ -2480,7 +2482,7 @@ Fade
 
 TechNodeHelp_116
 {
-Gestate to Fade.  The Kharaa's main combat unit, with swiping attacks, an acid rocket attack, and teleportation
+Gestate into a Fade.  The Kharaa's main combat unit, with swiping attacks, an acid-based rocket, and teleportation
 }
 
 TechNodeLabel_117
@@ -2490,7 +2492,7 @@ Onos
 
 TechNodeHelp_117
 {
-Gestate to Onos.  A behemoth that can stomp to stun his enemies, charge through enemies and devour them.  This alien is capable of taking on multiple marines at once
+Gestate into an Onos.  A behemoth that can stomp to stun his enemies, charge through enemies and devour them.  This alien is capable of taking on multiple marines at once
 }
 
 TechNodeLabel_118
@@ -2731,7 +2733,7 @@ Aliens spawn here, grants access to higher alien lifeforms and upgrades
 
 User3FriendlyDesc_17
 {
-You spawn here.  It will heal you when you are close by.  Provides "hive sight", which communicates friends, enemies and alerts to your team.  Protect your hives at all costs
+You spawn here.  It will heal you when you are close by.  Provides "hive sight", which communicates friendly and enemy positions as well as alerts to your team.  Protect your hives at all costs
 }
 
 User3Name_22
@@ -2797,7 +2799,7 @@ Gives free ammo to friendly soldiers.  Allows construction of shotguns, mines an
 
 User3FriendlyDesc_25
 {
-"Use" the armory to get free ammo for your current weapon.  Also allows construction of shotguns and mines within range
+"Use" the armory to get free ammo for your current weapon heal small wounds.  Also allows the construction of shotguns and mines within range
 }
 
 
@@ -2808,19 +2810,18 @@ advanced armory
 
 User3Desc_26
 {
-Gives ammo and allows construction of heavy machine guns and grenade launchers within range
+Gives ammo, heals players, and allows the construction of heavy machine guns and grenade launchers within range
 }
 
 User3CommanderDesc_26
 {
-Gives free ammo to friendly soldiers.  Allows construction of heavy machine guns and grenade launchers within range.  Select the advanced armory to see this range
+Gives free ammo and heals friendly soldiers.  Allows the construction of heavy machine guns and grenade launchers within range.  Select the advanced armory to see its range
 }
 
 User3FriendlyDesc_26
 {
-"Use" the advanced armory to get free ammo for your current weapon.  Also allows construction of heavy machine guns and grenade launchers within range
+"Use" the advanced armory to get free ammo for your current weapon and heal minor wounds.  Also allows the construction of heavy machine guns and grenade launchers within range
 }
-// "O The armory will now randomly kill players as they use it (Bug in which Armory would occasionally Heal players has been fixed)" - An unnamed PT Lead
 
 User3Name_27
 {
@@ -3167,7 +3168,7 @@ Blink - Allows near-instant teleportation.  Point in the direction to travel, an
 
 Weapon12Help
 {
-Xenocide - Explosive suicide.  Shortly after activating, you blow up, doing heavy damage to everything nearby.  Damage: %d
+Xenocide - Explosive suicide.  Shortly after activating, you blow up, dealing heavy damage to everything nearby.  Damage: %d
 }
 
 Weapon13Help
@@ -3227,7 +3228,7 @@ Umbra - Emits a bacterial mist that slows enemy bullets that enter it.  Any frie
 
 Weapon24Help
 {
-Primal scream - All teammates within range during scream gain energy back faster, move faster and do more damage.  Listen for their screams of defiance
+Primal scream - All teammates within range during scream gain energy back faster, move faster and do more damage.  Hear their screams of defiance!
 }
 
 Weapon25Help
@@ -3257,7 +3258,7 @@ Stomp - Stuns all enemy players it touches for %d seconds.
 
 Weapon30Help
 {
-Devour - Eat a nearby enemy.  Player is slowly digested, taking %d damage per second.  Onos gets this this damage back as health.  If Onos is killed before digestion completes, the enemy is freed
+Devour - Eat a nearby enemy whole.  Player is slowly digested, taking %d damage per second. The Onos gets this this damage back as health.  If the Onos is killed before digestion completes, the enemy is freed
 }
 
 
@@ -3360,12 +3361,12 @@ There is an enemy hive nearby, go kill it to stop the alien menace!
 
 HelpTextFriendlyMovementChamber
 {
-Press your "use" key on this movement chamber to teleport to a hive under attack.  It also increases your energy regeneration when nearby
+Press your "use" key near this movement chamber to teleport to a hive under attack.  It also increases your energy regeneration when nearby
 }
 
 HelpTextAttackMovementChamber
 {
-This is an enemy movement chamber, it allows them to teleport to their hive and makes them regain energy faster
+This is an enemy movement chamber, it allows them to teleport to their hives and makes them regain energy faster
 }
 
 HelpTextFriendlyOffensiveChamber
@@ -3425,7 +3426,7 @@ Use your "pop-up menu" to access voice commands, ask for orders, leave the team,
 
 HelpTextOrder
 {
-You have been given an order by the commander.  The blue circle on your screen describes the location and type of your order.  Use your pop-up menu to ask for orders or acknowledge them
+You have been given an order by the commander.  The blue circle on your screen describes the location and type of your order. Use your pop-up menu to ask for orders or acknowledge them
 }
 
 HelpTextCommanderUseable
@@ -3455,7 +3456,7 @@ Press your "pop-up menu" key to change lifeforms and evolve upgrades (default is
 
 HelpTextAttackTower
 {
-This resource tower earns resources for the enemy...destroy it!
+This resource tower gathers resources for the enemy...destroy it!
 }
 
 HelpTextAlienWeapons
@@ -3510,7 +3511,7 @@ One of your teammates or structures is under attack.  Spin your view around and 
 
 HelpTextBuilder
 {
-You are now a Gorge.  Stay out of combat and use your pop-up menu to build different structures
+You are now a Gorge. Stay out of combat and use your pop-up menu to build different structures
 }
 
 HelpTextWeb
@@ -3520,7 +3521,7 @@ Fire web strands at walls and floors to create webs between them.  Enemies that 
 
 HelpTextWallwalking
 {
-You can hold your duck key to walk up walls and ceilings
+You can walk up walls and ceilings. Press your 'walk' key to navigate tricky bits. Hold your 'duck' key to detach yourself, or 'jump' to vault off the wall
 }
 
 HelpTextBite
@@ -3550,12 +3551,12 @@ Hold your right mouse button (secondary attack) to show the pop-up menu
 
 HelpTextBuyUpgrade
 {
-Aliens can evolve new traits with the pop-up menu.  Try it: hold your pop-up menu button (right mouse button by default), and move the mouse right
+Aliens can evolve new traits with the pop-up menu. Try it: hold your pop-up menu button (right mouse button by default), and move the mouse right
 }
 
 HelpTextBuyLifeform
 {
-Aliens can morph into new lifeforms.  Try it: hold your pop-up menu button (right mouse button by default), move your mouse down, then right, then release
+Aliens can morph into new lifeforms. Try it: hold your pop-up menu button (right mouse button by default), move your mouse down, then right, then release
 }
 
 HelpTextCommanderGiveOrders
@@ -3591,7 +3592,7 @@ This target can be attacked!  Right-click to give an attack order
 
 HelpTextCommanderWeld
 {
-This target can be welded.  Buy a welder for a teammate, then right-click here to give a welding order
+This target can be welded.  Buy a welder for a player, then right-click here to give a welding order
 }
 
 HelpTextCommanderGet

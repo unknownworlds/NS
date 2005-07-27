@@ -82,6 +82,7 @@
 #define kcOrderSelf					"orderself"
 #define	kcParasite					"parasite"
 #define kcKillAll					"killall"
+#define kcAuth						"auth"
 #define kcStun						"stun"
 #define kcBoxes						"boxes"
 #define kcOverflow					"overflow"

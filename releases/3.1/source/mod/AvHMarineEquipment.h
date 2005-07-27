@@ -310,8 +310,8 @@ public:
 	virtual int	    GetIdle1Animation() const;
 	virtual int	    GetIdle2Animation() const;
 
-	virtual int		GetDeployAnimation() const;
-	virtual int		GetSpawnAnimation() const;
+	// virtual int		GetDeployAnimation() const;
+	// virtual int		GetSpawnAnimation() const;
 
 protected:
 

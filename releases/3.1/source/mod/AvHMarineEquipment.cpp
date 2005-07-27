@@ -1847,16 +1847,16 @@ int AvHInfantryPortal::GetIdle2Animation() const
 	return 2;
 }	
 
-// tankefugl: 
-int AvHInfantryPortal::GetDeployAnimation() const
-{
-	return 0;
-}
+// tankefugl: Uncomment for the new IP from Alpha
+//int AvHInfantryPortal::GetDeployAnimation() const
+//{
+//	return 0;
+//}
 
-int AvHInfantryPortal::GetSpawnAnimation() const
-{
-	return 1;
-}
+//int AvHInfantryPortal::GetSpawnAnimation() const
+//{
+//	return 1;
+//}
 // :tankefugl
 
 const int kCommandStationExitAnimation = 12;

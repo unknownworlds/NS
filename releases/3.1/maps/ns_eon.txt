@@ -1,6 +1,15 @@
-ns_eon version 9
+ns_eon version 10
 
-released (27/05/05) Note : v9 was compiled without -extra in rad to save time. 
+released (27/07/05)
+
+-New node layout with 9 nodes (thanks jazzx!)
+-Engine walkway vent now extends to the node room on eastern side.
+
+*Known issues - New vent is a bit awkward to maneuvre inside.
+
+v9 changelog (26/05/05)
+
+ Note : v9 was compiled without -extra in rad to save time. 
 Visual quality of the lighting is slightly reduced as a result.
 
 -Extended Core Monitoring closer towards Core, so that the joining corridor is shorter, and so sieging is easier.

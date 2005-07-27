@@ -3677,7 +3677,9 @@ void PM_CategorizePosition (void)
     point[2] = pmove->origin[2] - 2;
 	// puzl: 1027
 	// Correctly detect that we are climbing
-    if (pmove->velocity[2] > (MAX_CLIMB_SPEED-10) )   // Shooting up really fast.  Definitely not on ground.
+    if (((pmove->velocity[2] > (MAX_CLIMB_SPEED-10)) && (g_onladder[pmove->player_index] > 0)) 
+		|| (pmove->velocity[2] > 180))
+		// Shooting up really fast.  Definitely not on ground.
     {
         pmove->onground = -1;
     }

@@ -1471,16 +1471,17 @@ void NS_UpdateWallsticking()
             if (wallsticking)
             {
 				// tankefugl: 0000972 
-				if (/*theSurfaceNormal[2] < 0.95 && */ pmove->waterjumptime == 0)
+				if (pmove->waterjumptime == 0)
 				{
 					//float dotNormalView = DotProduct(pmove->forward, theSurfaceNormal);
 					vec3_t tempNormal = {0, 0, 0};
 					bool checkedDownOffset = NS_CheckOffsetFromOrigin(0, 0, theMinPoint[2], tempNormal);
-		            if (/*dotNormalView < 0.7 && */(checkedDownOffset == false))
+					VectorNormalize(tempNormal);
+		            if ((checkedDownOffset == false) || (tempNormal[2] < 0.7f && tempNormal[2] > 0.05f))
 					{
 						VectorCopy(theSurfaceNormal, gSurfaceNormal);
 
-						if (/*theSurfaceNormal[2] < 0.7 && */(pmove->cmd.buttons & IN_WALK)) 
+						if (pmove->cmd.buttons & IN_WALK) 
 						{
 							vec3_t theDispVect;
 							VectorScale(theSurfaceNormal, theMinPoint[0], theDispVect);
@@ -5210,10 +5211,11 @@ void PM_Jump (void)
     }
 
 	// tankefugl: 0000972 walljump
-	if (canWallJump && (GetHasUpgrade(pmove->iuser4, MASK_WALLSTICKING) && (pmove->cmd.buttons & IN_JUMP) && !(pmove->oldbuttons & IN_JUMP) && (gSurfaceNormal[2] < 0.3)))
+	if (canWallJump && (GetHasUpgrade(pmove->iuser4, MASK_WALLSTICKING) && (pmove->cmd.buttons & IN_JUMP) && !(pmove->oldbuttons & IN_JUMP) /*&& (gSurfaceNormal[2] < 0.7)*/))
 	{
 		vec3_t theDirectionVec;
 		//VectorCopy(pmove->velocity, theDirectionVec);
+		//VectorAdd(pmove->basevelocity, pmove->forward, theDirectionVec);
 		//if (Length(theDirectionVec) == 0.0f)
 			VectorCopy(pmove->forward, theDirectionVec);
 
@@ -5222,14 +5224,17 @@ void PM_Jump (void)
 		vec3_t novar;
 		if (!NS_CheckOffsetFromOrigin(theDirectionVec[0] * 5, theDirectionVec[1] * 5, theDirectionVec[2] * 5, novar))
 		{
+			VectorCopy(pmove->forward, theDirectionVec);
+			VectorNormalize(theDirectionVec);
+
 			VectorScale(theDirectionVec, pmove->maxspeed + 50, pmove->velocity);
 			pmove->velocity[2] += 100;
-		
-			//vec3_t theJumpVect;
-			//VectorScale(gSurfaceNormal, 50, theJumpVect);
-			//VectorAdd(theJumpVect, pmove->velocity, pmove->velocity);
 
-			PM_PlayStepSound( PM_MapTextureTypeStepType( pmove->chtexturetype ), 0.4 );
+			vec3_t theJumpVect;
+			VectorScale(gSurfaceNormal, 25, theJumpVect);
+			VectorAdd(theJumpVect, pmove->velocity, pmove->velocity);
+
+			PM_PlayStepSound( PM_MapTextureTypeStepType( pmove->chtexturetype ), 0.35 );
 
 			pmove->waterjumptime = 100;
 		}

@@ -575,6 +575,10 @@ bool AvHPlayer::BuildTech(AvHMessageID inBuildID, const Vector& inPickRay)
         Vector theLocation;
         if(AvHSHUTraceAndGetIsSiteValidForBuild(inBuildID, this->GetVisualOrigin(), inPickRay, &theLocation))
         {
+			// puzl: 1097 Commander created entities now created 4 units above the scan location and they drop to the floor.
+			if ( this->GetIsInTopDownMode() ) {
+				theLocation[2]+=4;
+			}
             // Decrement resources
             string theErrorMessage;
             int theCost = 0;

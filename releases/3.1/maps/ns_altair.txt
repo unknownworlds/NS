@@ -8,7 +8,7 @@ Filename	:	ns_altair.bsp
 Author		:	Paul "KungFuDiscoMonkey" Traylor
 EMail		:	kungfudiscomonkey@gmail.com
 URL		:	http://kungfudiscomonkey.net
-Date		:	February 21, 2005
+Date		:	July 18, 2005
 
 ------Play Information-----------------------------------------------
 
@@ -18,13 +18,10 @@ How Many Players:	32
 ------Map Information------------------------------------------------
 
 New Textures	:	Yes (ns_altair.wad embedded in BSP) 
-				Some Textures taken from Poke646 by Marc Schröder
-				Button Textures, damaged door, and new monitors by
- 				Samejima
+				Some Textures taken from Poke646 by Marc Schröder 
+				Button Textures, damaged door, and new monitors by Samejima
 New Sounds	:	No
-New Skybox      :       Yes 	based on deepsea1
-				by Darc
-				http://telefragged.com/soup/
+New Skybox      :       Yes 	based on deepsea1 by Darc (http://telefragged.com/soup/)
 New Models      :       Not yet
 New Prefabs     :       Yes	Tube Container by KungFuSquirrel
 
@@ -38,54 +35,24 @@ Compile Machine	:	3 Ghz P4, 1 gb RAM
 Compile time	:	~1 hour
 
 ------Changelog------------------------------------------------------
-v1-6 OLD Versions
-    
-v7 (11/8/04)
-    Version number incrimented by request to reflect the massive number of improvemts since the b5 version of the map
-    Added vent from Omega to Zeta with two exits into Phi
-    Added vent from Muck Pump to Parts Room RT
-    Rspeed optimizations
-    Adjustments to Surface Umbilical to reduce LOS
-    Adjustments to MS top entrance
-    New monitor textures by Samejima
-    Covered up pit in Omega
-    More details
-    New minimap built for new changes to rooms
+v1-7e OLD Versions
 
-v7b (1/29/05)
-    Removed Diving tanks and connected Nanite Regulation and Settling tanks
-    Rerouted path from Settling tanks into Communications
-    Moved weldable to Muck Pump
-    Optimized Sub Bay
-    Moved node from outside Parts room into parts room
-
-v7c (2/10/05)
-    Moved Parts Room RT to Sigma Test Site
-    Added new info_locations to help navigation and direction
-    Split up Life Support info_location
-    Split up Sub Bay info_location
-    Removed weldable door
-    Reopened path between Sub Bay and Parts Room
-    Moved some alien spawns into Life Support instead of being a bit outside the hive room
-
-v7d (2/14/05)
-    Played with HLRAD compile settings a bit
-    Added a few new lights to sewer
-    Misc detail to parts room and Station Monitoring
-    Small tweek to fix minimap glitch till I have time to do a full sprite again
-    Added new vent weldables
-
-v7e (2/21/05)
-    Reopened route from Settling Tanks to Consistancy
-    Combined Station Monitoring and Sub Refueling node into one node at SM-Power.
-    Moved Settling Tank node back to Nanite Regulation
-    Added small ledge in sub bay to help get around pool
-    Fixed custom minimap.
+cal(v7j) (7/18/05)
+	Rebuilt Omega Hive
+	Rebuilt Consistency Hive
+	Rebuilt Life Support Hive
+	New Sub bay
+	New Readyroom
+	Modified layout based on changes suggested by Routerbox ( http://www.jick.org/images/together.jpg )
+	Adjusted lighting parameters to improve lighting
+	Added more lights
+	Removal of Phi Test Site
+	Phi Test Site node moved to Station Monitoring Annex
 
     
 ------Additional Info------------------------------------------------
 
-Any feedback or suggestions, please send them to kungfudiscomonkey@gmail.com
+	Any feedback or suggestions, please send them to kungfudiscomonkey@gmail.com
 
 ------Copyright-Permissions------------------------------------------
 
@@ -97,9 +64,12 @@ Thanks to the NS Dev team for making this great mod that has kept me from doing 
 
 Thanks to the NS Playtester team for helping me with good feedback and taking time to disuss with me the changes and updates to help make the map that much better.
 
-Thanks Plaguebearer for taking my mediocre layout and turning it into something awsome. Without his help you wouldn't be playing this map.
+Thanks Plaguebearer for taking my mediocre layout and turning it into something awsome which was the layout for the first Altair in b5.
 
-Thanks to TyrNemesis^ for helping me walk around the map and pointing out balance issues and node placement issues and generally helping to make Altair even better. Half the reason you are reading this file is because this guy helped make Altair what it is.
+Thanks to TyrNemesis^ for helping me walk around the map and pointing out balance issues and node placement issues and generally helping to make Altair even better.
 
-------Dedication-----------------------------------------------------
-Altair is dedicated to my friends from Wake Christian Academy, Cary Alliance Church, and Grace Community Church who will never realize how much their lives have impacted mine and made me a better person because of it.
+Thanks to kmart and routerbox for helping me adjust the layout to be more condusive to competitive play.
+
+Thanks to JazzX, Zephor, and Ken for being the top three playtesters when it comes to giving well thought out and detailed feedback.
+
+Thanks to Olmy for really pushing me to improve Altair with several new ideas which lead me to rebuild several areas of the map.

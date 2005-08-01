@@ -292,7 +292,8 @@ void AvHSUKillPlayersTouchingPlayer(AvHPlayer* inPlayer, entvars_t* inInflictor)
 		// tankefugl: 0000892 -- fixed to allow spawnkilling of crouching players on IP
 		float theDistanceToPlayer = VectorDistance(inPlayer->pev->origin, theEntity->pev->origin);
 		float zDistance = inPlayer->pev->origin[2] - theEntity->pev->origin[2];
-		if(theDistanceToPlayer < 30 || (theDistanceToPlayer < 40 && zDistance > 0 && zDistance < 40))
+		float xyDistance = VectorDistance2D(inPlayer->pev->origin, theEntity->pev->origin);
+		if(theDistanceToPlayer < 30 || (xyDistance < 30 && zDistance > 0 && zDistance < 40))
 		{
 			theEntity->TakeDamage(inInflictor, theEntity->pev, 10000, DMG_GENERIC);
 		}

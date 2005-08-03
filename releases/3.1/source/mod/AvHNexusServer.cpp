@@ -1,15 +1,12 @@
-#ifdef AVH_PLAYTEST_BUILD
-	#define AVH_NO_NEXUS
-#endif
-
+#define AVH_NO_NEXUS
 #ifdef AVH_NO_NEXUS
 	#include <string>
 	using std::string;
 	#include "AvHNexusServer.h"
-
+    #include "AvHServerUtil.h"
 	bool AvHNexus::send(entvars_t* const pev, const unsigned char* data, const unsigned int length) { return false; }
 	bool AvHNexus::recv(entvars_t* const pev, const char* data, const unsigned int length) { return false; }
-	string AvHNexus::getNetworkID(const edict_t* edict) { return ""; }
+	string AvHNexus::getNetworkID(const edict_t* edict) { return AvHSUGetPlayerAuthIDString((edict_t *)edict); }
 	void AvHNexus::handleUnauthorizedJoinTeamAttempt(const edict_t* edict, const unsigned char team_index) {}
 	void AvHNexus::performSpeedTest(void) {}
 	void AvHNexus::processResponses(void) {}

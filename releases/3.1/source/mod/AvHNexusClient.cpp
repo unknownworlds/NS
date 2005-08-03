@@ -1,7 +1,4 @@
-#ifdef AVH_PLAYTEST_BUILD
-	#define AVH_NO_NEXUS
-#endif
-
+#define AVH_NO_NEXUS
 #ifdef AVH_NO_NEXUS
 	#include <string>
 	using std::string;

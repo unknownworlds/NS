@@ -3622,7 +3622,7 @@ bool AvHGamerules::GetIsCheatEnabled(const string& inCheatName) const
 
 	bool theAllowCheats = this->GetCheatsEnabled();
 
-	#ifdef AVH_PLAYTEST_BUILD
+	#ifdef DEBUG
 	theAllowCheats = true;
 	#endif
 

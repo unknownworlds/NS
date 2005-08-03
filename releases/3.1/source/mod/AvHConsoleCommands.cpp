@@ -271,7 +271,7 @@ BOOL AvHGamerules::ClientCommand( CBasePlayer *pPlayer, const char *pcmd )
 		theIsPlaytester = theAvHPlayer->GetIsMember(PLAYERAUTH_PLAYTESTER);
 		theIsPlayerHelper = theIsDeveloper || theIsGuide || theIsPlaytester;
 
-		#ifdef AVH_PLAYTEST_BUILD
+		#ifdef DEBUG
 		theIsPlaytest = theIsPlaytester || theIsDeveloper;
 		#endif
 	}

@@ -391,11 +391,11 @@ void AvHPieMenuHandler::mouseReleased(MouseCode code, Panel* inPanel)
         }
 
 	// puzl : 983 releasing a mouse closes the popup menu
-	if ( code == MOUSE_RIGHT || code == MOUSE_LEFT || code == MOUSE_MIDDLE)	
-	{
-		ClientCmd("-popupmenu");
-		ClosePieMenu();
-	}
+	//if ( code == MOUSE_RIGHT || code == MOUSE_LEFT || code == MOUSE_MIDDLE)	
+	//{
+	//	ClientCmd("-popupmenu");
+	//	ClosePieMenu();
+	//}
 //    }
 }
 

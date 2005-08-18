@@ -90,7 +90,9 @@ float AvHKnife::GetDeployTime() const
 
 char* AvHKnife::GetDeploySound() const
 {
-	return kKNDeploySound;
+	//return kKNDeploySound;
+	return NULL;
+
 }
 
 char* AvHKnife::GetHeavyViewModel() const
@@ -155,6 +157,8 @@ void AvHKnife::FireProjectiles(void)
 	// Do trace hull here
 	float theDamage = this->mDamage;
 	CBaseEntity* pHurt = this->m_pPlayer->CheckTraceHullAttack(kKNRange, theDamage, DMG_SLASH);
+	
+	
 	if(pHurt)
 	{
 		char* theSoundToPlay = NULL;
@@ -185,6 +189,7 @@ void AvHKnife::FireProjectiles(void)
 		}
 	}
 	
+
 #endif	
 }
 

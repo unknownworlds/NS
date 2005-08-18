@@ -103,7 +103,9 @@ int AvHGrenade::GetDeployAnimation() const
 
 char* AvHGrenade::GetDeploySound() const
 {
-    return kGRDeploySound;
+    //return kGRDeploySound;
+	return NULL;
+
 }
 
 float AvHGrenade::GetDeployTime() const
@@ -299,7 +301,7 @@ void AvHGrenade::Precache(void)
     AvHMarineWeapon::Precache();
     
     PRECACHE_UNMODIFIED_SOUND(kGRFireSound1);
-    PRECACHE_UNMODIFIED_SOUND(kGRDeploySound);
+    //PRECACHE_UNMODIFIED_SOUND(kGRDeploySound);
     PRECACHE_UNMODIFIED_SOUND(kGRExplodeSound);
     PRECACHE_UNMODIFIED_SOUND(kGRHitSound);
     

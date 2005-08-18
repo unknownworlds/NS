@@ -261,6 +261,7 @@ cvar_t *gl_d3dflip = NULL;
 cvar_t *s_show = NULL;
 cvar_t *lightgamma = NULL;
 cvar_t *r_detailtextures = NULL;
+cvar_t *gl_max_size = NULL;
 
 const AvHMapExtents& GetMapExtents()
 {
@@ -1818,7 +1819,7 @@ bool AvHHud::SetGamma(float inSlope)
 
 			sGameGammaTable.ProcessSlope(theGammaToTry);
 			// tankefugl: fakes a successful gamma ramp change if cl_gammaramp is set to 0
-			if((CVAR_GET_FLOAT(kvGammaRamp) == 0) || sGameGammaTable.InitializeToVideoState())
+			if((CVAR_GET_FLOAT(kvDisableGammaRamp) == 1) || sGameGammaTable.InitializeToVideoState())
 			{
 				// Tell UI components so they can change shading to look the same
 				this->GetManager().NotifyGammaChange(theGammaToTry);
@@ -3676,6 +3677,7 @@ void AvHHud::Init(void)
 	s_show = gEngfuncs.pfnGetCvarPointer("s_show");
 	lightgamma = gEngfuncs.pfnGetCvarPointer("lightgamma");
 	r_detailtextures = gEngfuncs.pfnGetCvarPointer("r_detailtextures");
+	gl_max_size = gEngfuncs.pfnGetCvarPointer("gl_max_size");
 }
 
 // This gives the HUD a chance to draw after the VGUI.  A component must allow itself to be hooked by calling this function
@@ -4654,6 +4656,7 @@ void AvHHud::UpdateExploitPrevention()
 	FORCE_CVAR(gl_d3dflip, 1.0f);
 	FORCE_CVAR(s_show, 0.0f);
 	FORCE_CVAR(r_detailtextures, 0.0f);
+	FORCE_CVAR(gl_max_size, 256.0f);
 
 	if(lightgamma && lightgamma->value < 2.0)
 		lightgamma->value = 2.0f;

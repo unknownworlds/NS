@@ -93,9 +93,9 @@ DESCRIPTION INFO_OPTIONS
 
 	"cl_gammaramp"
 	{
-		"Enable gamma ramp"
+		"Disable gamma ramp"
 		{ BOOL }
-		{ "1" }
+		{ "0" }
 	}
 
 	"hud_fastswitch"

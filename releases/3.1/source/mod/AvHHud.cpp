@@ -1818,7 +1818,7 @@ bool AvHHud::SetGamma(float inSlope)
 			theGammaToTry -= kGammaIncrement;
 
 			sGameGammaTable.ProcessSlope(theGammaToTry);
-			// tankefugl: fakes a successful gamma ramp change if cl_gammaramp is set to 0
+			// tankefugl: fakes a successful gamma ramp change if cl_gammaramp is set to 1
 			if((CVAR_GET_FLOAT(kvDisableGammaRamp) == 1) || sGameGammaTable.InitializeToVideoState())
 			{
 				// Tell UI components so they can change shading to look the same

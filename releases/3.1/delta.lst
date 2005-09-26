@@ -178,7 +178,7 @@ entity_state_player_t gamedll Player_Encode
 	DEFINE_DELTA( spectator, DT_INTEGER, 1, 1.0 ),
 	DEFINE_DELTA( iuser3, DT_INTEGER, 6, 1.0 ),						// Need player info for AvHCommanderModeHandler::LookupClassNameForEntity
 	DEFINE_DELTA( iuser4, DT_INTEGER, 32, 1.0 ),					// NS custom parameter (needs 32 for AvHSpecialSound)
-	DEFINE_DELTA( fuser2, DT_FLOAT, 12, 1.0 ),						// For player health (energy is predicted so this isn't needed for it)
+	DEFINE_DELTA( fuser2, DT_FLOAT, 14, 1.0 ),						// For player health (energy is predicted so this isn't needed for it)
 	DEFINE_DELTA( vuser1[0], DT_ANGLE, 8, 1.0 ),
 	DEFINE_DELTA( vuser1[1], DT_ANGLE, 8, 1.0 ),
 	DEFINE_DELTA( vuser1[2], DT_ANGLE, 8, 1.0 ),

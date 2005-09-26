@@ -6522,13 +6522,20 @@ void AvHPlayer::InternalCommonThink()
     int theMaxArmor = AvHPlayerUpgrade::GetMaxArmorLevel(this->pev->iuser4, (AvHUser3)this->pev->iuser3);
     int theCurrentArmor = max(0.0f, this->pev->armorvalue);
 
-    // Draw ring to take into account health and armor for aliens, just health for marines (so gorge and comm know when to heal)
-    float theScalar = (float)theCurrentHealth/theMaxHealth;
-    if(this->GetIsAlien())
+    // Draw ring to take into account health and armor for aliens, 
+	// Send armor and health for marines
+    if(this->GetIsMarine())
     {
-        theScalar = (theCurrentHealth + theCurrentArmor)/(float)(theMaxHealth + theMaxArmor);
+		// puzl: 991 use a composite for marine armour and health
+		int theCurrentArmorPercent=(theCurrentArmor*100)/theMaxArmor;
+		int theCurrentHealthPercent=(theCurrentHealth*100)/theMaxHealth;
+		this->pev->fuser2= (float)( ((theCurrentArmorPercent&0x7F) << 7 ) + (theCurrentHealthPercent & 0x7F));
     }
-    this->pev->fuser2 = theScalar*kNormalizationNetworkFactor;
+	else 
+	{
+	    float theScalar = (float)(theCurrentHealth + theCurrentArmor)/(float)(theMaxHealth + theMaxArmor);
+		this->pev->fuser2 = theScalar*kNormalizationNetworkFactor;
+	}
     
     //float theRandomAngle = RANDOM_FLOAT(0, 50);
     //this->pev->v_angle.x = theRandomAngle;

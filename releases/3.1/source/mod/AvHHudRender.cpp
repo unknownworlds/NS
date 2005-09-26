@@ -2414,7 +2414,10 @@ void AvHHud::DrawBuildHealthEffectsForEntity(int inEntityIndex, float inAlpha)
 	float theHealthPercentage = 0.0f;
 	double theDistanceToEntity = 0;
 	
+
 	cl_entity_s* theEntity = gEngfuncs.GetEntityByIndex(inEntityIndex);
+	bool theEntityIsPlayer = ((inEntityIndex > 0) && (inEntityIndex <= gEngfuncs.GetMaxClients()));
+
 	if(theEntity)
 	{
 		theUser3 = theEntity->curstate.iuser3;
@@ -2435,7 +2438,17 @@ void AvHHud::DrawBuildHealthEffectsForEntity(int inEntityIndex, float inAlpha)
 		theMins = theEntity->curstate.mins;
 		theMaxs = theEntity->curstate.maxs;
 		theHealthPercentage = theEntity->curstate.fuser2/kNormalizationNetworkFactor;
-		
+		// puzl: 991 transmit armour and health for marines
+		if ( GetIsMarine() && theEntityIsPlayer ) {
+			int tmpPercent=theEntity->curstate.fuser2;
+			if ( GetInTopDownMode() ) {
+				theHealthPercentage = (float)(tmpPercent&0x7F)/100;
+			}
+			else {
+				theHealthPercentage = (float)(tmpPercent >> 7)/100;
+			}
+		}
+		// :puzl
 		theContinue = true;
 	}
 
@@ -2444,7 +2457,6 @@ void AvHHud::DrawBuildHealthEffectsForEntity(int inEntityIndex, float inAlpha)
 	
 	bool theDrewBuildInProgress = false;
 	float theOversizeScalar = 1.0f;
-	bool theEntityIsPlayer = ((inEntityIndex > 0) && (inEntityIndex <= gEngfuncs.GetMaxClients()));
     bool theIsOnOurTeam = (theEntityTeam == (int)this->GetHUDTeam());
 	
 	if(AvHSHUGetDrawRingsForUser3((AvHUser3)theUser3, theOversizeScalar))

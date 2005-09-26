@@ -285,12 +285,20 @@ float AvHMUGetWalkSpeedFactor(AvHUser3 inUser3)
 	return theMoveSpeed;
 }
 
-bool AvHMUHasEnoughAlienEnergy(float& ioFuser, float inNormAmount)
+// tankefugl: 991 -- added latency-based prediction for the ammount of energy available to the alien
+bool AvHMUHasEnoughAlienEnergy(float& ioFuser, float inNormAmount, float latency)
 {
 	bool theSuccess = false;
 	
 	float theCurrentEnergy = ioFuser/kNormalizationNetworkFactor;
-	if(theCurrentEnergy >= inNormAmount)
+	float thePredictedByLatency = 0.0f;
+
+#ifdef AVH_CLIENT
+	float theAlienEnergyRate = (float)BALANCE_VAR(kAlienEnergyRate);
+	float theUpgradeFactor = 1.0f;
+	thePredictedByLatency = (latency / 1000) * theAlienEnergyRate * theUpgradeFactor;
+#endif
+	if((theCurrentEnergy + thePredictedByLatency) >= inNormAmount)
 	{
 		theSuccess = true;
 	}

@@ -329,8 +329,9 @@ void WeaponsResource::UserCmd_LastInv(void)
 	if(this->IsSelectable(this->lastWeapon))
 	{ 
 		this->SetCurrentWeapon(lastWeapon);
-		const char* theSound = AvHSHUGetCommonSoundName(gHUD.GetIsAlien(), WEAPON_SOUND_HUD_ON);
-		gHUD.PlayHUDSound(theSound, kHUDSoundVolume);
+		// puzl: 764
+		//const char* theSound = AvHSHUGetCommonSoundName(gHUD.GetIsAlien(), WEAPON_SOUND_HUD_ON);
+		//gHUD.PlayHUDSound(theSound, kHUDSoundVolume);
 	}
 }
 

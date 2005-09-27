@@ -2407,6 +2407,7 @@ void AvHHud::DrawBuildHealthEffectsForEntity(int inEntityIndex, float inAlpha)
 	int theUser4 = 0;
 	float theFuser1 = 0.0f;
 	int theEntityTeam = 0;
+	bool theIsOnOurTeam=false;
 	vec3_t theOrigin;
 	vec3_t theMins;
 	vec3_t theMaxs;
@@ -2417,14 +2418,14 @@ void AvHHud::DrawBuildHealthEffectsForEntity(int inEntityIndex, float inAlpha)
 
 	cl_entity_s* theEntity = gEngfuncs.GetEntityByIndex(inEntityIndex);
 	bool theEntityIsPlayer = ((inEntityIndex > 0) && (inEntityIndex <= gEngfuncs.GetMaxClients()));
-
+	
 	if(theEntity)
 	{
 		theUser3 = theEntity->curstate.iuser3;
 		theUser4 = theEntity->curstate.iuser4;
 		theFuser1 = theEntity->curstate.fuser1;
 		theEntityTeam = theEntity->curstate.team;
-		
+		theIsOnOurTeam = (theEntityTeam == (int)this->GetHUDTeam());	
 		//theOrigin = theEntity->curstate.origin;
 		theOrigin = AvHSHUGetRealLocation(theEntity->origin, theEntity->curstate.mins, theEntity->curstate.maxs);
 		if(theEntity->player)
@@ -2450,6 +2451,12 @@ void AvHHud::DrawBuildHealthEffectsForEntity(int inEntityIndex, float inAlpha)
 		}
 		// :puzl
 		theContinue = true;
+
+		// 991: puzl
+		// Do not display health rings for enemy players unless we are commander
+		if ( !GetInTopDownMode()  && theEntityIsPlayer && !theIsOnOurTeam ) {
+			theContinue=false;
+		}
 	}
 
 	// Get local player
@@ -2457,7 +2464,6 @@ void AvHHud::DrawBuildHealthEffectsForEntity(int inEntityIndex, float inAlpha)
 	
 	bool theDrewBuildInProgress = false;
 	float theOversizeScalar = 1.0f;
-    bool theIsOnOurTeam = (theEntityTeam == (int)this->GetHUDTeam());
 	
 	if(AvHSHUGetDrawRingsForUser3((AvHUser3)theUser3, theOversizeScalar))
 	{
@@ -2576,7 +2582,7 @@ void AvHHud::DrawSelectionAndBuildEffects()
 // tankefugl: 0000988 
 	list<int> theSelectedList;
 // :tankefugl
-
+	
 	// Draw build effects
 	for(SelectionListType::iterator theSelectIter = this->mSelectionEffects.begin(); theSelectIter != this->mSelectionEffects.end(); theSelectIter++)
 	{
@@ -2589,6 +2595,7 @@ void AvHHud::DrawSelectionAndBuildEffects()
 	}
 	
 	bool theDrawBuildingEffect = false;
+
 	for(EntityListType::iterator theBuildingIter = this->mBuildingEffectsEntityList.begin(); theBuildingIter != this->mBuildingEffectsEntityList.end(); theBuildingIter++)
 	{
 		int theEntIndex = *theBuildingIter;
@@ -2607,11 +2614,12 @@ void AvHHud::DrawSelectionAndBuildEffects()
 		gEngfuncs.pEventAPI->EV_SetSolidPlayers(-1);
 
 		int localPlayerIndex = gEngfuncs.GetLocalPlayer()->index;
-		int currentteam = gEngfuncs.GetLocalPlayer()->curstate.team;
+		int currentteam = this->GetHUDTeam();
 		int maxclients = gEngfuncs.GetMaxClients();
 
-		physent_t* theEntity = NULL;
+		
 		int theNumEnts = pmove->numphysent;
+		physent_t* theEntity = NULL;
 		for (int i = 0; i < theNumEnts; i++)
 		{
 			theEntity = gEngfuncs.pEventAPI->EV_GetPhysent(i);
@@ -2625,7 +2633,6 @@ void AvHHud::DrawSelectionAndBuildEffects()
 					{
 						bool theIsPlayer = ((theEntityIndex >= 1) && (theEntityIndex <= maxclients));
 						bool theSameTeam = (theEntity->team == currentteam );
-						
 						if (isCommander && (theIsPlayer || theSameTeam))
 						{
 							this->DrawBuildHealthEffectsForEntity(theEntityIndex, 0.2);
@@ -2649,7 +2656,6 @@ void AvHHud::DrawSelectionAndBuildEffects()
 
 void AvHHud::Render()
 {
-
     if (!IEngineStudio.IsHardware())
     {
 

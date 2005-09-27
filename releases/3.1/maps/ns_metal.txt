@@ -1,4 +1,4 @@
-Metal 16-7-2005
+Metal 17-8-2005
 ===============================================
 
 Natural Selection map : Metal (ns_metal.bsp)
@@ -43,6 +43,12 @@ Drunken.Monkey
 
 
 Changelog :
+
+-------------------------
+
++ update-14
+ 
+* Changed MS-start sign texture.
 
 -------------------------
 

@@ -1,6 +1,19 @@
-ns_eon version 10
+ns_eon version 11
 
-released (27/07/05)
+released (16/09/05)
+
+-New console in Marine Start and new boxes.
+-Clipped the door below the vent in Maintenance.
+-Minor aesthetic changes in Gunpods.
+
+v10a changelog (10/08/05)
+
+-New vent is now alot easier to maneuvre inside
+-Slight change to Coolant Monitoring's geometry (semi alcove type thing :/).
+-Gunpods no longer has a wall divide, and the dimensions of the room have been reduced,
+(mostly width) and the rt position has been moved to the side.
+
+v10 changelog (27/07/05)
 
 -New node layout with 9 nodes (thanks jazzx!)
 -Engine walkway vent now extends to the node room on eastern side.
@@ -116,3 +129,6 @@ v4 changelog (26/1/05):
 -Fixed a stuck issue in bridge (you would get stuck on light fixtures).
 -Nearly every vent that could not accomodate two skulks side by side now can.
 -Included a txt file. :)
+
+Thanks:
+JazzX for unfailing support with eon.  Zephor, and other playtesters for their input.

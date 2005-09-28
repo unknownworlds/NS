@@ -435,14 +435,6 @@ bool AvHMiniMap::WriteSpritesIfJustFinished()
 {
 	bool theSuccess = false;
 
-	// test
-	char test[255];
-	sprintf(test, "this->GetIsProcessing() = %d, this->mNumSamplesProcessed = %d, this->mNumSamplesToProcess = %d\n", this->GetIsProcessing(), this->mNumSamplesProcessed, this->mNumSamplesToProcess);
-	gEngfuncs.pfnConsolePrint(test);
-
-	// :test
-
-
 	if(this->GetIsProcessing() && (this->mNumSamplesProcessed == this->mNumSamplesToProcess))
 	{
 		this->mIsProcessing = false;

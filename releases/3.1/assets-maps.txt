@@ -89,6 +89,12 @@ sound/ns_origin/*.wav
 sprites/minimaps/ns_origin.spr
 sprites/minimaps/ns_origin_labelled.spr
 
+; ns_shiva
+maps/ns_shiva.*
+sprites/minimaps/ns_shiva.spr
+sprites/minimaps/ns_shiva_labelled.spr
+sprites/ns_shiva/thanks.spr
+
 ; ns_tanith
 ns_tanith.wad
 maps/ns_tanith.*

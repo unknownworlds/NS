@@ -2,7 +2,7 @@
 #include <cstring>
 
 const int slashchr =  '\\';
-#define kAvHModDir					((const char*)("nsp"))
+#define kAvHModDir					((const char*)("ns"))
 
 const char* getModDirectory(void)
 {

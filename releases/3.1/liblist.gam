@@ -5,7 +5,7 @@
 game "Natural Selection 3.1"
 url_info "http://www.unknownworlds.com/ns/"
 url_dl "http://www.unknownworlds.com/ns/view?action=files"
-version "v3.0"
+version "v3.1"
 size "165000000"
 svonly "0"
 secure "0"

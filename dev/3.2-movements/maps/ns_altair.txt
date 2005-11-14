@@ -1,0 +1,80 @@
+=====================================================================
+   Natural-Selection Map Spec Sheet
+=====================================================================
+------General Information--------------------------------------------
+
+Title		:	Altair Underwater Mining Facility
+Filename	:	ns_altair.bsp
+Author		:	Paul "KungFuDiscoMonkey" Traylor
+EMail		:	kungfudiscomonkey@gmail.com
+URL		:	http://kungfudiscomonkey.net
+Date		:	September 14, 2005
+
+------Play Information-----------------------------------------------
+
+NS:Classic
+How Many Players:	32
+
+------Map Information------------------------------------------------
+
+New Textures	:	Yes (ns_altair.wad embedded in BSP) 
+				Some Textures taken from Poke646 by Marc Schröder 
+				Button Textures, damaged door, and new monitors by Samejima
+New Sounds	:	No
+New Skybox      :       Yes 	based on deepsea1 by Darc (http://telefragged.com/soup/)
+New Models      :       No
+
+------Construction---------------------------------------------------
+
+Base		:	From scratch
+Editor(s) used	:	Valve Hammer Editor 3.5
+                        Adobe Photoshop Elements 2.0
+			Wally
+Compile Machine	:	3 Ghz P4, 1 gb RAM
+Compile time	:	~1 hour
+
+------Changelog------------------------------------------------------
+v1-7e OLD Versions
+
+cal(v7j) (7/18/05)
+	Rebuilt Omega Hive
+	Rebuilt Consistency Hive
+	Rebuilt Life Support Hive
+	New Sub bay
+	New Readyroom
+	Modified layout based on changes suggested by Routerbox ( http://www.jick.org/images/together.jpg )
+	Adjusted lighting parameters to improve lighting
+	Added more lights
+	Removal of Phi Test Site
+	Phi Test Site node moved to Station Monitoring Annex
+v7k (9/14/05)
+	Added pillar in Annex to reduce los
+	Other misc small fixes I've since forgotten
+
+    
+------Additional Info------------------------------------------------
+
+	Any feedback or suggestions, please send them to kungfudiscomonkey@gmail.com
+
+------Copyright-Permissions------------------------------------------
+
+I give NO permission whatsoever to decompile this map or use the textures in any other mapping project. Also, please no using ripent or similar to modify the map, if you want something changed, email me about it and if i consider it to be valid i'll sort it.
+
+------Thanks---------------------------------------------------------
+
+Thanks to the NS Dev team for making this great mod that has kept me from doing as much homework as I should.
+
+Thanks to the NS Playtester team for helping me with good feedback and taking time to disuss with me the changes and updates to help make the map that much better.
+
+Thanks Plaguebearer for taking my mediocre layout and turning it into something awsome which was the layout for the first Altair in b5.
+
+Thanks to TyrNemesis^ for helping me walk around the map and pointing out balance issues and node placement issues and generally helping to make Altair even better through 3.0.
+
+Thanks to kmart and routerbox for helping me adjust the layout to be more condusive to competitive play.
+
+Thanks to JazzX, Zephor, and Ken for being the top three playtesters when it comes to giving well thought out and detailed feedback.
+
+Thanks to Olmy for really pushing me to improve Altair with several new ideas which lead me to rebuild several areas of the map to push Altair to be much greater visually.
+
+------And Finally----------------------------------------------------
+In one sense, I am absolutly sick and tired of working on this map.  I started the first map I called Altair back when Natural-Selection was first released.  I was using the wall_lab set and it was set as a spacestation.  When I started over for version 2, I had moved it down to be a ground base on a mars like planet and was using another texture set.  There was also a version where I tried the yellgrey set when it first came out.  The version you are now playing, I started around March of 2004 and I've been working on ever sense.  Even though the first version had many, many flaws and was sevearly lacking when it came to the visuals department I was able to get my foot in the door and join the Natural-Selection playtest team.  This has done a lot to really push my level design skills and really helped me to improve with my abilities.  Along the way I have to thank Plaguebearer since he's the one who took an incrediably rough layout that I had originally thought up for this verison of Altair, which represented the sixth time I had started a new map from scratch.  From this layout I was able to build most of what became Altair in beta5.  TyrNemesis^ helped me along the way to beta5 to improve playability.  Beta 5 came and there were many outcrys over how this map was able to get in to Natural-Selection.  I have recieved many flames over this and routinely on the forums Altair is used as the example of a crappy map and always used in examples where people were upset that their map wasn't considered for inclusion.  Thanks to the Natural-Selection team, who have been really working with me, I was able to up the visuals for 3.0 and improve the layout so that it played better.  The real ammazing work though came with 3.1 when I was ready to give up.  It takes an aweful long time to make a map and release it.  If I knew how much time it would take after releasing a map to maintain it, I'm not sure that I would keep at it.  I estimate that I've reached close to the 200 hour mark for this project.  This is longer than I've spent on any single project in my life.  I have to extend the most thanks to Jim "JazzX" Olson, "Zephor", and Michael "Olmy" Schouten.  Jim and "Zephor" have been the most dependable people when it comes to giving feedback for Altair.  I could always depend on them to give the map a serious look over and really help me understand what worked, what did not work, and how I could change and adjust things to make it work better for all levels of play.  I also have to give Michael a lot of thanks because when I was ready to give up on Altair from exhaustion, his enthusiasm in wanted me to send him a room from Altair to play with, really pushed me to overhaul large areas of the map and bring them to the state where they are today.  With theses guys help, I am proud to say that Altair has finally reached the state where it can be truely called on of the Official levels for Natural-Selection.  I am glad to finally be near the end of this stage where I can call Altair finished.  I have learned an awful lot about Half-Life mapping and this team has consitantly challenged me to push my abilities.  They are some of the greatest people that I have worked to this day and I value their friendship and insight.  I'm not sure what I have in store for Altair's future.  I'm playing around with creating a version for Natural-Selection:Source as the team is going to be adjusting to start work on that project sometime in the future.  It will be intresting to see how that goes.  For anyone who has taken the time with this, I hope you enjoy the map.

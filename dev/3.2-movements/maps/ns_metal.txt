@@ -1,0 +1,154 @@
+Metal 17-8-2005
+===============================================
+
+Natural Selection map : Metal (ns_metal.bsp)
+Level Design : Juha "quazilin" Lipsonen (quazilin@hotmail.com)
+
+New environment sky "metal_"
+New sprite.
+
+-------------------------------------------------------
+
+Stuff:
+
+Bug reports/Suggestions are welcome to quazilin@hotmail.com
+
+Machine      : 500/700mhz 192mb ram
+Build time   : Eight months + playtesting/updating
+Compile time : ~2hours?
+
+While mapping I listened great oldskool musik tunes - www.kohina.com !
+Have fun and enjoy the map! 
+
+Greetings  :
+
+Dracka
+RedDog NS Clan - #reddog @ quakenet
+Flayra
+Zazi
+Mendasp
+Insane
+blueman
+manah
+Nay
+Yamazaki
+Hypergrip
+Ekaj
+|DL|JazzX
+Marcos
+Mr.Ben
+Drunken.Monkey
++all you nubs and ns fans out there!
+
+
+
+Changelog :
+
+-------------------------
+
++ update-14
+ 
+* Changed MS-start sign texture.
+
+-------------------------
+
++ update-13
+ 
+* Made MS-start smaller.
+* Fixed 2 location names.
+* Added more cover.
+
+-------------------------
+
++ update-12
+ 
+* Bug Fixes.
+* New Res SA-hive
+
+-------------------------
+
++ update-11
+
+* More infestation/Tweaks
+* Optimized surface access
+* Fixed 3 build exploits
+
+-------------------------
+
++ update-10
+
+* New "Supply way"
+* Smaller "Storage D"
+* New res
+* More infestation/Tweaks
+* Added steam bursts.
+
+-------------------------
+
++ update-9
+
+* Tweaks
+* Crash bug fix
+
+-------------------------
+
++ update-8
+
+* Tweaks
+* More vents
+* Removed double node
+
+-------------------------
+
++ update-7
+
+* Lowered Storage D ceiling
+* Small bug fixes
+
+-------------------------
+
++ update-6
+
+* Small layout change
+* Tweaks
+
+-------------------------
+
++ update-5
+
+* One res added
+* Lowered ceiling
+* Weldable door changed a bit
+
+-------------------------
+
++ update-4
+
+* One res node removed
+* Res node location changed
+* Little tweaks
+* Cooling hive easier to heal
+
+-------------------------
+
++ update-3
+
+* Res node location changes
+* Cargo -> Storage D
+* More details.
+
+-------------------------
+
++ update-2
+
+* Removed 2 res nodes 
+* More particle effects
+* More ambience sounds
+* Bug fixes 
+ -Ladder bug (thanks Ekaj)
+* More vents/hiding places 
+
+-------------------------
+
+
+

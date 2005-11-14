@@ -1,0 +1,134 @@
+ns_eon version 11
+
+released (16/09/05)
+
+-New console in Marine Start and new boxes.
+-Clipped the door below the vent in Maintenance.
+-Minor aesthetic changes in Gunpods.
+
+v10a changelog (10/08/05)
+
+-New vent is now alot easier to maneuvre inside
+-Slight change to Coolant Monitoring's geometry (semi alcove type thing :/).
+-Gunpods no longer has a wall divide, and the dimensions of the room have been reduced,
+(mostly width) and the rt position has been moved to the side.
+
+v10 changelog (27/07/05)
+
+-New node layout with 9 nodes (thanks jazzx!)
+-Engine walkway vent now extends to the node room on eastern side.
+
+*Known issues - New vent is a bit awkward to maneuvre inside.
+
+v9 changelog (26/05/05)
+
+ Note : v9 was compiled without -extra in rad to save time. 
+Visual quality of the lighting is slightly reduced as a result.
+
+-Extended Core Monitoring closer towards Core, so that the joining corridor is shorter, and so sieging is easier.
+-Renamed Coolant Maintenance to Coolant Transfer
+-Shifted Coolant Transfer south, to put it closer to core, so that the joining corridor is shorter,
+ and so that sieging is easier.
+-Widened Cooland Transfer.
+-Fixed all vis errors.
+-Opened up the Repair Bay/Maintenance Corridors area a bit.
+-Opened up Sleeping Area considerably (no more dead ends), and made navigation easier (flat ceiling etc).
+-Improved Sleeping Area visually slightly.
+-Rerouted Life Support vent from Sleeping Area to N-Turn (experimental).
+-Sbend reworked visually.
+-Vent exit in Sbend changed to exit out of a small room off of Sbend.
+-Added alot more infestation in the hives, I'm not sure if I'm happy with the infestation textures, 
+ so they are subject to change. (update) changed them :)
+-Added crate at East exit of Marine Start, and moved MS RT slightly east.
+-Fixed all the sinking structures problems associated with metal grates (apart from the ones in The Hub,
+ as the structures are easily accessible anyway).
+-Fixed the bug where you could build structures on the antenae (spikes) outside the Communications window.
+-Removed the water in Engineering Hall hive, and raised the broken floor so that you can step up it easily.
+-Added a shielded area on the central structure in Core hive, and also lowered the hive.
+-Widened the North and South corridor coming off of Core Monitoring.
+-Made the 'donut' east of Gunpods more spacious (the central structure is considerably smaller now).
+-Fixed r_speed issue in Coolant, with some geometry changes (both sides look too similar now, so i'll
+ add a feature to distinguish them in the next version.
+-Deleted the Core Power -> Core Monitoring vent.
+-Made the corridor entering Living Area from Life Support less convoluted and deleted the door so it is less
+ confusing.
+-Some minor r_speed optimisations here and there.
+
+v8 changelog (02/04/05)
+
+Note : v8 was compiled without -extra in rad to save time. 
+Visual quality of the lighting is slightly reduced as a result.
+
+-Opened up Core hive a bit, more space for manuevering.
+-Made some visual improvements to living area.
+-Significant node layout changes as follows (thanks JazzX):
+	* Moved Core Monitoring node into Engine Walkway (east).
+	* Moved Core Cooling node to Cooling Maintenance.
+	* Moved Engine Walkway node (west) to Maintenance Corridors.
+-Gunpods node is now on other side of barrier.
+-Made some visual improvements (and a slight layout change) to Maintenance Corridors.
+-Made the height difference between Core hive and Core Monitoring slightly smaller, and consolidated the ramps
+ that enter into the hive into a single ramp for each hallway.
+-Changed -gamma in rad to 0.85 (slightly darker now overall).
+-Made the MS shorter, and part of Maintenance Corridors shorter as a result (the long stretch to the ms entrance).
+-Added a few sounds.
+-Attempted to fix stuck issue in Engineering Hive when Redeeming to a certain spawn by making the hive higher 
+ (also made the ceiling higher to leave space on top).  Not sure if I was successful.
+-Some other minor things that I can't remember ;(.
+
+v7 changelog (22/2/05):
+
+-Made some minor aesthetic improvements.
+
+v6a changelog (20/2/05):
+
+-Removed Maintenance Corridors' node.
+-Moved Engine Walkway node to other side (closer to the hive).
+
+v6 changelog (19/2/05):
+
+-Moved Living Area node into Engine Walkway.
+-Reduced gaps at sides of corridors connecting to Core hive.
+-Removed the ms vent.
+-Changed layout on east side of Bridge hive.
+-Changed a Bridge vent slightly as a result of Bridge changes.
+-Slightly widened turn on N-turn to add more space.
+-Removed Repair Bay lift and replaced with ramp/ladder combination.
+-Removed Vent leading from Sleeping Area to Repair Bay.
+-Slightly shortened the corridors leading out of Marine Start to Repair Bay and N-turn (brought the ms in a bit closer).
+
+v5 changelog (07/2/05):
+
+-Lowered Marine Start roof considerably, and added a cc alcove.
+-Small aesthetic changes to N-Turn.
+-Centre console in Core Monitoring to reduce line of sight.
+-Vents rearranged in Core Monitoring to help aliens and a new vent added.
+-Vent in Core Power moved as part of the vent rearrangement.
+-New space added to Engineering Hive to increase space for spawn points and add more cover, 
+ and just make it cooler.
+-Other minor adjustments to Engineering Hive.
+-Removed vent doors from Bridge Hive, while blocking line of sight to hive created by their removal.
+-Increased usefulness of bridge vents (one exits from the cieling, the other is higher),
+ and removed stickiness on one vent exit.
+-Decreased Bridge Hive vent weld time from 60 seconds to 20 seconds.
+-Increased lift speed from 70 to 90.
+-Fixed onos stuck issue at Core Monitoring.
+
+v4 changelog (26/1/05): 
+
+-Major visual revamp for The Hub.  Also, more open and more marine friendly (pits are smaller).
+-New weldable vent at Bridge hive.
+-Sped up the elevator a bit.
+-Uncluttered 2 corridors by moving vent exits.
+-New exit point for the vent near sleeping area.
+-No longer possible to build in the marine start vent.
+-More space above and below Engineering and Bridge hive.
+-Some areas uncluttered (less things sticking out of walls in a few places).
+-Life support corridor floor and ceiling are now smooth.
+-Slightly changed layout in Core Monitoring to reduce line of sight problems.
+-Fixed a stuck issue in bridge (you would get stuck on light fixtures).
+-Nearly every vent that could not accomodate two skulks side by side now can.
+-Included a txt file. :)
+
+Thanks:
+JazzX for unfailing support with eon.  Zephor, and other playtesters for their input.

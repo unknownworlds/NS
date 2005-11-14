@@ -150,6 +150,7 @@ void AvHEntityHierarchy::BuildFromTeam(const AvHTeam* inTeam, BaseEntityListType
 			bool theEntityIsVisible = (theBaseEntity->pev->team == (int)(inTeam->GetTeamNumber())) ||
                                        GetHasUpgrade(theBaseEntity->pev->iuser4, MASK_VIS_SIGHTED);
 			bool theEntityIsDetected = GetHasUpgrade(theBaseEntity->pev->iuser4, MASK_VIS_DETECTED);
+			bool theEntityIsBlinking = (theBaseEntity->pev->iuser3 == AVH_USER3_ALIEN_PLAYER4) && (theBaseEntity->pev->iuser4 & MASK_ALIEN_MOVEMENT);
 
 			// Don't send ammo, health, weapons, or scans
 			bool theIsTransient = ((AvHUser3)(theBaseEntity->pev->iuser3) == AVH_USER3_MARINEITEM) || (theBaseEntity->pev->classname == MAKE_STRING(kwsScan));
@@ -189,7 +190,7 @@ void AvHEntityHierarchy::BuildFromTeam(const AvHTeam* inTeam, BaseEntityListType
             {
                 sendEntity = true;
             }
-            else if ((theEntityIsVisible || theEntityIsDetected) && !(theBaseEntity->pev->effects & EF_NODRAW) && !theIsTransient)
+            else if ((theEntityIsVisible || theEntityIsDetected) && !(theBaseEntity->pev->effects & EF_NODRAW) && !theIsTransient && !theEntityIsBlinking)
             {
                 
                 AvHPlayer* thePlayer = dynamic_cast<AvHPlayer*>(theBaseEntity);

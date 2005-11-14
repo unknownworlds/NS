@@ -582,6 +582,9 @@ void W_Precache(void)
 	// For grunts.  Careful, this uses the same weapon id that the grenade gun uses
 	//UTIL_PrecacheOtherWeapon("weapon_9mmAR");
 
+	PRECACHE_UNMODIFIED_SOUND("player/metabolize_fire.wav");
+	PRECACHE_UNMODIFIED_SOUND("player/metabolize_fire_reverse.wav");
+
 	// common world objects
 //	UTIL_PrecacheOther( "item_suit" );
 //	UTIL_PrecacheOther( "item_battery" );

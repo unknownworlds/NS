@@ -195,6 +195,12 @@ void AvHDeployedMine::ActiveTouch(CBaseEntity* inOther)
 	bool theEntityCanDoDamage = GetGameRules()->CanEntityDoDamageTo(this, inOther);
 	//this->pev->owner = theTempOwner;
 	// Check team here and only emit warning beep for friendlies
+	
+	// check for blinking
+	bool inOtherIsBlinking = (inOther->pev->iuser3 == AVH_USER3_ALIEN_PLAYER4) && (inOther->pev->iuser4 & MASK_ALIEN_MOVEMENT);
+	if(inOtherIsBlinking)
+		return;
+
 	if(theEntityCanDoDamage && (this->pev->team != inOther->pev->team))
 	{
 		GetGameRules()->MarkDramaticEvent(kMineExplodePriority, inOther, this);

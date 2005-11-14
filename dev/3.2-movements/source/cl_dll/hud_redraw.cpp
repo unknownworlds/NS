@@ -53,14 +53,15 @@ void CHud::Think(void)
 	}
 
 	newfov = HUD_GetFOV();
-	if ( newfov == 0 )
-	{
-		m_iFOV = default_fov->value;
-	}
-	else
-	{
-		m_iFOV = newfov;
-	}
+	if (this->m_bConserveFOV == false)
+		if ( newfov == 0 )
+		{
+			m_iFOV = default_fov->value;
+		}
+		else
+		{
+			m_iFOV = newfov;
+		}
 
 	if(cl_forcedefaultfov->value)
 	{

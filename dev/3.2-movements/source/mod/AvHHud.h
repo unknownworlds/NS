@@ -286,6 +286,7 @@ public:
 	AvHUser3		GetHUDUser3() const;
 	AvHPlayMode		GetHUDPlayMode() const;
 	AvHTeamNumber	GetHUDTeam() const;
+	cl_entity_t*	GetHUDEntity() const;
 	int				GetHUDUpgrades() const;
 	int				GetHUDMaxArmor() const;
 	int				GetHUDMaxHealth() const;
@@ -362,6 +363,7 @@ public:
     void            RenderCommonUI();
     void            RenderMarineUI();
     void            RenderCommanderUI();
+    void            RenderAlienMovementUIEffect();
     void            RenderAlienUI();
     void            RenderMiniMap(int inX, int inY, int inWidth, int inHeight);
 
@@ -439,7 +441,11 @@ public:
 	void			ClearCenterText();
 	// :tankefugl
 
+	void			UpdateMovementTimer(float inTimeSinceLastUpdate);
+
 private:
+
+	float			mMovementTimer;
 
 	// tankefugl:
 	std::string		mCenterText;
@@ -693,6 +699,8 @@ private:
 	HSPRITE					mMarineUIJetpackSprite;
 
 	HSPRITE					mAlienUIEnergySprite;
+
+	HSPRITE					mBlackSprite;
 
 	HSPRITE					mMembraneSprite;
 	HSPRITE					mDigestingSprite;

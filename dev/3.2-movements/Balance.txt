@@ -47,7 +47,7 @@
 #define kCatalystDuration 8
 #define kCatalystResearchCost 20
 #define kCatalystResearchTime 40
-#define kChargeDamage 320
+#define kChargeDamage 20
 #define kClawsDamage 90
 #define kCombatBaseExperience 100
 #define kCombatBaseRespawnTime 5
@@ -345,13 +345,16 @@
 #define kBite2ROF 0.64
 #define kBiteEnergyCost 0.05
 #define kBiteROF 0.80
-#define kBlinkEnergyCost 0.04
+#define kBlinkEnergyCost 0.20
 #define kBlinkROF 0.05
+#define kBlinkThresholdTime 1.00
 #define kCarapaceSlowFactor 0.00
 #define kCatalystDamagePercent 0.25
 #define kCatalystROFFactor 0.25
 #define kCatalystSpeedIncrease 0.25
-#define kChargeEnergyCost 0.07
+#define kChargeEnergyCost 0.15
+#define kChargeThresholdTime 0.50
+#define kChargeSpeed 1.00
 #define kChargingEnergyScalar 2.80
 #define kClawsEnergyCost 0.07
 #define kClawsROF 0.90
@@ -447,7 +450,7 @@
 #define kStompTime 1.00
 #define kSwipeEnergyCost 0.06
 #define kSwipeROF 0.95
-#define kTouchDamageInterval 0.05
+#define kTouchDamageInterval 0.30
 #define kTurretBaseRateOfFire 0.70
 #define kTurretTrackingRate 1.60
 #define kUmbraEnergyCost 0.30

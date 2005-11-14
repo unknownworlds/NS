@@ -279,6 +279,11 @@ void CGrenade::BounceTouch( CBaseEntity *pOther )
 	// don't hit the guy that launched this grenade
 	if ( pOther->edict() == pev->owner )
 		return;
+
+	// don't hit blinking dudes
+	bool inOtherIsBlinking = (pOther->pev->iuser3 == AVH_USER3_ALIEN_PLAYER4) && (pOther->pev->iuser4 & MASK_ALIEN_MOVEMENT);
+	if (inOtherIsBlinking)
+		return;
 	
     
     // Grenades to tend to get "stuck" on sloped surfaces due to the HL physics

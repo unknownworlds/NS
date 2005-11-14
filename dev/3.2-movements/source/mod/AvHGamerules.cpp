@@ -989,6 +989,7 @@ bool AvHGamerules::CanEntityDoDamageTo(const CBaseEntity* inAttacker, const CBas
 		bool theAttackerIsReceiver = false;
 		float theScalar = 1.0f;
 		bool theReceiverIsWorld = false;
+		bool theReceiverIsBlinking = (inReceiver->pev->iuser3 == AVH_USER3_ALIEN_PLAYER4) && (inReceiver->pev->iuser4 & MASK_ALIEN_MOVEMENT);
 
 		// Never dynamic_cast any entities that could be non-NS entities
 		if(!AvHSUGetIsExternalClassName(STRING(inAttacker->pev->classname)))
@@ -1054,6 +1055,10 @@ bool AvHGamerules::CanEntityDoDamageTo(const CBaseEntity* inAttacker, const CBas
 			theCanDoDamage = false;
 		}
 		if ( theAttackerIsSiege && theReceiverIsPlayer )
+		{
+			theCanDoDamage = false;
+		}
+		if(theReceiverIsBlinking)
 		{
 			theCanDoDamage = false;
 		}

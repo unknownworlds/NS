@@ -4338,14 +4338,146 @@ bool NS_PositionFreeForPlayer(vec3_t& inPosition)
 }
 */
 
+// Fade blink
+bool PM_BlinkMove (void) 
+{
+	float theEnergyCost = (float)BALANCE_VAR(kBlinkEnergyCost) * (float)pmove->frametime;
+	float theBlinkThresholdTime = (float)BALANCE_VAR(kBlinkThresholdTime);
+	if (AvHMUHasEnoughAlienEnergy(pmove->fuser3, theEnergyCost) && (pmove->fuser4 >= 0.0f))
+	{
+		AvHMUDeductAlienEnergy(pmove->fuser3, theEnergyCost);
+		if (pmove->fuser4 == 0.0f)
+		{
+			int theSilenceUpgradeLevel = AvHGetAlienUpgradeLevel(pmove->iuser4, MASK_UPGRADE_6);
+			float theVolumeScalar = 1.0f - theSilenceUpgradeLevel/3.0f;
+			PM_NSPlaySound( CHAN_WEAPON, "player/metabolize_fire.wav", theVolumeScalar, ATTN_NORM, 0, PITCH_NORM );
+		}
+		pmove->fuser4 += (float)pmove->frametime;
+		pmove->fuser4 = max(0, min(pmove->fuser4, theBlinkThresholdTime));
+	}
+	else
+		return false;
+
+	if (pmove->fuser4 >= theBlinkThresholdTime)
+	{
+		SetUpgradeMask(&pmove->iuser4, MASK_ALIEN_MOVEMENT, true);
+
+		vec3_t		wishvel, dest;
+		pmtrace_t	trace;
+		float		fmove, smove;
+
+		// Copy movement amounts
+		fmove = pmove->cmd.forwardmove;
+		smove = pmove->cmd.sidemove;
+		
+		VectorNormalize(pmove->forward);
+		VectorScale(pmove->forward, 800, wishvel);
+
+		VectorMA(pmove->origin, pmove->frametime, wishvel, dest);
+
+		// first try moving directly to the next spot
+		trace = pmove->PM_PlayerTrace(pmove->origin, dest, PM_NORMAL, -1 );
+		// If we made it all the way, then copy trace end as new player position.
+		if (trace.fraction == 1)
+		{
+			VectorCopy(trace.endpos, pmove->origin);
+		} 
+		else
+		{
+			// if we can't move, adjust velocity to slite along the plane we collided with
+			// and retry
+			int attempts = 0; // in case we continue to collide vs. the old planes
+			while (true) {
+				PM_ClipVelocity(wishvel, trace.plane.normal, wishvel, 1.0);
+				VectorMA(pmove->origin, pmove->frametime, wishvel, dest);
+
+				trace = pmove->PM_PlayerTrace(pmove->origin, dest, PM_NORMAL, -1 );
+				if (trace.fraction == 1)
+				{
+					VectorCopy(trace.endpos, pmove->origin);
+					break;
+				}
+				if (attempts++ > 5) {
+					break;
+				}
+			}
+
+		}
+		VectorClear(pmove->velocity);
+	}
+	else
+	{
+		SetUpgradeMask(&pmove->iuser4, MASK_ALIEN_MOVEMENT, false);
+	}
+	return true;
+}
+
+// Lerk flight
+void PM_FlapMove()
+{
+	PM_Jump();
+}
+
+// Onos charge
+bool PM_ChargeMove()
+{
+	float theEnergyCost = (float)BALANCE_VAR(kChargeEnergyCost) * (float)pmove->frametime;
+	float theChargeThresholdTime = (float)BALANCE_VAR(kChargeThresholdTime);
+	float theChargeSpeed = (float)BALANCE_VAR(kChargeSpeed);
+	if (AvHMUHasEnoughAlienEnergy(pmove->fuser3, theEnergyCost) && (pmove->fuser4 >= 0.0f))
+	{
+		AvHMUDeductAlienEnergy(pmove->fuser3, theEnergyCost);
+		if (pmove->fuser4 == 0.0f)
+		{
+			int theSilenceUpgradeLevel = AvHGetAlienUpgradeLevel(pmove->iuser4, MASK_UPGRADE_6);
+			float theVolumeScalar = 1.0f - theSilenceUpgradeLevel/3.0f;
+			PM_NSPlaySound( CHAN_WEAPON, "player/pl_fallpain3-7.wav", theVolumeScalar, ATTN_NORM, 0, PITCH_NORM );
+		}
+		pmove->fuser4 += (float)pmove->frametime;
+		pmove->fuser4 = max(0, min(pmove->fuser4, theChargeThresholdTime));
+	}
+	else
+		return false;
+
+	SetUpgradeMask(&pmove->iuser4, MASK_ALIEN_MOVEMENT, true);
+
+	if (pmove->onground != -1)
+	{
+		vec3_t forward;
+		float length = pmove->maxspeed * (1.0f + (float)BALANCE_VAR(kChargeSpeed) * pmove->fuser4 / theChargeThresholdTime);
+
+		VectorCopy(pmove->forward, forward);
+		VectorNormalize(forward);
+		VectorScale(forward, length, forward);
+		
+		float boostfactor = DotProduct(forward, pmove->velocity) / (length * length);
+		VectorScale(forward, (1.0f - boostfactor), forward);
+		VectorAdd(forward, pmove->velocity, pmove->velocity);
+		float velocity = Length(pmove->velocity);
+		float maxvel = (pmove->maxspeed * (1.0f + (float)BALANCE_VAR(kChargeSpeed)) * 1.6f);
+		if (velocity > maxvel)
+		{
+			VectorNormalize(pmove->velocity);
+			VectorScale(pmove->velocity, maxvel, pmove->velocity);
+		}
+	}
+
+	return true;
+}
+
+// Skulk leap
+void PM_LeapMove()
+{
+
+}
 
 void PM_AlienAbilities()
 {
     // Give some energy back if we're an alien and not evolving
     string theExt;
+	float theTimePassed = (float)pmove->frametime;
     if(NS_GetIsPlayerAlien(theExt))
     {
-        float theTimePassed = pmove->cmd.msec*0.001f;
         AvHMUUpdateAlienEnergy(theTimePassed, pmove->iuser3, pmove->iuser4, pmove->fuser3);
 
         // Stop charging when we're out of energy
@@ -4360,16 +4492,59 @@ void PM_AlienAbilities()
 
     //#endif
 
-    if (PM_GetIsLeaping() || PM_GetIsBlinking())
+	// Movement abilities
+	bool success = false;
+	if ((pmove->cmd.buttons & IN_ATTACK2) && (AvHGetIsAlien(pmove->iuser3)))
+	{
+		switch (pmove->iuser3)
+		{
+		case AVH_USER3_ALIEN_PLAYER1:
+			PM_LeapMove();
+			break;
+		case AVH_USER3_ALIEN_PLAYER3:
+			PM_FlapMove();
+			break;
+		case AVH_USER3_ALIEN_PLAYER4:
+			success = PM_BlinkMove();
+			break;
+		case AVH_USER3_ALIEN_PLAYER5:
+			success = PM_ChargeMove();
+			break;
+		default:
+			{
+				break;
+			}
+		}
+	}
+	if (!success)
+	{
+		SetUpgradeMask(&pmove->iuser4, MASK_ALIEN_MOVEMENT, false);
+
+		float theBlinkThresholdTime = (float)BALANCE_VAR(kBlinkThresholdTime);
+		if (pmove->iuser3 == AVH_USER3_ALIEN_PLAYER4 && pmove->fuser4 == theBlinkThresholdTime)
+		{
+			int theSilenceUpgradeLevel = AvHGetAlienUpgradeLevel(pmove->iuser4, MASK_UPGRADE_6);
+			float theVolumeScalar = 1.0f - theSilenceUpgradeLevel/3.0f;
+			PM_NSPlaySound( CHAN_WEAPON, "player/metabolize_fire_reverse.wav", theVolumeScalar, ATTN_NORM, 0, PITCH_NORM );
+		}
+
+		if (pmove->fuser4 >= 0.0f)
+			pmove->fuser4 *= -1.0f;
+		pmove->fuser4 += theTimePassed;
+		pmove->fuser4 = min(pmove->fuser4, 0.0f);
+	}
+	return;
+
+	if (PM_GetIsLeaping() || PM_GetIsBlinking())
     {
         float theScalar = 500;
 		float theEnergyCost = 0;
 
         if (PM_GetIsBlinking())
         {
-            theScalar = 225;
-			AvHMUGetEnergyCost(AVH_WEAPON_BLINK, theEnergyCost);
-        }
+			PM_BlinkMove();
+			return;
+		}
 		else
 		{
 			AvHMUGetEnergyCost(AVH_ABILITY_LEAP, theEnergyCost);
@@ -4412,6 +4587,7 @@ void PM_AlienAbilities()
             //      }
             //pmove->velocity[2] += 300;
         //}
+	
     }
 
 //      else if((pmove->cmd.impulse == ALIEN_ABILITY_BLINK) && (pmove->iuser3 == AVH_USER3_ALIEN_PLAYER4))

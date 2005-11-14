@@ -2714,8 +2714,11 @@ int AddToFullPack( struct entity_state_s *state, int e, edict_t *ent, edict_t *h
 
 				if(theCanSeeCloaked)
 				{
-					theBaseOpacity = kAlienSelfCloakingBaseOpacity;
-					theOpacityRange = 255 - theBaseOpacity;
+					if (!((ent->v.iuser3 == AVH_USER3_ALIEN_PLAYER4) && (ent->v.iuser4 & MASK_ALIEN_MOVEMENT)) || host == ent)
+					{
+						theBaseOpacity = kAlienSelfCloakingBaseOpacity;
+						theOpacityRange = 255 - theBaseOpacity;
+					}
 				}
 
 				int theOpacity = theBaseOpacity + theOpacityScalar*theOpacityRange;
@@ -2799,8 +2802,11 @@ int AddToFullPack( struct entity_state_s *state, int e, edict_t *ent, edict_t *h
 
 		if(( marineGlow || (ent->v.team == theReceivingPlayer->pev->team)) && (ent != theReceivingPlayer->edict()) && (ent->v.team != 0))
 		{
-			state->rendermode = kRenderTransAdd;
-			state->renderamt = 150;
+			if (!((ent->v.iuser3 == AVH_USER3_ALIEN_PLAYER4) && (ent->v.iuser4 & MASK_ALIEN_MOVEMENT)))
+			{
+				state->rendermode = kRenderTransAdd;
+				state->renderamt = 150;
+			}
 		}
 	}
 	

@@ -654,6 +654,10 @@ void AvHHud::ClearData()
 	this->mDisplayOrderTime = 0;
 	this->mDisplayOrderType = 0;
 	// :tankefugl
+
+	this->mMovementTimer = 0.0f;
+
+	this->m_bConserveFOV = false;
 }
 
 
@@ -1387,6 +1391,8 @@ bool AvHHud::Update(float inCurrentTime, string& outErrorString)
 
 		this->UpdateCommonUI();
 
+		this->UpdateMovementTimer(inCurrentTime - this->mTimeOfLastUpdate);
+
 		this->UpdateAlienUI(inCurrentTime);
 
 		this->UpdateMarineUI(inCurrentTime);
@@ -1509,6 +1515,12 @@ bool AvHHud::Update(float inCurrentTime, string& outErrorString)
 //		theIter->mAngleOffset = (theIter->mAngleOffset += inTimePassed*kSpinRate) % 360;
 //	}
 //}
+
+void AvHHud::UpdateMovementTimer(float inTimeSinceLastUpdate)
+{
+	cl_entity_t* theEntity = GetHUDEntity();
+	this->mMovementTimer = max(theEntity->curstate.fuser4, theEntity->curstate.fuser4 * -1.0f);
+}
 
 bool AvHHud::GetAndClearTechEvent(AvHMessageID& outMessageID)
 {

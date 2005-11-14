@@ -250,6 +250,7 @@
 #include "mod/AvHParticleConstants.h"
 #include "util/MathUtil.h"
 #include "types.h"
+// #include "mod/CollisionUtil.h"
 
 #include "mod/AvHNetworkMessages.h"
 #include "mod/AvHNexusServer.h"
@@ -2259,7 +2260,57 @@ void AvHPlayer::PlayerTouch(CBaseEntity* inOther)
             this->Uncloak();
         }
 
-        // Don't do "touch" damage too quickly
+		// charge
+		float chargedamage = 0.0f;
+		if(GetHasUpgrade(this->pev->iuser4, MASK_ALIEN_MOVEMENT) && (GetUser3() == AVH_USER3_ALIEN_PLAYER5)) // && !this->GetIsBlinking() )
+        {
+			// push the target away
+			if (inOther->IsPlayer() && inOther->IsAlive())
+			{
+				vec3_t direction, otherdir, playerdir, displacement;
+				
+				VectorSubtract(inOther->pev->origin, this->pev->origin, direction);
+				direction[2] = 0.0f;
+				VectorNormalize(direction);
+
+				float velocityfactor = DotProduct(this->pev->velocity, inOther->pev->velocity) / (Length(this->pev->velocity) * Length(this->pev->velocity));
+
+				if (velocityfactor < 0.7f)
+				{
+					// push away
+					chargedamage = min(max(DotProduct(this->pev->velocity, direction), 100.0f), 500.0f);
+					VectorScale(direction, 10.0f, displacement);
+					
+					// try moving directly to the bumped location
+					VectorAdd(displacement, inOther->pev->origin, displacement);
+
+					bool ducking = inOther->pev->flags & FL_DUCKING;
+					int hull = AvHMUGetHull(ducking, inOther->pev->iuser3);
+					int valvehull = AvHSUGetValveHull(hull);
+					
+					TraceResult trace;
+					UTIL_TraceHull(inOther->pev->origin, displacement, dont_ignore_monsters, valvehull, inOther->edict(), &trace);
+
+					if (trace.flFraction == 1.0f)
+						VectorCopy(trace.vecEndPos, inOther->pev->origin);
+
+					int duck = 0;
+					if (ducking)
+						duck = 1;
+					ALERT(at_console, UTIL_VarArgs("frac %f duck %d hull %d valvehull %d\n", trace.flFraction, duck, hull, valvehull));
+
+					VectorScale(direction, chargedamage, direction);
+					VectorAdd(direction, inOther->pev->velocity, inOther->pev->velocity);
+					inOther->pev->velocity[2] = 10.0f;
+
+					// deal damage
+					chargedamage = true;
+				}
+			}
+		}
+
+		
+		// Don't do "touch" damage too quickly
         float theTouchDamageInterval = BALANCE_VAR(kTouchDamageInterval);
         if((this->mTimeOfLastTouchDamage == -1) || (gpGlobals->time > (this->mTimeOfLastTouchDamage + theTouchDamageInterval)))
         {
@@ -2278,9 +2329,28 @@ void AvHPlayer::PlayerTouch(CBaseEntity* inOther)
                     this->mTimeOfLastTouchDamage = gpGlobals->time;
                 }
             }
-            
-            // Are we charging?
-            if(GetHasUpgrade(this->pev->iuser4, MASK_ALIEN_MOVEMENT) /*&& !this->GetIsBlinking()*/)
+
+			if((chargedamage > 0.0f) && GetGameRules()->CanEntityDoDamageTo(this, inOther, &theScalar))
+			{
+				float basedamage = (float)BALANCE_VAR(kChargeDamage);
+				float theDamage = basedamage * theScalar * chargedamage;
+
+#ifdef AVH_SERVER
+				ALERT(at_console, UTIL_VarArgs("basedamage %f scalar %f charge %f damage %f\n", basedamage, theScalar, chargedamage, theDamage));
+#endif
+
+				inOther->TakeDamage(theInflictor, theAttacker, theDamage, NS_DMG_NORMAL);
+		    
+				if(inOther->IsPlayer() && !inOther->IsAlive())
+				{
+					EMIT_SOUND(ENT(this->pev), CHAN_WEAPON, kChargeKillSound, 1.0, ATTN_NORM);
+				}
+			}
+
+
+			// Are we charging?
+/*			TODO: Rework charge
+			if(GetHasUpgrade(this->pev->iuser4, MASK_ALIEN_MOVEMENT)) // && !this->GetIsBlinking() )
             {
                 if(GetGameRules()->CanEntityDoDamageTo(this, inOther, &theScalar))
                 {
@@ -2296,6 +2366,7 @@ void AvHPlayer::PlayerTouch(CBaseEntity* inOther)
                     this->mTimeOfLastTouchDamage = gpGlobals->time;
                 }
             }
+*/
         }
     }
 }
@@ -3060,11 +3131,11 @@ void AvHPlayer::GetSpeeds(int& outBaseSpeed, int& outUnemcumberedSpeed) const
                 //theAlienBaseSpeed = this->mMaxGallopSpeed;
                 theAlienBaseSpeed = BALANCE_VAR(kOnosBaseSpeed);
 
-                if(GetHasUpgrade(this->pev->iuser4, MASK_ALIEN_MOVEMENT))
-                {
-                    theAlienBaseSpeed *= kChargingFactor;
-                    theSpeedUpgradeAmount *= kChargingFactor;
-                }
+//                if(GetHasUpgrade(this->pev->iuser4, MASK_ALIEN_MOVEMENT))
+//                {
+//                    theAlienBaseSpeed *= kChargingFactor;
+//                    theSpeedUpgradeAmount *= kChargingFactor;
+//                }
                 break;
         }
 
@@ -3668,11 +3739,19 @@ bool AvHPlayer::GetCanBeAffectedByEnemies() const
 float AvHPlayer::GetOpacity() const
 {
     float theOpacity = AvHCloakable::GetOpacity();
+	float theBlinkThresholdTime = (float)BALANCE_VAR(kBlinkThresholdTime);
 
-    //if(this->GetIsBlinking())
-    //{
-    //  theOpacity = .05f;
-    //}
+	int entIndex = ENTINDEX(ENT(this->pev));
+	if (entIndex > 0 && entIndex < 32)
+		if (this->GetIsBlinking())
+		{
+			theOpacity = 0.0f;
+		}
+		else
+		if ((this->pev->iuser3 == AVH_USER3_ALIEN_PLAYER4) && (this->pev->fuser4 > 0.0))
+		{
+			theOpacity = 1.0 - this->pev->fuser4 / theBlinkThresholdTime;
+		}
 
     return theOpacity;
 }
@@ -6106,11 +6185,14 @@ void AvHPlayer::ProcessEntityBlip(CBaseEntity* inEntity)
 
         //bool theHasHiveSightUpgrade = true;//GetHasUpgrade(this->pev->iuser4, MASK_ALIEN_UPGRADE_11) || GetGameRules()->GetIsTesting();
         bool theEntityIsInSight = this->GetIsEntityInSight(inEntity);
-        
+		
+		// don't draw blinking players
+		bool theEntityIsNotBlinking = !(inEntity->pev->iuser3 == AVH_USER3_ALIEN_PLAYER4) && (inEntity->pev->iuser4 & MASK_ALIEN_MOVEMENT);
+
         // If we're processing a relevant player
         AvHPlayer* theOtherPlayer = dynamic_cast<AvHPlayer*>(inEntity);
 		bool theIsSpectatingEntity = this->GetIsSpectatingPlayer(inEntity->entindex());
-        if(theOtherPlayer && (theOtherPlayer != this) && !theIsSpectatingEntity && theOtherPlayer->GetIsRelevant())
+        if(theOtherPlayer && (theOtherPlayer != this) && !theIsSpectatingEntity && theOtherPlayer->GetIsRelevant() && theEntityIsNotBlinking)
         {
             // Calculate angle and distance to player
             Vector theVectorToEntity = inEntity->pev->origin - this->pev->origin;
@@ -9017,6 +9099,14 @@ bool AvHPlayer::GetIsDigesting() const
     }
     
     return theIsDigesting;
+}
+
+bool AvHPlayer::GetIsBlinking() const
+{
+    if(GetHasUpgrade(this->pev->iuser4, MASK_ALIEN_MOVEMENT) && (this->pev->iuser3 == AVH_USER3_ALIEN_PLAYER4))
+		return true;
+	else
+		return false;
 }
 
 void AvHPlayer::UpdateAmbientSounds()

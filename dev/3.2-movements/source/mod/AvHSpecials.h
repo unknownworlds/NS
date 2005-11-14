@@ -118,6 +118,7 @@ typedef enum
 	AVH_USER3_MENU_ASSIST,
 	AVH_USER3_MENU_EQUIP,
 	AVH_USER3_MINE,
+	AVH_USER3_ALIEN_PLAYER6,
 	AVH_USER3_UNKNOWN,
 	AVH_USER3_MAX
 } AvHUser3;
@@ -165,7 +166,7 @@ typedef enum
 	MASK_UPGRADE_13		= 0x00008000,	// Movement level 3, marine heavy armor
 	MASK_UPGRADE_14		= 0x00010000,	// Sensory level 2
 	MASK_UPGRADE_15		= 0x00020000,	// Sensory level 3
-	MASK_ALIEN_MOVEMENT	= 0x00040000,	// Onos is charging
+	MASK_ALIEN_MOVEMENT	= 0x00040000,	// Alien is invoking movement ability
 	MASK_WALLSTICKING	= 0x00080000,	// Flag for wall-sticking
 	MASK_BUFFED			= 0x00100000,	// Alien is in range of active primal scream, or marine is under effects of catalyst
 	MASK_UMBRA			= 0x00200000,

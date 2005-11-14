@@ -1883,6 +1883,27 @@ float AvHHud::GetHUDHandicap() const
 	return theHandicap;
 }
 
+cl_entity_t* AvHHud::GetHUDEntity() const
+{
+	cl_entity_t* thePlayer = null;
+	cl_entity_s* theLocalPlayer = gEngfuncs.GetLocalPlayer();
+	if(theLocalPlayer)
+	{
+		thePlayer = theLocalPlayer;
+	}
+
+	if(g_iUser1 == OBS_IN_EYE)
+	{
+		cl_entity_t* theEnt = gEngfuncs.GetEntityByIndex(g_iUser2);
+		if(theEnt)
+		{
+			thePlayer = theEnt;
+		}
+	}
+	return thePlayer;
+}
+
+
 AvHUser3 AvHHud::GetHUDUser3() const
 {
 	AvHUser3 theUser3 = AVH_USER3_NONE;
@@ -3611,6 +3632,58 @@ void AvHHud::RenderStructureRange(vec3_t inOrigin, int inRadius, HSPRITE inSprit
 
 }
 
+void AvHHud::RenderAlienMovementUIEffect()
+{
+	this->m_bConserveFOV = false;
+
+	int iuser3 = GetHUDUser3();
+	bool isMoving = (GetHUDUpgrades() & MASK_ALIEN_MOVEMENT);
+
+	if (isMoving && (iuser3 == AVH_USER3_ALIEN_PLAYER5))
+	{
+		float theChargeThresholdTime = (float)BALANCE_VAR(kChargeThresholdTime);
+		float factor = min(this->mMovementTimer / theChargeThresholdTime, 1.0f);
+	}
+	if (isMoving && (iuser3 == AVH_USER3_ALIEN_PLAYER1))
+	{
+		// render leap effects
+	}
+	else if (iuser3 == AVH_USER3_ALIEN_PLAYER4)
+	{
+		float alpha = 1.0f;
+		float theBlinkThresholdTime = (float)BALANCE_VAR(kBlinkThresholdTime);
+
+		if (this->mMovementTimer > 0.0f)
+		{
+			alpha = min(this->mMovementTimer / theBlinkThresholdTime, 1.0f);
+		}
+		if (isMoving || this->mMovementTimer > 0.0f)
+		{
+
+			this->m_bConserveFOV = true;
+			this->m_iFOV = 90.0f + alpha * 25.0f;
+			
+			this->mMovementTimer = min(this->mMovementTimer, theBlinkThresholdTime);
+
+			// render overlay
+			// alpha *= 0.5f;
+
+			AvHSpriteSetColor(1, 1, 1);
+			AvHSpriteSetRenderMode(kRenderTransTexture);
+
+			int theWidth = 1.0 * ScreenWidth();
+		    int theHeight = 0.15 * ScreenHeight();
+
+			int theX = mViewport[0];
+			int theY1 = mViewport[1];
+			int theY2 = mViewport[3];
+
+			AvHSpriteDraw(mBlackSprite, 0, theX, theY1, theX + theWidth, theY1 + theHeight * alpha, 0, 0, 1, alpha);    
+			AvHSpriteDraw(mBlackSprite, 0, theX, theY2 - theHeight * alpha, theX + theWidth, theY2, 0, 0, 1, alpha);
+		}
+	}
+}
+
 void AvHHud::RenderAlienUI()
 {
 
@@ -3628,6 +3701,9 @@ void AvHHud::RenderAlienUI()
 		}
         return;
     }
+
+	// render alien movement effects
+	this->RenderAlienMovementUIEffect();
 
     AvHSpriteSetRenderMode(kRenderTransAlpha);
 
@@ -4217,6 +4293,9 @@ void AvHHud::VidInit(void)
 	// Load alien energy sprite
 	theSpriteName = UINameToSprite(kAlienEnergySprite, theScreenWidth);
 	this->mAlienUIEnergySprite = Safe_SPR_Load(theSpriteName.c_str());
+
+	// black sprite
+	this->mBlackSprite = Safe_SPR_Load("sprites/black.spr");
 
 	// Load background for topdown mode
 	this->mBackgroundSprite = Safe_SPR_Load(kTopDownBGSprite);

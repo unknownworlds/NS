@@ -1120,8 +1120,11 @@ void AvHBaseBuildable::WorldUpdate()
 		
 		while(((theBaseEntity = UTIL_FindEntityInSphere(theBaseEntity, this->pev->origin, BALANCE_VAR(kElectricalRange))) != NULL) && (theNumEntsDamaged < BALANCE_VAR(kElectricalMaxTargets)))
 		{
+
+			bool theIsBlinking = (theBaseEntity->pev->iuser3 == AVH_USER3_ALIEN_PLAYER4) && (theBaseEntity->pev->iuser4 & MASK_ALIEN_MOVEMENT);
+
 			// When "electric" cheat is enabled, shock all non-self entities, else shock enemies
-			if((GetGameRules()->GetIsCheatEnabled(kcElectric) && (theBaseEntity != this)) || ((theBaseEntity->pev->team != this->pev->team) && theBaseEntity->IsAlive()))
+			if((GetGameRules()->GetIsCheatEnabled(kcElectric) && (theBaseEntity != this)) || ((theBaseEntity->pev->team != this->pev->team) && theBaseEntity->IsAlive()) && (theIsBlinking == false))
 			{
 				// Make sure it's not blocked
 				TraceResult theTraceResult;

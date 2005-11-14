@@ -312,7 +312,8 @@ void AvHMUUpdateAlienEnergy(float inTimePassed, int inUser3, int inUser4, float&
 		(inUser3 == AVH_USER3_ALIEN_PLAYER2) ||
 		(inUser3 == AVH_USER3_ALIEN_PLAYER3) ||
 		(inUser3 == AVH_USER3_ALIEN_PLAYER4) ||
-		(inUser3 == AVH_USER3_ALIEN_PLAYER5))
+		(inUser3 == AVH_USER3_ALIEN_PLAYER5) ||
+		(inUser3 == AVH_USER3_ALIEN_PLAYER6))
 	{
 		if(!GetHasUpgrade(inUser4, MASK_PLAYER_STUNNED))
 		{
@@ -336,18 +337,19 @@ void AvHMUUpdateAlienEnergy(float inTimePassed, int inUser3, int inUser4, float&
 			
 			float theNewEnergy = theCurrentEnergy + inTimePassed*theAlienEnergyRate*theUpgradeFactor;
 
-			// If we're charging, reduce energy
-			if(GetHasUpgrade(inUser4, MASK_ALIEN_MOVEMENT))
-			{
-				if(inUser3 == AVH_USER3_ALIEN_PLAYER4)
-				{
+//			// If we're charging, reduce energy
+//			// Removed: Charge only reduces energy when active
+//			if(GetHasUpgrade(inUser4, MASK_ALIEN_MOVEMENT))
+//			{
+//				if(inUser3 == AVH_USER3_ALIEN_PLAYER4)
+//				{
 //					theNewEnergy += inTimePassed*kFadeChargingDeplectionRate;
-				}
-				else
-				{
-					theNewEnergy += inTimePassed*kChargingDepletionRate;
-				}
-			}
+//				}
+//				else
+//				{
+//					theNewEnergy += inTimePassed*kChargingDepletionRate;
+//				}
+//			}
 			
 			theNewEnergy = min(max(theNewEnergy, 0.0f), 1.0f);
 			

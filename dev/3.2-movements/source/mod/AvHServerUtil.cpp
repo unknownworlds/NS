@@ -1232,10 +1232,11 @@ void AvHTraceLine(const Vector& vecStart, const Vector& vecEnd, IGNORE_MONSTERS 
             edict_t* theEdict = pList[i]->edict();
 
 			// tankefugl: 0000941 -- added check to remove testing of spectators
-			if ((!(pList[i]->pev->iuser1 > 0 || pList[i]->pev->flags & FL_SPECTATOR)) && theEdict != pentIgnore)
+			if ((!(pList[i]->pev->iuser1 > 0 || pList[i]->pev->flags & FL_SPECTATOR))
+				&& !((pList[i]->pev->iuser3 == AVH_USER3_ALIEN_PLAYER4) && (pList[i]->pev->iuser4 & MASK_ALIEN_MOVEMENT))
+				 && theEdict != pentIgnore)
 //            if (theEdict != pentIgnore)
             {
-
                 float t = NS_TraceLineAgainstEntity(pList[i]->entindex(), gpGlobals->time, theRayOrigin, theRayDirection);        
 
                 if (t != AVH_INFINITY && t < ptr->flFraction)

@@ -200,6 +200,8 @@ void CHud :: Init( void )
 	g_bDuckToggled = false;
 	// :tankefugl
 
+	m_bConserveFOV = false;
+
 	CVAR_CREATE( "zoom_sensitivity_ratio", "1.2", 0 );
 	default_fov = CVAR_CREATE( "default_fov", "90", 0 );
 	m_pCvarStealMouse = CVAR_CREATE( "hud_capturemouse", "1", FCVAR_ARCHIVE );

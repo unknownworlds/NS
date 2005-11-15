@@ -3026,9 +3026,9 @@ void EV_Leap(struct event_args_s* inArgs)
 
 void EV_Charge(struct event_args_s* inArgs)
 {
-	char* theSoundToPlay = kChargeSound;
-	
-	gEngfuncs.pEventAPI->EV_PlaySound(inArgs->entindex, inArgs->origin, CHAN_WEAPON, theSoundToPlay, inArgs->fparam1, ATTN_NORM, 0, 94 + gEngfuncs.pfnRandomLong( 0, 0xf ));
+//	Removed, so that the charge sound won't replay all the time
+//	char* theSoundToPlay = kChargeSound;
+//	gEngfuncs.pEventAPI->EV_PlaySound(inArgs->entindex, inArgs->origin, CHAN_WEAPON, theSoundToPlay, inArgs->fparam1, ATTN_NORM, 0, 94 + gEngfuncs.pfnRandomLong( 0, 0xf ));
 
 	if (EV_IsLocal(inArgs->entindex))
 	{

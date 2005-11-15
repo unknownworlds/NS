@@ -68,6 +68,7 @@
 #include "mod/AvHMarineEquipmentConstants.h"
 #include "mod/AvHAlienWeaponConstants.h"
 #include "mod/AvHAlienEquipmentConstants.h"
+#include "mod/AvHAlienAbilityConstants.h"
 #include "mod/AvHPlayer.h"
 #include "mod/AvHGamerules.h"
 #include "mod/AvHNetworkMessages.h"

@@ -353,8 +353,11 @@
 #define kCatalystROFFactor 0.25
 #define kCatalystSpeedIncrease 0.25
 #define kChargeEnergyCost 0.15
-#define kChargeThresholdTime 0.50
+#define kChargeMaxPushbackSpeedFactor 2.50
+#define kChargeMaxPushbackForce 100.0
+#define kChargePushbackRadius 100.0
 #define kChargeSpeed 1.00
+#define kChargeThresholdTime 0.50
 #define kChargingEnergyScalar 2.80
 #define kClawsEnergyCost 0.07
 #define kClawsROF 0.90

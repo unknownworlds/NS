@@ -2262,7 +2262,13 @@ void AvHPlayer::PlayerTouch(CBaseEntity* inOther)
 
 		// charge
 		float chargedamage = 0.0f;
-		if(GetHasUpgrade(this->pev->iuser4, MASK_ALIEN_MOVEMENT) && (GetUser3() == AVH_USER3_ALIEN_PLAYER5)) // && !this->GetIsBlinking() )
+
+/*
+// -------------------------------------------------------------------------------------------------------------
+//		Move onos charge pushback, don't treat it as a ontouch method
+// -------------------------------------------------------------------------------------------------------------
+
+	if(GetHasUpgrade(this->pev->iuser4, MASK_ALIEN_MOVEMENT) && (GetUser3() == AVH_USER3_ALIEN_PLAYER5)) // && !this->GetIsBlinking() )
         {
 			// push the target away
 			if (inOther->IsPlayer() && inOther->IsAlive())
@@ -2308,7 +2314,8 @@ void AvHPlayer::PlayerTouch(CBaseEntity* inOther)
 				}
 			}
 		}
-
+// -------------------------------------------------------------------------------------------------------------
+*/
 		
 		// Don't do "touch" damage too quickly
         float theTouchDamageInterval = BALANCE_VAR(kTouchDamageInterval);
@@ -6795,6 +6802,49 @@ void AvHPlayer::InternalPreThink()
     PROFILE_START()
     this->InternalHUDThink();
     PROFILE_END(kPlayerHUDThink)
+
+	this->InternalChargeThink();
+}
+
+void AvHPlayer::InternalChargeThink()
+{
+	if(GetHasUpgrade(this->pev->iuser4, MASK_ALIEN_MOVEMENT) && (GetUser3() == AVH_USER3_ALIEN_PLAYER5)) // && !this->GetIsBlinking() )
+	{
+		CBaseEntity* theEntity = NULL;
+		float radius = (float)BALANCE_VAR(kChargePushbackRadius);
+		float maxpushbackspeedfactor = (float)BALANCE_VAR(kChargeMaxPushbackSpeedFactor);
+		float pushbackfactor = (float)BALANCE_VAR(kChargeMaxPushbackForce);
+
+	    while((theEntity = UTIL_FindEntityInSphere(theEntity, this->pev->origin, radius)) != NULL)
+	    {
+			if (theEntity->IsPlayer() && theEntity->IsAlive())
+			{
+				float distance = VectorDistance(this->pev->origin, theEntity->pev->origin);
+				if (distance > 0.0f)
+				{
+					float factor = pushbackfactor / (radius / distance);
+					vec3_t direction, heading;
+					VectorSubtract(theEntity->pev->origin, this->pev->origin, direction);
+					VectorNormalize(direction);
+
+					VectorCopy(this->pev->velocity, heading);
+					VectorNormalize(heading);
+					
+					float dot = DotProduct(heading, direction);
+					if (dot > 0.0f)
+					{
+						VectorScale(direction, factor * dot, direction);
+						VectorAdd(theEntity->pev->velocity, direction, theEntity->pev->velocity);
+						if (Length(theEntity->pev->velocity) > theEntity->pev->maxspeed * maxpushbackspeedfactor)
+						{
+							VectorNormalize(theEntity->pev->velocity);
+							VectorScale(theEntity->pev->velocity, theEntity->pev->maxspeed * maxpushbackspeedfactor, theEntity->pev->velocity);
+						}
+					}
+				}
+			}
+	    }
+	}
 }
 
 void AvHPlayer::InternalFogThink()

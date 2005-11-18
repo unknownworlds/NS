@@ -2250,6 +2250,7 @@ int	InconsistentFile( const edict_t *player, const char *filename, char *disconn
 	while ( ignoreInConsistencyCheck[i] != 0 ) {
 		if ( !strcmp(ignoreInConsistencyCheck[i], filename) ) 
 			return 0;
+		i++;
 	}
 	// Default behavior is to kick the player
 	sprintf( disconnect_message, "Server is enforcing file consistency for %s\n", filename );

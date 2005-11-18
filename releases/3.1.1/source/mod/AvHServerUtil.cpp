@@ -189,7 +189,8 @@ char* AvHSUGetGameVersionString()
 
     string theGameVersionString;
     
-    theGameVersionString = "v"	+ MakeStringFromInt(BALANCE_VAR(kGameVersionMajor)) + "." + MakeStringFromInt(BALANCE_VAR(kGameVersionMinor))	+ "." + MakeStringFromInt(BALANCE_VAR(kGameVersionRevision));
+    theGameVersionString = "v"	+ MakeStringFromInt(BALANCE_VAR(kGameVersionMajor)) + "." + MakeStringFromInt(BALANCE_VAR(kGameVersionMinor)) + "." +
+		MakeStringFromInt(BALANCE_VAR(kGameVersionRevision)) + "-T2";
     
     //memset(theGameVersion, 0, 1024);
     strcpy(theGameVersion, theGameVersionString.c_str());
@@ -1075,7 +1076,7 @@ CBaseEntity* AvHSUGetEntityFromIndex(int inEntityIndex)
 
 CGrenade* AvHSUShootServerGrenade(entvars_t* inOwner, Vector inOrigin, Vector inVelocity, float inTime, bool inHandGrenade)
 {
-	CGrenade* theGrenade = CGrenade::ShootExplosiveTimed(inOwner, inOrigin, inVelocity, inTime);
+	CGrenade* theGrenade = CGrenade::ShootExplosiveTimed(inOwner, inOrigin, inVelocity, inTime, inHandGrenade ? NS_DMG_NORMAL : NS_DMG_BLAST );
     ASSERT(theGrenade);
     
 	theGrenade->pev->team = inOwner->team;

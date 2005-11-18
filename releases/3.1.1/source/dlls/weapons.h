@@ -54,8 +54,8 @@ public:
 
 	typedef enum { SATCHEL_DETONATE = 0, SATCHEL_RELEASE } SATCHELCODE;
 
-	static CGrenade *ShootExplosiveTimed( entvars_t *pevOwner, Vector vecStart, Vector vecVelocity, float time );
-	static CGrenade *ShootTimed( entvars_t *pevOwner, Vector vecStart, Vector vecVelocity, float time );
+	static CGrenade *ShootExplosiveTimed( entvars_t *pevOwner, Vector vecStart, Vector vecVelocity, float time, int inDamageType );
+	static CGrenade *ShootTimed( entvars_t *pevOwner, Vector vecStart, Vector vecVelocity, float time);
 	static CGrenade *ShootContact( entvars_t *pevOwner, Vector vecStart, Vector vecVelocity );
 	static CGrenade *ShootSatchelCharge( entvars_t *pevOwner, Vector vecStart, Vector vecVelocity );
 	static void UseSatchelCharges( entvars_t *pevOwner, SATCHELCODE code );
@@ -77,8 +77,11 @@ public:
 	virtual void BounceSound( void );
 	virtual int	BloodColor( void ) { return DONT_BLEED; }
 	virtual void Killed( entvars_t *pevAttacker, int iGib );
-
+	virtual void SetDamageType(int inDamageType);
+	
 	BOOL m_fRegisteredSound;// whether or not this grenade has issued its DANGER sound to the world sound list yet.
+private:
+	int	 m_damageType;
 };
 
 

@@ -120,7 +120,7 @@
 #define kGameHDSpaceNeeded 300
 #define kGameVersionMajor 3
 #define kGameVersionMinor 1
-#define kGameVersionRevision 0
+#define kGameVersionRevision 1
 #define kGestateBaseArmor 150
 #define kGestateHealth 200
 #define kGorgeArmorUpgrade 50
@@ -135,7 +135,7 @@
 #define kGrenadeLauncherCost 15
 #define kGrenadeRadius 350
 #define kGrenadesResearchCost 10
-#define kGrenadesResearchTime 45
+#define kGrenadesResearchTime 90
 #define kHandGrenDetonateTime 0.75
 #define kHGDamage 20
 #define kHGMaxAmmo 30
@@ -161,7 +161,7 @@
 #define kHiveHealRadius 500
 #define kHiveHealth 7000
 #define kHiveRegenerationAmount 2
-#define kHiveSightRange 3000
+#define kHiveSightRange 1500
 #define kInfantryPortalBuildTime 10
 #define kInfantryPortalCost 20
 #define kInfantryPortalHealth 2500

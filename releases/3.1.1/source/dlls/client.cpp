@@ -2233,12 +2233,24 @@ One of the ENGINE_FORCE_UNMODIFIED files failed the consistency check for the sp
  Return 0 to allow the client to continue, 1 to force immediate disconnection ( with an optional disconnect message of up to 256 characters )
 ================================
 */
+
+static char *ignoreInConsistencyCheck[] = {
+	"sound/vox/ssay82.wav",
+	"sound/vox/ssay83.wav",
+	0
+};
+
 int	InconsistentFile( const edict_t *player, const char *filename, char *disconnect_message )
 {
 	// Server doesn't care?
 	if ( CVAR_GET_FLOAT( "mp_consistency" ) != 1 )
 		return 0;
 
+	int i=0;
+	while ( ignoreInConsistencyCheck[i] != 0 ) {
+		if ( !strcmp(ignoreInConsistencyCheck[i], filename) ) 
+			return 0;
+	}
 	// Default behavior is to kick the player
 	sprintf( disconnect_message, "Server is enforcing file consistency for %s\n", filename );
 

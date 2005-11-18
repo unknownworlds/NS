@@ -1,0 +1,4329 @@
+//TITLES FOR NATURAL SELECTION
+//DO NOT ALTER THIS FILE
+//
+//Turkish translation by disq.
+//
+// Position command $position x y 
+// x & y are from 0 to 1 to be screen resolution independent
+// -1 means center in each dimension
+// Effect command $effect <effect number>
+// effect 0 is fade in/fade out
+// effect 1 is flickery credits
+// effect 2 is write out (training room)
+// Text color r g b command $color
+// fadein time fadeout time / hold time
+// $fadein (message fade in time - per character in effect 2)
+// $fadeout (message fade out time)
+// $holdtime (stay on the screen for this long)
+
+////////////////////
+// Green teletype //
+////////////////////
+$position 0.15 0.15
+$effect 2
+$color 0 200 0
+$color2 0 255 0
+$fadein 0.04
+$fxtime 0.25
+$holdtime 6.0
+$fadeout 0.5
+
+Team_AutoAssign
+{
+Otomatik Takim Sec
+}
+
+Menu_Spectate
+{
+Izle
+}
+
+UndefinedTeam
+{
+Ready Room
+}
+
+Menu_LeaveGame
+{
+Oyundan cik
+}
+
+Menu_ReadyRoom
+{
+Ready Room
+}
+
+Menu_Marine1Team
+{
+Marine takimi
+}
+
+Menu_Alien1Team
+{
+Alien takimi
+}
+
+Marine1Team
+{
+Frontiersmen
+}
+
+Alien1Team
+{
+Kharaa
+}
+
+Marine2Team
+{
+Frontiersmen
+}
+
+Alien2Team
+{
+Kharaa
+}
+
+AutoTeam
+{
+Otomatik secilmis
+}
+
+Muted
+{
+Susturulmus
+}
+
+Unmuted
+{
+Konusabilir
+}
+
+No_longer_hear_that_player
+{
+Oyuncuyu artik duyamazsiniz
+}
+
+// SDK 2.0 Spectator Menu
+Spec_Map
+{
+Harita
+}
+
+Spec_Mode1
+{
+Kilitli Takipci Kamera
+}
+
+Spec_Mode2
+{
+Serbest Takipci Kamera
+}
+
+Spec_Mode3
+{
+Serbest Bakis
+}
+
+Spec_Mode4
+{
+First Person
+}
+
+Spec_Mode5
+{
+Serbest Kusbakisi
+}
+
+Spec_Mode6
+{
+Takipci Kusbakisi
+}
+
+Spec_NoTarget
+{
+Gecerli oyuncu bulunamadi, takipci kamera moduna gecilemiyor.
+}
+
+Spec_Help
+{
+Ready Room icin F4     Gorunusu degistirmek icin sol ve sag ok tuslarini, ziplama ve ates etmeyi kullanin
+}
+
+Spec_Help_Text
+{
+Asagidaki tuslarla goruntu seklini degistirebilirsiniz:
+
+ Ates etme ya da Sag Ok - Sonraki oyuncuya gec
+ Pop-up menu ya da Sol Ok - Onceki oyuncuya gec
+ Ziplama - Goruntu seklini degistir
+ Use tusu - Ikinci goruntu seklini degistir
+ 
+ Egilme  - Izleyici menusunu aktiflestir
+  
+Kusbakisi Gorunumde hareket etmek icin:
+
+ Sola gitme - Sola hareket eder
+ Saga gitme - Saga hareket eder
+ Ileri gitme - Yaklastirir
+ Geri gitme - Uzaklastirir
+ Fare - Harita ya da izlenen oyuncu cevresinde dondurur
+}
+
+Spec_Slow_Motion
+{
+Yavas Cekim
+}
+
+Spec_Replay
+{
+Tekrar
+}
+
+Spec_Help2
+{
+Yazdiklariniz ve konustuklarinizi yalnizca diger izleyiciler duyabilir
+}
+
+Spec_Only_Help
+{
+}
+
+Directed
+{
+Otomatik
+}
+
+SpectatorsNotAllowed
+{
+Bu sunucu izleyici kabul etmiyor.
+}
+
+ObsInEyePrefix
+{
+Gozunden goruyorsunuz:
+}
+
+SpectatorTeam
+{
+Izleyiciler
+}
+
+Spectators
+{
+Izleyiciler
+}
+
+TEAM
+{
+Takim
+}
+
+TEAMS
+{
+Takimlar
+}
+
+PLAYER
+{
+Oyuncu
+}
+
+Player_plural
+{
+Oyuncu
+}
+
+PLAYERS
+{
+Oyuncular
+}
+
+SCORES
+{
+Oyuncu bilgileri
+}
+
+SCORE
+{
+Skor
+}
+
+DEATHS
+{
+Olum
+}
+
+LATENCY
+{
+Ping
+}
+
+VOICE
+{
+Ses
+}
+
+Unassigned
+{
+Takimsiz
+}
+
+Menu_OK
+{
+Tamam
+}
+
+Points
+{
+resource
+}
+
+Cost
+{
+Bedel
+}
+
+NoSpectating
+{
+Bu sunucuda izleyici olmaya izin verilmiyor.
+}
+
+// Main game messages
+ReadyRoomMessage
+{
+Ready Room'dasiniz. Takim secmek ya da mac izlemek icin bir kapidan girin.
+}
+
+ReinforcementMessage
+{
+Yeniden spawn olmak icin sirada bekliyorsunuz.
+}
+
+ReinforcingMessage
+{
+Yeniden spawn oluyorsunuz...
+}
+
+ObserverMessage
+{
+Izleyici oldunuz. Bu oyuna artik giremeyeceksiniz, sonrakine girebilirsiniz.
+}
+
+CantSwitchTeamsInTournyMode
+{
+Tournament mode acik; takim degistiremezsiniz.
+}
+
+CantSwitchTeamsAfterGameStart
+{
+Oyun basladiktan sonra takim degistiremezsiniz.
+}
+
+TooManyPlayersOnTeam
+{
+Bu takimda cok oyuncu var.
+}
+
+CantJoinAfterSpectating
+{
+Bir kez izleyici olduktan sonra surmekte olan oyuna giremezsiniz.
+}
+
+CanOnlyJoinTeamYouveReinforced
+{
+Karsi takimi gormussunuz, sonraki oyuna kadar o takima giremezsiniz.
+}
+
+YouCanJoinSoon
+{
+Bu takima az sonra gireceksiniz.
+}
+
+AlreadyOnTeam
+{
+Zaten bir takimdasiniz.  Yeni bir takim secmek icin once Ready Room'a gecmelisiniz.
+}
+
+SoldierMessage
+{
+Su an bir askersiniz.  Commander'in emirlerine uymali ve karsi takimin takim arkadaslarinizi oldurmemesi ya da yapilariniza zarar vermemesi icin elinizden geleni yapmalisiniz.
+}
+
+ObjectivesVsAliens
+{
+Alien'lar ile mucadele ediyorsunuz!  Alien'lar hive'larda respawn olurlar. Oyunu kazanmak icin tum alien hive'larini ve tum alien'lari yok etmelisiniz.
+}
+
+ObjectivesVsMarines
+{
+Marine'ler ile mucadele ediyorsunuz. Marine'ler infantry portal'larda respawn olurlar. Oyunu kazanmak icin tum infantry portal'lari yok etmeli ve sonra tum marine'leri oldurmelisiniz.
+}
+
+Handicap
+{
+Handikap
+}
+
+CommanderMessage
+{
+Sol tus ile, ya da sol tusa basili tutup surukleyerek oyunculari secebilir ve sonra bir yapiya, oyuncuya ya da yere sag tiklayarak onlara emir verebilirsiniz.  Sol alt kisimdaki menu yapilar insa etmenizi ve askerlerinizi donatmanizi saglar.
+}
+
+Commander
+{
+Comm
+}
+
+NoCommander
+{
+Commander yok
+}
+
+GestationMessage
+{
+Yeni bir alien yasam bicimine donusuyorsunuz.  Kabugunuzu kirmaya hazirlanin...
+}
+
+CocoonMessage
+{
+You have been cocooned!  
+}
+
+YouAreReinforcements
+{
+Destek kuvvet olarak cagrildiniz!
+}
+
+//////////////
+// Pie menu //
+//////////////
+MenuMarineRoot
+{
+Baslat
+}
+
+//MenuMarineRoot
+//{
+//!marinenode
+//}
+
+
+MenuComms
+{
+Iletisim
+}
+
+MenuTalk
+{
+Konusma
+}
+
+MenuAttacked
+{
+"Saldiri!"
+}
+
+MenuCheer
+{
+Alkis
+}
+
+MenuCoverMe
+{
+"Beni koru!"
+}
+
+MenuRetreat
+{
+"Geri cekiliyoruz!"
+}
+
+MenuInPosition
+{
+"Yerimdeyim"
+}
+
+MenuEnemySpotted
+{
+"Dusman var"
+}
+
+MenuMoveOut
+{
+"Gidelim Buradan"
+}
+
+MenuAllClear
+{
+"Temiz"
+}
+
+MenuYell
+{
+Bagir
+}
+
+MenuSay
+{
+Konus
+}
+
+MenuRogerThat
+{
+"Tamamdir"
+}
+
+MenuHello
+{
+"Merhaba"
+}
+
+MenuNeedHelp
+{
+"Yardim gerekli"
+}
+
+MenuNeedHealth
+{
+"Saglik gerekli"
+}
+
+MenuNeedAmmo
+{
+"Cephane gerek"
+}
+
+MenuFollowMe
+{
+"Beni takip et"
+}
+
+MenuCovering
+{
+"Koruyorum"
+}
+
+MenuOrders
+{
+Emirler
+}
+
+MenuNeedOrder
+{
+"Emir gerekli"
+}
+
+MenuAck
+{
+"Anlasildi Tamam"
+}
+
+MenuAdmin
+{
+Yonetici
+}
+
+MenuReadyRoom
+{
+Ready room
+}
+
+MenuVoteCommanderDown
+{
+Commander'i at
+}
+
+MenuArea
+{
+Alan
+}
+
+MenuMoveTo
+{
+Ilerle
+}
+
+MenuGuard
+{
+Koru
+}
+
+MenuTarget
+{
+Hedef
+}
+
+MenuDeploy //fixme
+{
+Kur
+}
+
+MenuIncoming
+{
+Gelen var
+}
+
+MenuProceed
+{
+Ilerle
+}
+
+MenuFireTarget
+{
+Hedefe ates et
+}
+
+MenuTaunt
+{
+Alay et
+}
+
+MenuTakeCover
+{
+Siper al
+}
+
+MenuReady
+{
+Hazir
+}
+
+MenuDefendObj
+{
+Koru
+}
+
+MenuCeaseFire
+{
+Atesi kes
+}
+
+MenuTeam
+{
+Takim
+}
+
+MenuBuilding
+{
+Insa et
+}
+
+MenuAttackObj
+{
+Saldir
+}
+
+MenuTaunt
+{
+Alay et
+}
+
+MenuHealth
+{
+"Saglik"
+}
+
+MenuCameraTower
+{
+Kamera
+}
+
+MenuTurret
+{
+Turret
+}
+
+MenuSiegeTurret
+{
+Siege
+}
+
+MenuBlazeOfGlory
+{
+Blaze
+}
+
+MenuProtect
+{
+Protect
+}
+
+MenuReinforce
+{
+Reinforce
+}
+
+MenuArmorUpgrade
+{
+Heavy
+}
+
+MenuRepair
+{
+Repair
+}
+
+MenuPowerups
+{
+Stim
+}
+
+MenuAdrenaline
+{
+Adrenaline
+}
+
+MenuDefMatrix
+{
+Def matrix
+}
+
+MenuPhaseGate
+{
+Phase gate
+}
+
+MenuSelf
+{
+Me
+}
+
+MenuBuy
+{
+Buy
+}
+
+MenuHeavy
+{
+Heavy
+}
+
+MenuShotgun
+{
+Shotgun
+}
+
+MenuHeavyMG
+{
+Heavy MG
+}
+
+MenuLauncher
+{
+Launcher
+}
+
+MenuFlamer
+{
+Flamer
+}
+
+MenuNuke
+{
+Nuke
+}
+
+MenuWeapon
+{
+Weapon
+}
+
+MenuEquipment
+{
+Equipment
+}
+
+MenuUse
+{
+Use
+}
+
+MenuNextWeapon
+{
+Next weapon
+}
+
+MenuJetpacks
+{
+Jet-packs
+}
+
+MenuReloadWeapon
+{
+Reload
+}
+
+MenuDropWeapon
+{
+Drop
+}
+
+MenuLight
+{
+Light
+}
+
+MenuAmmo
+{
+Ammo
+}
+
+MenuMines
+{
+Mines
+}
+
+MenuGrenades
+{
+Grenades
+}
+
+MenuUpgradeMG
+{
+Upgrade
+}
+
+////////////////////
+// Armor upgrades // 
+////////////////////
+
+MenuArmorFull
+{
+Armor full
+}
+
+MenuBuyArmorHeavy
+{
+Heavy armor
+}
+
+MenuBuyArmorMotionTrack
+{
+Tracker
+}
+
+MenuBuyArmorJetpack
+{
+Jet-packs
+}
+
+MenuBuyArmorLifeSupport
+{
+Sustain
+}
+
+// Rank
+MenuRank
+{
+Rank
+}
+
+MenuPromote
+{
+Promote
+}
+
+MenuDemote
+{
+Demote
+}
+
+//////////////////////////////////////////////////
+// Don't localize these, they are sprite names: //
+//  (sprites/640(or 320)name.spr)               //
+//////////////////////////////////////////////////
+MenuAlienRoot
+{
+Start
+}
+
+MenuAlienSmallMorph
+{
+Lifeform
+}
+
+MenuAlienMorphLevel1
+{
+Skulk
+}
+
+MenuAlienMorphLevel2
+{
+Gorge
+}
+
+MenuAlienBigMorph
+{
+Advanced
+}
+
+MenuAlienMorphLevel3
+{
+Lerk
+}
+
+MenuAlienMorphLevel4
+{
+Fade
+}
+
+MenuAlienMorphLevel5
+{
+Onos
+}
+
+MenuAlienUpgrade
+{
+Evolve upgrade
+}
+
+MenuAlienComm
+{
+Voice
+}
+
+MenuAlienBuild
+{
+Build
+}
+
+MenuAlienAdvBuild
+{
+Advanced
+}
+
+MenuAlienBuildUpgrades
+{
+Upgrades
+}
+
+
+MenuAlienCommSayingsWest
+{
+Yells
+}
+
+MenuAlienCommSayingOne
+{
+Chuckle
+}
+
+MenuAlienCommSayingTwo
+{
+Need healing
+}
+
+MenuAlienCommSayingThree
+{
+Need backup
+}
+
+MenuAlienCommSayingsEast
+{
+Sayings
+}
+
+MenuAlienCommSayingFour
+{
+Incoming
+}
+
+MenuAlienCommSayingFive
+{
+Attack
+}
+
+MenuAlienCommSayingSix
+{
+I'm building here
+}
+
+// Temp artwork, change
+MenuAlienReadyRoom
+{
+Ready room
+}
+
+MenuAlienUpgradeDefOne
+{
+Carapace
+}
+
+MenuAlienUpgradeDefTwo
+{
+Regeneration
+}
+
+MenuAlienUpgradeDefThree
+{
+Redemption
+}
+
+MenuAlienUpgradeSenOne
+{
+Cloaking
+}
+
+MenuAlienUpgradeSenTwo
+{
+Pheromones
+}
+
+MenuAlienUpgradeSenThree
+{
+Scent of Fear
+}
+
+MenuAlienUpgradeMoveOne
+{
+Celerity
+}
+
+MenuAlienUpgradeMoveTwo
+{
+Adrenaline
+}
+
+MenuAlienUpgradeMoveThree
+{
+Silence
+}
+
+MenuAlienDefenseChamber
+{
+Defense chamber
+}
+
+MenuAlienSensoryChamber
+{
+Sensory chamber
+}
+
+MenuAlienMovementChamber
+{
+Movement chamber
+}
+
+MenuAlienDefenseUpgrades
+{
+Defensive
+}
+
+MenuAlienSensoryUpgrades
+{
+Sensory
+}
+
+MenuAlienMovementUpgrades
+{
+Movement
+}
+
+MenuAlienOffensiveChamber
+{
+Offense chamber
+}
+
+MenuAlienResourceTower
+{
+Resource tower
+}
+
+MenuAlienHive
+{
+Hive
+}
+
+
+
+// Armor received messages
+$position -1 0.2
+$effect 0
+$fadein 0.5
+$fadeout 0.5
+$holdtime 5.0
+
+ReceiveHeavyArmor
+{
+Heavy armor'a yukseltildiniz.  Dusmanlara karsi daha korunaklisiniz.
+}
+
+ReceiveMotionTrackArmor
+{
+Armor'iniza motion-tracker monte edildi.
+}
+
+ReceiveJetpackArmor
+{
+Jet-pack sahibi oldunuz.  Kullanmak icin ziplama tusunu basili tutun.
+}
+
+ReceiveLifeSupportArmor
+{
+LifeSupport (TM) sistemi sahibi oldunuz.  Olume yaklastiginizda yardim gelene kadar korunacaksiniz.
+}
+
+
+
+$position -1 0.35
+$holdtime 3.0
+
+GameStarting
+{
+Oyun baslamak uzere...
+}
+
+$holdtime 2.0
+GameBegun
+{
+Oyun basladi.
+}
+
+// Overwatch enabled
+//OverwatchActive
+//{
+//Overwatch active
+//}
+
+// Overwatch range string, expecting a float for range
+OverwatchRange
+{
+Hedefe uzaklik: %f
+}
+
+// Points awarded
+$position -1 0.25
+$effect 0
+$holdtime 4
+
+MarineAward
+{
+Takiminiz bir dusman oldurdu!
+}
+
+MarineAwardToLeader
+{
+Bolugunuz dusman oldurdugu icin resource kazandi!
+}
+
+// Points awarded
+$position -1 0.15
+$effect 0
+$holdtime 3
+MarineAwardToCommander
+{
+Takiminiz dusman oldurdugu icin resource kazandi!
+}
+
+// Points awarded
+$position -1 0.25
+$effect 0
+$holdtime 4
+AlienAward
+{
+Dusman oldurdugunuz icin resource kazandiniz!
+}
+
+Defect
+{
+Bolukten cik
+}
+
+WeaponCantBeDropped
+{
+Bu silahi atamazsiniz.
+}
+
+DefectMessageToLeader
+{
+Bolugunuzden bir oyuncu cikti.
+}
+
+SquadIndicator
+{
+%d. Boluktesiniz
+}
+
+InvalidOrderGiven
+{
+Gecersiz emir
+}
+
+$position -1 0.65
+$effect 0
+$holdtime .5
+$fadein .2
+$fadeout .2
+GameWontStart
+{
+Iki takimda da oyuncu olmadan oyun baslamayacak.
+}
+
+// Translation note: don't translate "ready"
+GameWontStartUntilReady
+{
+Iki takim da "ready" yazmadan oyun baslamayacak.
+}
+
+$position -1 0.75
+$effect 0
+$holdtime .7
+$fadein .2
+$fadeout .2
+ReceivingLevelData
+{
+Harita bilgisi aliniyor...
+}
+
+$position -1 0.85
+ReceivingLevelData1
+{
++---
+}
+
+ReceivingLevelData2
+{
+++--
+}
+
+ReceivingLevelData3
+{
++++-
+}
+
+ReceivingLevelData4
+{
+++++
+}
+
+$position -1 0.65
+$effect 0
+$holdtime .5
+$fadein .2
+$fadeout .2
+$position -1 0.9
+EvolvingMessage
+{
+Donusuyorsunuz...
+}
+
+VoteCast
+{
+Oyunuzu kullandiniz.
+}
+
+VoteStarted
+{
+Commander'i atmak icin oylama baslatildi.  Eger commander rahatsiz edici davranista bulunuyorsa pop-up menuyu kullanarak oyunuzu kullanin.
+}
+
+VoteIllegal
+{
+Oylar su anda gecersiz.
+}
+
+AlreadyVoted
+{
+Her oyun en fazla bir kez oy kullanabilirsiniz.
+}
+
+VoteFailed
+{
+Commander'i atma oylamasi basarili olmadi.
+}
+
+VoteCancelled
+{
+Commander'i atma oylamasi iptal edildi.
+}
+
+VoteSucceeded
+{
+Commander command console'dan atildi.
+}
+
+BannedFromCommand
+{
+Bu sunucuda commander olmaniz gecici olarak yasaklanmis.  Birkac saat icerisinde tekrar commander olabileceksiniz.
+}
+
+MustGestateUp
+{
+Yalnizca ust yasam formlarina donusebilirsiniz.
+}
+
+MustGestateOnGround
+{
+Donusmek icin duz zeminde durmalisiniz.
+}
+
+NotWhileDigesting
+{
+Bir oyuncuyu hazmederken donusemezsiniz.
+}
+
+NoReadyRoomWhileDigested
+{
+Hazmedilirken Ready Room'a cikamazsiniz.
+}
+
+NeedMoreRoomToGestate
+{
+Donusmek icin daha cok yere ihtiyaciniz var.
+}
+
+NeedOneHiveToGestate
+{
+Bu yasam bicimine donusmek icin takiminizin 1 Hive'a ihtiyaci var.
+}
+
+NeedTwoHivesToGestate
+{
+Bu yasam bicimine donusmek icin takiminizin 2 Hive'a ihtiyaci var.
+}
+
+NeedThreeHivesToGestate
+{
+Bu yasam bicimine donusmek icin takiminizin 3 Hive'a ihtiyaci var.
+}
+
+NeedOneHiveForStructure
+{
+Bu yapiyi insa edebilmek icin takiminizin 1 Hive'a ihtiyaci var.
+}
+
+NeedTwoHivesForStructure
+{
+Bu yapiyi insa edebilmek icin takiminizin 2 Hive'a ihtiyaci var.
+}
+
+NeedThreeHivesForStructure
+{
+Bu yapiyi insa edebilmek icin takiminizin 3 Hive'a ihtiyaci var.
+}
+
+NeedsAnotherHiveForStructure
+{
+Bu yapiyi insa edebilmek icin takiminizin bir Hive'a daha ihtiyaci var.
+}
+
+MustBeBuilder
+{
+Bu yapiyi insa edebilmek icin Gorge olmalisiniz.
+}
+
+UpgradeNotAvailable
+{
+Bu yukseltme su an kullanilabilir degil.
+}
+
+TooManyStructuresOfThisTypeNearby
+{
+Cevrede bu yapidan cok fazla var.
+}
+
+TooManyStructuresInArea
+{
+Cevrede cok fazla yapi var.
+}
+
+$holdtime 2.0
+TooManyWebs
+{
+Takiminiz izin verilen maksimum Web sayisina ulasmis.
+}
+
+TooManyWebsNearby
+{
+Cevrede cok fazla Web var.
+}
+
+$position -1 0.35
+$effect 0
+$holdtime 5.0
+TeamOneWon
+{
+Marine takimi kazandi!
+}
+
+TeamTwoWon
+{
+Alien takimi kazandi!
+}
+
+GameDraw
+{
+Oyun berabere bitti!
+}
+
+RankBeforeGameStart
+{
+Yalnizca oyun baslamadan rutbe degistirebilirsiniz.
+}
+
+DefectAfterGameStart
+{
+Yalnizca oyun baslamadan boluk degistirebilirsiniz.
+}
+
+// Tech tree
+MarineResourcePrefix
+{
+Resourcelar:
+}
+
+AlienResourcePrefix
+{
+Resourcelar
+}
+
+CarryResourcePrefix
+{
+%d resource tasiyorsunuz
+}
+
+Resources
+{
+Resourcelar: 
+}
+
+
+NumericalEventResources
+{
+resource
+}
+
+NumericalEventHealth
+{
+saglik
+}
+
+NumericalEventResourcesDonated
+{
+Bagislanan resourcelar
+}
+
+NumericalEventAmmo
+{
+Cephane alindi
+}
+
+
+
+
+AlienEnergyDescription
+{
+Enerji
+}
+
+ResourcesDepleted
+{
+Kullanilan resourcelar
+}
+
+Reinforcements
+{
+Destek kuvvetler
+}
+
+
+WeaponCategory
+{
+Silahlar
+}
+
+ArmorCategory
+{
+Zirh
+}
+
+BuildCategory
+{
+Insa et
+}
+
+RadioCategory
+{
+Radyo
+}
+
+TechNodeLabel_0
+{
+Yok
+}
+
+TechNodeHelp_0
+{
+<yok>
+}
+
+TechNodeHelp_1
+{
+Sonraki silaha gec.
+}
+
+TechNodeHelp_2
+{
+Silahi yeniden doldur.
+}
+
+TechNodeHelp_3
+{
+Silahi yere at, hiz kazanmak ya da birisine vermek icin
+}
+
+TechNodeHelp_5
+{
+Oyunu birakip Ready Room'a geri don.  Takim degistirmek, oyunu izlemek ya da bir mola vermek icin.
+}
+
+TechNodeHelp_6
+{
+Eger commander oyunu bozmaya calisiyorsa, bu secenegi kullanarak commander'in atilmasi icin oy kullanin.  Yeterli sayida oya ulasildiginda commander command console'dan oyunun sonuna dek uzaklastirilacaktir.
+}
+
+
+TechNodeLabel_10
+{
+Saldiri
+}
+
+TechNodeLabel_11
+{
+Saldir
+}
+
+TechNodeLabel_12
+{
+Yok et
+}
+
+TechNodeLabel_13
+{
+Onaylandi
+}
+
+TechNodeLabel_14
+{
+Takima gec
+}
+
+TechNodeLabel_15
+{
+Guclu
+}
+
+
+TechNodeHelp_7
+{
+"ses cikar"
+}
+
+TechNodeHelp_8
+{
+"Saglik gerek"
+}
+
+TechNodeHelp_9
+{
+"Yardim gerek"
+}
+
+TechNodeHelp_10
+{
+"Gelen var"
+}
+
+TechNodeHelp_11
+{
+"SALDIR"
+}
+
+TechNodeHelp_12
+{
+"Burada insa ediyorum"
+}
+
+
+TechNodeLabel_20
+{
+Zirh #1
+}
+
+TechNodeLabel_21
+{
+Zirh #2
+}
+
+TechNodeLabel_22
+{
+Zirh #3
+}
+
+TechNodeLabel_23
+{
+Silahlar #1
+}
+
+TechNodeLabel_24
+{
+Silahlar #2
+}
+
+TechNodeLabel_25
+{
+Silahlar #3
+}
+
+TechNodeHelp_20
+{
+1. seviye oyuncu zirhi
+}
+
+TechNodeHelp_21
+{
+2. seviye oyuncu zirhi
+}
+
+TechNodeHelp_22
+{
+3. seviye oyuncu zirhi
+}
+
+
+TechNodeHelp_23
+{
+Silahlar, mayinlar ve turret'lar %%10 fazla zarar verir
+}
+
+TechNodeHelp_24
+{
+Silahlar, mayinlar ve turret'lar %%20 fazla zarar verir
+}
+
+TechNodeHelp_25
+{
+Silahlar, mayinlar ve turret'lar %%30 fazla zarar verir
+}
+
+TechNodeLabel_26
+{
+Advanced turret factory
+}
+
+TechNodeHelp_26
+{
+Advanced turret factory'e yukselt
+}
+
+TechNodeLabel_28
+{
+Jet-pack
+}
+
+TechNodeHelp_28
+{
+Jet-pack'leri kullanilabilir kilar
+}
+
+TechNodeLabel_29
+{
+Heavy armor
+}
+
+TechNodeHelp_29
+{
+Heavy armor'i kullanilabilir kilar
+}
+
+TechNodeLabel_30
+{
+Distress beacon
+}
+
+TechNodeHelp_30
+{
+Tum olu askerleri marine start'da yeniden canlandirir
+}
+
+TechNodeLabel_31
+{
+Deployable health tech
+}
+
+TechNodeHelp_31
+{
+Commander'in saglik paketleri atabilmesine olanak tanir
+}
+
+TechNodeLabel_32
+{
+Iptal
+}
+
+TechNodeHelp_32
+{
+Arastirmayi durdur
+}
+
+TechNodeLabel_33
+{
+Motion-tracking
+}
+
+TechNodeHelp_33
+{
+Tum hareket eden dusmanlari gorunur kilar
+}
+
+TechNodeLabel_34
+{
+Phase tech
+}
+
+TechNodeHelp_34
+{
+Phase Gate yapimina ve scan atabilmeye izin verir
+}
+
+TechNodeLabel_35
+{
+Upgrade tower
+}
+
+TechNodeHelp_35
+{
+Resource toplama hizini artirir
+}
+
+TechNodeLabel_36
+{
+Electrical defense
+}
+
+TechNodeHelp_36
+{
+Cok yaklasan dusmanlari elektrikle soklar
+}
+
+TechNodeLabel_38
+{
+Heavy armor
+}
+
+TechNodeHelp_38
+{
+Askere Heavy Armor verir.
+}
+
+TechNodeLabel_39
+{
+Jet-pack
+}
+
+TechNodeHelp_39
+{
+Askere Jet-pack verir.
+}
+
+TechNodeLabel_40
+{
+Infantry portal
+}
+
+TechNodeHelp_40
+{
+Oyuncular burada spawn olur
+}
+
+TechNodeLabel_41
+{
+Resource tower
+}
+
+TechNodeHelp_41
+{
+Resource toplar
+}
+
+
+
+TechNodeLabel_43
+{
+Turret factory
+}
+
+TechNodeHelp_43
+{
+Turret'lara olanak saglar
+}
+
+TechNodeLabel_45
+{
+Arms lab
+}
+
+TechNodeHelp_45
+{
+Silah ve zirh yukseltmeleri
+}
+
+TechNodeLabel_46
+{
+Prototype lab
+}
+
+TechNodeHelp_46
+{
+Deneysel teknoloji
+}
+
+TechNodeLabel_48
+{
+Armory
+}
+
+TechNodeHelp_48
+{
+Yeni silahlara erisim saglar
+}
+
+TechNodeLabel_49
+{
+Advanced armory
+}
+
+TechNodeHelp_49
+{
+Advanced armory'e yukseltir
+}
+
+
+TechNodeLabel_50
+{
+Nuke plant
+}
+
+TechNodeHelp_50
+{
+Nuke yapimina olanak saglar.
+}
+
+TechNodeLabel_51
+{
+Observatory
+}
+
+TechNodeHelp_51
+{
+Izleme teknolojisi
+}
+
+TechNodeLabel_52
+{
+Health nanotech
+}
+
+TechNodeHelp_52
+{
+Commander'in cephede saglik paketleri atabilmesine olanak tanir.
+}
+
+TechNodeLabel_53
+{
+Scanner Sweep
+}
+
+TechNodeHelp_53
+{
+Bir bolgede gecici gorus saglar ve gorunmez dusmanlari gorunur yapar.
+}
+
+TechNodeLabel_55
+{
+Phase gate
+}
+
+TechNodeHelp_55
+{
+Isik hizinda yolculuk icin
+}
+
+TechNodeLabel_56
+{
+Turret
+}
+
+TechNodeHelp_56
+{
+Sentry turret insa etmek icin
+}
+
+TechNodeLabel_57
+{
+Siege turret
+}
+
+TechNodeHelp_57
+{
+Duvar arkalarini da vurabilen sonik turret insa etmek icin.
+}
+
+TechNodeLabel_58
+{
+Command console
+}
+
+TechNodeHelp_58
+{
+Yeni bir command console insa etmek icin.
+}
+
+
+
+TechNodeLabel_59
+{
+Health
+}
+
+TechNodeHelp_59
+{
+Askere 50 saglik verir.
+}
+
+TechNodeLabel_60
+{
+Ammo
+}
+
+TechNodeHelp_60
+{
+Askere bir sarjor mermi verir.
+}
+
+
+
+TechNodeLabel_61
+{
+Mines
+}
+
+TechNodeHelp_61
+{
+Bes adet mayin.
+}
+
+TechNodeLabel_62
+{
+Welder
+}
+
+TechNodeHelp_62
+{
+Yapi ve zirh tamir eder, weldable yerleri etkiler, webleri yakar.
+}
+
+TechNodeLabel_63
+{
+Med kit
+}
+
+TechNodeLabel_64
+{
+Shotgun
+}
+
+TechNodeHelp_64
+{
+Yakin mesafe carpismalari icin
+}
+
+TechNodeLabel_65
+{
+HMG
+}
+
+TechNodeHelp_65
+{
+Yuksek guclu saldiri silahi
+}
+
+TechNodeLabel_66
+{
+Grenade gun
+}
+
+TechNodeHelp_66
+{
+Grenade launcher 
+}
+
+TechNodeLabel_67
+{
+Nuke
+}
+
+TechNodeHelp_67
+{
+Atilabilen mini atom bombasi.
+}
+
+TechNodeLabel_69
+{
+Geri donustur
+}
+
+TechNodeHelp_69
+{
+Bu yapiyi yok edip bir miktar resource geri almak icin.
+}
+
+TechNodeHelp_80
+{
+Commander'dan emir isteme.
+}
+
+TechNodeHelp_81
+{
+Commander'in emirlerini onaylamak icin.  Emirlere uymak icin waypoint'inizdeki aciklamalari okuyun.  Emir tamamlandiginda waypoint kendiliginden yok olacaktir.
+}
+
+
+
+TechNodeLabel_85
+{
+Insa et
+}
+
+TechNodeHelp_85
+{
+Temel yapi menusu
+}
+
+TechNodeLabel_86
+{
+Gelismis
+}
+
+TechNodeHelp_86
+{
+Gelismis yapi menusu
+}
+
+TechNodeLabel_87
+{
+Asist
+}
+
+TechNodeHelp_87
+{
+Asist menusu
+}
+
+TechNodeLabel_88
+{
+Donat
+}
+
+TechNodeHelp_88
+{
+Donati menusu
+}
+
+TechNodeHelp_90
+{
+Resource tower insa et: Takiminiz icin resource toplar.  Yalnizca resource olan resource nozzle'lar uzerine insa edilebilir (beyaz bir duman ile belirtilir).
+}
+
+TechNodeHelp_91
+{
+Offensive chamber insa et: Yakindaki dusman oyuncularina ve yapilarina saldiran organik turret.  Verdigi hasar: 20
+}
+
+TechNodeHelp_92
+{
+Defensive chamber insa et: defensive yukseltmelere olanak tanir, cevredeki oyuncu ve yapilari iyilestirir.
+}
+
+TechNodeHelp_93
+{
+Sensory chamber insa et: sensory yukseltmelere olanak tanir, cevredeki oyuncu, yapilari gorunmez kilar ve menzilinde motion tracking'i engeller.
+}
+
+TechNodeHelp_94
+{
+Movement chamber insa et: movement yukseltmelerine olanak tanir, cevredeki oyunculara otomatik olarak enerji saglar.
+}
+
+TechNodeHelp_95
+{
+Hive isa et: Ust yasam bicimlerine ve ust yeteneklere erisim saglar (yalnizca hive location'da insa edilebilir)
+}
+
+TechNodeHelp_101
+{
+Zirh degerini artirir.  Her seviye carapace yaklasik %16 daha fazla zarar emer fakat sizi de yavaslatir.
+}
+
+TechNodeHelp_102
+{
+Zamanla iyilesmeyi mumkun kilar.  Daha yuksek seviyeler daha hizli iyilestirir.
+}
+
+TechNodeHelp_103
+{
+Olmek uzereyken hive sizi otomatik olarak kurtarmaya calisir. Hive'a geri donersiniz.
+}
+
+TechNodeHelp_104
+{
+Sharpness - Melee zarariniz yari yariya artar.
+}
+
+TechNodeHelp_105
+{
+Piercing - Menzilli zarariniz yari yariya artar.
+}
+
+TechNodeHelp_106
+{
+Penetration - Atislariniz duvar ve hedeflerin icinden gecer (not implemented).
+}
+
+TechNodeHelp_107
+{
+Hizinizi kalici olarak artirir.
+}
+
+TechNodeHelp_108
+{
+Enerji geri alma surenizi artirir.  Her seviye, enerji toplama hizinizi %33 artirir.
+}
+
+TechNodeHelp_109
+{
+Her seviye, ayak ve hareket seslerinizi daha da sessizlestirir.
+}
+
+TechNodeHelp_110
+{
+Kisa bir sure icin hareketsiz kalmak sizi gorunmez kilar.  Seviye arttikca bekleme sureniz duser.  Observatory ve Scanner Sweep sizi gorunur kilar.
+}
+
+TechNodeHelp_111
+{
+Yakindaki dusmanlarin arkasinda gorunur bir iz birakir.  Yuksek seviyeler menzili artirir.
+}
+
+TechNodeHelp_112
+{
+Dusmanlarinizin ne kadar zayifladigini gosterir.
+}
+
+TechNodeHelp_113
+{
+Skulk'a donus.  Bu kucuk ve hizli bir alien'dir. Gerilla taktikleri, bire bir savas ve rahatsizlik vermek icin uygundur.  Duvarlara turmanabilir (egilme tusunu basili tutarak tirmanmayi engelleyebilirsiniz)
+}
+
+TechNodeHelp_114
+{
+Gorge'a donus.  Resource tower'lar, hive'lar, upgrade chamber'lar ve turret'lar insa eder.  Savasta zayiftir.  Takim arkadaslarini ve takim yapilarini iyilestirebilir.
+}
+
+TechNodeHelp_115
+{
+Lerk'e donus. Cok amacli savas destegi verir.  Uzun menzilli spike atisina, alan etkili bogucu spore'lara ve koruyucu "umbra" ozelligine sahiptir.  Ziplama tusu ile ucabilir.  Havadayken ziplama tusunu basili tutarak suzulebilir.
+}
+
+TechNodeHelp_116
+{
+Fade'e donus.  Pence ve acid rocket saldirilari ile guclu bir dovuscudur.  Teleport edebilir.
+}
+
+TechNodeHelp_117
+{
+Onos'a donus.  Dusmanlarini paralize edebilen, yutabilen dev bir savasci.  Birkac askeri bir anda yok edebilir.
+}
+
+
+ClassDead
+{
+Olu
+}
+
+ClassDigesting
+{
+Hazmediliyor
+}
+
+ClassCommander
+{
+Commander
+}
+
+ClassHeavyMarine
+{
+Heavy
+}
+
+ClassReinforcing
+{
+Destekyolda
+}
+
+ClassLevel1
+{
+Skulk
+}
+
+ClassLevel2
+{
+Gorge
+}
+
+ClassLevel3
+{
+Lerk
+}
+
+ClassLevel4
+{
+Fade
+}
+
+ClassLevel5
+{
+Onos
+}
+
+ClassGestating
+{
+Donusuyor
+}
+
+
+Building
+{
+Insa ediliyor: 
+}
+
+
+Researching
+{
+Arastiriliyor: 
+}
+
+Energy
+{
+Enerji: 
+}
+
+
+Prerequisite
+{
+Gereken: 
+}
+
+Cost
+{
+Fiyat:
+}
+
+NotFullyBuilt
+{
+Tam insa edilmemis
+}
+
+Recycling
+{
+Geri donusturuluyor...
+}
+
+ReinforcementsText
+{
+Destek kuvvetler: 
+}
+
+LogoutText
+{
+CIKIS
+}
+
+BlipStatus_0
+{
+dusman
+}
+
+BlipStatus_1
+{
+zayif dusman
+}
+
+BlipStatus_2
+{
+
+}
+
+BlipStatus_3
+{
+saldiri altinda
+}
+
+BlipStatus_5
+{
+gorge
+}
+
+BlipStatus_6
+{
+
+}
+
+BlipStatus_7
+{
+
+}
+
+BlipStatus_8
+{
+
+}
+
+Friend
+{
+Dost
+}
+
+Enemy
+{
+Dusman
+}
+
+User3Name_1
+{
+asker
+}
+
+User3Name_2
+{
+commander
+}
+
+User3Name_3
+{
+skulk
+}
+
+User3Name_4
+{
+gorge
+}
+
+User3Name_5
+{
+lerk
+}
+
+User3Name_6
+{
+fade
+}
+
+User3Name_7
+{
+onos
+}
+
+User3Name_7
+{
+embryo
+}
+
+User3Name_15
+{
+ekipman
+}
+
+User3Name_17
+{
+Hive
+}
+
+User3Desc_17
+{
+Alienlar burada spawn olur. Yuksek alien yasam bicimlerine ve gelisimlerine olanak tanir.
+}
+
+User3FriendlyDesc_17
+{
+Burada spawn olursunuz.  Yakinindayken sizi iyilestirir.  Iletisimi saglayan "Hive sight" saglar.  Her kosulda korunmalidir.
+}
+
+User3Name_22
+{
+Resource nozzle
+}
+
+User3Desc_22
+{
+Uzerine bir resource tower kuruldugunda resource verir.  Bu resource'lar sonsuzdur.
+}
+
+User3CommanderDesc_22
+{
+Uzerine bir resource tower kuruldugunda resource verir.  Bu resource'lar sonsuzdur.
+}
+
+User3Name_23
+{
+command console
+}
+
+User3Desc_23
+{
+Marine commander tarafindan yapilar insa etmek ve yeni teknoloji arastirmasi icin kullanilir.
+}
+
+User3FriendlyDesc_23
+{
+Marine commander tarafindan yapilar insa etmek ve yeni teknoloji arastirmasi icin kullanilir.  Commander ekranin ust-ortasinda gosterilir.  Eger takiminizda bir commander yok ise, "use" yaparak commander olabilirsiniz.
+}
+
+User3CommanderDesc_23
+{
+Infantry portal kurabileceginiz alani gormek icin command console'u secin.  Eger command console yok edilirse disari atilacaksiniz.  Command console her kosulda korunmalidir.
+}
+
+
+User3Name_24
+{
+Turret factory
+}
+
+User3Desc_24
+{
+Menzil dahilinde sentry turret kurulumuna imkan tanir.  Bu turret'lar calismak icin turret factory'e ihtiyac duyar.  Commander turret factory'i secerek menzilini gorebilir.
+}
+
+User3Name_25
+{
+Armory
+}
+
+User3Desc_25
+{
+Askerlere cephane saglar ve menzil dahilinde shotgun, mayin ve welder yapimina olanak tanir.
+}
+
+User3CommanderDesc_25
+{
+Askerlere ucretsiz cephane saglar.  Menzil dahilinde shotgun, mayin ve welder yapimina olanak tanir.  Bu menzili gormek icin armory'i secin.
+}
+
+User3FriendlyDesc_25
+{
+O anki silahiniza cephane almak icin armory'i "use" tusu ile kullanin.  Ayrica menzil dahilinde shotgun, mayin ve welder yapimina olanak tanir.
+}
+
+
+User3Name_26
+{
+Advanced armory
+}
+
+User3Desc_26
+{
+Cephane saglar ve menzil dahilinde heavy machine gun ve grenade launcher yapimina olarak tanir.
+}
+
+User3CommanderDesc_26
+{
+Askerlere ucretsiz cephane saglar.  Menzil dahilinde heavy machine gun ve grenade launcher yapimina olanak tanir.  Bu menzili gormek icin advanced armory'i secin.
+}
+
+User3FriendlyDesc_26
+{
+O anki silahiniza cephane almak icin advanced armory'i "use" tusu ile kullanin.  Ayrica menzil dahilinde heavy machine gun ve grenade launcher yapimina olanak tanir.
+}
+
+
+User3Name_27
+{
+Arms lab
+}
+
+User3Desc_27
+{
+Zirh ve cephane yukseltmelerine erisim saglar.
+}
+
+User3Name_28
+{
+Prototype lab
+}
+
+User3Desc_28
+{
+Heavy armor ve Jet-pack'lere erisim saglar.
+}
+
+User3Name_29
+{
+Observatory
+}
+
+User3Desc_29
+{
+Menzildeki dusmanlari gorunur kilar.  Scanner Sweep, Motion Sensor yukseltmesi ve Distress Beacon'a erisim saglar.
+}
+
+User3Name_30
+{
+chemlab
+}
+
+User3Name_31
+{
+medlab
+}
+
+User3Name_33
+{
+Sentry turret
+}
+
+User3Desc_33
+{
+Menzil dahilindeki dusmanlara ates eder.
+}
+
+User3FriendlyName_33
+{
+Dusmanlariniza otomatikman ates eder.  Ust seviye ve gelismis alienlara karsi gucsuzdur.  Turret factory menzili dahilinde insa edilmelidir.  Hasar: 10
+}
+
+User3CommanderName_33
+{
+Dusmanlariniza otomatikman ates eder.  Ust seviye ve gelismis alienlara karsi gucsuzdur.  Turret factory menzili dahilinde insa edilmelidir fakat calismasi icin turret factory'e ihtiyac duymaz.  Menzilini gormek icin turret'i secin.  Gorunmez dusmanlara ates etmeyecektir.  Dusuk seviye alienlara karsi etkilidir.  Hasar: 10
+}
+
+
+User3Name_34
+{
+Siege cannon
+}
+
+User3Desc_34
+{
+Automated Siege Cannon (ASC).  Binalara saldiran sonik silah. Duvar arkasindaki binalari da vurabilir. Oyunculari vurmaz.
+}
+
+User3FriendlyDesc_34
+{
+Automated Siege Cannon (ASC).  Binalara saldiran sonik silah. Duvar arkasindaki binalari da vurabilir. Oyunculari vurmaz.  Menzil: 400  Hasar: 165 (binalara iki kat) 
+}
+
+User3CommanderDesc_34
+{
+Automated Siege Cannon (ASC).  Binalara saldiran sonik silah. Duvar arkasindaki binalari da vurabilir. Oyunculari vurmaz.  Cok yakindaki hedefleri vuramaz.  Menzili gormek icin ASC'yi secin.  Menzil: 400  Hasar: 165 (binalara iki kat) 
+}
+
+User3Name_35
+{
+Resource tower
+}
+
+User3Desc_35
+{
+Belirli araliklarla takim icin resource toplar.
+}
+
+User3Name_37
+{
+Infantry portal
+}
+
+User3FriendlyDesc_37
+{
+Marine'ler burada spawn olur.  Yok edildiginde spawn olamazlar.
+}	  
+
+User3FriendlyDesc_37
+{
+Takiminiz burada spawn olur.  Yok edildiginde spawn olamaz.  Korunmalidir.
+}	  
+
+User3CommanderDesc_37
+{
+Marine'ler burada spawn olur.  Yok edildiginde spawn olamazlar.
+}
+
+User3Name_38
+{
+nuke
+}
+
+User3Desc_38
+{
+Nuke is arming, and must be destroyed before it finishes!  Once armed, nuke detonates, doing massive damage to nearby players and structures.
+}
+
+User3FriendlyDesc_38
+{
+Nuke is arming, protect it while it finishes.  Once armed, nuke detonates, doing massive damage to nearby players and structures.
+}
+
+User3CommanderDesc_38
+{
+Nuke is arming, protect it while it finishes.  Once armed, nuke detonates, doing massive damage to nearby players and structures.
+}
+
+User3Name_39
+{
+Heavy armor
+}
+
+User3Desc_39
+{
+Heavy armor'a sahip olmak icin alin.  Jet-pack ile kullanilamaz.  Spore'lara karsi koruma saglar
+}
+
+User3Name_40
+{
+Jet-pack
+}
+
+User3Desc_40
+{
+Jet-pack'e sahip olmak icin alin.  Heavy armor ile kullanilamaz.
+}
+
+User3Name_41
+{
+Phase gate
+}
+
+User3Desc_41
+{
+Diger phase gate'lere isik hizinda yolculuk saglar.  USE tusu ile kullanin.
+}
+
+User3CommanderDesc_41
+{
+Diger phase gate'lere isik hizinda yolculuk saglar.  Calismasi icin birden cok phase gate gereklidir.
+}
+
+User3Name_42
+{
+Defense chamber
+}
+
+User3Desc_42
+{
+Yakindaki oyuncu ve yapilari iyilestirir.  Defensive yukseltmeleri saglar (Carapace, Regeneration ve Redemption)
+}
+
+User3Name_43
+{
+Movement chamber
+}
+
+User3Desc_43
+{
+Alienlar tarafindan en uzaktaki Hive'a teleport olmak icin kullanilir.  Movement yukseltmelerini saglar (Celerity, Adrenaline ve Silence).  Bu yapilari yok etmek yukseltmelerin kaybolmasina sebep olur.
+}
+
+User3FriendlyDesc_43
+{
+Yaklasip USE tusunu kullanarak saldiri halindeki Hive'a teleport olabilirsiniz.  Movement yukseltmelerini saglar (Celerity, Adrenaline ve Silence).
+}
+
+
+User3Name_44
+{
+Offense chamber
+}
+
+User3Desc_44
+{
+Yakindaki dusman oyuncularina ve yapilarina saldiran organik turret.  Verdigi hasar: 50
+}
+
+User3Name_45
+{
+Sensory chamber
+}
+
+User3Desc_45
+{
+Cevredeki dusmanlari algilar, dokunan dusmanlari parazitler ve sensory yukseltmeleri saglar (Cloaking, Pheromones ve Scent of Fear).
+}
+
+
+User3Name_46
+{
+Resource tower
+}
+
+User3Desc_46
+{
+Dusman takim icin resource toplar.
+}
+
+User3FriendlyDesc_46
+{
+Takiminiz icin resource toplar.
+}
+
+User3Name_47
+{
+Heavy armor module
+}
+
+User3Desc_47
+{
+Askere heavy armor verir.
+}
+
+User3FriendlyDesc_47
+{
+Askere heavy armor verir.
+}
+
+User3Name_48
+{
+Jet-pack module
+}
+
+User3Desc_48
+{
+Askere Jet-pack verir.
+}
+
+User3FriendlyDesc_48
+{
+Askere Jet-pack verir.
+}
+
+User3Name_49
+{
+Advanced turret factory
+}
+
+User3Desc_49
+{
+Sentry turret ve siege turret insa edilmesini mumkun kilar.
+}
+
+User3FriendlyDesc_49
+{
+Sentry turret ve siege turret insa edilmesini mumkun kilar.
+}
+
+User3Name_57
+{
+Mine
+}
+
+User3Desc_57
+{
+Dokununca patlar
+}
+
+User3FriendlyDesc_57
+{
+Dokununca patlar
+}
+
+Weapon1Help
+{
+Gore - Dusmaniniza yaklasip saldirin.  Hasar: %d (binalara iki kat)
+}
+
+Weapon2Help
+{
+Spit - Dusmanlarinizi uzak totmak icin kisa menzilli silah.  Hasar: %d
+}
+
+Weapon3Help
+{
+Spores - Bogucu spore bulutu atar. Bu bulut menzil dahilindeki dusman oyunculara zarar verir.  Hasar: %d (her saniye)
+}
+
+Weapon4Help
+{
+Spikes - Aninda vuran uzun mesafe silahi.  Hasar: %d
+}
+
+Weapon5Help
+{
+Bite - Olumcul yakin dovus saldirisi.  Dusmaniniza yaklasip saldirin.  Hasar: %d
+}
+
+Weapon6Help
+{
+Bite - Olumcul yakin dovus saldirisi.  Dusmaniniza yaklasip saldirin.  Hasar: %d
+}
+
+Weapon7Help
+{
+Swipe - Olumcul yakin dovus saldirisi.  Dusmaniniza yaklasip saldirin.  Oyuncu ve binalara karsi etkilidir.  Hasar: %d
+}
+
+Weapon8Help
+{
+Webs - Yakin iki noktaya ates ettiginizde bu iki nokta arasinda bir ag orulur.  Web'ler dusmanlari bir sure icin yavaslatir ve silah kullanmalarini engeller.  Welder ile yok edilebilirler.
+}
+
+Weapon9Help
+{
+Metabolize - Enerji kullanarak saglik verir.
+}
+
+Weapon10Help
+{
+Parasite - Hedefi hive sight'da her zaman gorunecek sekilde parazitler.  Bu parazit iyilestirilemez.  Hasar: %d
+}
+
+Weapon11Help
+{
+Blink - Teleporta olanak tanir. Gitmek istediginiz yonu gosterip ates tusunu basili tutun.
+}
+
+Weapon12Help
+{
+Xenocide - Canli bomba. Aktivlestirdikten kisa bir sure sonra cevreye agir zarar vererek patlarsiniz.  Hasar: %d
+}
+
+Weapon13Help
+{
+Bicak - Etkinlik ve umutsuzlugun silahi.  Hasar: %d
+}
+
+Weapon14Help
+{
+Tabanca - Iyi isabet yuzdesine sahip tabanca.  Etkindir fakat sarjoru kucuktur.  Hasar: %d
+}
+
+Weapon15Help
+{
+Machine Gun - Iyi isabet yuzdesi, yuksek ates hizi, orta boy sarjor.  Atis hizi: Saniyede 10 mermi.  Hasar: %d
+}
+
+Weapon16Help
+{
+Shotgun - Hizli hareket eden hedefler icin. Ya da yakindaki hedeflere hizli bir bicimde cok zarar vermek icin. Atis basina 10 sacma.  Hasar: sacma basina %d
+}
+
+Weapon17Help
+{
+Heavy machine gun (HMG) - Buyuk hedef ve dusmanlar icin agir silah.  Kocaman bir sarjor ve yuksek ates hizi.  Hasar: mermi basina %d (binalara yarim)
+}
+
+Weapon18Help
+{
+Welder - Haritadaki ozel "weldable" alanlari acip kapayabilir, yapi ya da zirh tamir ve Web'leri kesebilir.  Hasar: %d
+}
+
+Weapon19Help
+{
+Mines - Defans icin, ya da bir cikartmada koruma icin kullanin.  Duvarlara koydugunuzda laser mayin halini, yere koydugunuzda yer mayini haline gelir.  Hasar: %d
+}
+
+Weapon20Help
+{
+Grenade launcher - Bombalar 4 saniye sonra patlar.  Hasar: %d (binalara iki kat)
+}
+
+Weapon21Help
+{
+Leap - Onunuzdeki herseyi keserek ileri dogru hizli atlayis.  Hareket ederken de, savasirken de kullanisli.  Hasar: %d
+}
+
+Weapon22Help
+{
+Charge - Sinirle ileri dogru atlayip dokundugunuz herseye zarar verirsiniz.  Enerji ceker ve enerjiniz bittiginde durur.  Hasar: inanilmaz
+}
+
+Weapon23Help
+{
+Umbra - Dusman mermilerini yavaslatan bakteriyel bir bulut olusturur.  Umbra icindeki dost oyuncu ya da yapi mermilerden pek zarar gormez, ama yine de patlayici ya da mermisiz saldirilardan etkilenebilir.  %d saniye surer.
+}
+
+Weapon24Help
+{
+Primal scream - Menzil icindeki tum takim arkadaslariniz ciglik boyunca hizli enerji kazanir, hizli hareket eder ve daha cok zarar verir.  Saldiri sirasinda karsi takimin aci cigliklarini dinlemeyi ihmal etmeyin.
+}
+
+Weapon25Help
+{
+Bile bomb - Dusman yapilarina karsi etkili organik top.  Hasar: %d (alan etkili, yalnizca yapilara)
+}
+
+Weapon26Help
+{
+Acid rocket - Alan etkili zarar veren asit topu.  Hasar: %d
+}
+
+Weapon27Help
+{
+Healing spray - Menzil icindeki dost oyuncu ve yapilari iyilestirip dusmanlara zarar veren sprey.  Hasar: %d (alan etkili)
+}
+
+Weapon28Help
+{
+Babbler - Zayif skulklar yaratmanizi saglar.  Bu skulklar bir kisa sure icin yasayip kendileri dusmana saldirir.   Hasar: 20 (Bite), 40 (Xenocide)
+} 
+
+Weapon29Help
+{
+Stomp - Dokundugu tum dusman oyunculari %d saniye icin dondurur.
+}
+
+Weapon30Help
+{
+Devour - Yakindaki bir dusmani yutmak icin.  Oyuncu saniyede %d zarar alarak yavas yavas hazmedilir.  Onos bu zarari saglik olarak geri alir.  Hazim bitmeden Onos oldurulurse dusman oyuncu kurtulur.
+}
+
+CommandStationOtherTeam
+{
+Bu command console karsi takima ait.
+}
+
+CommandStationInUse
+{
+Takiminizda bir commander mevcut, command console kullanilamaz.
+}
+
+WeaponPreventingCommandStation
+{
+Silahiniz command console kullanimina engel.
+}
+
+CommandStationDestroyed
+{
+Bu command console yokedilmis ve artik kullanilamaz!
+}
+
+CommandStationWaitTime
+{
+Command console'a girmeden daha uzun sure beklemelisiniz.
+}
+
+
+// Particle editing commands
+$position -1 0.7
+NoParticleSystem
+{
+That particle system couldn't be found.
+}
+
+EditingParticleSystem
+{
+Found particle system, use F7 to edit
+}
+
+
+// Marine help text
+
+// Armor received messages
+$position -1 0.45
+$effect 0
+$fadein 0.5
+$fadeout 0.5
+$holdtime 5.0
+
+HelpTextCSAttractMode
+{
+Bu command console'u hedef alip komuta modunu etkinlestirmek icin "use" tusunu kullanin.
+}
+
+HelpTextArmoryResupply
+{
+Armory'e "Use" yaparak su anki silahiniz icin mermi alin.
+}
+
+HelpTextAttackNearbyStation
+{
+Bu dusmanin command console'u, saldirin!
+}
+
+HelpTextBuildTurret
+{
+Bu turret'in alt kismina hedef alip "use" tusunu basili tutarak insa edin.
+}
+
+HelpTextBuildTower
+{
+Bu resource tower'in alt kismina hedef alip "use" tusunu basili tutarak insa edin.
+}
+
+HelpTextExplainTower
+{
+Bu aktif resource tower, takiminiza periyodik olarak resource vermektedir.
+}
+
+HelpTextAttackHive
+{
+Takim arkadaslarinizi toplayip yok edecek bir alien hive bulun!
+}
+
+HelpTextOtherHiveBuilding
+{
+Ayni anda yalnizca bir hive insa edilebilir.  Burada insaya baslamadan once obur hive'in tamamlanmasini bekleyin.
+}
+
+HelpTextEmptyHiveNotNearby
+{
+Yalnizca hive noktalarinda hive insa edilebilir (hive gostergesini takip edin).
+}
+
+HelpTextAttackNearbyHive
+{
+Yakinlarda bir dusman hive'i mevcut, alien cilginligini durdurmak icin yok edin!
+}
+
+HelpTextFriendlyMovementChamber
+{
+Bu movement chamber'da "use" tusunu kullanarak saldiri altindaki hive'a teleport olun.  Yakinindayken size enerji de verir.
+}
+
+HelpTextAttackMovementChamber
+{
+Bu bir dusman movement chamber'i. Hive'larina teleport etmelerini saglar ve onlara enerji verir.
+}
+
+HelpTextFriendlyOffensiveChamber
+{
+Bu bir offense chamber, dusmanlariniza ates eder.
+}
+
+HelpTextAttackOffensiveChamber
+{
+Bu bir dusman offense chamber'i, dikkat edin!
+}
+
+HelpTextFriendlyDefensiveChamber
+{
+Bu defensive chamber cevresindeki oyuncu ve yapilari iyilestirir.  Iyilestirme sirasinda bir ses cikarir.
+}
+
+HelpTextAttackDefensiveChamber
+{
+Bu bir dusman defensive chamber'i, dusman oyuncu ve yapilarini iyilestirir.
+}
+
+HelpTextFriendlySensoryChamber
+{
+Bu bir sensory chamber, yakindaki oyuncu ve binalari gorunmez kilar.
+}
+
+HelpTextAttackSensoryChamber
+{
+Bu bir dusman sensory chamber'i.
+}
+
+HelpTextOpenWeldable
+{
+Bu kisim bir welder ile acilabilir.
+}
+
+HelpTextCloseWeldable
+{
+Bu kisim bir welder ile kapatilabilir.
+}
+
+HelpTextPhaseGate
+{
+Teleport olmak icin phase gate'e girin.
+}
+
+HelpTextAlienPopupMenu
+{
+Pop-up menu'yu yapi insa etmek, gelismek ya da takim degistirmek icin kullanin (alt-fire).
+}
+
+HelpTextMarinePopupMenu
+{
+Pop-up menu'yu ses komutlarina erisim, emir isteme, takimdan cikma ve fazlasi icin kullanin (alt-fire).
+}
+
+HelpTextOrder
+{
+Commander tarafindan bir emir aldiniz.  Ekraninizdaki mavi halka emrinizin yeri ve tipini belirtir.  Pop-up menu'yu kullanarak emir isteyebilir ya da emir onaylayabilirsiniz.
+}
+
+HelpTextCommanderUseable
+{
+Commander olarak haritadaki dugme ya da anahtarlara sol click ile basabilirsiniz.
+}
+
+HelpTextMarineCommandMenu
+{
+Takiminizla iletisim kurmak icin pop-up menu tusuna basin (varsayilan sag mouse tusu).
+}
+
+HelpTextResourceDropoff
+{
+Takiminiz icin resource kazandiniz!
+}
+
+HelpTextJetpacks
+{
+Commander takiminiz icin jet-pack arastirmasi yapmis.  Kullanmak icin ziplama tusunu basili tutun.
+}
+
+HelpTextAlienCommandMenu
+{
+Pop-up menu tusuna basarak yasam bicimi degistirebilir ya da gelisebilirsiniz (varsayilan sag mouse tusu).
+}
+
+HelpTextAttackTower
+{
+Bu resource tower dusman icin resource topluyor. Yok edin!
+}
+
+HelpTextAlienWeapons
+{
+Mouse wheel ya da sayi tuslari ile silah degistirebilirsiniz.  Kirmizi bir sembol o yetenegin daha cok hive alana kadar calismayacagini belirtir.
+}
+
+HelpTextAlienResources
+{
+Sol taraftaki mavi cubuk resourcelarinizi gosterir.  Takiminizin resource tower'larindan resource alirsiniz.  Resource'lar pop-up menuyu kullanarak harcanabilir.
+}
+
+HelpTextAlienEnergy
+{
+Sag taraftaki sari cubuk enerjinizi gosterir.  Kullandiginiz yetenekler enerji harcar.
+}
+
+HelpTextAlienPendingUpgrades
+{
+Ekranin sag tarafindaki kucuk yanip sonen semboller yeni gelisimler gecirebileceginizi gosterir.  Pop-up menuyu kullanarak yeni gelisimler arasindan bir secim yapin.
+}
+
+HelpTextAlienBuildStructure
+{
+Insa edici alien olarak, pop-up menuyu kullanarak takiminiz icin yapilar isa edebilirsiniz.
+}
+
+HelpTextAlienBuildStructure
+{
+Yakinlarda bir tam isa edilmemis alien yapisi mevcut.  Alien yapilari kendi kendilerine yavasca insa olur, fakat insa edici olarak bunu hizlandirabilirsiniz.  Yapinin alt kismina hedef alip "use" tusunu kullanin.
+}
+
+HelpTextAlienHiveSight
+{
+Ekrandaki parlayan daireler takiminizin "hive sight" ozelligini belirtir.  Beyaz daireler hive'lari ya da takim arkadaslarinizi, pembe daireler saldiri altindaki takim arkadaslarinizi ve sari daireler de dusmanlarinizi belirtir.
+}
+
+HelpTextAlienVisionMode
+{
+Flashlight tusuna bastiginizda tum alien oyuncu ve yapi pozisyonlarini gorebilirsiniz.
+}
+
+HelpTextAlienCommunication
+{
+Pop-up menuyu kullanarak takiminizla iletisim kurabilirsiniz.
+}
+
+HelpTextAlienUnderAttack
+{
+Bir takim arkadasiniz ya da yapi saldiri altinda.  Cevrenize bir bakin ve hive sight uyarisini arayin.
+}
+
+HelpTextBuilder
+{
+Gorge oldunuz.  Savastan uzak durup pop-up menuyu kullanarak degisik yapilar insa edin.
+}
+
+HelpTextWeb
+{
+Yakin iki noktaya ates ederek bu iki nokta arasinda bir ag orebilirsiniz.  Web'ler dusmanlari bir sure icin yavaslatir ve silah kullanmalarini engeller.
+}
+
+HelpTextWallwalking
+{
+Duvar ve tavanlarda yurumek icin egilme tusunu basili tutun.
+}
+
+HelpTextBite
+{
+Dusmanlariniza yaklasip saldiri tusunu kullanarak onlari isirabilirsiniz.
+}
+
+HelpTextFlight
+{
+Ziplama tusunu kullanarak ucabilirsiniz.  Havadayken ziplama tusunu basili tutarak suzulebilirsiniz.
+}
+
+HelpTextSpores
+{
+Ates tusuna basarak icinde kalan oyunculara zarar veren bir bakteri bulutu atabilirsiniz.
+}
+
+HelpTextAlienResource
+{
+Takima resource kazanmak icin bir resource nozzle bulup uzerine bunlardan bir tane insa edin.
+}
+
+HelpTextPopupMenu
+{
+Pop-up menuyu acmak icin sag mouse tusunu (alt-fire) basili tutun.
+}
+
+HelpTextBuyUpgrade
+{
+Alienlar yeni yetenekler gelistirebilir.  Denemek icin: pop-up menu tusuna basili tutun (varsayilan sag tus), sonra mouse'u saga hareket ettirin.
+}
+
+HelpTextBuyLifeform
+{
+Alienlar yeni yasam bicimlerine donusebilir.  Denemek icin: pop-up menu tusuna basili tutun (varsayilan sag tus), mouse'u asagi hareket ettirin, sonra saga hareket ettirin, sonra tusu birakin.
+}
+
+HelpTextCommanderGiveOrders
+{
+Yere ya da bir yapiya sag tiklayarak emir verebilirsiniz.
+}
+
+HelpTextCommanderSelectPlayers
+{
+Oyunculari secmek icin sol tusu kullanin, ya da sol tusa basili tutup surukleyerek bir kutu olusturun.
+}
+
+HelpTextCommanderLogout
+{
+Commander mode'dan cikmak icin ekranin sag ustundeki kirmizi "CIKIS" butonuna basin.
+}
+
+// This message isn't in yet
+HelpTextCommanderBuild
+{
+Bu yapi tam insa edilmemis.  Bir oyuncu secip buraya sag tiklayarak insa etme emri verin.
+}
+
+HelpTextCommanderUse
+{
+Kapi, asansor ve diger hareketli yapilar commander tarafindan kullanilabilir.  Kullanmak icin sol tusla tiklayin.
+}
+
+HelpTextCommanderAttack
+{
+This target can be attacked!  Right-click to give an attack order.
+Bu hedefe saldirabilirsiniz.  Sag tiklayarak saldiri emri verin.
+}
+
+HelpTextCommanderWeld
+{
+Burayi weld edebilirsiniz.  Bir asker icin welder alin, sonra buraya sag tiklayarak weld etme emri verin.
+}
+
+HelpTextCommanderGet
+{
+Bunu alma emri vermek icin buraya sag tiklayin.
+}
+
+HelpTextCommanderUnderAttack
+{
+You are under attack!  Press your "jump" key to go to the alert.
+Saldiri altindasiniz!  Ilgili alana gitmek icin ziplama tusuna basin.
+}
+
+HelpTextCommanderResearchComplete
+{
+Arastirma bitti.  Arastirma alanina gitmek icin ziplama tusuna basin.
+}
+
+HelpTextCommanderUpgradeComplete
+{
+Upgrade bitti.  Upgrade edilmis yapiya gitmek icin ziplama tusuna basin.
+}
+
+JetpackEnergyHUDText
+{
+Jet-pack enerjisi
+}
+
+HelpTextDisableHelp
+{
+Multiplayer customization menusunde "show hints" secenegini kapatarak bu aciklamalari kapayabilirsiniz (cl_autohelp 0).
+}
+
+Paralyzed
+{
+Paralize oldunuz
+}
+
+Stunned
+{
+Stun
+}
+
+Digested
+{
+Hazmediliyorsunuz...
+}
+
+DigestingPlayer
+{
+%s hazmediliyor...
+}
+
+Parasited
+{
+Parazit
+}
+
+PrimalScreamed
+{
+Primal scream
+}
+
+Umbraed
+{
+Umbra
+}
+
+Webbed
+{
+Web
+}
+
+// Order descriptions
+Order2
+{
+Waypointe git
+}
+
+Order3
+{
+Hedefe saldir
+}			 
+
+Order4
+{
+%s insa et
+}
+
+Order5
+{
+%s koru
+}
+
+Order6
+{
+Welder kullan
+}
+
+Order7
+{
+%s al
+}
+
+Order9
+{
+Beklemede kal
+}
+
+Range
+{
+%d metre
+}
+
+// Timelimit for tourny mode
+GameTime
+{
+Oyun suresi
+}
+
+Elapsed
+{
+gecen
+}
+
+TimeLimit
+{
+Toplam sure
+}
+
+Remaining
+{
+kalan
+}
+
+// HLTV 
+Spec_duck
+{
+Izleyici menusu icin egilme tusuna basin
+}
+
+SPECT_OPTIONS
+{
+Secenekler
+}
+
+CAM_OPTIONS
+{
+Kamera Secenekleri
+}
+
+SpecMode5Text
+{
+}
+
+OBS_MAP_FREE
+{
+Map free camera
+}
+
+OBS_MAP_CHASE
+{
+Map chase camera
+}
+
+OBS_CHASE_FREE
+{
+Free chase camera
+}
+
+OBS_CHASE_LOCKED
+{
+Locked chase camera
+}
+
+OBS_IN_EYE
+{
+In-eye camera
+}
+
+OBS_ROAMING
+{
+Free look camera
+}
+
+// Official map locations
+testlocation1
+{
+The translated refinery
+}
+
+/////////////
+// ns_bast //
+/////////////
+bastlocation_dockingbay
+{
+Marine Start - Docking Bay 1
+}
+
+bastlocation_mainjunction
+{
+Main Aft Junction
+}
+
+bastlocation_cargolock
+{
+Heavy Lock Door
+}
+
+bastlocation_atmosphericprocessing
+{
+Atmospheric Processing
+}
+
+bastlocation_furnace
+{
+Steam Generation
+}
+
+bastlocation_watertreatment
+{
+Water Treatment
+}
+
+// NOTE: The hyphen in hive location names is important.  Everything before the hyphen is trimmed off when displaying
+// location names for aliens (the hive icons in the upper right of their HUD).  Make sure to follow the convention:
+// Hive Location - name
+bastlocation_feedwatercontrol
+{
+Hive Location - Feedwater Control
+}
+
+bastlocation_trammaintenance
+{
+Tram Maintenance
+}
+
+bastlocation_tramtunnel
+{
+Tram Tunnel
+}
+
+bastlocation_lowerjunction
+{
+Lower Junction
+}
+
+bastlocation_Refinery
+{
+Hive Location - Refinery
+}
+
+bastlocation_emshaft
+{
+EM Drill Shaft
+}
+
+bastlocation_engineroom
+{
+Hive Location - Engine Room
+}
+
+bastlocation_dockinghydraulics
+{
+Docking Hydraulics
+}
+
+bastlocation_maintenancejunction
+{
+Maintenance Junction
+}
+
+bastlocation_ncorridor
+{
+"N" Corridor
+}
+
+bastlocation_observationbridge
+{
+Observation Bridge
+}
+
+bastlocation_starboardairlock
+{
+Starboard Airlock
+}
+
+bastlocation_portairlock
+{
+Port Airlock
+}
+
+bastlocation_maintenanceaccess
+{
+Maintenance Access Duct
+}
+
+bastlocation_pressureequalization
+{
+Pressure Equalization Conduit
+}
+
+bastlocation_starboardcorridor
+{
+Aft Starboard Corridor
+}
+
+bastlocation_filtration
+{
+Feedwater Filtration Access
+}
+
+bastlocation_ventilation
+{
+Ventilation Conduit
+}
+
+bastlocation_databank
+{
+Databank Access
+}
+
+bastlocation_enginecorridor
+{
+Engine Corridor
+}
+
+/////////////
+// ns_hera //
+/////////////
+heralocation_archive
+{
+Hive Location - Archiving
+}
+ 
+heralocation_processingcorea
+{
+Data Core Alpha
+}
+ 
+heralocation_reception
+{
+Hera Entrance and Reception
+}
+ 
+heralocation_holoroom
+{
+Central Monitoring - 'Holoroom'
+}
+ 
+heralocation_storage
+{
+General Cargo Storage
+}
+ 
+heralocation_hanger
+{
+Marine Start - Loading bay
+}
+ 
+heralocation_docking
+{
+Marine Start - Landing Pad
+}
+ 
+heralocation_processing
+{
+Processing
+}
+ 
+heralocation_processingcoreb
+{
+Hive Location - Data Core Delta
+}
+ 
+heralocation_ventilation
+{
+Hive Location - Ventilation 3-C
+}
+ 
+heralocation_maintenence
+{
+Maintenance
+}
+ 
+heralocation_fogcorridor
+{
+Maintenance Corridor
+}
+ 
+heralocation_tube
+{
+Hera Entrance Walkway
+}
+
+// Nothing titles
+nothinglocation_rr
+{
+Space Station Nothing - Sub Sector 77
+}
+
+nothinglocation_ms
+{
+Marine Start - S77 Vestibule
+}
+
+nothinglocation_dock
+{
+Docking Wing 01
+}
+
+nothinglocation_thres1
+{
+The Threshold
+}
+
+nothinglocation_thres2
+{
+The Threshold
+}
+
+nothinglocation_junc1
+{
+The Junction
+}
+
+nothinglocation_junc2
+{
+The Junction
+}
+
+nothinglocation_vent
+{
+Ventilation Chamber
+}
+
+nothinglocation_comm
+{
+Communications Hub 063
+}
+
+nothinglocation_things
+{
+Room With Things
+}
+
+nothinglocation_cargo
+{
+Hive Location - Cargo Bay Foyer
+}
+
+nothinglocation_pipe
+{
+Pipe Room
+}
+
+nothinglocation_paint1
+{
+Painted Corridor
+}
+
+nothinglocation_paint2
+{
+Painted Corridor
+}
+
+nothinglocation_paint3
+{
+Painted Corridor
+}
+
+nothinglocation_quada
+{
+Quad Lift Area
+}
+
+nothinglocation_quad
+{
+Quad Lift
+}
+
+nothinglocation_chamb
+{
+Foreboding Antechamber
+}
+
+nothinglocation_sas1
+{
+Silo Access South
+}
+
+nothinglocation_sas2
+{
+Silo Access South
+}
+
+nothinglocation_silo
+{
+Hive Location - PowerSilo
+}
+
+nothinglocation_san1
+{
+Silo Access North
+}
+
+nothinglocation_san2
+{
+Silo Access North
+}
+
+nothinglocation_mias1
+{
+Miasma Walkway
+}
+
+nothinglocation_mias2
+{
+Miasma Walkway
+}
+
+nothinglocation_mias3
+{
+Miasma Walkway
+}
+
+nothinglocation_gen
+{
+Generator Room
+}
+
+nothinglocation_elev1
+{
+Elevator Shaft 01
+}
+
+nothinglocation_elev2
+{
+Elevator Shaft 02
+}
+
+nothinglocation_eek
+{
+Intimidation
+}
+
+nothinglocation_kismet
+{
+Ominous Kismet
+}
+
+nothinglocation_vae
+{
+Viaduct Access East
+}
+
+nothinglocation_vaw
+{
+Viaduct Access West
+}
+
+nothinglocation_viaduct
+{
+Hive Location - The Great Viaduct
+}
+
+// TANITH info_location data START
+tanith_westenter
+{
+Western Entrance
+}
+
+tanith_marinebase
+{
+Marine Start - Uplink Command
+}
+
+tanith_outsidebase
+{
+Exterior Access Paths
+}
+
+tanith_north
+{
+Northern Corridor
+}
+
+tanith_sat
+{
+External Satellite Relay
+}
+
+tanith_satcomm
+{
+Hive Location - Satellite Communications
+}
+
+tanith_transport
+{
+Chemical Transport Room
+}
+
+tanith_cpu
+{
+Computer Control
+}
+
+tanith_acid
+{
+Acidic Solution Processing
+}
+
+tanith_reactor
+{
+Reactor Room
+}
+
+tanith_enter
+{
+Eastern Entrance
+}
+
+tanith_centerenter
+{
+Central Entrance
+}
+
+tanith_east
+{
+East Access Tunnels
+}
+
+tanith_research
+{
+Research Labs
+}
+
+tanith_rr
+{
+Tanith Ready Room
+}
+tanith_waste
+{
+Hive Location - Waste Handling
+}
+
+tanith_central
+{
+Central Access Tunnels
+}
+
+tanith_storageenter
+{
+Storage Entrance
+}
+
+tanith_cargo
+{
+Cargo Storage
+}
+
+tanith_fusion
+{
+Hive Location - Fusion Reactor
+}
+
+tanith_west
+{
+West Access Corridor
+}
+// TANITH info_location data END 
+
+
+// NANCY info_location data START
+nancy_cargo
+{
+Cargo Hold 2
+}
+
+nancy_aux
+{
+Auxillary Command
+}
+
+nancy_engine
+{
+Port Engine Room
+}
+
+nancy_crawl
+{
+Sub-tunnel
+}
+
+nancy_maint
+{
+Maintenance Shaft
+}
+
+nancy_shaft
+{
+Maintenance Shaft
+}
+
+nancy_mother
+{
+Noname
+}
+
+nancy_lockers
+{
+Crew Lockers
+}
+
+nancy_mess
+{
+Mess Hall
+}
+
+nancy_airlock
+{
+Airlock Exchange
+}
+
+nancy_port
+{
+Port Airlock
+}
+
+nancy_bridge
+{
+Bridge
+}
+
+nancy_cockpit
+{
+Cockpit
+}
+
+nancy_star
+{
+Starboard Airlock
+}
+
+nancy_gen
+{
+Auxiliary Generators
+}
+
+nancy_motherinter
+{
+Mother Interface
+}
+
+nancy_subspace
+{
+Subspace Array Interface
+}
+
+nancy_crew
+{
+Crew Quarters
+}
+// NANCY info_location data END
+
+// CAGED info_location data START
+caged_marine
+{
+Marine Spawn - Main Hold
+}
+
+caged_upsewer
+{
+Upper Sewer
+}
+
+caged_dsewer
+{
+Lower Sewer
+}
+
+caged_hive1
+{
+Hive Location - Sewer
+}
+
+caged_hive2
+{
+Hive Location - Ventilation System
+}
+
+caged_hive3
+{
+Hive Location - Generator
+}
+
+caged_pure
+{
+Purification Station 01
+}
+
+caged_central
+{
+Central Processing
+}
+
+caged_vaccess
+{
+Ventilation Access
+}
+
+caged_work
+{
+Stability Monitoring
+}
+
+caged_auxgen
+{
+Auxiliary Generator
+}
+
+caged_service
+{
+Shipping Tunnels
+}
+
+caged_area2
+{
+Upper Shipping Access
+}
+// CAGED info_location data END
+
+// Eclipse info_location... info. (BEGIN)
+eclipse_dock
+{
+Docking Control
+}
+
+eclipse_marinespawn
+{
+Marine Spawn - Cargo Transfer
+}
+
+eclipse_station
+{
+Station Access
+}
+
+eclipse_stationeast
+{
+Station Access East
+}
+
+eclipse_stationalpha
+{
+Station Access Alpha
+}
+
+eclipse_stationwest
+{
+Station Access West
+}
+
+eclipse_triad
+{
+Triad Generator Array
+}
+
+eclipse_triadb
+{
+Triad Access B
+}
+
+eclipse_access1c
+{
+Access Corridor 1C
+}
+
+eclipse_access1b
+{
+Access Corridor 1B
+}
+
+eclipse_access1a
+{
+Primary Access Corridor 1A
+}
+
+eclipse_horseshoe
+{
+The Horseshoe
+}
+
+eclipse_tjunct
+{
+T-Junction
+}
+
+eclipse_keyhole
+{
+The Keyhole
+}
+
+eclipse_maint
+{
+Hive - Maintenance Access
+}
+
+eclipse_south
+{
+South Loop
+}
+
+eclipse_core
+{
+Hive - Computer Core
+}
+
+eclipse_northcore
+{
+North Core Access
+}
+
+eclipse_westcore
+{
+West Core Access
+}
+
+eclipse_subjunct
+{
+Power Sub-Junction 3
+}
+
+eclipse_access1d
+{
+Access Corridor 1D
+}
+
+eclipse_commandnorth
+{
+Command Access North
+}
+
+eclipse_command
+{
+Hive - Eclipse Command
+}
+
+eclipse_genmon
+{
+Primary Generator Monitors
+}
+
+eclipse_commandsouth
+{
+Command Access South
+}
+
+eclipse_access1a
+{
+Access Corridor 1A
+}
+// Eclipse info_location... info. (END)
+
+
+// Veil info_location (START)
+
+veil_marine
+{
+Marine Spawn - Mobile Command Interface
+}
+
+veil_lifteast
+{
+Lift 5 East
+}
+
+veil_swhive
+{
+Hive - Sub-Sector 5B Access
+}
+
+veil_south
+{
+Hive - Cargo Transfer South
+}
+
+veil_southeast
+{
+Hive - The Pipeline
+}
+
+veil_overlook
+{
+The Overlook
+}
+
+veil_topography
+{
+Topographical Analysis
+}
+
+veil_nano
+{
+NanoGrid Status
+}
+
+veil_dome
+{
+The Dome
+}
+
+veil_y
+{
+Y Junction
+}
+
+veil_skylight
+{
+West Skylights
+}
+
+veil_satellite
+{
+Satellite Feed
+}
+
+veil_pod1
+{
+Monitoring Pod 1
+}
+
+veil_pod2
+{
+Monitoring Pod 2
+}
+
+veil_waypointing
+{
+System Waypointing
+}
+
+veil_nanoeast
+{
+NanoGrid Access East
+}
+
+veil_nanowest
+{
+NanoGrid Access West
+}
+
+veil_c12
+{
+Emergency Nozzle C-12
+}
+
+veil_junctionwest
+{
+West Junction
+}
+
+veil_junctioneast
+{
+East Junction
+}
+
+veil_power
+{
+Power Core Status
+}
+
+// Veil info_location (END)
+
+
+// Tutorial text
+$position 0.15 0.15
+$effect 2
+$color 0 200 0
+$color2 0 255 0
+$fadein 0.04
+$fxtime 0.1
+$holdtime 6.0
+$fadeout 0.5
+
+TutWelcome
+{
+Natural Selection Egitimine Hosgeldiniz.
+
+Burada oyunun temel kurallarini ogreneceksiniz.
+
+Egitiminizi secmek icin bir kapidan gecin.
+FPS tipi oyunlara yeniyseniz, marine training onerilir.
+}
+
+TutWelcomeMarineTraining
+{
+Marine training sectiniz.  Burada bir Frontiersman
+olmanin inceliklerini ve alien irkiyla savasin
+yollarini ogreneceksiniz.
+}
+
+TutWelcomeAlienTraining
+{
+Alien training sectiniz. Burada galaksiyi
+nasil ele gecireceginizi ve insanlari
+yok etmenin yollarini ogreneceksiniz.
+}
+

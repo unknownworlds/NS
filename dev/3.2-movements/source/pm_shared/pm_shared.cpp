@@ -310,6 +310,7 @@ static char grgchTextureType[CTEXTURESMAX];
 int     g_onladder[MAX_CLIENTS];
 bool    gIsJetpacking[MAX_CLIENTS];
 
+bool    gCanJump[MAX_CLIENTS];
 
 // Borrowed from Quake1.
 
@@ -4659,7 +4660,9 @@ bool PM_LeapMove()
 	vec3_t forward, right, up;
 	AngleVectors(pmove->angles, forward, right, up);
 
+	gCanJump[pmove->player_index] = true;
 	PM_Jump();
+	gCanJump[pmove->player_index] = false;
 
     vec3_t theAbilityVelocity;
     VectorScale(forward, theScalar, theAbilityVelocity);
@@ -5186,6 +5189,11 @@ void PM_Jump (void)
     qboolean tfc = false;
     
     qboolean cansuperjump = false;
+
+	if ((pmove->cmd.buttons & IN_JUMP) && !(pmove->oldbuttons & IN_JUMP))
+	{
+		gCanJump[pmove->player_index] = true;
+	}
     
     if (pmove->dead || GetHasUpgrade(pmove->iuser4, MASK_ENSNARED))
     {
@@ -5307,7 +5315,8 @@ void PM_Jump (void)
 //	if ( pmove->oldbuttons & IN_JUMP && (pmove->velocity[0] == 0 || !theIsAlien  || pmove->iuser3 == AVH_USER3_ALIEN_PLAYER3) )
 		//return;     // don't pogo stick
 
-	if ( pmove->oldbuttons & IN_JUMP )
+//	if ( pmove->oldbuttons & IN_JUMP ) 
+	if (gCanJump[pmove->player_index] == false)
 		return;     // don't pogo stick
 
 	// In the air now.
@@ -5356,6 +5365,7 @@ void PM_Jump (void)
     {
         pmove->velocity[2] = sqrt(2 * 800 * 45.0);
 	    // Flag that we jumped.
+		gCanJump[pmove->player_index] = false;
     }
 
 	 pmove->oldbuttons |= IN_JUMP;   // don't jump again until released

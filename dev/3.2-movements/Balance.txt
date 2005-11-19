@@ -119,7 +119,7 @@
 #define kGameDownloadSize 150
 #define kGameHDSpaceNeeded 300
 #define kGameVersionMajor 3
-#define kGameVersionMinor 1
+#define kGameVersionMinor 2
 #define kGameVersionRevision 0
 #define kGestateBaseArmor 150
 #define kGestateHealth 200

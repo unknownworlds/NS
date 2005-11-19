@@ -182,6 +182,7 @@ private:
 	float	mTimeCreated;
 };
 
+
 const int kNumUpgradeLines = 5;
 
 class AvHHud : public UIHud
@@ -848,5 +849,8 @@ private:
     static bool             sShowMap;
 
 };
+
+AvHHud& getHUD();
+#define gHUD (getHUD())
 
 #endif

@@ -311,6 +311,11 @@ int     g_onladder[MAX_CLIENTS];
 bool    gIsJetpacking[MAX_CLIENTS];
 
 bool    gCanJump[MAX_CLIENTS];
+#ifdef AVH_SERVER
+bool    gCanMove[MAX_CLIENTS];
+#else
+bool	gCanMove;
+#endif
 
 // Borrowed from Quake1.
 
@@ -4601,22 +4606,28 @@ bool PM_ChargeMove()
 	if (pmove->onground != -1)
 	{
 		vec3_t forward;
+		vec3_t sideways;
 		float length = pmove->maxspeed * (1.0f + (float)BALANCE_VAR(kChargeSpeed) * pmove->fuser4 / theChargeThresholdTime);
 
 		VectorCopy(pmove->forward, forward);
+		VectorScale(forward, -1 * DotProduct(forward, pmove->velocity), forward);
+		VectorAdd(pmove->velocity, forward, sideways);
+		//VectorScale(sideways, 1.5f, sideways);
+		
+		VectorCopy(pmove->forward, forward);
+		forward[2] = 0.0f;
 		VectorNormalize(forward);
 		VectorScale(forward, length, forward);
 		
-		float boostfactor = DotProduct(forward, pmove->velocity) / (length * length);
-		VectorScale(forward, (1.0f - boostfactor), forward);
-		VectorAdd(forward, pmove->velocity, pmove->velocity);
+		VectorAdd(forward, sideways, pmove->velocity);
+		//VectorCopy(forward, pmove->velocity);
+
+		// pmove->velocity[2] = 0.0f;
+
 		float velocity = Length(pmove->velocity);
-		float maxvel = (pmove->maxspeed * (1.0f + (float)BALANCE_VAR(kChargeSpeed)) * 1.6f);
+		float maxvel = (pmove->maxspeed * (1.0f + theChargeSpeed));
 		if (velocity > maxvel)
-		{
-			VectorNormalize(pmove->velocity);
-			VectorScale(pmove->velocity, maxvel, pmove->velocity);
-		}
+			VectorScale(pmove->velocity, maxvel / velocity, pmove->velocity);
 	}
 
 	return true;
@@ -4688,23 +4699,30 @@ void PM_AlienAbilities()
     }
 
 	// Movement abilities
+
+	bool canmove = false;
+#ifdef AVH_SERVER
+	canmove = gCanMove[pmove->player_index];
+#else
+	canmove = gCanMove;
+#endif
 	bool success = false;
 	if ((pmove->cmd.buttons & IN_ATTACK2) && (AvHGetIsAlien(pmove->iuser3)))
 	{
 		switch (pmove->iuser3)
 		{
 		case AVH_USER3_ALIEN_PLAYER1:
-			success = PM_LeapMove();
+			success = canmove && PM_LeapMove();
 			break;
 		case AVH_USER3_ALIEN_PLAYER3:
 			pmove->cmd.buttons |= IN_JUMP;
 			success = PM_FlapMove();
 			break;
 		case AVH_USER3_ALIEN_PLAYER4:
-			success = PM_BlinkMove();
+			success = canmove && PM_BlinkMove();
 			break;
 		case AVH_USER3_ALIEN_PLAYER5:
-			success = PM_ChargeMove();
+			success = canmove && PM_ChargeMove();
 			break;
 		default:
 			{
@@ -5197,10 +5215,10 @@ void PM_Jump (void)
     
     qboolean cansuperjump = false;
 
-	if ((pmove->cmd.buttons & IN_JUMP) && !(pmove->oldbuttons & IN_JUMP))
-	{
-		gCanJump[pmove->player_index] = true;
-	}
+//	if ((pmove->cmd.buttons & IN_JUMP) && !(pmove->oldbuttons & IN_JUMP))
+//	{
+//		gCanJump[pmove->player_index] = true;
+//	}
     
     if (pmove->dead || GetHasUpgrade(pmove->iuser4, MASK_ENSNARED))
     {
@@ -5321,8 +5339,8 @@ void PM_Jump (void)
 //	if ( pmove->oldbuttons & IN_JUMP && (pmove->velocity[0] == 0 || !theIsAlien  || pmove->iuser3 == AVH_USER3_ALIEN_PLAYER3) )
 		//return;     // don't pogo stick
 
-//	if ( pmove->oldbuttons & IN_JUMP ) 
-	if (gCanJump[pmove->player_index] == false)
+	if ( pmove->oldbuttons & IN_JUMP ) 
+//	if (gCanJump[pmove->player_index] == false)
 		return;     // don't pogo stick
 
 	// In the air now.
@@ -5371,7 +5389,7 @@ void PM_Jump (void)
     {
         pmove->velocity[2] = sqrt(2 * 800 * 45.0);
 	    // Flag that we jumped.
-		gCanJump[pmove->player_index] = false;
+		// gCanJump[pmove->player_index] = false;
     }
 
 	 pmove->oldbuttons |= IN_JUMP;   // don't jump again until released

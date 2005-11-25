@@ -1503,8 +1503,8 @@ void InitInput (void)
 	gEngfuncs.pfnAddCommand ("-speed", IN_SpeedUp);
 	gEngfuncs.pfnAddCommand ("+attack", IN_AttackDown);
 	gEngfuncs.pfnAddCommand ("-attack", IN_AttackUp);
-	gEngfuncs.pfnAddCommand ("+attack2", IN_Attack2Down);
-	gEngfuncs.pfnAddCommand ("-attack2", IN_Attack2Up);
+	gEngfuncs.pfnAddCommand ("+moveability", IN_Attack2Down);
+	gEngfuncs.pfnAddCommand ("-moveability", IN_Attack2Up);
 	gEngfuncs.pfnAddCommand ("+use", IN_UseDown);
 	gEngfuncs.pfnAddCommand ("-use", IN_UseUp);
 	gEngfuncs.pfnAddCommand ("+jump", IN_JumpDown);

@@ -702,6 +702,7 @@ private:
 	HSPRITE					mAlienUIEnergySprite;
 
 	HSPRITE					mBlackSprite;
+	HSPRITE					mChargeSprite;
 
 	HSPRITE					mMembraneSprite;
 	HSPRITE					mDigestingSprite;

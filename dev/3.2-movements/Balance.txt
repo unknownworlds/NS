@@ -357,7 +357,7 @@
 #define kChargeMaxPushbackForce 100.0
 #define kChargePushbackRadius 100.0
 #define kChargeSpeed 1.00
-#define kChargeThresholdTime 0.50
+#define kChargeThresholdTime 0.75
 #define kChargingEnergyScalar 2.80
 #define kClawsEnergyCost 0.07
 #define kClawsROF 0.90

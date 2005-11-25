@@ -899,8 +899,8 @@ int	AvHDivineWind::iItemSlot(void)
 
 int AvHCharge::GetItemInfo(ItemInfo *p) const
 {
-	p->iSlot = AVH_FOURTH_SLOT;
-	p->iPosition = 6;
+	p->iSlot = AVH_SECOND_SLOT; //AVH_FOURTH_SLOT;
+	p->iPosition = 5;
 	
 	p->pszName = STRING(pev->classname);
 	p->pszAmmo1 = NULL;
@@ -908,7 +908,7 @@ int AvHCharge::GetItemInfo(ItemInfo *p) const
 	p->pszAmmo2 = NULL;
 	p->iMaxAmmo2 = BALANCE_VAR(kChargeDamage);
 	p->iMaxClip = WEAPON_NOCLIP;
-	p->iFlags = ITEM_FLAG_NOAUTOSWITCHEMPTY | ITEM_FLAG_NOAUTORELOAD | ONE_HIVE_REQUIRED | TWO_HIVES_REQUIRED | THREE_HIVES_REQUIRED;
+	p->iFlags = ITEM_FLAG_NOAUTOSWITCHEMPTY | ITEM_FLAG_NOAUTORELOAD | ONE_HIVE_REQUIRED; // | TWO_HIVES_REQUIRED | THREE_HIVES_REQUIRED;
 	p->iId = AVH_ABILITY_CHARGE;
 	p->iWeight = kDefaultPrimaryWeaponWeight;
 	
@@ -917,7 +917,7 @@ int AvHCharge::GetItemInfo(ItemInfo *p) const
 
 int	AvHCharge::iItemSlot(void)
 {
-	return AVH_FOURTH_SLOT + 1;
+	return AVH_SECOND_SLOT + 1;
 }
 
 int AvHStomp::GetItemInfo(ItemInfo *p) const
@@ -946,8 +946,8 @@ int	AvHStomp::iItemSlot(void)
 
 int AvHDevour::GetItemInfo(ItemInfo *p) const
 {
-	p->iSlot = AVH_SECOND_SLOT;
-	p->iPosition = 5;
+	p->iSlot = AVH_FOURTH_SLOT; //AVH_SECOND_SLOT;
+	p->iPosition = 6;
 	
 	p->pszName = STRING(pev->classname);
 	p->pszAmmo1 = NULL;
@@ -955,7 +955,7 @@ int AvHDevour::GetItemInfo(ItemInfo *p) const
 	p->pszAmmo2 = NULL;
 	p->iMaxAmmo2 = BALANCE_VAR(kDevourDamage);
 	p->iMaxClip = WEAPON_NOCLIP;
-	p->iFlags = ITEM_FLAG_NOAUTOSWITCHEMPTY | ITEM_FLAG_NOAUTORELOAD | ONE_HIVE_REQUIRED;
+	p->iFlags = ITEM_FLAG_NOAUTOSWITCHEMPTY | ITEM_FLAG_NOAUTORELOAD | ONE_HIVE_REQUIRED | TWO_HIVES_REQUIRED | THREE_HIVES_REQUIRED;
 	p->iId = AVH_WEAPON_DEVOUR;
 	p->iWeight = kDefaultPrimaryWeaponWeight;
 	
@@ -964,7 +964,7 @@ int AvHDevour::GetItemInfo(ItemInfo *p) const
 
 int	AvHDevour::iItemSlot(void)
 {
-	return AVH_SECOND_SLOT + 1;
+	return AVH_FOURTH_SLOT + 1;
 }
 
 

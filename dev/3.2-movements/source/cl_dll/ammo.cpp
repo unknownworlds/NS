@@ -41,6 +41,8 @@ WeaponsResource gWR;
 
 int g_weaponselect = 0;
 
+extern bool gCanMove;
+
 //Equivalent to DECLARE_COMMAND(lastinv,LastInv) except we use gWR instead of gHud
 void __CmdFunc_LastInv(void)
 { gWR.UserCmd_LastInv(); }
@@ -736,6 +738,9 @@ int CHudAmmo::MsgFunc_CurWeapon(const char *pszName, int iSize, void *pbuf )
 
 	if( !bIsCurrent )
 	{ return 1; }
+
+	if (iId == 22 || iId == 11 || iId == 21)
+		gCanMove = pWeapon->iEnabled;
 
 	m_pWeapon = pWeapon;
 

@@ -3650,8 +3650,27 @@ void AvHHud::RenderAlienMovementUIEffect()
 
 	if (isMoving && (iuser3 == AVH_USER3_ALIEN_PLAYER5))
 	{
+		float alpha = 1.0f;
 		float theChargeThresholdTime = (float)BALANCE_VAR(kChargeThresholdTime);
 		float factor = min(this->mMovementTimer / theChargeThresholdTime, 1.0f);
+
+//		if (this->mMovementTimer > 0.0f)
+//		{
+//			alpha = min(this->mMovementTimer / theChargeThresholdTime, 1.0f);
+//
+//			AvHSpriteSetColor(1, 1, 1, alpha);
+//			AvHSpriteSetRenderMode(kRenderTransAlpha);
+//
+//			int theWidth = ScreenWidth();
+//			int theHeight = ScreenHeight();
+//
+//			int theX = mViewport[0];
+//			int theY = mViewport[1];
+//			int theY1 = mViewport[1];
+//			int theY2 = mViewport[3];
+//
+//			AvHSpriteDraw(mChargeSprite, 0, theX, theY, theX + theWidth, theY + theHeight, 0, 0, 1, 1);
+//		}
 	}
 	if (isMoving && (iuser3 == AVH_USER3_ALIEN_PLAYER1))
 	{
@@ -4305,6 +4324,9 @@ void AvHHud::VidInit(void)
 
 	// black sprite
 	this->mBlackSprite = Safe_SPR_Load("sprites/black.spr");
+	
+	// charge sprite
+	this->mChargeSprite = Safe_SPR_Load("sprites/charge_tint.spr");
 
 	// Load background for topdown mode
 	this->mBackgroundSprite = Safe_SPR_Load(kTopDownBGSprite);

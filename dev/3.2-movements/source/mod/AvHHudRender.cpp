@@ -2461,7 +2461,7 @@ void AvHHud::DrawBuildHealthEffectsForEntity(int inEntityIndex, float inAlpha)
 		theMaxs = theEntity->curstate.maxs;
 		theHealthPercentage = theEntity->curstate.fuser2/kNormalizationNetworkFactor;
 		// puzl: 991 transmit armour and health for marines
-		if ( GetIsMarine() && theEntityIsPlayer ) {
+		if ( GetIsMarine() && theEntityIsPlayer && theIsOnOurTeam ) {
 			int tmpPercent=theEntity->curstate.fuser2;
 			if ( GetInTopDownMode() ) {
 				theHealthPercentage = (float)(tmpPercent&0x7F)/100;
@@ -2796,8 +2796,9 @@ void AvHHud::RenderCommonUI()
         
         if (gHUD.GetServerVariableFloat("sv_cheats") != 0 && CVAR_GET_FLOAT("cl_showspeed") != 0)
         {
-
             // Draw the speedometer.
+
+			static int maxVelocity=0, maxClimb=0, maxDive=0;
 
             int theR, theG, theB;
             this->GetPrimaryHudColor(theR, theG, theB, true, false);
@@ -2806,7 +2807,13 @@ void AvHHud::RenderCommonUI()
         
             char buffer[1024];
 
-            sprintf(buffer, "Speed = %d", (int)Length(pmove->velocity));
+			int velocity=(int)Length(pmove->velocity);
+
+			maxVelocity=max(maxVelocity, velocity);
+			maxClimb=max((int)pmove->velocity[2], maxClimb);
+			maxDive=min((int)pmove->velocity[2], maxDive);
+
+            sprintf(buffer, "Speed(Max)= %d (%d)", velocity, maxVelocity);
             mFont.DrawString(10, 10, buffer, theR, theG, theB);
 
             float theGroundSpeed = sqrtf(pmove->velocity[0] * pmove->velocity[0] + pmove->velocity[1] * pmove->velocity[1]);
@@ -2814,8 +2821,10 @@ void AvHHud::RenderCommonUI()
             sprintf(buffer, "Ground speed = %d", (int)theGroundSpeed);
             mFont.DrawString(10, 12 + mFont.GetStringHeight(), buffer, theR, theG, theB);
             
+            sprintf(buffer, "Max Ascent/Descent = %d/%d", maxClimb, maxDive);
+            mFont.DrawString(10, 16 + mFont.GetStringHeight()*2, buffer, theR, theG, theB);
 
-        }
+		}
 
         DrawInfoLocationText();
         DrawHUDStructureNotification();

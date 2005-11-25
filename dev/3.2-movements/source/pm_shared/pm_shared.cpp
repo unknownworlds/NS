@@ -362,6 +362,23 @@ bool PM_GetIsCharging()
     return false;
 }
 
+int PM_GetCelerityLevel() {
+	int theSpeedUpgradeLevel =0;
+    if(GetHasUpgrade(pmove->iuser4, MASK_UPGRADE_4))
+    {
+        theSpeedUpgradeLevel = 1;
+
+        if(GetHasUpgrade(pmove->iuser4, MASK_UPGRADE_12))
+        {
+            theSpeedUpgradeLevel = 2;
+        }
+        else if(GetHasUpgrade(pmove->iuser4, MASK_UPGRADE_13))
+        {
+            theSpeedUpgradeLevel = 3;
+        }
+    }
+	return theSpeedUpgradeLevel;
+}
 
 /*
 ===================
@@ -3559,7 +3576,8 @@ void PM_AirMove (void)
     }
 
     PM_PreventMegaBunnyJumping(true);
-    
+
+  
 	float theAirAccelerate = gIsJetpacking[pmove->player_index] ? pmove->movevars->airaccelerate*4 : pmove->movevars->airaccelerate;
     if(pmove->iuser3 == AVH_USER3_ALIEN_PLAYER3)
     {
@@ -4425,6 +4443,7 @@ bool PM_BlinkMove (void)
 // Lerk flight
 bool PM_FlapMove()
 {
+	static float maxVelocity, maxx, maxy, maxz;
 	if (pmove->iuser3 != AVH_USER3_ALIEN_PLAYER3)
 		return false;
 
@@ -4436,7 +4455,7 @@ bool PM_FlapMove()
 		// Set to define delay between flaps in seconds
 		pmove->fuser4 = 0.1f;
 		
-		AvHMUDeductAlienEnergy(pmove->fuser3, kAlienEnergyFlap);
+		//AvHMUDeductAlienEnergy(pmove->fuser3, kAlienEnergyFlap);
 
 		// boost a bit up when on the ground
 		if (pmove->onground > -1)
@@ -4488,36 +4507,10 @@ bool PM_FlapMove()
         VectorScale(pmove->forward, theThrust, theFlapVelocity);
         theFlapVelocity[2] += theLift;
 
-		int theSpeedUpgradeLevel = 0;
-        if(GetHasUpgrade(pmove->iuser4, MASK_UPGRADE_4))
-        {
-            theSpeedUpgradeLevel = 1;
-
-            if(GetHasUpgrade(pmove->iuser4, MASK_UPGRADE_12))
-            {
-                theSpeedUpgradeLevel = 2;
-            }
-            else if(GetHasUpgrade(pmove->iuser4, MASK_UPGRADE_13))
-            {
-                theSpeedUpgradeLevel = 3;
-            }
-        }
-		int theAdjustment=theSpeedUpgradeLevel * BALANCE_VAR(kAlienCelerityBonus);
-		float theAscendMax=BALANCE_VAR(kLerkBaseAscendSpeedMax) + theAdjustment;
-		static float maxVelocity=0;
-		maxVelocity=max(maxVelocity, pmove->velocity[2]); 
-		if ( pmove->velocity[2] > theAscendMax ) {
-			theFlapVelocity[2]=0;
-		}
-		// cap diving too
-		if ( -pmove->velocity[2] > theAscendMax*1.3 ) {
-			theFlapVelocity[2]=0;
-		}
-
         vec3_t theNewVelocity;
         VectorAdd(pmove->velocity, theFlapVelocity, theNewVelocity);
 
-        VectorCopy(theNewVelocity, pmove->velocity);
+		VectorCopy(theNewVelocity, pmove->velocity);
 
         if(pmove->runfuncs)
         {
@@ -4556,8 +4549,8 @@ bool PM_FlapMove()
         {
             // Compute the velocity not in the direction we're facing.
             float theGlideAmount = PM_GetHorizontalSpeed() / 1000;
-            if (theGlideAmount > 0.2)
-                theGlideAmount = 0.2;
+            if (theGlideAmount > 0.5)
+                theGlideAmount = 0.5;
 
             float speed = Length(pmove->velocity);
             float projectedSpeed = DotProduct(pmove->velocity, pmove->forward);
@@ -5134,48 +5127,62 @@ void PM_PreventMegaBunnyJumping(bool inAir)
     // If we have to crop, apply this cropping fraction to velocity
     float fraction;
     // Speed at which bunny jumping is limited
-    float maxscaledspeed;
-    
-    maxscaledspeed = BUNNYJUMP_MAX_SPEED_FACTOR * pmove->maxspeed;
-    if(inAir)
-    {
-        // Allow flyers, leapers, and JPers to go faster in the air, but still capped
-        maxscaledspeed = BALANCE_VAR(kAirspeedMultiplier)*pmove->maxspeed;
-    }
-    
-    // Don't divide by zero
-    if ( maxscaledspeed <= 0.0f )
-        return;
+	if ( pmove->iuser3 == AVH_USER3_ALIEN_PLAYER3 && inAir ) {
+		float maxbasespeed=BALANCE_VAR(kLerkBaseFlightSpeedMax) + BALANCE_VAR(kAlienCelerityBonus) * PM_GetCelerityLevel();
 
-    vec3_t theVelVector;
-    VectorCopy(pmove->velocity, theVelVector);
+		vec3_t vertical={0,0,-1.0f};
 
-    if(inAir)
-    {
-        theVelVector[2] = 0.0f;
-    }
+		vec3_t forward;
+		vec3_t tmp;
 
-    spd = Length( theVelVector );
-    
-    if ( spd <= maxscaledspeed )
-        return;
-    
-    // Returns the modifier for the velocity
-    fraction = maxscaledspeed/spd;
-    
-    float theCurrentSpeed = Length(pmove->velocity);
+		spd = Length( pmove->velocity );
 
-    VectorScale( pmove->velocity, fraction, pmove->velocity ); //Crop it down!.
+		// Simulate gravity
+		AngleVectors(pmove->angles, forward, tmp, tmp);
+		float ascentModifier=1.0f + DotProduct(forward, vertical)/10.0f;
+		maxbasespeed *= ascentModifier;
 
-//#ifdef AVH_CLIENT
-//  if(pmove->runfuncs)
-//  {
-//      pmove->Con_Printf("Preventing speed exploits (max speed: %f, current speed: %f, adjusted speed: %f\n", pmove->maxspeed, theCurrentSpeed, Length(pmove->velocity));
-//  }
-//#endif
+		if ( spd <= maxbasespeed )
+			return;
+	    
+		// Returns the modifier for the velocity
+		fraction = maxbasespeed/spd;
 
-    // Trigger footstep immediately to prevent silent bunny-hopping
-    //pmove->flTimeStepSound = 0.0f;
+		VectorScale( pmove->velocity, fraction, pmove->velocity ); //Crop it down!.
+	}
+	else
+	{
+		float maxscaledspeed;
+
+		maxscaledspeed = BUNNYJUMP_MAX_SPEED_FACTOR * pmove->maxspeed;
+		if(inAir)
+		{
+			// Allow flyers, leapers, and JPers to go faster in the air, but still capped
+			maxscaledspeed = BALANCE_VAR(kAirspeedMultiplier)*pmove->maxspeed;
+		}
+	    
+		// Don't divide by zero
+		if ( maxscaledspeed <= 0.0f )
+			return;
+
+		vec3_t theVelVector;
+		VectorCopy(pmove->velocity, theVelVector);
+
+		if(inAir)
+		{
+			theVelVector[2] = 0.0f;
+		}
+
+		spd = Length( theVelVector );
+	    
+		if ( spd <= maxscaledspeed )
+			return;
+	    
+		// Returns the modifier for the velocity
+		fraction = maxscaledspeed/spd;
+	    
+		VectorScale( pmove->velocity, fraction, pmove->velocity ); //Crop it down!.
+	}
 }
 
 /*
@@ -5267,7 +5274,6 @@ void PM_Jump (void)
     
 	// Lerk flight movement
 	PM_FlapMove();
-
 	// tankefugl: 0000972 walljump
 	if (canWallJump && (GetHasUpgrade(pmove->iuser4, MASK_WALLSTICKING) && (pmove->cmd.buttons & IN_JUMP) && !(pmove->oldbuttons & IN_JUMP) /*&& (gSurfaceNormal[2] < 0.7)*/))
 	{

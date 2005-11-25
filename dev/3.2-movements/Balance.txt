@@ -173,11 +173,11 @@
 #define kKillRewardMin 1
 #define kLeapDamage 80
 #define kLerkArmorUpgrade 30
-#define kLerkBaseArmor 30
+#define kLerkBaseArmor 50
 #define kLerkBaseSpeed 175
 #define kLerkCost 30
 #define kLerkGestateTime 15
-#define kLerkHealth 125
+#define kLerkHealth 150
 #define kMGDamage 10
 #define kMGMaxAmmo 250
 #define kMGMaxClip 50
@@ -405,7 +405,7 @@
 #define kJoinTeamCooldown 3.00
 #define kKNROF 0.65
 #define kLeapEnergyCost 0.25
-#define kLerkBaseAscendSpeedMax 600.00
+#define kLerkBaseFlightSpeedMax 700.00
 #define kMGROF 0.10
 #define kMarineArmorLevelOne 0.20
 #define kMarineArmorLevelThree 0.60

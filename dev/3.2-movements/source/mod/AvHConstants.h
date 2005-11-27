@@ -826,6 +826,8 @@ extern const char* getModName(void);
 #define kAlienStructureAttack2		"hud/alien_structureattack2.wav"
 #define kAlienUpgradeLost			"hud/alien_upgrade_lost.wav"
 
+#define kAlienBlinkVoid				"hud/blinkvoid.wav"
+
 #define kSoundOrderMove1			"hud/marine_order_move1.wav"
 #define kSoundOrderMove2			"hud/marine_order_move2.wav"
 #define kSoundOrderMove3			"hud/marine_order_move3.wav"

@@ -3708,6 +3708,17 @@ void AvHHud::RenderAlienMovementUIEffect()
 
 			AvHSpriteDraw(mBlackSprite, 0, theX, theY1, theX + theWidth, theY1 + theHeight * alpha, 0, 0, 1, alpha);    
 			AvHSpriteDraw(mBlackSprite, 0, theX, theY2 - theHeight * alpha, theX + theWidth, theY2, 0, 0, 1, alpha);
+
+/*			if (this->mMovementTimer >= theBlinkThresholdTime)
+			{
+				if (this->mLastBlinksoundPlayedTime + 2.533f <= this->mTimeOfLastUpdate)
+				{
+					this->mLastBlinksoundPlayedTime = this->mTimeOfLastUpdate;
+					// kAlienBlinkVoid 2533 ms
+					gEngfuncs.pfnPlaySoundByName(kAlienBlinkVoid, 1.0f);
+				}
+			}
+*/
 		}
 	}
 }

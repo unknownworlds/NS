@@ -447,6 +447,7 @@ public:
 private:
 
 	float			mMovementTimer;
+	float			mLastBlinksoundPlayedTime;
 
 	// tankefugl:
 	std::string		mCenterText;

@@ -656,6 +656,7 @@ void AvHHud::ClearData()
 	// :tankefugl
 
 	this->mMovementTimer = 0.0f;
+	this->mLastBlinksoundPlayedTime = 0.0f;
 
 	this->m_bConserveFOV = false;
 }

@@ -3124,6 +3124,7 @@ void CBasePlayer::Spawn( void )
 	m_bitsDamageType	= 0;
 	m_afPhysicsFlags	= 0;
 	m_fLongJump			= FALSE;// no longjump module. 
+	mForceWeaponUpdateFlag = true;
 
 	g_engfuncs.pfnSetPhysicsKeyValue( edict(), "slj", "0" );
 	g_engfuncs.pfnSetPhysicsKeyValue( edict(), "hl", "1" );
@@ -4220,8 +4221,9 @@ void CBasePlayer :: UpdateClientData( void )
 	
 	bool forceCurWeaponUpdate = false;
 
-	if (!m_fKnownItem)
+	if (!m_fKnownItem /* || this->mForceWeaponUpdateFlag*/ )
 	{
+		this->mForceWeaponUpdateFlag = false;
 
 		m_fKnownItem = TRUE;
 
@@ -4245,7 +4247,6 @@ void CBasePlayer :: UpdateClientData( void )
 		forceCurWeaponUpdate = true;
 		// :tankefugl
 	}
-
 
 	SendAmmoUpdate();
 

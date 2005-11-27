@@ -9104,6 +9104,8 @@ void AvHPlayer::UpdateInventoryEnabledState(int inNumActiveHives, bool inForceUp
     // Have we not yet updated our weapons with this # of hives?
     if((inNumActiveHives != this->mNumHives) || (inForceUpdate))
     {
+		this->mForceWeaponUpdateFlag = true;
+
         for(int i = 0; i < MAX_ITEM_TYPES; i++)
         {
             AvHBasePlayerWeapon* theActiveWeapon = dynamic_cast<AvHBasePlayerWeapon*>(this->m_rgpPlayerItems[i]);

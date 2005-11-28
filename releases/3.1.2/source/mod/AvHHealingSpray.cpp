@@ -166,8 +166,8 @@ void AvHHealingSpray::FireProjectiles(void)
 	while((theCurrentEntity = UTIL_FindEntityInSphere(theCurrentEntity, theOriginatingPosition, kHealingSprayRange)) != NULL)
 	{
 		// Can't affect self
-		if(theCurrentEntity != this->m_pPlayer)
-		{
+//		if(theCurrentEntity != this->m_pPlayer)
+//		{
 			// If entity is in view cone, and within range
 			if(this->m_pPlayer->FInViewCone(&theCurrentEntity->pev->origin))
 			{
@@ -240,7 +240,7 @@ void AvHHealingSpray::FireProjectiles(void)
 					}
 				}
 			}
-		}
+//		}
 	}
 	
 	#endif	

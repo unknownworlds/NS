@@ -124,7 +124,7 @@
 #define kGestateBaseArmor 150
 #define kGestateHealth 200
 #define kGorgeArmorUpgrade 50
-#define kGorgeBaseArmor 50
+#define kGorgeBaseArmor 70
 #define kGorgeBaseSpeed 170
 #define kGorgeCost 10
 #define kGorgeGestateTime 10
@@ -144,7 +144,7 @@
 #define kHMGDamage 20
 #define kHMGMaxAmmo 250
 #define kHMGMaxClip 125
-#define kHandGrenadeDamage 100
+#define kHandGrenadeDamage 80
 #define kHandGrenadeMaxAmmo 2
 #define kHealingSprayBuildableScalar 5
 #define kHealingSprayDamage 13

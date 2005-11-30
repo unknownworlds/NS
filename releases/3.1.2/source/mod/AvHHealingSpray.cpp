@@ -169,7 +169,7 @@ void AvHHealingSpray::FireProjectiles(void)
 //		if(theCurrentEntity != this->m_pPlayer)
 //		{
 			// If entity is in view cone, and within range
-			if(this->m_pPlayer->FInViewCone(&theCurrentEntity->pev->origin))
+			if(theCurrentEntity == this->m_pPlayer  || this->m_pPlayer->FInViewCone(&theCurrentEntity->pev->origin) )
 			{
 				// UTIL_FindEntityInSphere doesn't seem to take height into account.  Make sure the entity is within range.
                 float theMaxEntitySize = max(Length(theCurrentEntity->pev->mins), Length(theCurrentEntity->pev->maxs));

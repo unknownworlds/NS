@@ -1702,15 +1702,37 @@ Vector CBaseEntity::FireBulletsPlayer ( ULONG cShots, Vector vecSrc, Vector vecD
 		//				x * vecSpread.x * vecRight +
 		//				y * vecSpread.y * vecUp;
 
+		Vector vecDir;
 		// tankefugl: 0000973
 		// added inner cone for half of the shots
-		if (isShotgun && (iShot > (cShots/2)))
+		if (isShotgun)
 		{
 			vecSpread = kSGInnerSpread;
+			Vector vecMinSpread;
+
+			if ((iShot > (cShots/3)) && (iShot < (cShots*2/3)))
+			{
+				vecSpread = kSGMidSpread;
+				vecMinSpread = kSGInnerSpread;
+				vecDir = UTIL_GetRandomSpreadDirFrom(shared_rand, iShot, vecDirShooting, vecRight, vecUp, vecSpread, vecMinSpread);
+			}
+			else
+			if ((iShot > (cShots*2/3)))
+			{
+				vecMinSpread = kSGMidSpread;
+				vecDir = UTIL_GetRandomSpreadDirFrom(shared_rand, iShot, vecDirShooting, vecRight, vecUp, vecSpread, vecMinSpread);
+			}
+			else
+			{
+				vecSpread = kSGInnerSpread;
+				vecDir = UTIL_GetRandomSpreadDir(shared_rand, iShot, vecDirShooting, vecRight, vecUp, vecSpread);
+			}
 		}
 		// :tankefugl
-			
-		Vector vecDir = UTIL_GetRandomSpreadDir(shared_rand, iShot, vecDirShooting, vecRight, vecUp, vecSpread);
+		else
+		{
+			vecDir = UTIL_GetRandomSpreadDir(shared_rand, iShot, vecDirShooting, vecRight, vecUp, vecSpread);
+		}
 		Vector vecEnd;
 
 		vecEnd = vecSrc + vecDir * flDistance;

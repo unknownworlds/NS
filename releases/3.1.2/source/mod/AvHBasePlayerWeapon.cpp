@@ -117,6 +117,21 @@ Vector UTIL_GetRandomSpreadDir(unsigned int inSeed, int inShotNumber, const Vect
 	return theRandomDir;
 }
 
+// test
+Vector UTIL_GetRandomSpreadDirFrom(unsigned int inSeed, int inShotNumber, const Vector& inBaseDirection, const Vector& inRight, const Vector& inUp, const Vector& inSpread, const Vector& inFromSpread)
+{
+	// Use player's random seed.
+	// get circular gaussian spread
+	float x = UTIL_SharedRandomFloat( inSeed + inShotNumber, -0.5, 0.5 ) + UTIL_SharedRandomFloat( inSeed + ( 1 + inShotNumber ) , -0.5, 0.5 );
+	float y = UTIL_SharedRandomFloat( inSeed + ( 2 + inShotNumber ), -0.5, 0.5 ) + UTIL_SharedRandomFloat( inSeed + ( 3 + inShotNumber ), -0.5, 0.5 );
+	float z = x * x + y * y;
+	float xdir = x / fabs(x);
+	float ydir = y / fabs(y);
+	
+	Vector theRandomDir = inBaseDirection + inFromSpread.x * inRight * xdir + x * inSpread.x * inRight + inFromSpread.y * inUp * ydir + y * inSpread.y * inUp;
+	
+	return theRandomDir;
+}
 
 AvHBasePlayerWeapon::AvHBasePlayerWeapon()
 {

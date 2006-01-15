@@ -1,0 +1,35 @@
+// String patches
+
+// #define IDS_MAIN_PREVIEWSHELP           400
+// #define IDS_MAIN_CUSTOMHELP             530
+// #define IDS_MAIN_RETURNHELP             188
+// #define IDS_MAIN_NEWGAMEHELP            189
+// #define IDS_MAIN_TRAININGHELP           190
+// #define IDS_MAIN_LOADHELP               191
+// #define IDS_MAIN_LOADSAVEHELP           192
+// #define IDS_MAIN_CONFIGUREHELP          193
+// #define IDS_MAIN_READMEHELP             194
+// #define IDS_MAIN_ORDERHELP              195
+// #define IDS_MAIN_QUITHELP               196
+// #define IDS_MAIN_QUICKHELP              197
+// #define IDS_MAIN_MULTIPLAYERHELP        198
+// #define IDS_MAIN_QUITPROMPTINGAME       235
+// #define IDS_MAIN_QUITPROMPT             236
+
+402 "www.natural-selection.org"
+400 "Find out more about Natural Selection."
+530 "Play a different game."
+188 "Resume your current game."
+189 " "
+190 "Training.  For best results, do this before playing online."
+191 " "
+192 " "
+193 "Edit your Configuration."
+194 "View the release notes."
+196 "Quit."
+198 "Multiplayer.  Begin your journey."
+235 "Are you sure you want to quit?"
+236 "Leaving? The hive mind awaits..."
+234 "Training? At a time like this?"
+338 "Could not validate Natural Selection"
+340 "Please insert your Half-life CD"

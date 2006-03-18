@@ -197,7 +197,7 @@ float kFTeamColors[iNumberOfTeamColors][3] =
 
 // Tried 100, 110, still jitters.  Shrink tower down a bit?
 #define		kAlienResourceMinSize	Vector(-16.0, -16.0, 0.0)
-#define		kAlienResourceMaxSize	Vector(16.0, 16.0, 80.7443)
+#define		kAlienResourceMaxSize	Vector(16.0, 16.0, 100.0) // was Vector(16.0, 16.0, 80.7443)
 
 //physent_t* AvHSUGetEntity(int inPhysIndex)
 //{

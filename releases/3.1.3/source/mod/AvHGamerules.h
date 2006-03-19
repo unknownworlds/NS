@@ -341,6 +341,7 @@ private:
 	bool				mFirstUpdate;
 	bool				mPreserveTeams;
 	bool				mGameStarted;
+    float  			    mLastJoinMessage;
 	AvHTeamNumber		mVictoryTeam;
 	float				mTimeCountDownStarted;
 	float				mTimeGameStarted;

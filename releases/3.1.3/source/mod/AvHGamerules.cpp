@@ -305,6 +305,7 @@ void SetGameRules(AvHGamerules* inGameRules)
 static float gSvCheatsLastUpdateTime;
 AvHGamerules::AvHGamerules() : mTeamA(TEAM_ONE), mTeamB(TEAM_TWO)
 {
+	this->mLastJoinMessage = 0.0f;
 	this->mGameStarted = false;
 	this->mPreserveTeams = false;
 
@@ -442,15 +443,15 @@ bool AvHGamerules::AttemptToJoinTeam(AvHPlayer* inPlayer, AvHTeamNumber inTeamTo
 		{
 			// joev: Bug 0000767
 			// Tell the other players that this player is joining a team.
-			if (!this->GetCheatsEnabled()) {
+			if (!this->GetCheatsEnabled() && this->mGameStarted == true && ( gpGlobals->time > this->mLastJoinMessage + 0.2f ) ) {
+
 				AvHTeam* theTeam = GetTeam(inTeamToJoin);
 				// ensure that the sound only plays if the game already has started
-				if (this->mGameStarted == true) {
-					theTeam->PlayHUDSoundForAlivePlayers(HUD_SOUND_PLAYERJOIN);
-				}
+				theTeam->PlayHUDSoundForAlivePlayers(HUD_SOUND_PLAYERJOIN);
 				char* theMessage = UTIL_VarArgs("%s has joined the %s\n",STRING(inPlayer->pev->netname),theTeam->GetTeamPrettyName());
 				UTIL_ClientPrintAll(HUD_PRINTTALK, theMessage);
 				UTIL_LogPrintf( "%s joined team \"%s\"\n", GetLogStringForPlayer( inPlayer->edict() ).c_str(), AvHSUGetTeamName(inPlayer->pev->team) );
+				this->mLastJoinMessage=gpGlobals->time;
 			}
 			// :joev
 		}
@@ -2685,6 +2686,7 @@ void AvHGamerules::InternalResetGameRules()
 		AvHNexus::cancelGame();
 	}
 	this->mGameStarted = false;
+	this->mLastJoinMessage = 0.0f;
 	this->mTimeCountDownStarted = 0;
 	this->mTimeGameStarted = -1;
 	this->mTimeOfLastGameTimeUpdate = -1;

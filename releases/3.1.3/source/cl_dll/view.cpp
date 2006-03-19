@@ -7,6 +7,7 @@
 
 // view/refresh setup functions
 
+
 #include "hud.h"
 #include "cl_util.h"
 #include "common/cvardef.h"
@@ -20,6 +21,7 @@
 #include "pm_shared/pm_movevars.h"
 #include "pm_shared/pm_shared.h"
 #include "pm_shared/pm_defs.h"
+#include "pm_shared/pm_debug.h"
 #include "common/event_api.h"
 #include "common/pmtrace.h"
 #include "common/screenfade.h"
@@ -41,8 +43,8 @@ extern		float	gTopDownViewAngles[3];
 #ifndef M_PI
 #define M_PI		3.14159265358979323846	// matches value in gcc v2 math.h
 #endif
-
-void PM_ParticleLine( float *start, float *end, int pcolor, float life, float vert);
+//#include "pm_shared/pm_debug.h"
+//void PM_ParticleLine(vec3_t start, vec3_t end, int pcolor, float life, float vert);
 int PM_GetVisEntInfo( int ent );
 int PM_GetPhysEntInfo( int ent );
 void InterpolateAngles( float *start, float *end, float *output, float frac );
@@ -2385,7 +2387,32 @@ float CalcFov (float fov_x, float width, float height)
 }
 
 int hitent = -1;
+extern playermove_t *pmove;
+void PM_ParticleLine(vec3_t start, vec3_t end, int pcolor, float life, float vert)
+{
+	float linestep = 2.0f;
+	float curdist;
+	float len;
+	vec3_t curpos;
+	vec3_t diff;
+	int i;
+	// Determine distance;
 
+	VectorSubtract(end, start, diff);
+	
+	len = VectorNormalize(diff);
+
+	curdist = 0;
+	while (curdist <= len)
+	{
+		for (i = 0; i < 3; i++)
+			curpos[i] = start[i] + curdist * diff[i];
+		
+		pmove->PM_Particle( curpos, pcolor, life, 0, vert);
+		curdist += linestep;
+	}
+
+}
 void V_Move( int mx, int my )
 {
 	float fov;
@@ -2399,10 +2426,10 @@ void V_Move( int mx, int my )
 	vec3_t farpoint;
 	pmtrace_t tr;
 
-	fov = CalcFov( in_fov, (float)ScreenWidth, (float)ScreenHeight );
+	fov = CalcFov( in_fov, (float)ScreenWidth(), (float)ScreenHeight() );
 
-	c_x = (float)ScreenWidth / 2.0;
-	c_y = (float)ScreenHeight / 2.0;
+	c_x = (float)ScreenWidth() / 2.0;
+	c_y = (float)ScreenHeight() / 2.0;
 
 	dx = (float)mx - c_x;
 	dy = (float)my - c_y;
@@ -2430,7 +2457,7 @@ void V_Move( int mx, int my )
 	if ( tr.fraction != 1.0 && tr.ent != 0 )
 	{
 		hitent = PM_GetPhysEntInfo( tr.ent );
-		PM_ParticleLine( (float *)&v_origin, (float *)&tr.endpos, 5, 1.0, 0.0 );
+		PM_ParticleLine( (vec3_t)v_origin, (vec3_t)tr.endpos, 5, 1.0, 0.0 );
 	}
 	else
 	{

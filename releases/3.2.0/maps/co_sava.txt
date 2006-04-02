@@ -1,0 +1,19 @@
+co_sava by Mendasp
+------------------
+
+Map information:
+----------------
+NS 3.1 version
+
+Credits:
+--------
+The custom sounds used are from Marr's Ambience Pack
+Nanotech texture by spacer
+Scrolling smoke texture by Elcle
+Water tank and broken RT models by CoolCookieCooks
+
+Thanks to:
+----------
+Lordy
+tankefugl
+Crispy

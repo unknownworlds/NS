@@ -34,7 +34,7 @@ OUTPUT_DIR=../../hlds_l/ns/dlls
 BASE_CFLAGS=-Dstricmp=strcasecmp -D_strnicmp=strncasecmp -Dstrnicmp=strncasecmp -DAVH_SERVER -DLINUX  -DVALVE_DLL -DQUIVER -DVOXEL -DQUAKE2 -DDEDICATED -DSWDS -D_STLP_USE_GLIBC -DUSE_OLDAUTH
 
 #full optimization
-CFLAGS=$(BASE_CFLAGS) -w -Wall -nostdinc++ -ffor-scope -fPIC -mcpu=i486 -O3 -pipe  -funroll-loops -fdelayed-branch -malign-loops=4 -malign-jumps=4 -malign-functions=4  
+CFLAGS=$(BASE_CFLAGS) -w -Wall -nostdinc++ -ffor-scope -fPIC -mcpu=i486 -s -O3 -pipe  -funroll-loops -fdelayed-branch -malign-loops=4 -malign-jumps=4 -malign-functions=4  
 
 #use these when debugging 
 #CFLAGS=$(BASE_CFLAGS) -fPIC -fno-for-scope   

@@ -196,7 +196,7 @@ public:
 	virtual void	UpdateInventoryEnabledState(int inNumActiveHives);
 
 	// Methods for placing in the map
-	void EXPORT		VirtualDestroyItem(void);
+	virtual void EXPORT		VirtualDestroyItem(void);
 	virtual int		GetLifetime() const;
 	virtual bool	GetIsPersistent() const;
 	virtual void	SetPersistent();

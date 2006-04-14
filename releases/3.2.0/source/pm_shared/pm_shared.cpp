@@ -4868,6 +4868,37 @@ void PM_PlaybackEvent(int inEventID)
     pmove->PM_PlaybackEventFull(theFlags, thisPredictedPlayer, inEventID, 0, (float *)theZeroVector, (float *)theZeroVector, 0.0, 0.0, /*theWeaponIndex*/ 0, 0, 0, 0 );
 }
 
+#define LERK_DIVE_FACTOR -1.3f
+
+// Comment: Respect to the valve function name below
+// Prevent lerks from having extreme vertical velocities
+void PM_PreventMegaCrazyLerkPancakage() {
+		int theSpeedUpgradeLevel = 0;
+        if(GetHasUpgrade(pmove->iuser4, MASK_UPGRADE_4))
+        {
+            theSpeedUpgradeLevel = 1;
+
+            if(GetHasUpgrade(pmove->iuser4, MASK_UPGRADE_12))
+            {
+                theSpeedUpgradeLevel = 2;
+            }
+            else if(GetHasUpgrade(pmove->iuser4, MASK_UPGRADE_13))
+            {
+                theSpeedUpgradeLevel = 3;
+            }
+        }
+		int theAdjustment=theSpeedUpgradeLevel * BALANCE_VAR(kAlienCelerityBonus);
+		float theAscendMax=BALANCE_VAR(kLerkBaseAscendSpeedMax) + (float)theAdjustment;
+		float theDescendMax=theAscendMax*LERK_DIVE_FACTOR;
+		if ( pmove->velocity[2] > theAscendMax ) {
+			pmove->velocity[2]=theAscendMax;
+		}
+		// cap diving too
+		else if ( pmove->velocity[2] < theDescendMax ) {
+			pmove->velocity[2]=theDescendMax;
+		}
+}
+
 // Only allow bunny jumping up to 1.1x server / player maxspeed setting
 #define BUNNYJUMP_MAX_SPEED_FACTOR 1.7f
 
@@ -4889,6 +4920,10 @@ void PM_PreventMegaBunnyJumping(bool inAir)
     maxscaledspeed = BUNNYJUMP_MAX_SPEED_FACTOR * pmove->maxspeed;
     if(inAir)
     {
+		// prevent pancaking
+		if ( pmove->iuser3 == AVH_USER3_ALIEN_PLAYER3 ) {
+			PM_PreventMegaCrazyLerkPancakage();
+		}
         // Allow flyers, leapers, and JPers to go faster in the air, but still capped
         maxscaledspeed = BALANCE_VAR(kAirspeedMultiplier)*pmove->maxspeed;
     }
@@ -5075,35 +5110,8 @@ void PM_Jump (void)
         VectorScale(pmove->forward, theThrust, theFlapVelocity);
         theFlapVelocity[2] += theLift;
 
-		int theSpeedUpgradeLevel = 0;
-        if(GetHasUpgrade(pmove->iuser4, MASK_UPGRADE_4))
-        {
-            theSpeedUpgradeLevel = 1;
-
-            if(GetHasUpgrade(pmove->iuser4, MASK_UPGRADE_12))
-            {
-                theSpeedUpgradeLevel = 2;
-            }
-            else if(GetHasUpgrade(pmove->iuser4, MASK_UPGRADE_13))
-            {
-                theSpeedUpgradeLevel = 3;
-            }
-        }
-		int theAdjustment=theSpeedUpgradeLevel * BALANCE_VAR(kAlienCelerityBonus);
-		float theAscendMax=BALANCE_VAR(kLerkBaseAscendSpeedMax) + theAdjustment;
-		static float maxVelocity=0;
-		maxVelocity=max(maxVelocity, pmove->velocity[2]); 
-		if ( pmove->velocity[2] > theAscendMax ) {
-			theFlapVelocity[2]=0;
-		}
-		// cap diving too
-		if ( -pmove->velocity[2] > theAscendMax*1.3 ) {
-			theFlapVelocity[2]=0;
-		}
-
         vec3_t theNewVelocity;
         VectorAdd(pmove->velocity, theFlapVelocity, theNewVelocity);
-
         VectorCopy(theNewVelocity, pmove->velocity);
         /*
 
@@ -5181,15 +5189,9 @@ void PM_Jump (void)
                 
             // Compute the velocity not in the direction we're facing.
 
-            float theGlideAmount = PM_GetHorizontalSpeed() / 1000;
-            
-            if (theGlideAmount > 0.2)
-            {
-                theGlideAmount = 0.2;
-            }
+			float theGlideAmount = min(0.2f, PM_GetHorizontalSpeed() / 1000);
 
-
-            float speed = Length(pmove->velocity);
+			float speed = Length(pmove->velocity);
             float projectedSpeed = DotProduct(pmove->velocity, pmove->forward);
 
 			// tankefugl: 0000522 reverse lerk flight

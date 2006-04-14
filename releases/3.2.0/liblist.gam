@@ -2,10 +2,11 @@
 // Natural Selection      //
 //   by Charlie Cleveland //
 ////////////////////////////
-game "Natural Selection 3.1"
+game "Natural Selection 3.2"
 url_info "http://www.unknownworlds.com/ns/"
 url_dl "http://www.unknownworlds.com/ns/view?action=files"
-version "v3.1"
+icon "ns"
+version "v3.2"
 size "165000000"
 svonly "0"
 secure "0"

@@ -255,6 +255,8 @@ private:
 	float			mTimeRecycleDone;
 
 	bool			mKilled;
+
+	bool			mGhost;
 };
 
 #endif

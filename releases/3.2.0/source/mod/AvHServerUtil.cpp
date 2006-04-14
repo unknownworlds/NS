@@ -302,6 +302,48 @@ void AvHSUKillPlayersTouchingPlayer(AvHPlayer* inPlayer, entvars_t* inInflictor)
 	END_FOR_ALL_ENTITIES(kAvHPlayerClassName)
 }
 
+void AvHSUPushbackPlayersTouchingPlayer(AvHPlayer* inPlayer, entvars_t* inInflictor)
+{
+	FOR_ALL_ENTITIES(kAvHPlayerClassName, AvHPlayer*)
+	if((theEntity != inPlayer) && (theEntity->GetIsRelevant()))
+	{
+		// tankefugl: 0000892 -- fixed to allow spawnkilling of crouching players on IP
+		float theDistanceToPlayer = VectorDistance(inPlayer->pev->origin, theEntity->pev->origin);
+		float zDistance = inPlayer->pev->origin[2] - theEntity->pev->origin[2];
+		float xyDistance = VectorDistance2D(inPlayer->pev->origin, theEntity->pev->origin);
+		if(theDistanceToPlayer < 30 || (xyDistance < 30 && zDistance > 0 && zDistance < 40))
+		{
+			vec3_t theDirection;
+			// If distance == 0, generate a random direction.
+			if (xyDistance < 0.1f)
+			{
+				theDirection[0] = RANDOM_FLOAT(-1, 1);
+				theDirection[1] = RANDOM_FLOAT(-1, 1);
+			}
+			else
+			{
+				VectorSubtract(inPlayer->pev->origin, theEntity->pev->origin, theDirection);
+			}
+			theDirection[2] = 0;
+			VectorNormalize(theDirection);
+
+			// Project the speed orthogonal to the direction to the spawning player
+			// proj n a = (n . a)/||n||^2 * n
+			float n_dot_a = DotProduct(theDirection, theEntity->pev->velocity);
+			vec3_t parallelVec;
+			VectorScale(theDirection, n_dot_a, parallelVec);
+			VectorSubtract(theEntity->pev->velocity, theDirection, theEntity->pev->velocity);
+
+			// Apply a pushback velocity away from the spawning player
+			VectorScale(theDirection, -200, theDirection);
+			theDirection[2] = 150;
+
+			VectorAdd(theEntity->pev->velocity, theDirection, theEntity->pev->velocity);
+		}
+	}
+	END_FOR_ALL_ENTITIES(kAvHPlayerClassName)
+}
+
 void AvHSUBuildingJustCreated(AvHMessageID inBuildID, CBaseEntity* theBuilding, AvHPlayer* inPlayer)
 {
 	if((inBuildID == BUILD_RESOURCES) || (inBuildID == ALIEN_BUILD_RESOURCES))

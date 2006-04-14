@@ -854,6 +854,17 @@ void AvHOverviewMap::UpdateDrawData(float inCurrentTime)
 		}
 	}
 
+/*	cl_entity_t* clientEntity = gEngfuncs.GetEntityByIndex(theLocalPlayerIndex);
+    if(clientEntity)
+	{
+		DrawableEntity theDrawableEntity;
+		theDrawableEntity.mX = clientEntity->origin.x;
+		theDrawableEntity.mY = clientEntity->origin.y;
+		theDrawableEntity.mAngleRadians = clientEntity->angles[1] * M_PI / 180;
+		this->mDrawableEntityList.push_back(theDrawableEntity);
+	}
+*/
+
 	std::sort(mDrawableEntityList.begin(), mDrawableEntityList.end(), DrawingOrderSort());
 }
 

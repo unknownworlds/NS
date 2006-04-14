@@ -187,6 +187,23 @@ void AvHBaseBuildable::BuildableTouch(CBaseEntity* inEntity)
     if(inEntity->pev->team != this->pev->team)
     {
         this->Uncloak();
+
+		// GHOSTBUILDING: Destroy and return res.
+		if (this->mGhost && inEntity->IsAlive() && inEntity->IsPlayer())
+		{
+			this->TakeDamage(inEntity->pev, this->pev, 80000, DMG_GENERIC);
+
+			AvHTeam* theTeam = GetGameRules()->GetTeam(AvHTeamNumber(this->pev->team));
+
+			if (theTeam)
+			{
+				float thePercentage = .8f;
+				float thePointsBack = GetGameRules()->GetCostForMessageID(this->mMessageID) * thePercentage;
+				theTeam->SetTeamResources(theTeam->GetTeamResources() + thePointsBack);
+
+				AvHSUPlayNumericEventAboveStructure(thePointsBack, this);
+			}
+		}
     }
 }
 
@@ -264,6 +281,13 @@ void AvHBaseBuildable::ConstructUse( CBaseEntity *pActivator, CBaseEntity *pCall
 				    this->SetNormalizedBuildPercentage(thePercentage);
 
 				    theSuccess = true;
+
+					// GHOSTBUILD: Manifest structure.
+					pev->renderamt = 255;
+					pev->rendermode = kRenderNormal;
+					pev->solid = SOLID_BBOX;
+					this->mGhost = false;
+
                 }
 			}
 		}
@@ -852,6 +876,10 @@ void AvHBaseBuildable::InternalSetConstructionComplete(bool inForce)
 		this->pev->rendermode = kRenderNormal;
 		this->pev->renderamt = 255;
 		
+		// GHOSTBUILD: Ensure that finished buildings aren't ghosted.
+		this->mGhost = false;
+		this->pev->solid = SOLID_BBOX;
+
 		this->SetHasBeenBuilt();
 
         this->SetActive();
@@ -932,6 +960,14 @@ void AvHBaseBuildable::Spawn()
 
 	if(this->pev->spawnflags & 1)
 		this->SetConstructionComplete(true);
+
+	// GHOSTBUILD: Mark as unmanifested if it's a marine structure.
+	if (!this->GetIsOrganic())
+	{
+		pev->renderamt = 170;
+		pev->rendermode = kRenderTransTexture;
+		this->mGhost = true;
+	}
 }
 
 
@@ -957,6 +993,7 @@ int	AvHBaseBuildable::GetSequenceForBoundingBox() const
 void AvHBaseBuildable::Materialize()
 {
 	this->pev->solid = SOLID_BBOX;
+
 	this->pev->movetype = this->GetMoveType();
 	
 	this->pev->classname = MAKE_STRING(this->mClassName);

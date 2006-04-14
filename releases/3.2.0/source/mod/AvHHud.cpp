@@ -2450,7 +2450,9 @@ void AvHHud::ResetGame(bool inMapChanged)
 	
 	// Selection and commander variables
 	this->mNumLocalSelectEvents = 0;
-	this->mMapMode = MAP_MODE_UNDEFINED;
+	// Removed to allow map to be shown before gamestart. 
+	// The map-mode will be re-set by the Gamestate messages anyway.
+	//this->mMapMode = MAP_MODE_UNDEFINED;
 	this->mInTopDownMode = false;
 	this->mLeftMouseStarted = false;
 	this->mLeftMouseEnded = false;

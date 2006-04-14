@@ -75,7 +75,7 @@
 #define kCommanderPlayerSpeed 4000
 #define kCustomIconColorLength 3
 #define kCustomIconNameLength 5
-#define kDebugAnimations 1
+#define kDebugAnimations 0
 #define kDebugServerCaching 1
 #define kDebugShowEntityLog 1
 #define kDefenseChamberBuildTime 20

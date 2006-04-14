@@ -139,11 +139,10 @@ void AvHEntityHierarchy::BuildFromTeam(const AvHTeam* inTeam, BaseEntityListType
   	if (inTeam->GetTeamType() == AVH_CLASS_TYPE_MARINE ||
         inTeam->GetTeamType() == AVH_CLASS_TYPE_ALIEN)
 	{
-
+		
 		// Loop through all entities in the world
 		for(BaseEntityListType::iterator theIter = inBaseEntityList.begin(); theIter != inBaseEntityList.end(); theIter++)
-		{
-			
+		{			
             CBaseEntity* theBaseEntity = *theIter;
 
 			int  theEntityIndex = theBaseEntity->entindex();

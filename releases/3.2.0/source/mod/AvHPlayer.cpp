@@ -9812,7 +9812,10 @@ void AvHPlayer::UpdateEntityHierarchy()
     
     AvHTeam* theTeam = player->GetTeamPointer();
 
-    if(theTeam && GetGameRules()->GetGameStarted())
+	// Removed the check for gamestart. This ensures that the entity-hierarchy is propagated before
+	// game start.
+	//if((theTeam) && GetGameRules()->GetGameStarted())
+	if((theTeam)) // && GetGameRules()->GetGameStarted())
     {
         if (theTeam->GetTeamType() == AVH_CLASS_TYPE_MARINE ||
             theTeam->GetTeamType() == AVH_CLASS_TYPE_ALIEN)

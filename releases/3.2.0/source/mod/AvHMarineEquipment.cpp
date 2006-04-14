@@ -1281,7 +1281,8 @@ void AvHPhaseGate::TeleportUse(CBaseEntity *pActivator, CBaseEntity *pCaller, US
 					this->SetTimeOfLastDeparture(gpGlobals->time);
 					AvHSUPlayPhaseInEffect(theFlags, this, thePlayer);
 
-					AvHSUKillPlayersTouchingPlayer(thePlayer, this->pev);
+					// AvHSUKillPlayersTouchingPlayer(thePlayer, this->pev);
+					AvHSUPushbackPlayersTouchingPlayer(thePlayer, this->pev);
                     KillBuildablesTouchingPlayer(thePlayer, this->pev);
 					
 					Vector theFadeColor;
@@ -1813,7 +1814,8 @@ void AvHInfantryPortal::ResetReinforcingPlayer(bool inSuccess)
 
 	if(theTelefrag)
 	{
-		AvHSUKillPlayersTouchingPlayer(thePlayer, this->pev);
+		//AvHSUKillPlayersTouchingPlayer(thePlayer, this->pev);
+		AvHSUPushbackPlayersTouchingPlayer(thePlayer, this->pev);
 	}
 }
 

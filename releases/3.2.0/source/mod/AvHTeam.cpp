@@ -1758,8 +1758,8 @@ void AvHTeam::UpdateVoting()
 		{
 			bool theResetVote = false;
 
-			// If commander logs out after vote started, cancel vote
-			if(this->mCommander != this->mCommanderWhenVoteStarted)
+			// If a new comm logs in after vote started, cancel vote
+			if((this->mCommander > 0) && (this->mCommander != this->mCommanderWhenVoteStarted))
 			{
 				theMessageForPlayers = kVoteCancelled;
 				theResetVote = true;

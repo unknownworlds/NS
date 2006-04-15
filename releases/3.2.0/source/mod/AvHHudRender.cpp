@@ -2501,7 +2501,7 @@ void AvHHud::DrawBuildHealthEffectsForEntity(int inEntityIndex, float inAlpha)
 				int theSpriteToUse = this->GetIsAlien() ? this->mAlienHealthSprite : this->mMarineHealthSprite;
                 bool theDrawAsRecyling = (GetHasUpgrade(theUser4, MASK_RECYCLING) && theIsOnOurTeam);
 
-				if((theIsBuilding && (GetHasUpgrade(theUser4, MASK_BUILDABLE))) || theDrawAsRecyling)
+				if((theIsOnOurTeam && theIsBuilding && (GetHasUpgrade(theUser4, MASK_BUILDABLE))) || theDrawAsRecyling)
 				{
 					theSpriteToUse = this->GetIsAlien() ? this->mAlienBuildSprite : this->mMarineBuildSprite;
 					theDrawHealth = false;

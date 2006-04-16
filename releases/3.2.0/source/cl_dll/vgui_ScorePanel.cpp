@@ -1224,26 +1224,33 @@ void ScorePanel::FillGrid()
 					if(!theIsForEnemy && theExtraPlayerInfo->teamnumber != TEAM_IND && theExtraPlayerInfo->teamnumber != TEAM_SPECT )
                     {
 						if ( gHUD.GetIsMarine() && !gHUD.GetIsCombatMode() ) {
+							int r=CVAR_GET_FLOAT("cl_iconr");
+							int g=CVAR_GET_FLOAT("cl_icong");
+							int b=CVAR_GET_FLOAT("cl_iconb");
+							r=max(min(255, r), 0);
+							g=max(min(255, g), 0);
+							b=max(min(255, b), 0);
+
 							switch(theExtraPlayerInfo->extra) {
 							case AVH_WEAPON_HMG:
 								pLabel->setFgColorAsImageColor(false);
 								pLabel->setImage(m_pHMG);
-								m_pHMG->setColor(BuildColor(248, 252, 0, gHUD.GetGammaSlope()));
+								m_pHMG->setColor(BuildColor(r, g, b, gHUD.GetGammaSlope()));
 								break;
 							case AVH_WEAPON_MG:
 								pLabel->setFgColorAsImageColor(false);
 								pLabel->setImage(m_pLMG);
-								m_pLMG->setColor(BuildColor(208, 16, 190, gHUD.GetGammaSlope()));
+								m_pLMG->setColor(BuildColor(r, g, b, gHUD.GetGammaSlope()));
 								break;
 							case AVH_WEAPON_SONIC:
 								pLabel->setFgColorAsImageColor(false);
 								pLabel->setImage(m_pSG);
-								m_pSG->setColor(BuildColor(117, 214, 241, gHUD.GetGammaSlope()));
+								m_pSG->setColor(BuildColor(r, g, b, gHUD.GetGammaSlope()));
 								break;
 							case AVH_WEAPON_GRENADE_GUN:
 								pLabel->setFgColorAsImageColor(false);
 								pLabel->setImage(m_pGL);
-								m_pGL->setColor(BuildColor(255, 69, 9, gHUD.GetGammaSlope()));
+								m_pGL->setColor(BuildColor(r, g, b, gHUD.GetGammaSlope()));
 								break;
 							default:
 								break;

@@ -178,7 +178,7 @@ int CHudTextMessage::MsgFunc_TextMsg( const char *pszName, int iSize, void *pbuf
 	}
 
 	// Ensure that message[0] does not contain exessive %'s, max 4x%s, all other %'s removed.
-	int lastpos = 0; int pos; int count = 0;
+	size_t lastpos = 0; size_t pos; int count = 0;
 	while(true)
 	{
 		pos = message[0].find("%", lastpos);

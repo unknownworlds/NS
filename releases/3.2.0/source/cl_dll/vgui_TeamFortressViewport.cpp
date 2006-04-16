@@ -2557,6 +2557,7 @@ int TeamFortressViewport::MsgFunc_ScoreInfo( const char *pszName, int iSize, voi
         // Update other info
         g_PlayerExtraInfo[info.player_index].frags = info.frags;
 		g_PlayerExtraInfo[info.player_index].deaths = info.deaths;
+		g_PlayerExtraInfo[info.player_index].extra = info.extra;
 		g_PlayerExtraInfo[info.player_index].playerclass = info.player_class;
 		// puzl: 0001073
 		g_PlayerExtraInfo[info.player_index].auth = info.auth;

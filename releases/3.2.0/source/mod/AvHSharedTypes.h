@@ -58,6 +58,7 @@ typedef struct ScoreInfo_s
 	int player_index;
 	int score;
 	int frags;
+	int extra;
 	int deaths;
 	int player_class;
 	int auth;

@@ -228,10 +228,10 @@ struct extra_player_info_t
 	short score;
     short lastScore;
     float timeOfLastScoreChange;
-
     short frags;
 	short deaths;
 	short playerclass;
+	short extra;
 	short auth;
 	short teamnumber;
 	char teamname[MAX_TEAM_NAME];

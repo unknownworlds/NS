@@ -21,12 +21,13 @@
 #define COLUMN_NAME			2
 #define COLUMN_CLASS		3
 #define COLUMN_SCORE        4
-#define COLUMN_KILLS        5
-#define COLUMN_DEATHS		6
-#define COLUMN_LATENCY		7
-#define COLUMN_VOICE		8
-#define COLUMN_BLANK		9
-#define NUM_COLUMNS			10
+#define COLUMN_EXTRA	    5
+#define COLUMN_KILLS        6
+#define COLUMN_DEATHS		7
+#define COLUMN_LATENCY		8
+#define COLUMN_VOICE		9
+#define COLUMN_BLANK		10
+#define NUM_COLUMNS			11
 #define NUM_ROWS			(MAX_PLAYERS + (MAX_SCOREBOARD_TEAMS * 2))
 
 using namespace vgui;
@@ -86,6 +87,12 @@ private:
 	vgui::BitmapTGA *m_pContribIcon;
 	vgui::BitmapTGA *m_pCheatingDeathIcon;
 	vgui::BitmapTGA *m_pVeteranIcon;
+
+	vgui::BitmapTGA *m_pHMG;
+	vgui::BitmapTGA *m_pLMG;
+	vgui::BitmapTGA *m_pGL;
+	vgui::BitmapTGA *m_pSG;
+
 	vector< pair <vgui::BitmapTGA *, string> > m_CustomIconList;
 
 	unsigned int	m_iIconFrame;

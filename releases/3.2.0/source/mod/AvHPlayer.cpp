@@ -970,6 +970,8 @@ bool AvHPlayer::DropItem(const char* inItemName)
 					if(theOriginalDroppedWeapon->GetItemInfo(&theItemInfo) != 0)
 					{
 						int iAmmoIndex = GetAmmoIndex ( (char *) theItemInfo.pszAmmo1 ); 
+						if ( theItemInfo.iSlot == 0 )
+							this->EffectivePlayerClassChanged();
 
 						if ( iAmmoIndex != -1 && m_rgAmmo[ iAmmoIndex ] > 0)
 							this->DropAmmo((char *)theItemInfo.pszAmmo1, m_rgAmmo[ iAmmoIndex ], theItemInfo.iMaxAmmo1, theItemInfo.iId, theNewlyDroppedWeapon->pev->angles);
@@ -7952,6 +7954,8 @@ void AvHPlayer::SetResources(float inResources, bool inPlaySound)
             {
                 this->PlayHUDSound(HUD_SOUND_ALIEN_POINTS_RECEIVED);
             }
+			if ( this->mResources != inResources ) 
+				this->EffectivePlayerClassChanged();
 
             this->mResources = inResources;
         }
@@ -9215,7 +9219,7 @@ void AvHPlayer::UpdateClientData( void )
 void AvHPlayer::UpdateEffectiveClassAndTeam()
 {
     // Don't send too many messages when these get updated really quickly.  Too many messages are being sent on a game reset, and it's not needed.  We only need the most recent message.
-    const float kClassAndTeamUpdateRate = .4f;
+    const float kClassAndTeamUpdateRate = .6f;
     if((this->mTimeOfLastClassAndTeamUpdate == -1) || (gpGlobals->time > (this->mTimeOfLastClassAndTeamUpdate + kClassAndTeamUpdateRate)))
     {
         if(this->mEffectivePlayerClassChanged)
@@ -9236,6 +9240,27 @@ void AvHPlayer::UpdateEffectiveClassAndTeam()
 			info.player_class = this->GetEffectivePlayerClass();
 			info.auth = this->GetAuthenticationMask();
 			info.team = GetGameRules()->GetTeamIndex(this->TeamID());
+
+			if ( GetGameRules()->GetIsCombatMode()) {
+				info.extra=this->GetExperienceLevel();
+			}
+			else {
+				if ( this->GetIsAlien() ) {
+					info.extra=(int)this->GetResources();
+				}
+				else {
+					info.extra=0;
+					if ( this->m_rgpPlayerItems ) {
+						CBasePlayerWeapon* thePrimaryWeapon = (CBasePlayerWeapon *)this->m_rgpPlayerItems[1];
+						if ( thePrimaryWeapon ) {
+							ItemInfo ii;
+							thePrimaryWeapon->GetItemInfo(&ii);
+							info.extra=ii.iId;
+						}
+					}
+				}
+			}
+
 			NetMsg_ScoreInfo( info );
             this->mEffectivePlayerClassChanged = false;
         }

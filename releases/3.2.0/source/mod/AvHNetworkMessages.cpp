@@ -485,6 +485,7 @@ void Net_InitializeMessages(void)
 			info.score = READ_SHORT();
 			info.frags = READ_SHORT();
 			info.deaths = READ_SHORT();
+			info.extra = READ_SHORT();
 			info.player_class = READ_BYTE();
 			info.auth = READ_SHORT();
 			info.team = READ_SHORT();
@@ -513,6 +514,7 @@ void Net_InitializeMessages(void)
 			WRITE_SHORT( info.score );
 			WRITE_SHORT( info.frags );
 			WRITE_SHORT( info.deaths );
+			WRITE_SHORT( info.extra );
 			WRITE_BYTE( info.player_class );
 			WRITE_SHORT( info.auth );
             WRITE_SHORT( info.team );

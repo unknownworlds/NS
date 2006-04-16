@@ -3838,7 +3838,9 @@ int CBasePlayer::AddPlayerItem( CBasePlayerItem *pItem )
 	CBasePlayerItem *pInsert;
 	
 	pInsert = m_rgpPlayerItems[pItem->iItemSlot()];
-
+	if ( pItem->iItemSlot() == 1 ) {
+		this->EffectivePlayerClassChanged();
+	}
 	while (pInsert)
 	{
 		if (FClassnameIs( pInsert->pev, STRING( pItem->pev->classname) ))

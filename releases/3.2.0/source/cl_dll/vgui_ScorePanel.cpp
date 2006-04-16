@@ -75,6 +75,7 @@
 #include "..\game_shared\vgui_loadtga.h"
 #include "mod/AvHConstants.h"
 #include "mod/AvHTitles.h"
+#include "mod/AvHBasePlayerWeaponConstants.h"
 #include "vgui_SpectatorPanel.h"
 #include "cl_dll/demo.h"
 #include "mod/AvHServerVariables.h"
@@ -144,9 +145,10 @@ SBColumnInfo g_ColumnInfo[NUM_COLUMNS] =
 {
 	{NULL,			24,			Label::a_east},		// tracker column
     {NULL,			24,			Label::a_east},		// status icons
-	{NULL,			150,		Label::a_east},		// name
+	{NULL,			110,		Label::a_east},		// name
 	{NULL,			56,			Label::a_east},		// class
 	{"#SCORE",		40,			Label::a_east},     // score
+	{"#EXTRA",		40,			Label::a_east},     // resources
     {"#KILLS",      40,         Label::a_east},     // kills
 	{"#DEATHS",		40,			Label::a_east},     // deaths
 	{"#LATENCY",	40,			Label::a_east},     // ping
@@ -206,6 +208,12 @@ ScorePanel::ScorePanel(int x,int y,int wide,int tall) : Panel(x,y,wide,tall)
 	m_pCheatingDeathIcon = NULL;
 	m_pVeteranIcon = NULL;
 	
+	m_pHMG = NULL;
+	m_pLMG = NULL;
+	m_pGL = NULL;
+	m_pSG = NULL;
+
+
 	m_pTrackerIcon = vgui_LoadTGANoInvertAlpha("gfx/vgui/640_scoreboardtracker.tga");
 	m_pDevIcon = vgui_LoadTGANoInvertAlpha("gfx/vgui/640_scoreboarddev.tga");
 	m_pPTIcon = vgui_LoadTGANoInvertAlpha("gfx/vgui/640_scoreboardpt.tga");
@@ -214,6 +222,13 @@ ScorePanel::ScorePanel(int x,int y,int wide,int tall) : Panel(x,y,wide,tall)
 	m_pContribIcon = vgui_LoadTGANoInvertAlpha("gfx/vgui/640_scoreboardcontrib.tga");
 	m_pCheatingDeathIcon = vgui_LoadTGANoInvertAlpha("gfx/vgui/640_scoreboardcd.tga");
 	m_pVeteranIcon = vgui_LoadTGANoInvertAlpha("gfx/vgui/640_scoreboardveteran.tga");
+
+	
+
+	m_pHMG = vgui_LoadTGANoInvertAlpha("gfx/vgui/640_scoreboardhmg.tga");
+	m_pLMG = vgui_LoadTGANoInvertAlpha("gfx/vgui/640_scoreboardlmg.tga");
+	m_pGL = vgui_LoadTGANoInvertAlpha("gfx/vgui/640_scoreboardgl.tga");
+	m_pSG = vgui_LoadTGANoInvertAlpha("gfx/vgui/640_scoreboardsg.tga");
 
 	m_iIconFrame = 0;
 	m_iLastFrameIncrementTime = gHUD.GetTimeOfLastUpdate();
@@ -896,7 +911,8 @@ void ScorePanel::FillGrid()
 
             case COLUMN_SCORE:
             case COLUMN_KILLS:
-            case COLUMN_DEATHS:
+			case COLUMN_EXTRA:
+			case COLUMN_DEATHS:
             case COLUMN_LATENCY:
             default:
                 pLabel->setContentAlignment( vgui::Label::a_east );
@@ -951,6 +967,8 @@ void ScorePanel::FillGrid()
                     if ((m_iIsATeam[row] == TEAM_YES) && team_info && ((theLocalPlayerTeam == 0) || (theLocalPlayerTeam == team_info->teamnumber)))
                         sprintf(sz, "%d",  team_info->score);
                     break;
+				case COLUMN_EXTRA:
+					break;
 				case COLUMN_KILLS:
 					if ((m_iIsATeam[row] == TEAM_YES) && team_info) 
 						sprintf(sz, "%d",  team_info->frags );
@@ -1202,6 +1220,40 @@ void ScorePanel::FillGrid()
                     }
                     break;
 
+				case COLUMN_EXTRA:
+					if(!theIsForEnemy && theExtraPlayerInfo->teamnumber != TEAM_IND && theExtraPlayerInfo->teamnumber != TEAM_SPECT )
+                    {
+						if ( gHUD.GetIsMarine() && !gHUD.GetIsCombatMode() ) {
+							switch(theExtraPlayerInfo->extra) {
+							case AVH_WEAPON_HMG:
+								pLabel->setFgColorAsImageColor(false);
+								pLabel->setImage(m_pHMG);
+								m_pHMG->setColor(BuildColor(248, 252, 0, gHUD.GetGammaSlope()));
+								break;
+							case AVH_WEAPON_MG:
+								pLabel->setFgColorAsImageColor(false);
+								pLabel->setImage(m_pLMG);
+								m_pLMG->setColor(BuildColor(208, 16, 190, gHUD.GetGammaSlope()));
+								break;
+							case AVH_WEAPON_SONIC:
+								pLabel->setFgColorAsImageColor(false);
+								pLabel->setImage(m_pSG);
+								m_pSG->setColor(BuildColor(117, 214, 241, gHUD.GetGammaSlope()));
+								break;
+							case AVH_WEAPON_GRENADE_GUN:
+								pLabel->setFgColorAsImageColor(false);
+								pLabel->setImage(m_pGL);
+								m_pGL->setColor(BuildColor(255, 69, 9, gHUD.GetGammaSlope()));
+								break;
+							default:
+								break;
+							}
+						}
+						else {
+							sprintf(sz, "%d", theExtraPlayerInfo->extra);
+						}
+					}
+                    break;
 				case COLUMN_KILLS:
                     sprintf(sz, "%d", theExtraPlayerInfo->frags);
                     break;

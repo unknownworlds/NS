@@ -1513,7 +1513,7 @@ void InitInput (void)
 	gEngfuncs.pfnAddCommand ("+klook", IN_KLookDown);
 	gEngfuncs.pfnAddCommand ("-klook", IN_KLookUp);
 	gEngfuncs.pfnAddCommand ("+mlook", IN_MLookDown);
-	gEngfuncs.pfnAddCommand ("-mlook", IN_MLookUp);
+	//gEngfuncs.pfnAddCommand ("-mlook", IN_MLookUp);
 	gEngfuncs.pfnAddCommand ("+jlook", IN_JLookDown);
 	gEngfuncs.pfnAddCommand ("-jlook", IN_JLookUp);
 	gEngfuncs.pfnAddCommand ("+duck", IN_DuckDown);

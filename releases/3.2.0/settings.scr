@@ -52,7 +52,7 @@ DESCRIPTION SERVER_OPTIONS
 	{
 		"#Valve_Hostname"
 		{ STRING }
-		{ "Natural Selection 3.1 Server" }
+		{ "Natural Selection 3.2 Server" }
 	}
 
 	"maxplayers"

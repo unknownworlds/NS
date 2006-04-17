@@ -133,7 +133,7 @@ void AvHOverviewMap::GetColorForEntity(const DrawableEntity& entity, float& outR
 	        entity.mUser3 == AVH_USER3_ALIENRESTOWER ||
 	        entity.mUser3 == AVH_USER3_ADVANCED_TURRET_FACTORY;
 
-	if ( entity.mIsUnderAttack && (entity.mTeam == mTeam || gEngfuncs.IsSpectateOnly() ) {
+	if ( entity.mIsUnderAttack && (entity.mTeam == mTeam || gEngfuncs.IsSpectateOnly() ) ) {
 		if ( gpGlobals->time > this->mBlinkTime + attackBlinkPeriod ) {
 			this->mBlinkOn=!mBlinkOn;
 			this->mBlinkTime=gpGlobals->time;

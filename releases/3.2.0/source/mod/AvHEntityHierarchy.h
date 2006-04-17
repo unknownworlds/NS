@@ -54,7 +54,7 @@ const int		kNumStatusTypes = 15;
 class MapEntity
 {
 public:
-	MapEntity(void) : mUser3(AVH_USER3_NONE), mTeam(TEAM_IND), mX(0.0f), mY(0.0f), mAngle(0.0f), mSquadNumber(0) {}
+	MapEntity(void) : mUser3(AVH_USER3_NONE), mTeam(TEAM_IND), mX(0.0f), mY(0.0f), mAngle(0.0f), mSquadNumber(0), mUnderAttack(0) {}
 
     AvHUser3        mUser3;
     AvHTeamNumber   mTeam;
@@ -62,6 +62,7 @@ public:
     float           mY;
     float           mAngle;
     int             mSquadNumber;
+	int				mUnderAttack;
 
     bool operator==(const MapEntity& e) const
     {
@@ -70,6 +71,7 @@ public:
                mX           == e.mX     &&
                mY           == e.mY     &&
                mAngle       == e.mAngle &&
+			   mUnderAttack == e.mUnderAttack &&
                mSquadNumber == e.mSquadNumber;
     }
 

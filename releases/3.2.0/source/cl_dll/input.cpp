@@ -863,11 +863,11 @@ void IN_ScoreUp(void)
 
 void IN_MLookUp (void)
 {
-	KeyUp( &in_mlook );
+	/*KeyUp( &in_mlook );
 	if ( !( in_mlook.state & 1 ) && lookspring->value )
 	{
 		V_StartPitchDrift();
-	}
+	}*/
 }
 
 /*
@@ -1513,7 +1513,7 @@ void InitInput (void)
 	gEngfuncs.pfnAddCommand ("+klook", IN_KLookDown);
 	gEngfuncs.pfnAddCommand ("-klook", IN_KLookUp);
 	gEngfuncs.pfnAddCommand ("+mlook", IN_MLookDown);
-	//gEngfuncs.pfnAddCommand ("-mlook", IN_MLookUp);
+	gEngfuncs.pfnAddCommand ("-mlook", IN_MLookUp);
 	gEngfuncs.pfnAddCommand ("+jlook", IN_JLookDown);
 	gEngfuncs.pfnAddCommand ("-jlook", IN_JLookUp);
 	gEngfuncs.pfnAddCommand ("+duck", IN_DuckDown);

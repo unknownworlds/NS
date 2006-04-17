@@ -149,7 +149,11 @@ void AvHEntityHierarchy::BuildFromTeam(const AvHTeam* inTeam, BaseEntityListType
 			bool theEntityIsVisible = (theBaseEntity->pev->team == (int)(inTeam->GetTeamNumber())) ||
                                        GetHasUpgrade(theBaseEntity->pev->iuser4, MASK_VIS_SIGHTED);
 			bool theEntityIsDetected = GetHasUpgrade(theBaseEntity->pev->iuser4, MASK_VIS_DETECTED);
-
+			bool theEntityIsUnderAttack = GetGameRules()->GetIsEntityUnderAttack(theEntityIndex);
+			if ( theEntityIsUnderAttack )
+			{
+				int a=0;
+			}
 			// Don't send ammo, health, weapons, or scans
 			bool theIsTransient = ((AvHUser3)(theBaseEntity->pev->iuser3) == AVH_USER3_MARINEITEM) || (theBaseEntity->pev->classname == MAKE_STRING(kwsScan));
 		
@@ -166,6 +170,7 @@ void AvHEntityHierarchy::BuildFromTeam(const AvHTeam* inTeam, BaseEntityListType
             mapEntity.mAngle = theBaseEntity->pev->angles[1];
             mapEntity.mTeam  = (AvHTeamNumber)(theBaseEntity->pev->team);
             mapEntity.mSquadNumber = 0;
+			mapEntity.mUnderAttack = theEntityIsUnderAttack ? 1 : 0;
 
             bool sendEntity = false;
 

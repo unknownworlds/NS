@@ -67,6 +67,7 @@ AvHOverviewMap::AvHOverviewMap()
 	this->Init();
 }
 
+extern globalvars_t  *gpGlobals;
 void AvHOverviewMap::Init()
 {
 	this->mUser3 = AVH_USER3_NONE;
@@ -81,6 +82,8 @@ void AvHOverviewMap::Init()
 	this->mReticleSprite = 0;
 	// puzl: 1066 reset overview map
 	this->mLastMinimapName = "";
+	this->mBlinkTime=0.0f;
+	this->mBlinkOn=false;
 
 	mLastUpdateTime = 0;
 }
@@ -109,103 +112,130 @@ void AvHOverviewMap::GetSpriteForEntity(const DrawableEntity& entity, int& outSp
 
 void AvHOverviewMap::GetColorForEntity(const DrawableEntity& entity, float& outR, float& outG, float& outB)
 {
+	static float attackBlinkPeriod=0.3f;
+	bool isStructure=entity.mUser3 == AVH_USER3_HIVE ||
+            entity.mUser3 == AVH_USER3_COMMANDER_STATION ||
+            entity.mUser3 == AVH_USER3_TURRET_FACTORY ||
+            entity.mUser3 == AVH_USER3_ARMORY ||
+            entity.mUser3 == AVH_USER3_ADVANCED_ARMORY ||
+            entity.mUser3 == AVH_USER3_ARMSLAB ||
+            entity.mUser3 == AVH_USER3_PROTOTYPE_LAB ||
+            entity.mUser3 == AVH_USER3_OBSERVATORY ||
+            entity.mUser3 == AVH_USER3_TURRET ||
+            entity.mUser3 == AVH_USER3_SIEGETURRET ||
+            entity.mUser3 == AVH_USER3_RESTOWER ||
+            entity.mUser3 == AVH_USER3_INFANTRYPORTAL ||
+            entity.mUser3 == AVH_USER3_PHASEGATE ||
+	        entity.mUser3 == AVH_USER3_DEFENSE_CHAMBER ||
+	        entity.mUser3 == AVH_USER3_MOVEMENT_CHAMBER  ||
+	        entity.mUser3 == AVH_USER3_OFFENSE_CHAMBER  ||
+	        entity.mUser3 == AVH_USER3_SENSORY_CHAMBER ||
+	        entity.mUser3 == AVH_USER3_ALIENRESTOWER ||
+	        entity.mUser3 == AVH_USER3_ADVANCED_TURRET_FACTORY;
+
+	if ( entity.mIsUnderAttack && (entity.mTeam == mTeam || gEngfuncs.IsSpectateOnly() ) {
+		if ( gpGlobals->time > this->mBlinkTime + attackBlinkPeriod ) {
+			this->mBlinkOn=!mBlinkOn;
+			this->mBlinkTime=gpGlobals->time;
+		}
+		if ( this->mBlinkOn ) {
+			outR = 0.8;
+			outG = 0.8;
+			outB = 0.2;
+			return;
+		}
+	}
 
     if (entity.mUser3 == AVH_USER3_WAYPOINT)
     {
         outR = 0.1;
 	    outG = 0.8;
 		outB = 1.0;
-    }
+	}
     else if (entity.mTeam == TEAM_IND)
-    {
-        
+    {   
         if (entity.mUser3 == AVH_USER3_WELD)
         {
             outR = 1.0;
             outG = 0.7;
-            outB = 0.0;
+            outB = 0.5;
         }
         else
         {
-            outR = 0.5;
-            outG = 0.5;
-            outB = 0.5;
+			outR = 0.5;
+			outG = 0.5;
+			outB = 0.5;
         }
+    }
+	else if ( gEngfuncs.IsSpectateOnly() ) {
+		if ( entity.mTeam == TEAM_ONE || entity.mTeam == TEAM_THREE ) {
+			outR = 0.1;
+			outG = 0.1;
+			outB = 0.8;
+		}
+		else if ( entity.mTeam == TEAM_TWO || entity.mTeam == TEAM_FOUR ) {
+			outR = 0.8;
+			outG = 0.6;
+			outB = 0.1;
+		}
+	}
+    else if (entity.mTeam == mTeam)
+    {
+		if ( entity.mUser3 == AVH_USER3_MINE ) {
+			outR = 0.0;
+	    	outG = 0.4;
+			outB = 0.0;
+		}
+		else if ( isStructure )
+		{
+			outR = 0.1;
+	    	outG = 0.8;
+			outB = 0.1;
+		}
+		else
+		{
+    		outR = 0.1;
+	    	outG = 1.0;
+			outB = 0.1;
+
+			// Color squads.
+
+			int localPlayerSquad;
+	        
+			if (g_iUser1 == OBS_NONE)
+			{
+				localPlayerSquad = gHUD.GetCurrentSquad();
+			}
+			else
+			{
+				// We don't have access to the squad information for player's
+				// we're spectating.
+				localPlayerSquad = 0;
+			}
+
+			if (mUser3 != AVH_USER3_COMMANDER_PLAYER)
+			{
+				if (entity.mIsLocalPlayer ) {
+    				outR = 1.0;
+	    			outG = 1.0;
+					outB = 1.0;
+				}
+				if (entity.mSquadNumber != 0 && entity.mSquadNumber == localPlayerSquad)
+				{
+    				outR = 1.0;
+	    			outG = 8.0;
+					outB = 8.0;
+				}
+					    
+			}
+		}
     }
     else
     {
-        if (entity.mTeam == mTeam)
-        {
-
-            if (entity.mUser3 == AVH_USER3_HIVE ||
-                entity.mUser3 == AVH_USER3_COMMANDER_STATION ||
-                entity.mUser3 == AVH_USER3_TURRET_FACTORY ||
-                entity.mUser3 == AVH_USER3_ARMORY ||
-                entity.mUser3 == AVH_USER3_ADVANCED_ARMORY ||
-                entity.mUser3 == AVH_USER3_ARMSLAB ||
-                entity.mUser3 == AVH_USER3_PROTOTYPE_LAB ||
-                entity.mUser3 == AVH_USER3_OBSERVATORY ||
-                entity.mUser3 == AVH_USER3_TURRET ||
-                entity.mUser3 == AVH_USER3_SIEGETURRET ||
-                entity.mUser3 == AVH_USER3_RESTOWER ||
-                entity.mUser3 == AVH_USER3_INFANTRYPORTAL ||
-                entity.mUser3 == AVH_USER3_PHASEGATE ||
-	            entity.mUser3 == AVH_USER3_DEFENSE_CHAMBER ||
-	            entity.mUser3 == AVH_USER3_MOVEMENT_CHAMBER  ||
-	            entity.mUser3 == AVH_USER3_OFFENSE_CHAMBER  ||
-	            entity.mUser3 == AVH_USER3_SENSORY_CHAMBER ||
-	            entity.mUser3 == AVH_USER3_ALIENRESTOWER ||
-	            entity.mUser3 == AVH_USER3_ADVANCED_TURRET_FACTORY)
-            {
-                outR = 0.5;
-	    	    outG = 0.8;
-		        outB = 1.0;
-            }
-            else
-            {
-
-    		    outR = 1.0;
-	    	    outG = 1.0;
-		        outB = 1.0;
-
-                // Color squads.
-
-                int localPlayerSquad;
-                
-                if (g_iUser1 == OBS_NONE)
-                {
-                    localPlayerSquad = gHUD.GetCurrentSquad();
-                }
-                else
-                {
-                    // We don't have access to the squad information for player's
-                    // we're spectating.
-                    localPlayerSquad = 0;
-                }
-
-                if (mUser3 != AVH_USER3_COMMANDER_PLAYER)
-                {
-                    if (entity.mIsLocalPlayer || 
-                        (entity.mSquadNumber != 0 &&
-                         entity.mSquadNumber == localPlayerSquad))
-                    {
-    		            outR = 0.5;
-	    	            outG = 1.0;
-		                outB = 0.5;
-                    }
-                }
-
-            }
-
-        }
-        else
-        {
-		    outR = 1.0;
-		    outG = 0.1;
-		    outB = 0.0;
-        }
+		outR = isStructure ? 0.8 : 1.0;
+		outG = 0.1;
+		outB = 0.0;
     }
-
 }
 
 void AvHOverviewMap::DrawMiniMapEntity(const DrawInfo& inDrawInfo, const DrawableEntity& inEntity)
@@ -214,7 +244,7 @@ void AvHOverviewMap::DrawMiniMapEntity(const DrawInfo& inDrawInfo, const Drawabl
     if (!GetHasData())
 	{
         return;
-    }
+    } 
 
 	float theEntityPosX = inEntity.mX;
 	float theEntityPosY = inEntity.mY;
@@ -784,6 +814,7 @@ void AvHOverviewMap::UpdateDrawData(float inCurrentTime)
         theDrawableEntity.mTeam   = theIter->second.mTeam;
         theDrawableEntity.mAngleRadians = theIter->second.mAngle * M_PI / 180;
         theDrawableEntity.mSquadNumber  = theIter->second.mSquadNumber;
+		theDrawableEntity.mIsUnderAttack = theIter->second.mUnderAttack;
 
 		// Returns position relative to minimap, so add it back in
 //				commented this out here, commented out corresponding shift in AvHEntityHierarchy::BuildFromTeam at line 234

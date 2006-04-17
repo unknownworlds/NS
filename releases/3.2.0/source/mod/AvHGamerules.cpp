@@ -3362,17 +3362,10 @@ const std::string& AvHGamerules::GetServerVariable(int i) const
 bool AvHGamerules::GetIsEntityUnderAttack(int inEntityIndex) const
 {
 	bool theEntityIsUnderAttack = false;
-
 	// If entity is in list, it's being attacked
-	for(EntityUnderAttackListType::const_iterator theIter = this->mEntitiesUnderAttack.begin(); theIter != this->mEntitiesUnderAttack.end(); theIter++)
-	{
-		if(inEntityIndex == theIter->first)
-		{
-			theEntityIsUnderAttack = true;
-			break;
-		}
+	if ( this->mEntitiesUnderAttack.find(inEntityIndex) !=  this->mEntitiesUnderAttack.end() ) {
+		theEntityIsUnderAttack=true;
 	}
-
 	return theEntityIsUnderAttack;
 }
 

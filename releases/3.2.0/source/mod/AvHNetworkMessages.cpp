@@ -1957,10 +1957,12 @@ const int	kNumPlayerIndexBits = 6;
 const int	kPlayerIndexMask = 0x3F;
 const int	kNumIndexBits = 14;
 const int	kIndexMask = 0x3FFF;
-const int	kNumFlagBits = 2;
-const int	kFlagMask = 0x03;
+const int	kNumFlagBits = 3;
+const int	kFlagMask = 0x07;
 const int	kEntHierFlagPlayer		= 0x01;
 const int	kEntHierFlagDeletion	= 0x02;
+const int	kEntHierFlagUnderAttack = 0x04;
+
 
 #ifndef AVH_SERVER
 	//TODO : replace OldItems with vector<int>
@@ -2001,6 +2003,11 @@ const int	kEntHierFlagDeletion	= 0x02;
 		MapEntity ent;
 		int index = 0;
 
+		ent.mUnderAttack = ((flags & kEntHierFlagUnderAttack) == kEntHierFlagUnderAttack );
+		if ( ent.mUnderAttack )
+		{
+			int a=0;
+		}
 		ent.mUser3 = (AvHUser3)(long_data & kStatusMask);
 		long_data >>= kNumStatusBits;
 		ent.mTeam = (AvHTeamNumber)(long_data & kTeamMask);
@@ -2020,6 +2027,7 @@ const int	kEntHierFlagDeletion	= 0x02;
 		else															// Other item added/changed
 		{
 			index = short_data & kIndexMask;
+			short_data >>= kNumIndexBits;
 			ent.mSquadNumber = 0;
 			ent.mAngle = 0;
 		}
@@ -2097,6 +2105,7 @@ const int	kEntHierFlagDeletion	= 0x02;
 			ASSERT((ent.mUser3 & ~kStatusMask) == 0);
 		long_data |= ent.mUser3 & kStatusMask;
 
+
 		switch( ent.mUser3 )
 		{
 		case AVH_USER3_MARINE_PLAYER: case AVH_USER3_COMMANDER_PLAYER:
@@ -2120,12 +2129,17 @@ const int	kEntHierFlagDeletion	= 0x02;
 			short_data <<= kNumFlagBits;
 				ASSERT( ( short_data & kFlagMask ) == 0 );
 			short_data |= kEntHierFlagPlayer;
+			if ( ent.mUnderAttack ) short_data |= kEntHierFlagUnderAttack;
 			break;
 		}
 		default:
 				ASSERT( ( index & ~kIndexMask ) == 0 );
 			short_data = index & kIndexMask;
 			short_data <<= kNumFlagBits;
+				ASSERT( (short_data & kFlagMask) == 0 );
+			if ( ent.mUnderAttack ) {
+				short_data |= kEntHierFlagUnderAttack;
+			}
 		}
 	}
 

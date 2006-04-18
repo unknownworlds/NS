@@ -93,15 +93,51 @@ void AvHOverviewMap::Clear()
 	this->Init();
 }
 
+bool getIsStructure(int user3) {
+	return user3 == AVH_USER3_HIVE ||
+           user3 == AVH_USER3_COMMANDER_STATION ||
+           user3 == AVH_USER3_TURRET_FACTORY ||
+           user3 == AVH_USER3_ARMORY ||
+           user3 == AVH_USER3_ADVANCED_ARMORY ||
+           user3 == AVH_USER3_ARMSLAB ||
+           user3 == AVH_USER3_PROTOTYPE_LAB ||
+           user3 == AVH_USER3_OBSERVATORY ||
+           user3 == AVH_USER3_TURRET ||
+           user3 == AVH_USER3_SIEGETURRET ||
+           user3 == AVH_USER3_RESTOWER ||
+           user3 == AVH_USER3_INFANTRYPORTAL ||
+           user3 == AVH_USER3_PHASEGATE ||
+	       user3 == AVH_USER3_DEFENSE_CHAMBER ||
+	       user3 == AVH_USER3_MOVEMENT_CHAMBER  ||
+	       user3 == AVH_USER3_OFFENSE_CHAMBER  ||
+	       user3 == AVH_USER3_SENSORY_CHAMBER ||
+	       user3 == AVH_USER3_ALIENRESTOWER ||
+	       user3 == AVH_USER3_ADVANCED_TURRET_FACTORY;
+}
 void AvHOverviewMap::GetSpriteForEntity(const DrawableEntity& entity, int& outSprite, int& outFrame, int& outRenderMode)
 {
-    
     outRenderMode = kRenderTransTexture;
-    
-    if ((this->mUser3 == AVH_USER3_COMMANDER_PLAYER) || (entity.mUser3 == AVH_USER3_UNKNOWN))
+	
+	if (entity.mUser3 == AVH_USER3_UNKNOWN) 
+	{
+		outSprite = Safe_SPR_Load(kCommBlipSprite);
+		outFrame=1;
+	}
+    else if (this->mUser3 == AVH_USER3_COMMANDER_PLAYER)
     {
+		bool isStructure=getIsStructure(entity.mUser3);
+		bool isFriendly=entity.mTeam == mTeam;
         outSprite = Safe_SPR_Load(kCommBlipSprite);
-        outFrame  = 0;
+		outFrame=1;
+		if ( entity.mUser3 == AVH_USER3_HIVE ) {
+			outFrame=4;
+		}
+		else if ( (entity.mUser3 == AVH_USER3_RESTOWER) || (entity.mUser3 == AVH_USER3_ALIENRESTOWER) || (entity.mUser3 == AVH_USER3_FUNC_RESOURCE) ) {
+			outFrame=3;
+		}
+		else if ( isStructure ) {
+			outFrame=isFriendly? 0 : 2;
+		}
     }
     else
     {

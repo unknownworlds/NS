@@ -24,7 +24,7 @@ int	g_msgAmmoPickup = 0, g_msgAmmoX, g_msgBattery, g_msgCurWeapon, g_msgDamage,	
 	g_msgServerVar, g_msgSetGammaRamp, g_msgSetOrder, g_msgSetParticleTemplates,
 	g_msgSetSelect, g_msgSetRequest, g_msgSetSoundNames, g_msgSetTechNodes, g_msgSetTechSlots,
 	g_msgSetTopDown, g_msgSetupMap, g_msgUpdateCountdown, g_msgUpdateEntityHierarchy,
-	g_msgProfileInfo, g_msgNexusBytes, g_msgIssueOrder;
+	g_msgProfileInfo, g_msgNexusBytes, g_msgIssueOrder, g_msgHUDSetUpgrades;
 
 void Net_InitializeMessages(void)
 {
@@ -74,6 +74,7 @@ void Net_InitializeMessages(void)
 	g_msgGameStatus = REG_USER_MSG( "GameStatus", -1 );
 	g_msgListPS = REG_USER_MSG( "ListPS", -1 );
 	g_msgPlayHUDNotification = REG_USER_MSG( "PlayHUDNot", 6 );
+	g_msgHUDSetUpgrades = REG_USER_MSG( "SetUpgrades", 1);
 	g_msgProgressBar = REG_USER_MSG( "Progress", 3 );
 	g_msgServerVar = REG_USER_MSG( "ServerVar", -1 );
 	g_msgSetGammaRamp = REG_USER_MSG( "SetGmma", 2 );
@@ -1447,6 +1448,28 @@ union float_converter
 #endif
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+#ifndef AVH_SERVER
+	void NetMsg_HUDSetUpgrades( void* const buffer, const int size, int& upgradeMask )
+	{
+		BEGIN_READ( buffer, size );
+			upgradeMask=READ_BYTE();
+		END_READ();
+	}
+#else
+	void NetMsg_HUDSetUpgrades( int upgradeMask )
+	{
+		MESSAGE_BEGIN( MSG_ALL, g_msgHUDSetUpgrades);
+			WRITE_BYTE( upgradeMask );
+		MESSAGE_END();
+	}
+	void NetMsg_HUDSetUpgrades( entvars_t* const pev, int upgradeMask )
+	{
+		MESSAGE_BEGIN( MSG_ONE, g_msgHUDSetUpgrades, NULL, pev );
+			WRITE_BYTE( upgradeMask  );
+		MESSAGE_END();
+	}
+#endif
 
 #ifndef AVH_SERVER
 	void NetMsg_PlayHUDNotification( void* const buffer, const int size, int& flags, int& sound, float& location_x, float& location_y )

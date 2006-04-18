@@ -129,12 +129,15 @@ int GetHotkeyGroupContainingPlayer(AvHPlayer* player)
     return -1;
 
 }
-
+static int numMovement=0;
+static int numSensory=0;
+static int numDefence=0;
 
 void AvHEntityHierarchy::BuildFromTeam(const AvHTeam* inTeam, BaseEntityListType& inBaseEntityList)
 {
 
 	this->Clear();
+	int mc=0, sc=0, dc=0;
 
   	if (inTeam->GetTeamType() == AVH_CLASS_TYPE_MARINE ||
         inTeam->GetTeamType() == AVH_CLASS_TYPE_ALIEN)
@@ -157,7 +160,24 @@ void AvHEntityHierarchy::BuildFromTeam(const AvHTeam* inTeam, BaseEntityListType
 			// Don't send ammo, health, weapons, or scans
 			bool theIsTransient = ((AvHUser3)(theBaseEntity->pev->iuser3) == AVH_USER3_MARINEITEM) || (theBaseEntity->pev->classname == MAKE_STRING(kwsScan));
 		
-            MapEntity mapEntity;
+
+			
+			if ( inTeam->GetTeamType() == AVH_CLASS_TYPE_ALIEN && theBaseEntity->pev->team == (int)(inTeam->GetTeamNumber()) ) {
+				AvHBuildable *theBuildable=dynamic_cast<AvHBuildable *>(theBaseEntity);
+				if ( theBuildable && theBuildable->GetHasBeenBuilt() ) {
+					if ( theBaseEntity->pev->iuser3 == AVH_USER3_MOVEMENT_CHAMBER ) {
+						mc++;
+					}
+					if ( theBaseEntity->pev->iuser3 == AVH_USER3_SENSORY_CHAMBER ) { 
+						sc++;
+					}
+					if ( theBaseEntity->pev->iuser3 == AVH_USER3_DEFENSE_CHAMBER ) {
+						dc++;
+					}
+				}
+			}
+			
+			MapEntity mapEntity;
 
             mapEntity.mX     = theBaseEntity->pev->origin.x;
             mapEntity.mY     = theBaseEntity->pev->origin.y;
@@ -195,7 +215,6 @@ void AvHEntityHierarchy::BuildFromTeam(const AvHTeam* inTeam, BaseEntityListType
             }
             else if ((theEntityIsVisible || theEntityIsDetected) && !(theBaseEntity->pev->effects & EF_NODRAW) && !theIsTransient)
             {
-                
                 AvHPlayer* thePlayer = dynamic_cast<AvHPlayer*>(theBaseEntity);
                 
                 if (thePlayer)
@@ -245,8 +264,25 @@ void AvHEntityHierarchy::BuildFromTeam(const AvHTeam* inTeam, BaseEntityListType
                 mEntityList[theEntityIndex] = mapEntity;
 
             }
-        
         }
+			if ( inTeam->GetTeamType() == AVH_CLASS_TYPE_ALIEN ) {
+				sc=min(3, sc);
+				dc=min(3,dc);
+				mc=min(3,mc);
+				if ( numSensory != sc || numDefence != dc || numMovement != mc ) {
+					numSensory=sc;
+					numDefence=dc;
+					numMovement=mc;
+					int mask=0;
+					mask |= ( numSensory & 0x3 );
+					mask <<= 2;
+					mask |= ( numDefence & 0x3 );
+					mask <<= 2;
+					mask |= ( numMovement & 0x3 );
+					mask |= 0x80;
+					NetMsg_HUDSetUpgrades(mask);
+				}
+			}
     }
 
 }

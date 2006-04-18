@@ -387,6 +387,7 @@ public:
 	int				EditPS(const char* pszName, int iSize, void* pbuf);
 	int				EntHier(const char *pszName, int iSize, void *pbuf);
 	int				Fog(const char* pszName, int iSize, void* pbuf);
+	int				SetUpgrades(const char* pszName, int iSize, void* pbuf);
 	int				ListPS(const char* pszName, int iSize, void* pbuf);
     int				Particles(const char *pszName, int iSize, void *pbuf);
     int				SoundNames(const char *pszName, int iSize, void *pbuf);
@@ -639,6 +640,10 @@ private:
 	Label*					mResearchLabel;
 	string					mPreviousHelpText;
 	float					mTimeLastHelpTextChanged;
+
+	int						mNumMovement;
+	int						mNumSensory;
+	int						mNumDefense;
 
 	int						mSelectedNodeResourceCost;
 	float					mCurrentUseableEnergyLevel;

@@ -90,6 +90,8 @@
 	void NetMsg_GameStatus_State( entvars_t* const pev, const int status_code, const int map_mode );
 	void NetMsg_GameStatus_UnspentLevels( entvars_t* const pev, const int status_code, const int map_mode, const int unspent_levels );
 	void NetMsg_ListPS( entvars_t* const pev, const string& system_name );
+	void NetMsg_HUDSetUpgrades( int upgradeMask );
+	void NetMsg_HUDSetUpgrades( entvars_t* const pev, int upgradeMask );
 	void NetMsg_PlayHUDNotification( entvars_t* const pev, const int flags, const int sound, const float location_x, const float location_y );
 	void NetMsg_ProgressBar( entvars_t* const pev, const int entity_number, const int progress );
 	void NetMsg_ServerVar( entvars_t* const pev, const string& name, const string& value );
@@ -178,6 +180,7 @@
 	void NetMsg_Fog( void* const buffer, const int size, bool& enabled, int& R, int& G, int& B, float& start, float& end );
 	void NetMsg_GameStatus( void* const buffer, const int size, int& status_code, AvHMapMode& map_mode, int& game_time, int& timelimit, int& misc_data );
 	void NetMsg_ListPS( void* const buffer, const int size, string& system_name );
+	void NetMsg_HUDSetUpgrades( void* const buffer, const int size, int& upgradeMask );
 	void NetMsg_PlayHUDNotification( void* const buffer, const int size, int& flags, int& sound, float& location_x, float& location_y );
 	void NetMsg_ProgressBar( void* const buffer, const int size, int& entity_number, int& progress );
 	//45

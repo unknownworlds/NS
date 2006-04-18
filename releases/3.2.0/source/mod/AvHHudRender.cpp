@@ -3868,14 +3868,29 @@ void AvHHud::RenderAlienUI()
 						int theSecondOfLastUpdate = (int)this->mTimeOfLastUpdate;
 						if(theSecondOfLastUpdate % 2)
 						{
-							int theFrame = theCategory-1;
-						
-							float x1 = theX;
-							float y1 = theY;
-							float x2 = x1 + theUpgradeWidth;
-							float y2 = y1 + theUpgradeHeight;
+							int numSprites=1;
+							switch ( theCategory ) {
+								case ALIEN_UPGRADE_CATEGORY_DEFENSE:
+									numSprites=this->mNumDefense;
+									break;
+								case ALIEN_UPGRADE_CATEGORY_SENSORY:
+									numSprites=this->mNumSensory;
+									break;
+								case ALIEN_UPGRADE_CATEGORY_MOVEMENT:
+									numSprites=this->mNumMovement;
+									break;
+							}
+							for ( int j=0; j< numSprites; j++ ) {
+								const float kOffset = .01f;
+								int theFrame = theCategory-1;
+							
+								float x1 = theX - j*(kOffset*ScreenWidth());
+								float y1 = theY - j*(kOffset*ScreenHeight());
+								float x2 = x1 + theUpgradeWidth;
+								float y2 = y1 + theUpgradeHeight;
 
-							AvHSpriteDraw(mAlienUIUpgradeCategories, theFrame, x1, y1, x2, y2, 0, 0, 1, 1);
+								AvHSpriteDraw(mAlienUIUpgradeCategories, theFrame, x1, y1, x2, y2, 0, 0, 1, 1);
+							}
                     	}
 						break;
 					}

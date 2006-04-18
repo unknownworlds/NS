@@ -2860,6 +2860,24 @@ int	AvHHud::Fog(const char* pszName, int iSize, void* pbuf)
 	return 1;
 }
 
+
+BIND_MESSAGE(SetUpgrades);
+int	AvHHud::SetUpgrades(const char* pszName, int iSize, void* pbuf)
+{
+	int mask;
+	NetMsg_HUDSetUpgrades( pbuf, iSize, mask );
+	// Aliens
+	if ( mask & 0x80 ) {
+		this->mNumMovement=mask & 0x3;
+		mask >>=2;
+		this->mNumDefense=mask & 0x3;
+		mask >>=2;
+		this->mNumSensory=mask & 0x3;
+	}
+	return 1;
+}
+
+
 BIND_MESSAGE(ListPS);
 int	AvHHud::ListPS(const char* pszName, int iSize, void* pbuf)
 {
@@ -3586,6 +3604,7 @@ void AvHHud::Init(void)
 	HOOK_MESSAGE(ClScript);
 	HOOK_MESSAGE(AlienInfo);
 	HOOK_MESSAGE(DebugCSP);
+	HOOK_MESSAGE(SetUpgrades);
 	HOOK_MESSAGE(TechSlots);
 	// tankefugl: 0000971 
 	HOOK_MESSAGE(IssueOrder);
@@ -3632,6 +3651,10 @@ void AvHHud::Init(void)
 	this->mSelectedNodeResourceCost = -1;
 	this->mCurrentUseableEnergyLevel = 0;
 	this->mVisualEnergyLevel = 0.0f;
+
+	this->mNumSensory=0;
+	this->mNumMovement=0;
+	this->mNumDefense=0;
 
 	this->mFogActive = false;
 	this->mFogColor.x = this->mFogColor.y = this->mFogColor.z = 0;

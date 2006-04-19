@@ -457,6 +457,7 @@
 #define kWeaponDamageLevelThree 0.30
 #define kWeaponDamageLevelTwo 0.20
 #define kWebEnergyCost 0.18
+#define kWebWarmupTime 3.0
 #define kWebSpinnerROF 0.50
 #define kWelderBuildingModifier 1.00
 #define kWelderPlayerModifier 0.50

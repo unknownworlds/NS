@@ -3153,7 +3153,7 @@ Swipe - Deadly close-combat attack.  Get close to your enemies and attack.  Good
 
 Weapon8Help
 {
-Webs - Shoot globules near each other and a web will be created between them.  Webs slow enemies and prevent them from using their weapons for a time.  Webs can be destroyed with the welder or by grenade fire
+Webs - Shoot globules near each other and a web will be created between them.  Wabes take 3 seconds to harden and become active. Webs slow enemies and prevent them from using their weapons for a time.  Webs can be destroyed with the welder or by grenade fire
 }
 
 Weapon9Help
@@ -3521,7 +3521,7 @@ You are now a Gorge. Stay out of combat and use your pop-up menu to build differ
 
 HelpTextWeb
 {
-Fire web strands at walls and floors to create webs between them.  Enemies that touch webs are slowed and can't use their weapons temporarily
+Fire web strands at walls and floors to create webs between them.  Strands take 3 seconds to harden and become active.  Enemies that touch webs are slowed and can't use their weapons temporarily
 }
 
 HelpTextWallwalking

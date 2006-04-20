@@ -737,6 +737,15 @@ void ScorePanel::FillGrid()
 	}
 	
 	bool bNextRowIsGap = false;
+	if ( gHUD.GetIsMarine() ) {
+		m_HeaderLabels[COLUMN_EXTRA].setText(CHudTextMessage::BufferedLocaliseTextString("#COLWEAP"));
+	}
+	else if ( gHUD.GetIsAlien() ) { 
+		m_HeaderLabels[COLUMN_EXTRA].setText(CHudTextMessage::BufferedLocaliseTextString("#COLRES"));
+	}
+	else {
+		m_HeaderLabels[COLUMN_EXTRA].setText(CHudTextMessage::BufferedLocaliseTextString("#EXTRA"));
+	}
 	
 	for(int row=0; row < NUM_ROWS; row++)
 	{

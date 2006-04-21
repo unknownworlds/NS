@@ -1,0 +1,14 @@
+ns_hera version 3.0 by Jon A Chapman aka 'Merkaba'
+
+=========
+BACKSTORY
+=========
+
+The communications colony on planet Hera (named so for its similarity with Earth's neighbour, Mars, but on a much grander scale) was among the first of the targets set by the TSA for salvaging from the then mysterious Kharaa intruders. Due to its ideal transmitting position on the outskirts of the Ariadne Arm, this colony was decided crucial to the TSA’s attack against the Kharaa. Therefore, they had to first eradicate it of all Kharaa presence before moving in. The colony consists of many various stations, all connecting to two central structures via high-speed transport tubes. All the workers and their families live in Rhea, the larger of the two complexes. Cronus is the name of the other, and is the control centre of the communications outpost. The only other man-made structures of note on Hera are the fields of electricity harnesses, set up in calculated positions on Hera’s surface and designed to capture the energy from the raging electrical storms thus powering the colony.
+
+
+=======
+MISSION
+=======
+
+This particular mission takes place in station 16-B, one of the few operational complexes with a landing site. The mission as instructed by the TSA is to secure all accessible areas of the station, eradicating all Kharaa, and then to use it as a temporary base camp while the transit tubes are used to access and clear the other stations. All alien findings are to be reported back to the TSA council using the station’s communications capabilities as soon as possible.

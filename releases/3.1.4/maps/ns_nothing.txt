@@ -1,0 +1,178 @@
+ns_nothing - "Space Station Nothing - Sub Sector 77"
+===================================================
+Natural Selection 2.0
+
+==
+v2.0 Modifications by Andrew Weldon
+Original Level by Ken Banks
+
+==
+X - Deleted Communications Hub nozzle (KB)
+X - Reduced volume in Power Silo (KB)
+X - moved Cargo Bay Foyer vent into an alcove without LOS to the hive (AW)
+X - Deleted Docking wing 01 nozzle (AW)
+X - Made 1.1 info_location tweaks (AW)
+X - Extended dead-end Viaduct vents to enter each side of Viaduct (AW)
+X - Tweaked power silo geometry, hive location, and spawn points (AW)
+X - Adjusted Red Room vents to exit closer to the ceiling for added protection (AW)
+X - Entity count optimizations (AW)
+X - Lighting adjustments (AW)
+
+==
+Special thanks to:
+Ken "ken20banks" Banks
+The Natural Selection team
+XP-Cagey
+Cadaver
+
+==
+July 2003
+
+ORIGINAL README FOLLOWS:
+=======================
+
+ns_nothing readme
+Last Updated: 10/04/02
+-------------------------------------------------------
+
+Level Name: Space Station Nothing - Sub Sector 77
+Level File Name: ns_nothing.bsp
+Additional Files: (See "Other Required Files")
+Level Completed: July, 2002
+-------------------------------------------------------
+
+Level Designer: Ken Banks
+Contact: ken20banks@yahoo.com
+Website: http://tald.readyroom.org
+-------------------------------------------------------
+
+Other Required Files:
+
+|ns|
+(|maps|, |models|, |sprites|, ns_nothing.wad)
+
+	|maps|
+	(ns_nothing.bsp, ns_nothing.txt)
+
+	|models|
+	(|ns_nothing|
+
+		|ns_nothing|
+		(ssn_powersilo.mdl, ssn_viaduct.mdl)
+
+	|sprites|
+	(|minimaps|, |ns_nothing|)
+
+		|minimaps|
+		(ns_nothing.spr)
+
+		|ns_nothing|
+		(glow03.spr, redflare2.spr)
+-------------------------------------------------------
+
+About the Level:
+
+Game: Natural Selection
+Type: Standard Marines vs. Aliens
+Recommended Players: At least 16
+Maximum Players: 32
+
+Description:
+
+Space Station Nothing
+Research and Containment Facility
+Sub Sector 77
+
+An immense facility, the players are located on level -77, near an auxiliary docking bay. Primary use of the sector is purely for maintenance, but it has proven useful for those last minute shipments while the station's main shipping and loading docks were full. A back door of sorts. 
+
+After the workers of the facility discovered that Sector 77 had received a freak shipment of... aliens... the entire level was closed off and quarantined for a week until TSA troops could be brought in. Ship still attached, the aliens began to infest what they could. Three hives began to develop: Two within the station itself, another on board the ship. 
+
+Enter, the Frontiersmen. 
+-------------------------------------------------------
+
+Special Thanks:
+
+Ned "MonsieurEvil" Pyle - I really owe you big time. From the website hosting and lifesaver SHODAN compiles, to the encouraging words and support you provided during the various "rough times", I really don't have the words to express my appreciation. At times it felt as though you were even more devoted to the level than I was. I'll never forget the several times you scrambled through dozens of emails and forum posts to help solve the showstopper compile errors and map bugs. If I were to dedicate this level to someone as a sign of respect and gratitude, it would definitely have to be you. Thanks, man.
+
+Charlie "Flayra" Cleveland - Your game is amazing. Truly revolutionary. I still can't get over the groundbreaking innovation. It comes as no surprise to me that its creator is one of the smartest and most dedicated people I've met. Thank you so much for allowing me to become involved with the game, and for getting involved with this level yourself. Your feedback on the map was extremely helpful. I have learned so much from you... both directly, and from the experiences of working on this. Thanks for putting up with my uncondensed ramblings too. ;)
+
+"Ekaj" - Your dedication to the level was made obvious by your flurry of comments, suggestions, and concerns. I don't know where the level would be right now if you hadn't returned my faith in the map by doing your rmf revisions that critical night. Thanks for the seemingly never-ending supply of suggestions and solutions to problems.
+
+Andrew "KungFuSquirrel" Weldon - Your comments, support, and suggestions were more than encouraging. Thanks for being there as a fellow level designer to discuss various aspects of the level with, and more importantly: as a great friend.
+
+Jon "Merkaba" Chapman - Your motivating words and insightful suggestions really helped me pull through at the end. I'm delighted that you enjoy the level, and you know that the feeling is mutual regarding your own creation.
+
+Russell "DOOManiac" Weed - While I unfortunately wasn't able to implement/fix all of them, your numerous suggestions and bug reports were invaluable. Thanks for devoting your time and energy to this.
+
+"Fam" - You're an incredible artist, which clearly shows in the fabulous sign textures/models you created for the level. Thanks again for doing this.
+
+Cory "Squeal Like A Pig" Strader - I regret never really getting involved with you in regard to the level's development, because it would undoubtedly have been better as a result. I whole-heartedly appreciate your devotion to defining and creating the visual appearance of the game. Your work is truly inspirational.
+
+Additional Thanks to the following people/companies for comments, suggestions, criticism, support, and/or for inspiration:
+
+Adam Foster
+Behrooz
+Blackdog
+blueman
+Bozman20
+Bungie
+chalupamonk
+ChromeAngel
+coil
+Comprox
+Craig Mullins
+Cyanide
+DevilDog
+Digital Extremes
+Epic Games
+ferret
+Feng Zhu
+Freemantle
+Greedo386
+Grendel
+HanzGruber
+humbaba
+H'BNayr
+Id Software
+Insane
+Ion Storm
+Jedisar
+Kassinger
+Killtoy
+Looking Glass Studios
+manah
+Mantis
+Merl
+Moleculor
+MotherGoose
+Mouse
+Mutant
+narby
+Nemesis Zero
+Plaugebearer
+QUAD
+Ramses
+Randy Reddig
+Relic25
+RhoadsToNowhere
+rob6264
+SentrySteve
+Sgt. Bilko
+shoven
+Silver Fox ( Dude, I can jump! Honest! )
+tommyd
+Valve Software
+Yamazaki
+
+A big thanks goes out to all of the NS Playtesters, and anyone else who, in any way, commented on the level.
+-------------------------------------------------------
+
+Additional Information:
+
+I was going to assemble a long, detailed rambling here describing how difficult - yet at the same time, enjoyable - making Space Station Nothing was for me. Though now, as I write this several months after completing the level, my passion for it has been somewhat subdued. I truly feel that by completing the level, I was able to leap over a substantial hurdle that had once been holding me back. I had never before been able to maintain the focus required to complete a project of this scale. The sense of accomplishment I felt after completing a playable build was overwhelming. While that gratification still lingers somewhere in the back of my mind, it's more of a dull tingle now, rather than the incredible burning in my chest that I experienced during the first days the map was released to the playtesters. The horrible stress and moody days that accompanied the numerous roadblocks I encountered during the development cycle also seem like more of a faint memory now than anything else. I was once very eager to share these experiences with everyone - both the good and the bad. I would have done anything for the satisfaction of knowing that at least one person really truly knew the pain and joy I went through. That desire has all but faded away now. Rather than feeling the need to burst out and share every single detail with any - and every - person who is willing to listen, I'm quite satisfied simply looking back at the work that was done and smiling.
+-------------------------------------------------------
+
+Contact: ken20banks@yahoo.com
+-------------------------------------------------------
+
+Reality is dead.

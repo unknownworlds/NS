@@ -2281,8 +2281,8 @@ void AvHPlayer::PlayerTouch(CBaseEntity* inOther)
                 }
             }
             
-            // Are we charging?
-            if(GetHasUpgrade(this->pev->iuser4, MASK_ALIEN_MOVEMENT) /*&& !this->GetIsBlinking()*/)
+			// Are we charging?
+            if(false) // GetHasUpgrade(this->pev->iuser4, MASK_ALIEN_MOVEMENT))
             {
                 if(GetGameRules()->CanEntityDoDamageTo(this, inOther, &theScalar))
                 {
@@ -3299,7 +3299,8 @@ void AvHPlayer::ItemPostFrame(void)
     // Check if player tried to do something while we were in the ready room.  If so, display tutorial message.
     if(this->GetPlayMode() == PLAYMODE_READYROOM)
     {
-        if((this->pev->button & IN_ATTACK) || (this->pev->button & IN_ATTACK2) || (this->pev->button & IN_RELOAD))
+		// +movement: Removed case for +attack2
+        if((this->pev->button & IN_ATTACK) /* || (this->pev->button & IN_ATTACK2) */ || (this->pev->button & IN_RELOAD))
         {
             this->SendMessageOnce(kReadyRoomMessage, TOOLTIP);
         }
@@ -4057,7 +4058,8 @@ void AvHPlayer::HandleTopDownInput()
 {
     // From CBasePlayer::PreThink():
     bool theAttackOneDown = FBitSet(this->mCurrentCommand.buttons, IN_ATTACK);
-    bool theAttackTwoDown = FBitSet(this->mCurrentCommand.buttons, IN_ATTACK2);
+    // +movement: Removed case for +attack2
+	bool theAttackTwoDown = false; //FBitSet(this->mCurrentCommand.buttons, IN_ATTACK2);
     bool theJumpHit = FBitSet(this->mCurrentCommand.buttons, IN_JUMP);
     bool theCrouchDown = FBitSet(this->mCurrentCommand.buttons, IN_DUCK);
     
@@ -6715,6 +6717,52 @@ void AvHPlayer::InternalPreThink()
     PROFILE_START()
     this->InternalHUDThink();
     PROFILE_END(kPlayerHUDThink)
+
+	this->InternalChargeThink();
+}
+
+// Charge pushback
+void AvHPlayer::InternalChargeThink()
+{
+	// Check whether we're in a charge
+	if(GetHasUpgrade(this->pev->iuser4, MASK_ALIEN_MOVEMENT) && (GetUser3() == AVH_USER3_ALIEN_PLAYER5))
+	{
+		CBaseEntity* theEntity = NULL;
+		float radius = (float)BALANCE_VAR(kChargePushbackRadius);
+		float maxpushbackspeedfactor = (float)BALANCE_VAR(kChargeMaxPushbackSpeedFactor);
+		float pushbackfactor = (float)BALANCE_VAR(kChargeMaxPushbackForce);
+
+		// Find all entities around the onos
+	    while((theEntity = UTIL_FindEntityInSphere(theEntity, this->pev->origin, radius)) != NULL)
+	    {
+			if (theEntity->IsPlayer() && theEntity->IsAlive())
+			{
+				float distance = VectorDistance(this->pev->origin, theEntity->pev->origin);
+				if (distance > 0.0f)
+				{
+					float factor = pushbackfactor / (radius / distance);
+					vec3_t direction, heading;
+					VectorSubtract(theEntity->pev->origin, this->pev->origin, direction);
+					VectorNormalize(direction);
+
+					VectorCopy(this->pev->velocity, heading);
+					VectorNormalize(heading);
+					
+					float dot = DotProduct(heading, direction);
+					if (dot > 0.0f)
+					{
+						VectorScale(direction, factor * dot, direction);
+						VectorAdd(theEntity->pev->velocity, direction, theEntity->pev->velocity);
+						if (Length(theEntity->pev->velocity) > theEntity->pev->maxspeed * maxpushbackspeedfactor)
+						{
+							VectorNormalize(theEntity->pev->velocity);
+							VectorScale(theEntity->pev->velocity, theEntity->pev->maxspeed * maxpushbackspeedfactor, theEntity->pev->velocity);
+						}
+					}
+				}
+			}
+	    }
+	}
 }
 
 void AvHPlayer::InternalFogThink()

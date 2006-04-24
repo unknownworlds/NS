@@ -83,6 +83,10 @@ public:
 	virtual bool	UsesAmmo(void) const;
 	virtual BOOL	GetTakesEnergy() { return FALSE; }
 
+	void			SecondaryAttack();
+
+	virtual float	GetRateOfFire(void) const;
+
 protected: 
     virtual void    FireProjectiles(void);
 	
@@ -129,6 +133,8 @@ public:
 	
 	virtual bool	UsesAmmo(void) const;
 	virtual BOOL	GetTakesEnergy() { return FALSE; }
+
+	void			SecondaryAttack();
 protected: 
     virtual void    FireProjectiles(void);
 	
@@ -174,6 +180,8 @@ public:
 	virtual bool	UsesAmmo(void) const;
     	
     virtual float	GetRateOfFire() const;
+
+	void			SecondaryAttack();
 	
 protected: 
     virtual void    FireProjectiles(void);

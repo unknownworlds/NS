@@ -327,7 +327,10 @@ void PM_NSPlaySound( int channel, const char *sample, float volume, float attenu
 
 bool PM_GetIsBlinking()
 {
-    if (pmove->cmd.weaponselect == 255 || pmove->flags & FL_FAKECLIENT)
+	if (pmove->iuser3 == AVH_USER3_ALIEN_PLAYER4 && GetHasUpgrade(pmove->iuser4, MASK_ALIEN_MOVEMENT))
+		return true;
+
+	if (pmove->cmd.weaponselect == 255 || pmove->flags & FL_FAKECLIENT)
     {
         return (pmove->iuser3 == AVH_USER3_ALIEN_PLAYER4) && (pmove->cmd.impulse == ALIEN_ABILITY_BLINK);
     }
@@ -336,7 +339,10 @@ bool PM_GetIsBlinking()
 
 bool PM_GetIsLeaping()
 {
-    if (pmove->cmd.weaponselect == 255 || pmove->flags & FL_FAKECLIENT)
+	if (pmove->iuser3 == AVH_USER3_ALIEN_PLAYER1 && GetHasUpgrade(pmove->iuser4, MASK_ALIEN_MOVEMENT))
+		return true;
+
+	if (pmove->cmd.weaponselect == 255 || pmove->flags & FL_FAKECLIENT)
     {
         return (pmove->iuser3 == AVH_USER3_ALIEN_PLAYER1) && (pmove->cmd.impulse == ALIEN_ABILITY_LEAP);
     }
@@ -345,13 +351,15 @@ bool PM_GetIsLeaping()
 
 bool PM_GetIsCharging()
 {
-    if (pmove->cmd.weaponselect == 255 || pmove->flags & FL_FAKECLIENT)
+	if (pmove->iuser3 == AVH_USER3_ALIEN_PLAYER5 && GetHasUpgrade(pmove->iuser4, MASK_ALIEN_MOVEMENT))
+		return true;
+
+	if (pmove->cmd.weaponselect == 255 || pmove->flags & FL_FAKECLIENT)
     {
         return (pmove->cmd.impulse == ALIEN_ABILITY_CHARGE);
     }
     return false;
 }
-
 
 /*
 ===================
@@ -4338,14 +4346,337 @@ bool NS_PositionFreeForPlayer(vec3_t& inPosition)
 }
 */
 
+// Fade blink
+bool PM_BlinkMove (void) 
+{
+	if (pmove->fuser4 != 0.0f)
+		return false;
+
+    float theScalar = 500;
+	float theEnergyCost = 0;
+	
+	AvHMUGetEnergyCost(AVH_WEAPON_BLINK, theEnergyCost);
+
+	if(AvHMUHasEnoughAlienEnergy(pmove->fuser3, theEnergyCost * 2))
+	{
+		AvHMUDeductAlienEnergy(pmove->fuser3, theEnergyCost * 2);
+	}
+	else
+		return false;
+
+	pmove->fuser4 = 2 * (float)BALANCE_VAR(kBlinkROF);
+
+	SetUpgradeMask(&pmove->iuser4, MASK_ALIEN_MOVEMENT, true);
+
+	PM_NSPlaySound(CHAN_WEAPON, kBlinkSound, 1.0f, ATTN_NORM, 0, 94 + pmove->RandomLong(0, 0xf));
+
+	vec3_t forward, right, up;
+	AngleVectors(pmove->angles, forward, right, up);
+
+	PM_Jump();
+
+    vec3_t theAbilityVelocity;
+    VectorScale(forward, theScalar, theAbilityVelocity);
+    
+    vec3_t theFinalVelocity;
+    VectorAdd(pmove->velocity, theAbilityVelocity, theFinalVelocity);
+    
+    VectorCopy(theFinalVelocity, pmove->velocity);
+
+	return true;
+
+	// Uncomment to experience the tankeblink
+/*	float theEnergyCost = (float)BALANCE_VAR(kBlinkEnergyCost) * (float)pmove->frametime;
+	float theBlinkThresholdTime = (float)BALANCE_VAR(kBlinkThresholdTime);
+	if (AvHMUHasEnoughAlienEnergy(pmove->fuser3, theEnergyCost) && (pmove->fuser4 >= 0.0f))
+	{
+		AvHMUDeductAlienEnergy(pmove->fuser3, theEnergyCost);
+		if (pmove->fuser4 == 0.0f)
+		{
+			int theSilenceUpgradeLevel = AvHGetAlienUpgradeLevel(pmove->iuser4, MASK_UPGRADE_6);
+			float theVolumeScalar = 1.0f - theSilenceUpgradeLevel/3.0f;
+			PM_NSPlaySound( CHAN_WEAPON, "player/metabolize_fire.wav", theVolumeScalar, ATTN_NORM, 0, PITCH_NORM );
+		}
+		pmove->fuser4 += (float)pmove->frametime;
+		pmove->fuser4 = max(0, min(pmove->fuser4, theBlinkThresholdTime));
+	}
+	else
+		return false;
+
+	if (pmove->fuser4 >= theBlinkThresholdTime)
+	{
+		SetUpgradeMask(&pmove->iuser4, MASK_ALIEN_MOVEMENT, true);
+
+		vec3_t		wishvel, dest;
+		pmtrace_t	trace;
+		float		fmove, smove;
+
+		// Copy movement amounts
+		fmove = pmove->cmd.forwardmove;
+		smove = pmove->cmd.sidemove;
+		
+		VectorNormalize(pmove->forward);
+		VectorScale(pmove->forward, 800, wishvel);
+
+		VectorMA(pmove->origin, pmove->frametime, wishvel, dest);
+
+		// first try moving directly to the next spot
+		trace = pmove->PM_PlayerTrace(pmove->origin, dest, PM_NORMAL, -1 );
+		// If we made it all the way, then copy trace end as new player position.
+		if (trace.fraction == 1)
+		{
+			VectorCopy(trace.endpos, pmove->origin);
+		} 
+		else
+		{
+			// if we can't move, adjust velocity to slite along the plane we collided with
+			// and retry
+			int attempts = 0; // in case we continue to collide vs. the old planes
+			while (true) {
+				PM_ClipVelocity(wishvel, trace.plane.normal, wishvel, 1.0);
+				VectorMA(pmove->origin, pmove->frametime, wishvel, dest);
+
+				trace = pmove->PM_PlayerTrace(pmove->origin, dest, PM_NORMAL, -1 );
+				if (trace.fraction == 1)
+				{
+					VectorCopy(trace.endpos, pmove->origin);
+					break;
+				}
+				if (attempts++ > 5) {
+					break;
+				}
+			}
+
+		}
+		VectorClear(pmove->velocity);
+	}
+	else
+	{
+		SetUpgradeMask(&pmove->iuser4, MASK_ALIEN_MOVEMENT, false);
+	}
+*/
+}
+
+// Skulk leap
+bool PM_LeapMove()
+{
+	if (pmove->fuser4 != 0.0f)
+		return false;
+
+    float theScalar = 500;
+	float theEnergyCost = 0;
+	
+	AvHMUGetEnergyCost(AVH_ABILITY_LEAP, theEnergyCost);
+
+	if(AvHMUHasEnoughAlienEnergy(pmove->fuser3, theEnergyCost))
+	{
+		AvHMUDeductAlienEnergy(pmove->fuser3, theEnergyCost);
+	}
+	else
+		return false;
+
+	pmove->fuser4 = (float)BALANCE_VAR(kLeapROF);
+
+	SetUpgradeMask(&pmove->iuser4, MASK_ALIEN_MOVEMENT, true);
+
+	PM_NSPlaySound(CHAN_WEAPON, kLeapSound, 1.0f, ATTN_NORM, 0, 94 + pmove->RandomLong(0, 0xf));
+
+	vec3_t forward, right, up;
+	AngleVectors(pmove->angles, forward, right, up);
+
+	//gCanJump[pmove->player_index] = true;
+	PM_Jump();
+	//gCanJump[pmove->player_index] = false;
+
+    vec3_t theAbilityVelocity;
+    VectorScale(forward, theScalar, theAbilityVelocity);
+    
+    vec3_t theFinalVelocity;
+    VectorAdd(pmove->velocity, theAbilityVelocity, theFinalVelocity);
+    
+    VectorCopy(theFinalVelocity, pmove->velocity);
+
+	return true;
+}
+
+bool PM_FlapMove()
+{
+    if(PM_CanFlap())
+    {
+        AvHMUDeductAlienEnergy(pmove->fuser3, kAlienEnergyFlap);
+        
+        // Added by mmcguire.
+        // Move the lerk in the direction has is facing.
+        vec3_t theFlapVelocity;
+        
+        float theThrust;
+        float theLift;
+        
+        if (pmove->cmd.forwardmove != 0)
+        {
+
+            if (pmove->cmd.forwardmove > 0)
+            {
+
+                theThrust = pmove->cmd.forwardmove * kWingThrustForwardScalar;
+                theLift = 200 * (pmove->forward[2] + 0.5) / 1.5;
+            
+                if (theLift < 0)
+                {
+                    theLift = 0;
+                }
+
+            }
+            else
+            {
+				// tankefugl: 0000522 reverse lerk flight
+				// Uncomment to enable backwards flight
+                //theThrust = pmove->cmd.forwardmove * kWingThrustForwardScalar; //kWingThrustBackwardScalar;
+                //theLift = 200 * (pmove->forward[2] + 0.5) / 1.5;
+				//if (theLift < 0)
+                //{
+                //    theLift = 0;
+                //}
+                theThrust = -pmove->cmd.forwardmove * kWingThrustBackwardScalar;
+                theLift = 200;
+				// :tankefugl
+            }
+
+        }
+        else
+        {
+            theLift = 300;
+            theThrust = 0;
+        }
+
+        VectorScale(pmove->forward, theThrust, theFlapVelocity);
+        theFlapVelocity[2] += theLift;
+
+        vec3_t theNewVelocity;
+        VectorAdd(pmove->velocity, theFlapVelocity, theNewVelocity);
+        VectorCopy(theNewVelocity, pmove->velocity);
+
+        if(pmove->runfuncs)
+        {
+            // Pick a random sound to play
+            int theSoundIndex = pmove->RandomLong(0, 2);
+            char* theSoundToPlay = NULL;
+            switch(theSoundIndex)
+            {
+            case 0:
+                theSoundToPlay = kWingFlapSound1;
+                break;
+            case 1:
+                theSoundToPlay = kWingFlapSound2;
+                break;
+            case 2:
+                theSoundToPlay = kWingFlapSound3;
+                break;
+            }
+            
+            // If alien has silencio upgrade, mute footstep volume
+            int theSilenceUpgradeLevel = AvHGetAlienUpgradeLevel(pmove->iuser4, MASK_UPGRADE_6);
+            const float theBaseVolume = .5f;
+            float theVolumeScalar = theBaseVolume - (theSilenceUpgradeLevel/(float)3)*theBaseVolume;
+            theVolumeScalar = min(max(theVolumeScalar, 0.0f), 1.0f);
+            
+            PM_NSPlaySound(CHAN_BODY, theSoundToPlay, theVolumeScalar, ATTN_NORM, 0, PITCH_NORM);
+        }
+
+        pmove->oldbuttons |= IN_JUMP; // don't jump again until released
+        return true; // in air, so no; effect
+    }
+    else
+    {
+        // Added by mmcguire. Lerk gliding.
+        if (pmove->iuser3 == AVH_USER3_ALIEN_PLAYER3 && pmove->onground == -1)
+        {
+            // Compute the velocity not in the direction we're facing.
+			float theGlideAmount = min(0.2f, PM_GetHorizontalSpeed() / 1000);
+
+			float speed = Length(pmove->velocity);
+            float projectedSpeed = DotProduct(pmove->velocity, pmove->forward);
+
+			// tankefugl: 0000522 reverse lerk flight
+			//if (projectedSpeed < 0)
+			//	speed *= -1;
+			// :tankefugl
+			vec3_t forwardVelocity;
+            VectorScale(pmove->forward, speed, forwardVelocity);
+
+            vec3_t glideVelocity;
+            VectorSubtract(pmove->velocity, forwardVelocity, glideVelocity);
+            VectorScale(glideVelocity, theGlideAmount, glideVelocity);
+
+            VectorSubtract(pmove->velocity, glideVelocity, pmove->velocity);
+        }
+    }
+	return true;
+}
+
+// Onos charge
+bool PM_ChargeMove()
+{
+	// TODO: Play event for charge!
+
+	float theEnergyCost = (float)BALANCE_VAR(kChargeEnergyCost) * (float)pmove->frametime;
+	float theChargeThresholdTime = (float)BALANCE_VAR(kChargeThresholdTime);
+	float theChargeSpeed = (float)BALANCE_VAR(kChargeSpeed);
+	if (AvHMUHasEnoughAlienEnergy(pmove->fuser3, theEnergyCost) && (pmove->fuser4 >= 0.0f))
+	{
+		AvHMUDeductAlienEnergy(pmove->fuser3, theEnergyCost);
+		if (pmove->fuser4 == 0.0f)
+		{
+			int theSilenceUpgradeLevel = AvHGetAlienUpgradeLevel(pmove->iuser4, MASK_UPGRADE_6);
+			float theVolumeScalar = 1.0f - theSilenceUpgradeLevel/3.0f;
+			PM_NSPlaySound( CHAN_WEAPON, "player/pl_fallpain3-7.wav", theVolumeScalar, ATTN_NORM, 0, PITCH_NORM );
+			pmove->fuser4 = 0.3f;
+		}
+		pmove->fuser4 += (float)pmove->frametime;
+		pmove->fuser4 = max(0, min(pmove->fuser4, theChargeThresholdTime));
+	}
+	else
+		return false;
+
+	SetUpgradeMask(&pmove->iuser4, MASK_ALIEN_MOVEMENT, true);
+
+	if (pmove->onground != -1)
+	{
+		vec3_t forward;
+		vec3_t sideways;
+		float length = pmove->maxspeed * (1.0f + (float)BALANCE_VAR(kChargeSpeed) * pmove->fuser4 / theChargeThresholdTime);
+
+		VectorCopy(pmove->forward, forward);
+		VectorScale(forward, -1 * DotProduct(forward, pmove->velocity), forward);
+		VectorAdd(pmove->velocity, forward, sideways);
+		//VectorScale(sideways, 1.5f, sideways);
+		
+		VectorCopy(pmove->forward, forward);
+		forward[2] = 0.0f;
+		VectorNormalize(forward);
+		VectorScale(forward, length, forward);
+		
+		VectorAdd(forward, sideways, pmove->velocity);
+		//VectorCopy(forward, pmove->velocity);
+
+		// pmove->velocity[2] = 0.0f;
+
+		float velocity = Length(pmove->velocity);
+		float maxvel = (pmove->maxspeed * (1.0f + theChargeSpeed));
+		if (velocity > maxvel)
+			VectorScale(pmove->velocity, maxvel / velocity, pmove->velocity);
+	}
+
+	return true;
+}
 
 void PM_AlienAbilities()
 {
     // Give some energy back if we're an alien and not evolving
     string theExt;
+	float theTimePassed = (float)pmove->frametime;
     if(NS_GetIsPlayerAlien(theExt))
     {
-        float theTimePassed = pmove->cmd.msec*0.001f;
         AvHMUUpdateAlienEnergy(theTimePassed, pmove->iuser3, pmove->iuser4, pmove->fuser3);
 
         // Stop charging when we're out of energy
@@ -4357,6 +4688,55 @@ void PM_AlienAbilities()
             }
         }
     }
+
+	// Movement abilities
+
+	bool canmove = true;
+#ifdef AVH_SERVER
+	//canmove = gCanMove[pmove->player_index];
+#else
+	//canmove = gCanMove;
+#endif
+	bool success = false;
+	if ((pmove->cmd.buttons & IN_ATTACK2) && (AvHGetIsAlien(pmove->iuser3)))
+	{
+		switch (pmove->iuser3)
+		{
+		case AVH_USER3_ALIEN_PLAYER1:
+			success = canmove && PM_LeapMove();
+			break;
+		case AVH_USER3_ALIEN_PLAYER3:
+			pmove->cmd.buttons |= IN_JUMP;
+			success = PM_FlapMove();
+			break;
+		case AVH_USER3_ALIEN_PLAYER4:
+			success = canmove && PM_BlinkMove();
+			break;
+		case AVH_USER3_ALIEN_PLAYER5:
+			success = canmove && PM_ChargeMove();
+			break;
+		default:
+			{
+				break;
+			}
+		}
+	}
+	else if (PM_GetIsBlinking())
+		success = PM_BlinkMove();
+	else if (PM_GetIsLeaping())
+		success = PM_LeapMove();
+
+	if (!success)
+	{
+		SetUpgradeMask(&pmove->iuser4, MASK_ALIEN_MOVEMENT, false);
+
+		if (pmove->fuser4 >= 0.0f)
+			pmove->fuser4 *= -1.0f;
+		pmove->fuser4 += theTimePassed;
+		pmove->fuser4 = min(pmove->fuser4, 0.0f);
+	}
+	
+	return;
 
     //#endif
 
@@ -4413,79 +4793,6 @@ void PM_AlienAbilities()
             //pmove->velocity[2] += 300;
         //}
     }
-
-//      else if((pmove->cmd.impulse == ALIEN_ABILITY_BLINK) && (pmove->iuser3 == AVH_USER3_ALIEN_PLAYER4))
-//      {
-//
-//            vec3_t theBlinkStart;
-//          VectorCopy(pmove->origin, theBlinkStart);
-//          theBlinkStart[2] += pmove->view_ofs[2];
-//
-//          vec3_t theBlinkDirection;
-//          VectorCopy(pmove->forward, theBlinkDirection);
-//
-//          vec3_t theBlinkEnd;
-//          VectorMA(pmove->origin, kMaxMapDimension, theBlinkDirection, theBlinkEnd);
-//
-//          // Do traceline through glass, until we hit something (this uses the current player hull, so it's like it's actually flying forward)
-//          int theTraceFlags = PM_TRACELINE_ANYVISIBLE;
-//          int theHull = -1;//pmove->usehull;
-//          int theIgnoreEntity = -1;
-//          pmtrace_t* theTrace = pmove->PM_TraceLine(theBlinkStart, theBlinkEnd, theTraceFlags, theHull, theIgnoreEntity);
-//          ASSERT(theTrace);
-//
-//          // While position isn't free, bring distance back a little
-//          vec3_t theFreeEndPoint;
-//          VectorCopy(theTrace->endpos, theFreeEndPoint);
-//
-//          // Subtract view height again
-//          theFreeEndPoint[2] -= pmove->view_ofs[2];
-//
-//          int theNumIterations = 0;
-//          bool theSuccess = false;
-//          while(!theSuccess && (theNumIterations < 5))
-//          {
-//              if(NS_PositionFreeForPlayer(theFreeEndPoint))
-//              {
-//                  // If position is still in front of us
-//                  vec3_t theFreeEndPointDirection;
-//                  VectorSubtract(theFreeEndPoint, theBlinkStart, theFreeEndPointDirection);
-//                  if(DotProduct(theBlinkDirection, theFreeEndPointDirection) > 0)
-//                  {
-//                      // Save position so client can use it to draw
-//                      theSuccess = true;
-//                  }
-//              }
-//              else
-//              {
-//                  vec3_t theBackwardsIncrement;
-//                  VectorMA(vec3_origin, -50, theBlinkDirection, theBackwardsIncrement);
-//                      
-//                  VectorAdd(theFreeEndPoint, theBackwardsIncrement, theFreeEndPoint);
-//              }
-//
-//              theNumIterations++;
-//          }
-//
-//          // If position is okay, exit
-//          if(theSuccess)
-//          {
-//              // If so, set our new location to it
-//              VectorCopy(theFreeEndPoint, pmove->origin);
-//
-//              if(pmove->runfuncs)
-//              {
-//                  pmove->PM_PlaybackEventFull(0, pmove->player_index, gBlinkEffectSuccessEventID, 0, (float *)theBlinkStart, (float *)theFreeEndPoint, 0.0, 0.0, 0, 0, 0, 0 );
-//              }
-//          }
-//          //else
-//          //{
-//          //  // Play a "blink failed" event
-//          //  pmove->PM_PlaybackEventFull(0, pmove->player_index, gBlinkEffectFailEventID, 0, (float *)pmove->origin, (float *)pmove->origin, 0.0, 0.0, 0, 0, 0, 0 );
-//          //}
-//
-//      }
-    
 }
 
 void PM_LadderMove( physent_t *pLadder )
@@ -5047,172 +5354,8 @@ void PM_Jump (void)
     
     // For wall jumping, remove bit above and replace with this (from coding forums)
     
-    
-    if(PM_CanFlap())
-    {
-        //          //pmove->punchangle[0] = -2;
-        //          //float theXComp = (fabs(pmove->velocity[0]) > fabs(pmove->forward[0]) ? pmove->velocity[0] : pmove->forward[0]);
-        //          //float theYComp = (fabs(pmove->velocity[1]) > fabs(pmove->forward[1]) ? pmove->velocity[1] : pmove->forward[1]);
-        //          float theXComp = pmove->forward[0]*(pmove->cmd.forwardmove/pmove->clientmaxspeed) + pmove->right[0]*(pmove->cmd.sidemove/pmove->clientmaxspeed);
-        //          float theYComp = pmove->forward[1]*(pmove->cmd.forwardmove/pmove->clientmaxspeed) + pmove->right[1]*(pmove->cmd.sidemove/pmove->clientmaxspeed);
-        //
-        //          pmove->velocity[0] += theXComp * 8;
-        //          pmove->velocity[1] += theYComp * 8;
-        //          pmove->velocity[2] += 35;
-
-        AvHMUDeductAlienEnergy(pmove->fuser3, kAlienEnergyFlap);
-        
-        // Added by mmcguire.
-        // Move the lerk in the direction has is facing.
-
-        vec3_t theFlapVelocity;
-        
-        float theThrust;
-        float theLift;
-        
-        if (pmove->cmd.forwardmove != 0)
-        {
-
-            if (pmove->cmd.forwardmove > 0)
-            {
-
-                theThrust = pmove->cmd.forwardmove * kWingThrustForwardScalar;
-                theLift = 200 * (pmove->forward[2] + 0.5) / 1.5;
-            
-                if (theLift < 0)
-                {
-                    theLift = 0;
-                }
-
-            }
-            else
-            {
-				// tankefugl: 0000522 reverse lerk flight
-				// Uncomment to enable backwards flight
-                //theThrust = pmove->cmd.forwardmove * kWingThrustForwardScalar; //kWingThrustBackwardScalar;
-                //theLift = 200 * (pmove->forward[2] + 0.5) / 1.5;
-				//if (theLift < 0)
-                //{
-                //    theLift = 0;
-                //}
-                theThrust = -pmove->cmd.forwardmove * kWingThrustBackwardScalar;
-                theLift = 200;
-				// :tankefugl
-            }
-
-        }
-        else
-        {
-            theLift = 300;
-            theThrust = 0;
-        }
-
-        VectorScale(pmove->forward, theThrust, theFlapVelocity);
-        theFlapVelocity[2] += theLift;
-
-        vec3_t theNewVelocity;
-        VectorAdd(pmove->velocity, theFlapVelocity, theNewVelocity);
-        VectorCopy(theNewVelocity, pmove->velocity);
-        /*
-
-        // Old Lerk flight model.
-
-        vec3_t theWishVelocity;
-        PM_GetWishVelocity(theWishVelocity);
-        
-        float theWishXPercent = theWishVelocity[0]/pmove->clientmaxspeed; 
-        float theWishYPercent = theWishVelocity[1]/pmove->clientmaxspeed;
-        float theWishZPercent = max(0.0f, 1.0f - fabs(theWishXPercent) - fabs(theWishYPercent));
-        pmove->velocity[0] += theWishXPercent*kWingFlapLateralScalar;
-        pmove->velocity[1] += theWishYPercent*kWingFlapLateralScalar;
-        pmove->velocity[2] += theWishZPercent*pmove->clientmaxspeed;
-
-        */
-
-        if(pmove->runfuncs)
-        {
-//          #ifdef AVH_CLIENT
-//          int theLong = pmove->RandomLong(0, 20);
-//          pmove->Con_Printf("Flap %d\n", theLong);
-//          #endif
-            
-            // Pick a random sound to play
-            int theSoundIndex = pmove->RandomLong(0, 2);
-            char* theSoundToPlay = NULL;
-            switch(theSoundIndex)
-            {
-            case 0:
-                theSoundToPlay = kWingFlapSound1;
-                break;
-            case 1:
-                theSoundToPlay = kWingFlapSound2;
-                break;
-            case 2:
-                theSoundToPlay = kWingFlapSound3;
-                break;
-            }
-            
-            // If alien has silencio upgrade, mute footstep volume
-            int theSilenceUpgradeLevel = AvHGetAlienUpgradeLevel(pmove->iuser4, MASK_UPGRADE_6);
-            const float theBaseVolume = .5f;
-            float theVolumeScalar = theBaseVolume - (theSilenceUpgradeLevel/(float)3)*theBaseVolume;
-            theVolumeScalar = min(max(theVolumeScalar, 0.0f), 1.0f);
-            
-            PM_NSPlaySound(CHAN_BODY, theSoundToPlay, theVolumeScalar, ATTN_NORM, 0, PITCH_NORM);
-            
-            //PM_NSPlaySound(channel, , 1.0f, ATTN_NORM, flags, pitch);
-            //gEngfuncs.pEventAPI->EV_PlaySound(inArgs->entindex, thePlayer->origin, CHAN_AUTO, kEndCloakSound, 1, ATTN_NORM, 0, 94 + gEngfuncs.pfnRandomLong( 0, 0xf ));
-            
-            //PM_PlaybackEvent(gFlightEventID);
-        }
-        //      else if(PM_CanWalljump())
-//      {
-//          pmove->punchangle[0] = -2;
-//          pmove->velocity[2] += (pmove->forward[2] * 300);
-//          
-//          //pmove->velocity[2] = sqrt(2 * 800 * 45.0);
-//
-//          PM_PlaybackEvent(gWallJumpEventID);
-//      }
-
-        pmove->oldbuttons |= IN_JUMP; // don't jump again until released
-        return; // in air, so no; effect
-    }
-    else
-    {
-    
-        // Added by mmcguire.
-        // Lerk gliding.
-
-        if (pmove->iuser3 == AVH_USER3_ALIEN_PLAYER3 && pmove->onground == -1)
-        {
-                
-            // Compute the velocity not in the direction we're facing.
-
-			float theGlideAmount = min(0.2f, PM_GetHorizontalSpeed() / 1000);
-
-			float speed = Length(pmove->velocity);
-            float projectedSpeed = DotProduct(pmove->velocity, pmove->forward);
-
-			// tankefugl: 0000522 reverse lerk flight
-			//if (projectedSpeed < 0)
-			//	speed *= -1;
-			// :tankefugl
-			vec3_t forwardVelocity;
-            VectorScale(pmove->forward, speed, forwardVelocity);
-
-            vec3_t glideVelocity;
-            VectorSubtract(pmove->velocity, forwardVelocity, glideVelocity);
-            VectorScale(glideVelocity, theGlideAmount, glideVelocity);
-
-            VectorSubtract(pmove->velocity, glideVelocity, pmove->velocity);
-            
-            return;
-
-        }
-
-    
-    }
+	// Lerk flight movement
+	PM_FlapMove();
 
 	// tankefugl: 0000972 walljump
 	if (canWallJump && (GetHasUpgrade(pmove->iuser4, MASK_WALLSTICKING) && (pmove->cmd.buttons & IN_JUMP) && !(pmove->oldbuttons & IN_JUMP) /*&& (gSurfaceNormal[2] < 0.7)*/))

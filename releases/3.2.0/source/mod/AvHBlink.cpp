@@ -13,6 +13,7 @@ extern playermove_t*	pmove;
 #include "cl_dll/hud.h"
 #include "mod/AvHHud.h"
 extern int g_runfuncs;
+void IN_Attack2Down();
 #endif
 
 #include "mod/AvHAlienAbilities.h"
@@ -100,6 +101,13 @@ bool AvHBlinkGun::GetIsDroppable() const
 AvHMessageID AvHBlinkGun::GetAbilityImpulse() const
 {
 	return ALIEN_ABILITY_BLINK;
+}
+
+void AvHBlinkGun::SecondaryAttack()
+{
+#ifdef AVH_CLIENT
+	//this->FireProjectiles();
+#endif
 }
 
 void AvHBlinkGun::FireProjectiles(void)

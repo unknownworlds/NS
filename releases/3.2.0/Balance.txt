@@ -351,7 +351,12 @@
 #define kCatalystDamagePercent 0.25
 #define kCatalystROFFactor 0.25
 #define kCatalystSpeedIncrease 0.25
-#define kChargeEnergyCost 0.07
+#define kChargeEnergyCost 0.15
+#define kChargeMaxPushbackSpeedFactor 2.50
+#define kChargeMaxPushbackForce 100.0
+#define kChargePushbackRadius 100.0
+#define kChargeSpeed 1.00
+#define kChargeThresholdTime 0.75
 #define kChargingEnergyScalar 2.80
 #define kClawsEnergyCost 0.07
 #define kClawsROF 0.90
@@ -400,6 +405,7 @@
 #define kKNROF 0.65
 #define kLeapEnergyCost 0.25
 #define kLerkBaseAscendSpeedMax 600.00
+#define kLeapROF 0.50
 #define kMGROF 0.10
 #define kMarineArmorLevelOne 0.20
 #define kMarineArmorLevelThree 0.60

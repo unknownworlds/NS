@@ -933,7 +933,7 @@ BOOL CanAttack( float attack_time, float curtime, BOOL isPredicted )
 
 void CBasePlayerWeapon::ItemPostFrame( void )
 {
-	bool theAttackPressed = (m_pPlayer->pev->button & IN_ATTACK);
+	bool theAttackPressed = (m_pPlayer->pev->button & IN_ATTACK) && !(m_pPlayer->pev->button & IN_ATTACK2);
 
     bool theWeaponPrimes = (this->GetWeaponPrimeTime() > 0.0f);
     bool theWeaponIsPriming = this->GetIsWeaponPriming();
@@ -953,6 +953,7 @@ void CBasePlayerWeapon::ItemPostFrame( void )
 		m_fInReload = FALSE;
 	}
 
+/*	// +movement: Removed case for +attack2 since it's used for movement abilities
 	if ((m_pPlayer->pev->button & IN_ATTACK2) && CanAttack( m_flNextSecondaryAttack, gpGlobals->time, UseDecrement() ) )
 	{
         if (m_pPlayer->GetCanUseWeapon())
@@ -968,7 +969,9 @@ void CBasePlayerWeapon::ItemPostFrame( void )
 		    m_pPlayer->pev->button &= ~IN_ATTACK2;
         }
 	}
-    else if ( theAttackPressed && CanAttack( m_flNextPrimaryAttack, gpGlobals->time, UseDecrement() ) )
+    else 
+*/
+	if ( theAttackPressed && CanAttack( m_flNextPrimaryAttack, gpGlobals->time, UseDecrement() ) )
 	{
         if (m_pPlayer->GetCanUseWeapon())
         {
@@ -989,7 +992,8 @@ void CBasePlayerWeapon::ItemPostFrame( void )
 	        Reload();
         }
 	}
-	else if ( !(m_pPlayer->pev->button & (IN_ATTACK|IN_ATTACK2) ) )
+	// +movement: Removed case for +attack2
+	else if ( !(m_pPlayer->pev->button & (IN_ATTACK /* |IN_ATTACK2 */) ) )
 	{
         if (m_pPlayer->GetCanUseWeapon())
         {

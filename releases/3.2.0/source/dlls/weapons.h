@@ -383,6 +383,7 @@ public:
     
 	int		m_iDefaultAmmo;// how much ammo you get when you pick up this weapon as placed by a level designer.
 
+	bool	PrevAttack2Status;									// HACK: For +movement weapon animations
 };
 
 

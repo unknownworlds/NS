@@ -41,9 +41,23 @@ WeaponsResource gWR;
 
 int g_weaponselect = 0;
 
+void IN_AttackDownForced(void);
+void IN_AttackUpForced(void);
+void IN_Attack2Down(void);
+void IN_Attack2Up(void);
+void IN_ReloadDown();
+void IN_ReloadUp();
+bool CheckInAttack(void);
+
 //Equivalent to DECLARE_COMMAND(lastinv,LastInv) except we use gWR instead of gHud
 void __CmdFunc_LastInv(void)
 { gWR.UserCmd_LastInv(); }
+
+// +movement
+void __CmdFunc_MovementOn(void)
+{ gWR.UserCmd_MovementOn(); }
+void __CmdFunc_MovementOff(void)
+{ gWR.UserCmd_MovementOff(); }
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -56,7 +70,10 @@ void WeaponsResource::Init( void )
 {
 	memset( rgWeapons, 0, sizeof(WEAPON)*MAX_WEAPONS );
 	Reset();
-	HOOK_COMMAND("lastinv",LastInv);
+	HOOK_COMMAND("lastinv", LastInv);
+	// +movement
+	HOOK_COMMAND("+movement", MovementOn);
+	HOOK_COMMAND("-movement", MovementOff);
 }
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -333,6 +350,53 @@ void WeaponsResource::UserCmd_LastInv(void)
 		//const char* theSound = AvHSHUGetCommonSoundName(gHUD.GetIsAlien(), WEAPON_SOUND_HUD_ON);
 		//gHUD.PlayHUDSound(theSound, kHUDSoundVolume);
 	}
+}
+
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+void WeaponsResource::UserCmd_MovementOn()
+{
+	// Find out which weapon we want to trigger
+	AvHUser3 theUser3 = gHUD.GetHUDUser3();
+	int wID = -1;
+	switch(theUser3)
+	{
+	case AVH_USER3_ALIEN_PLAYER1:
+		wID = AVH_ABILITY_LEAP;
+		break;
+	case AVH_USER3_ALIEN_PLAYER3:
+		// TODO: Add flap
+		break;
+	case AVH_USER3_ALIEN_PLAYER4:
+		wID = AVH_WEAPON_BLINK;
+		break;
+	case AVH_USER3_ALIEN_PLAYER5:
+		wID = AVH_ABILITY_CHARGE;
+		break;
+	default:
+		IN_ReloadDown();
+		return;
+	}	
+
+	if (wID > -1)
+	{
+		// Fetch the needed movement weapon
+		WEAPON *p = this->GetWeapon(wID);
+		if (p != NULL && this->IsSelectable(p))
+		{
+			// Send activation of ability asap
+			IN_Attack2Down();
+		}
+	}
+}
+
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+void WeaponsResource::UserCmd_MovementOff()
+{
+	// Ensure that we're not activating any weapons when selected
+	IN_Attack2Up();
+	IN_ReloadUp();
 }
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

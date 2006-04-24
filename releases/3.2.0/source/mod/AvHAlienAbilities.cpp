@@ -57,6 +57,7 @@
 #include "cl_dll/hud.h"
 #include "mod/AvHHud.h"
 extern int g_runfuncs;
+void IN_Attack2Down();
 #endif
 
 LINK_ENTITY_TO_CLASS(kwLeap, AvHLeap);
@@ -144,9 +145,22 @@ void AvHLeap::Spawn()
 	FallInit();// get ready to fall down.
 }
 
+float AvHLeap::GetRateOfFire(void) const
+{
+	// Dunno why the 2 has to be there ...
+	return 2 * (float)BALANCE_VAR(kLeapROF);
+}
+
 bool AvHLeap::UsesAmmo(void) const
 {
 	return false;
+}
+
+void AvHLeap::SecondaryAttack()
+{
+#ifdef AVH_CLIENT
+	this->FireProjectiles();
+#endif
 }
 
 void AvHLeap::FireProjectiles(void)
@@ -161,6 +175,7 @@ void AvHLeap::FireProjectiles(void)
 #ifdef AVH_CLIENT
 	if(g_runfuncs)
 	{
+		//IN_Attack2Down();
 		gHUD.SetAlienAbility(this->GetAbilityImpulse());
 	}
 #endif
@@ -220,7 +235,7 @@ int	AvHCharge::GetDeployAnimation() const
 
 float AvHCharge::GetDeployTime() const
 {
-	return .6f;
+	return 0.0f; //.6f;
 }
 
 bool AvHCharge::GetFiresUnderwater() const
@@ -278,14 +293,26 @@ bool AvHCharge::UsesAmmo(void) const
 	return false;
 }
 
+void AvHCharge::SecondaryAttack()
+{
+#ifdef AVH_CLIENT
+	this->FireProjectiles();
+#endif
+}
+
 void AvHCharge::FireProjectiles(void)
 {
+#ifdef AVH_CLIENT
+	IN_Attack2Down();
+	//gHUD.SetAlienAbility(this->GetAbilityImpulse());
+#endif
+
 	// Event is played back.  Mark pmove with proper flag so the alien Charges forward.
-	PLAYBACK_EVENT_FULL(0, this->m_pPlayer->edict(), this->mAbilityEvent, 0, this->m_pPlayer->pev->origin, (float *)&g_vecZero, 0.0, 0.0, this->GetAbilityImpulse(), 0, 1, 0 );
+	//PLAYBACK_EVENT_FULL(0, this->m_pPlayer->edict(), this->mAbilityEvent, 0, this->m_pPlayer->pev->origin, (float *)&g_vecZero, 0.0, 0.0, this->GetAbilityImpulse(), 0, 1, 0 );
 	
 	// Send fire anim
 	//SendWeaponAnim(5);
-	this->PlaybackEvent(this->mWeaponAnimationEvent, 5);
+	//this->PlaybackEvent(this->mWeaponAnimationEvent, 5);
 }
 
 void AvHCharge::Init()
@@ -295,6 +322,6 @@ void AvHCharge::Init()
 float AvHCharge::GetRateOfFire() const
 {
 	// Approximate length of charge sound
-    return 5.0f;
+    return 1.0f;
 }
 

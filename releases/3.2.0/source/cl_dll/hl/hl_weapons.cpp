@@ -97,6 +97,8 @@ static globalvars_t	Globals;
 
 static CBasePlayerWeapon *g_pWpns[ 32 ];
 
+bool CheckInAttack2(void);
+
 vec3_t previousorigin;
 
 // HLDM Weapon placeholder entities.
@@ -489,20 +491,21 @@ void CBasePlayerWeapon::ItemPostFrame( void )
 		m_fInReload = FALSE;
 	}
 
-	if ((m_pPlayer->pev->button & IN_ATTACK2) && (m_flNextSecondaryAttack <= 0.0))
+	// Properly propagate the end animation
+	if (this->PrevAttack2Status == true && !(m_pPlayer->pev->button & IN_ATTACK2) && (gHUD.GetHUDUser3() == AVH_USER3_ALIEN_PLAYER4))
 	{
-        if (GetCanUseWeapon())
-        {
-		    if ( pszAmmo2() && !m_pPlayer->m_rgAmmo[SecondaryAmmoIndex()] )
-		    {
-			    m_fFireOnEmpty = TRUE;
-		    }
-
-		    SecondaryAttack();
-		    m_pPlayer->pev->button &= ~IN_ATTACK2;
-        }
+		switch (gHUD.GetCurrentWeaponID())
+		{
+		case AVH_WEAPON_SWIPE:
+			this->SendWeaponAnim(12);
+			break;
+		case AVH_WEAPON_ACIDROCKET:
+			this->SendWeaponAnim(8);
+			break;
+		}
 	}
-    else if ( (m_pPlayer->pev->button & IN_ATTACK) && (m_flNextPrimaryAttack <= 0.0) )
+
+	if ( (m_pPlayer->pev->button & IN_ATTACK) && !(m_pPlayer->pev->button & IN_ATTACK2) && (m_flNextPrimaryAttack <= 0.0) )
 	{
         if (GetCanUseWeapon())
         {
@@ -519,6 +522,42 @@ void CBasePlayerWeapon::ItemPostFrame( void )
 		    PrimaryAttack();
         }
 	}
+	// +movement: Rewritten to allow us to use +attack2 for movement abilities
+	else if ((m_pPlayer->pev->button & IN_ATTACK2) && (m_flNextPrimaryAttack <= 0.0))
+	{
+		// Find out what kind of special movement we are using, and execute the animation for it
+		if (this->PrevAttack2Status == false)
+		{
+			switch (gHUD.GetHUDUser3())
+			{
+			case AVH_USER3_ALIEN_PLAYER1:
+				// TODO: Add prediction and cooldown to the leap animation!
+				this->SendWeaponAnim(3);
+				break;
+			case AVH_USER3_ALIEN_PLAYER4:
+				switch (gHUD.GetCurrentWeaponID())
+				{
+				case AVH_WEAPON_SWIPE:
+					this->SendWeaponAnim(9);
+					break;
+				case AVH_WEAPON_ACIDROCKET:
+					this->SendWeaponAnim(11);
+					break;
+				}
+				break;
+			}
+
+
+//			(gHUD.GetHUDUser3() == AVH_USER3_ALIEN_PLAYER4)
+		}
+
+		this->PrevAttack2Status = true;
+		return;
+//		if (GetCanUseWeapon())
+//		{
+//			PrimaryAttack();
+//		}
+	}
 	else if ( m_pPlayer->pev->button & IN_RELOAD && iMaxClip() != WEAPON_NOCLIP && !m_fInReload ) 
 	{
         if (GetCanUseWeapon())
@@ -527,7 +566,8 @@ void CBasePlayerWeapon::ItemPostFrame( void )
 	    	Reload();
         }
 	}
-	else if ( !(m_pPlayer->pev->button & (IN_ATTACK|IN_ATTACK2) ) )
+	// +movement: Removed case for +attack2
+	else if ( !(m_pPlayer->pev->button & (IN_ATTACK /*|IN_ATTACK2 */) ) )
 	{
         if (GetCanUseWeapon())
         {
@@ -549,9 +589,12 @@ void CBasePlayerWeapon::ItemPostFrame( void )
 
 		    WeaponIdle( );
         }
+		this->PrevAttack2Status = false;
 		return;
 	}
 	
+	this->PrevAttack2Status = false;
+
 	// catch all
 	if ( ShouldWeaponIdle() )
 	{
@@ -1240,7 +1283,7 @@ void HUD_WeaponsPostThink( local_state_s *from, local_state_s *to, usercmd_t *cm
 
 	// Make sure that weapon animation matches what the game .dll is telling us
 	//  over the wire ( fixes some animation glitches )
-	if ( g_runfuncs && ( HUD_GetWeaponAnim() != to->client.weaponanim ) )
+	if (false) //g_runfuncs && ( HUD_GetWeaponAnim() != to->client.weaponanim ) && !(CheckInAttack2()) )
 	{
 		int body = 2;
 

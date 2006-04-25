@@ -2874,6 +2874,12 @@ int	AvHHud::SetUpgrades(const char* pszName, int iSize, void* pbuf)
 		mask >>=2;
 		this->mNumSensory=mask & 0x3;
 	}
+	// Marines
+	else {
+		this->mHasWelder=mask & 0x1;
+		this->mHasMines=mask & 0x2;
+		this->mHasGrenades=mask & 0x4;
+	}
 	return 1;
 }
 
@@ -3655,6 +3661,10 @@ void AvHHud::Init(void)
 	this->mNumSensory=0;
 	this->mNumMovement=0;
 	this->mNumDefense=0;
+
+	this->mHasGrenades=false;
+	this->mHasWelder=false;
+	this->mHasMines=false;
 
 	this->mFogActive = false;
 	this->mFogColor.x = this->mFogColor.y = this->mFogColor.z = 0;

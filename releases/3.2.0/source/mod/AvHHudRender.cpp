@@ -3323,7 +3323,37 @@ void AvHHud::RenderMarineUI()
         
         }
 	}
+	
+	bool frames[3] = { false, false, false};
+	if ( this->mHasGrenades ) frames[0]=true;
+	if ( this->mHasMines ) frames[1]=true;
+	if ( this->mHasWelder ) frames[2]=true;
+   
+    for(int i = 0; i < 3; i++)
+	{
+		int theFrame=i+9;
+		if ( frames[i] == true ) {
+			const int kIconWidth = .05*ScreenWidth();
+			const int kIconHeight = .05*ScreenHeight();
+			const int kBaseX = ScreenWidth() - .05*ScreenWidth();
+			const int kBaseY = .75*ScreenHeight();
 
+			float theStartU = (theFrame % 4)*.25f;
+			float theStartV = (theFrame / 4)*.333f;
+			float theEndU = theStartU + .25f;
+			float theEndV = theStartV + .333f;
+
+			float x1 = kBaseX;
+			float y1 = kBaseY - (i+1)*kIconHeight;
+			float x2 = x1 + kIconWidth;
+			float y2 = y1 + kIconHeight;
+	            
+			AvHSpriteSetRenderMode(kRenderTransAdd);
+			AvHSpriteEnableClippingRect(false);
+			AvHSpriteSetColor(1, 1, 1, this->GetGammaSlope());
+			AvHSpriteDraw(mMarineUpgradesSprite, theFrame, x1, y1, x2, y2, theStartU, theStartV, theEndU, theEndV);
+		}
+	}
 }
 
 void AvHHud::RenderCommanderUI()
@@ -3809,7 +3839,7 @@ void AvHHud::RenderAlienUI()
 	const int kVerticalUpgradeSpacing = kNormalizedSpacing*kAspectRatio*ScreenHeight();
 	int theUpgradeVar = this->GetHUDUpgrades();
 	const int kUpgradeFrame = 0;
-	const float kUpgradeSize = 0.05;
+	const float kUpgradeSize = 0.04;
 	int theUpgradeWidth = kUpgradeSize*ScreenWidth();
 	int theUpgradeHeight = kUpgradeSize*kAspectRatio*ScreenHeight();
 	
@@ -4271,7 +4301,6 @@ void AvHHud::VidInit(void)
 	this->mAlienCursor = Safe_SPR_Load(kAlienCursorSprite);
 	this->mMarineOrderIndicator = Safe_SPR_Load(kMarineOrderSprite);
 	this->mMarineUpgradesSprite = Safe_SPR_Load(kMarineUpgradesSprite);
-	
 	//this->mMappingTechSprite = Safe_SPR_Load("sprites/ns.spr");
 
 	this->mAlienBuildSprite = Safe_SPR_Load(kAlienBuildSprite);

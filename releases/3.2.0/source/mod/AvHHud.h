@@ -645,6 +645,10 @@ private:
 	int						mNumSensory;
 	int						mNumDefense;
 
+	bool					mHasGrenades;
+	bool					mHasWelder;
+	bool					mHasMines;
+
 	int						mSelectedNodeResourceCost;
 	float					mCurrentUseableEnergyLevel;
 	float					mVisualEnergyLevel;

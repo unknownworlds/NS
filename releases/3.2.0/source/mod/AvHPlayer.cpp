@@ -3566,6 +3566,7 @@ void AvHPlayer::Init()
     this->mCombatNodes.Clear();
     this->mPurchasedCombatUpgrades.clear();
     this->mGiveCombatUpgrades.clear();
+	this->mMarineHUDUpgrades=0;
 }
 
 void AvHPlayer::InitializeFromTeam(float inHealthPercentage, float inArmorPercentage)
@@ -9219,6 +9220,46 @@ void AvHPlayer::UpdateAlienUI()
     }
 }
 
+void AvHPlayer::UpdateMarineUI()
+{
+    AvHTeam* theTeamPointer = this->GetTeamPointer();
+    bool theIsMarine = false;
+    bool theIsAlien = false;
+
+    if(this->GetIsAlien())
+    {
+		return;
+    }
+
+	int tmpUpgrades;
+    for(int i = 0; i < MAX_ITEM_TYPES; i++)
+    {
+		AvHBasePlayerWeapon* theActiveWeapon = dynamic_cast<AvHBasePlayerWeapon*>(this->m_rgpPlayerItems[i]);
+        while(theActiveWeapon)
+        {
+			ItemInfo ii;
+			theActiveWeapon->GetItemInfo(&ii);
+			switch ( ii.iId ) {
+				case AVH_WEAPON_WELDER:
+					tmpUpgrades |= 0x1;
+					break;
+				case AVH_WEAPON_MINE:
+					tmpUpgrades |= 0x2;
+					break;
+				case AVH_WEAPON_GRENADE:
+					tmpUpgrades |= 0x4;
+					break;
+			}
+            // Next weapon
+            theActiveWeapon = dynamic_cast<AvHBasePlayerWeapon*>(theActiveWeapon->m_pNext);
+        }
+    }
+	if ( tmpUpgrades != this->mMarineHUDUpgrades ) {
+		NetMsg_HUDSetUpgrades(this->pev, tmpUpgrades&0x7);
+		this->mMarineHUDUpgrades=tmpUpgrades;
+	}
+}
+
 // TODO: Send only changed blips, send only the changes for each blip.
 void AvHPlayer::UpdateBlips()
 {
@@ -9264,7 +9305,9 @@ void AvHPlayer::UpdateClientData( void )
         this->UpdateGamma();
         this->UpdateBlips();
         this->UpdateAlienUI();
+        this->UpdateMarineUI();
         this->UpdateFog();
+	
         //this->UpdateDebugCSP();
     }
     //UTIL_LogPrintf("UpdateClientData done.\n");

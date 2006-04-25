@@ -560,6 +560,7 @@ private:
 
 	//void				UpdateArmor();
 	void				UpdateAlienUI();
+	void				UpdateMarineUI();
 	void				UpdateBlips();
 	void				UpdateDebugCSP();
 	void				UpdateEffectiveClassAndTeam();
@@ -832,7 +833,7 @@ private:
     int                 mLastModelIndex;
     
     string              mNetworkID;
-	
+	int					mMarineHUDUpgrades;
     struct ServerVariable
     {
         std::string mName;

@@ -473,6 +473,10 @@ Handles weapon firing, reloading, etc.
 void CBasePlayerWeapon::ItemPostFrame( void )
 {
 
+	// Hack initialization
+	if (this->m_flLastAnimationPlayed >= 3 * BALANCE_VAR(kLeapROF) * gpGlobals->time)
+		this->m_flLastAnimationPlayed = 0.0f;
+
 	if ((m_fInReload) && (m_pPlayer->m_flNextAttack <= 0.0))
 	{
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -528,11 +532,20 @@ void CBasePlayerWeapon::ItemPostFrame( void )
 		// Find out what kind of special movement we are using, and execute the animation for it
 		if (this->PrevAttack2Status == false)
 		{
+			int wID = AVH_ABILITY_LEAP;
+			CBasePlayerWeapon* theWeapon = g_pWpns[wID];
+			float test1 = 0.0f;
+			float test2 = 0.0f;
+			bool test3 = false;
 			switch (gHUD.GetHUDUser3())
 			{
 			case AVH_USER3_ALIEN_PLAYER1:
-				// TODO: Add prediction and cooldown to the leap animation!
-				this->SendWeaponAnim(3);
+				if ((this->m_flLastAnimationPlayed + (float)BALANCE_VAR(kLeapROF) <= gpGlobals->time) && 
+					(theWeapon->IsUseable()))
+				{
+					this->SendWeaponAnim(3);
+					this->m_flLastAnimationPlayed = gpGlobals->time;
+				}
 				break;
 			case AVH_USER3_ALIEN_PLAYER4:
 				switch (gHUD.GetCurrentWeaponID())
@@ -546,9 +559,6 @@ void CBasePlayerWeapon::ItemPostFrame( void )
 				}
 				break;
 			}
-
-
-//			(gHUD.GetHUDUser3() == AVH_USER3_ALIEN_PLAYER4)
 		}
 
 		this->PrevAttack2Status = true;
@@ -685,6 +695,8 @@ void CBasePlayer::Spawn( void )
 {
 	if (m_pActiveItem)
 		m_pActiveItem->Deploy( );
+
+//	this->m_flLastAnimationPlayed = gpGlobals->time;
 }
 
 /*

@@ -4629,7 +4629,7 @@ bool PM_ChargeMove()
 		{
 			int theSilenceUpgradeLevel = AvHGetAlienUpgradeLevel(pmove->iuser4, MASK_UPGRADE_6);
 			float theVolumeScalar = 1.0f - theSilenceUpgradeLevel/3.0f;
-			PM_NSPlaySound( CHAN_WEAPON, "player/pl_fallpain3-7.wav", theVolumeScalar, ATTN_NORM, 0, PITCH_NORM );
+			PM_NSPlaySound( CHAN_WEAPON, "weapons/charge2.wav", theVolumeScalar, ATTN_NORM, 0, PITCH_NORM );
 			pmove->fuser4 = 0.3f;
 		}
 		pmove->fuser4 += (float)pmove->frametime;

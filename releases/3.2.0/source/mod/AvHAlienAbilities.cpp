@@ -265,7 +265,7 @@ void AvHCharge::Precache(void)
 	PRECACHE_UNMODIFIED_MODEL(kLevel5ViewModel);
 	PRECACHE_UNMODIFIED_MODEL(kNullModel);
 	
-	PRECACHE_UNMODIFIED_SOUND(kChargeSound);
+	PRECACHE_UNMODIFIED_SOUND(kChargeSound2);
 	PRECACHE_UNMODIFIED_SOUND(kChargeKillSound);
 	
 	this->mEvent = PRECACHE_EVENT(1, kChargeEventName);

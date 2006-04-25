@@ -496,7 +496,7 @@ void CBasePlayerWeapon::ItemPostFrame( void )
 	}
 
 	// Properly propagate the end animation
-	if (this->PrevAttack2Status == true && !(m_pPlayer->pev->button & IN_ATTACK2) && (gHUD.GetHUDUser3() == AVH_USER3_ALIEN_PLAYER4))
+	if (this->PrevAttack2Status == true && !(m_pPlayer->pev->button & IN_ATTACK2))
 	{
 		switch (gHUD.GetCurrentWeaponID())
 		{
@@ -505,6 +505,15 @@ void CBasePlayerWeapon::ItemPostFrame( void )
 			break;
 		case AVH_WEAPON_ACIDROCKET:
 			this->SendWeaponAnim(8);
+			break;
+		case AVH_WEAPON_CLAWS:
+			this->SendWeaponAnim(9);
+			break;
+		case AVH_WEAPON_STOMP:
+			this->SendWeaponAnim(8);
+			break;
+		case AVH_WEAPON_DEVOUR:
+			this->SendWeaponAnim(11);
 			break;
 		}
 	}
@@ -555,6 +564,20 @@ void CBasePlayerWeapon::ItemPostFrame( void )
 					break;
 				case AVH_WEAPON_ACIDROCKET:
 					this->SendWeaponAnim(11);
+					break;
+				}
+				break;
+			case AVH_USER3_ALIEN_PLAYER5:
+				switch (gHUD.GetCurrentWeaponID())
+				{
+				case AVH_WEAPON_CLAWS:
+					this->SendWeaponAnim(5);
+					break;
+				case AVH_WEAPON_DEVOUR:
+					this->SendWeaponAnim(18);
+					break;
+				case AVH_WEAPON_STOMP:
+					this->SendWeaponAnim(15);
 					break;
 				}
 				break;

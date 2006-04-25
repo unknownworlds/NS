@@ -534,7 +534,7 @@ private:
 	void				InternalPreThink();
 	void				InternalProgressBarThink();
 	void				InternalSpeakingThink();
-	void				InternalChargeThink();
+	void				InternalMovementThink();
 
 	void EXPORT			PlayerTouch(CBaseEntity* inOther);
 	

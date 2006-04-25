@@ -47,6 +47,7 @@ const float		kLeapDuration			= 1.0f;
 // Charge constants.
 const float		kChargePunch			= 2.5;
 #define			kChargeSound			"weapons/charge1.wav"
+#define			kChargeSound2			"weapons/charge2.wav"
 #define			kChargeKillSound		"weapons/chargekill.wav"
 #define			kChargeEventName		"events/Charge.sc"
 const float		kChargeROF				= 5.0f;

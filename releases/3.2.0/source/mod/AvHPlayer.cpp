@@ -2272,7 +2272,7 @@ void AvHPlayer::PlayerTouch(CBaseEntity* inOther)
             if((this->mTimeLeapEnd != -1) && (gpGlobals->time < this->mTimeLeapEnd))
             {
                 // Do damage to entity
-                if(GetGameRules()->CanEntityDoDamageTo(this, inOther, &theScalar))
+                if(GetGameRules()->CanEntityDoDamageTo(this, inOther, &theScalar) && (inOther->pev->team != this->pev->team))
                 {
                     float theDamage = BALANCE_VAR(kLeapDamage)*theScalar*theTouchDamageInterval;
                     inOther->TakeDamage(theInflictor, theAttacker, theDamage, NS_DMG_NORMAL);
@@ -2282,22 +2282,23 @@ void AvHPlayer::PlayerTouch(CBaseEntity* inOther)
             }
             
 			// Are we charging?
-            if(false) // GetHasUpgrade(this->pev->iuser4, MASK_ALIEN_MOVEMENT))
-            {
-                if(GetGameRules()->CanEntityDoDamageTo(this, inOther, &theScalar))
-                {
-                    float theDamage = BALANCE_VAR(kChargeDamage)*theScalar*theTouchDamageInterval;
-
-                    inOther->TakeDamage(theInflictor, theAttacker, theDamage, NS_DMG_NORMAL);
-            
-                    if(inOther->IsPlayer() && !inOther->IsAlive())
-                    {
-                        EMIT_SOUND(ENT(this->pev), CHAN_WEAPON, kChargeKillSound, 1.0, ATTN_NORM);
-                    }
-
-                    this->mTimeOfLastTouchDamage = gpGlobals->time;
-                }
-            }
+//            if(GetHasUpgrade(this->pev->iuser4, MASK_ALIEN_MOVEMENT))
+//            {
+//				// Don't do friendly fire
+//                if(GetGameRules()->CanEntityDoDamageTo(this, inOther, &theScalar))
+//                {
+//                    float theDamage = BALANCE_VAR(kChargeDamage)*theScalar*theTouchDamageInterval;
+//
+//                    inOther->TakeDamage(theInflictor, theAttacker, theDamage, NS_DMG_NORMAL);
+//            
+//                    if(inOther->IsPlayer() && !inOther->IsAlive())
+//                    {
+//                        EMIT_SOUND(ENT(this->pev), CHAN_WEAPON, kChargeKillSound, 1.0, ATTN_NORM);
+//                    }
+//
+//                    this->mTimeOfLastTouchDamage = gpGlobals->time;
+//                }
+//            }
         }
     }
 }
@@ -3062,11 +3063,11 @@ void AvHPlayer::GetSpeeds(int& outBaseSpeed, int& outUnemcumberedSpeed) const
                 //theAlienBaseSpeed = this->mMaxGallopSpeed;
                 theAlienBaseSpeed = BALANCE_VAR(kOnosBaseSpeed);
 
-                if(GetHasUpgrade(this->pev->iuser4, MASK_ALIEN_MOVEMENT))
-                {
-                    theAlienBaseSpeed *= kChargingFactor;
-                    theSpeedUpgradeAmount *= kChargingFactor;
-                }
+//                if(GetHasUpgrade(this->pev->iuser4, MASK_ALIEN_MOVEMENT))
+//                {
+//                    theAlienBaseSpeed *= kChargingFactor;
+//                    theSpeedUpgradeAmount *= kChargingFactor;
+//                }
                 break;
         }
 
@@ -6437,7 +6438,7 @@ void AvHPlayer::InternalAlienThink()
             }
         }
 
-		// Uncloak if we are charging
+		// Uncloak if we are charging, leaping or blinking
 		if(GetHasUpgrade(this->pev->iuser4, MASK_ALIEN_MOVEMENT))
 		{
 			this->TriggerUncloak();
@@ -6718,12 +6719,16 @@ void AvHPlayer::InternalPreThink()
     this->InternalHUDThink();
     PROFILE_END(kPlayerHUDThink)
 
-	this->InternalChargeThink();
+	this->InternalMovementThink();
 }
 
 // Charge pushback
-void AvHPlayer::InternalChargeThink()
+void AvHPlayer::InternalMovementThink()
 {
+	// Ensure that we do leap damage
+	if(GetHasUpgrade(this->pev->iuser4, MASK_ALIEN_MOVEMENT) && (GetUser3() == AVH_USER3_ALIEN_PLAYER1))
+		this->StartLeap();
+
 	// Check whether we're in a charge
 	if(GetHasUpgrade(this->pev->iuser4, MASK_ALIEN_MOVEMENT) && (GetUser3() == AVH_USER3_ALIEN_PLAYER5))
 	{
@@ -6751,6 +6756,7 @@ void AvHPlayer::InternalChargeThink()
 					float dot = DotProduct(heading, direction);
 					if (dot > 0.0f)
 					{
+						direction[0] = 50;
 						VectorScale(direction, factor * dot, direction);
 						VectorAdd(theEntity->pev->velocity, direction, theEntity->pev->velocity);
 						if (Length(theEntity->pev->velocity) > theEntity->pev->maxspeed * maxpushbackspeedfactor)

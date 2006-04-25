@@ -209,7 +209,7 @@ void CHud :: Init( void )
     CVAR_CREATE( "cl_showspeed", "0", 0);
 	CVAR_CREATE( kvLabelMaps, "1", FCVAR_ARCHIVE);
 	CVAR_CREATE( kvGammaRamp, "1", FCVAR_ARCHIVE);
-
+	CVAR_CREATE( kvCustomCrosshair, "0", FCVAR_ARCHIVE);
 	CVAR_CREATE( "cl_iconr", "0", FCVAR_ARCHIVE);
 	CVAR_CREATE( "cl_icong", "149", FCVAR_ARCHIVE);
 	CVAR_CREATE( "cl_iconb", "221", FCVAR_ARCHIVE);

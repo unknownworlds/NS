@@ -113,6 +113,7 @@ private:
 	WEAPON *m_pWeapon;
 	int	m_HUD_bucket0;
 	int m_HUD_selection;
+	int m_customCrosshair;
 	
 };
 
@@ -357,7 +358,7 @@ public:
 	void Reset( void );
 	int MsgFunc_Flashlight(const char *pszName,  int iSize, void *pbuf );
 	int MsgFunc_FlashBat(const char *pszName,  int iSize, void *pbuf );
-	
+
 private:
 	HSPRITE m_hSprite1;
 	HSPRITE m_hSprite2;

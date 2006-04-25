@@ -48,12 +48,20 @@ struct WEAPON
 	wrect_t rcAmmo2;
 	HSPRITE hCrosshair;
 	wrect_t rcCrosshair;
-	HSPRITE hAutoaim;
+	HSPRITE hCrosshair1;
+	wrect_t rcCrosshair1;
+	HSPRITE hCrosshair2;
+	wrect_t rcCrosshair2;
+	HSPRITE hCrosshair3;
+	wrect_t rcCrosshair3;
+
+/*	HSPRITE hAutoaim;
 	wrect_t rcAutoaim;
 	HSPRITE hZoomedCrosshair;
 	wrect_t rcZoomedCrosshair;
 	HSPRITE hZoomedAutoaim;
 	wrect_t rcZoomedAutoaim;
+	*/
 };
 
 typedef int AMMO;

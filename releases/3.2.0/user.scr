@@ -56,7 +56,7 @@ DESCRIPTION INFO_OPTIONS
 		{ "1" }
 	}
 
-	"cl_customxhair"
+	"cl_customcrosshair"
 	{
 		"Choose your crosshair"
 		{

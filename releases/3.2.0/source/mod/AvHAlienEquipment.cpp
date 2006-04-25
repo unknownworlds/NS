@@ -389,16 +389,18 @@ void AvHDefenseChamber::RegenAliensThink()
 		{
 			AvHBaseBuildable* theBuildable = dynamic_cast<AvHBaseBuildable*>(theBaseEntity);
 			AvHPlayer* thePlayer = dynamic_cast<AvHPlayer*>(theBaseEntity);
+			float thePercent=BALANCE_VAR(kDefensiveChamberRegenPercent)/100.0f;
+			float amount=BALANCE_VAR(kDefensiveChamberRegenAmount) + (theBaseEntity->pev->max_health*thePercent);
 			if(thePlayer && thePlayer->IsAlive())
 			{
-				if(thePlayer->Heal(BALANCE_VAR(kDefensiveChamberRegenAmount)))
+				if(thePlayer->Heal(amount))
 				{
 					theNumEntsHealed++;
 				}
 			}
 			else if(theBuildable && theBuildable->GetIsBuilt() && (theBuildable != this))
 			{
-				if(theBuildable->Regenerate(BALANCE_VAR(kDefensiveChamberRegenAmount)))
+				if(theBuildable->Regenerate(amount))
 				{
 					theNumEntsHealed++;
 				}

@@ -250,7 +250,7 @@ void ProjectPointFromViewOrigin(int inDistanceToProject, int inScreenX, int inSc
 	VectorMA(GetViewOrigin(), inDistanceToProject, theRay, outResult);
 }
 
-void AvHHud::DrawTranslatedString(int inX, int inY, const char* inStringToTranslate, bool inCentered, bool inIgnoreUpgrades, bool inTrimExtraInfo)
+void AvHHud::DrawTranslatedString(int inX, int inY, const char* inStringToTranslate, bool inCentered, bool inIgnoreUpgrades, bool inTrimExtraInfo, float alpha)
 {
 	// Translate
 	string theTranslatedText;
@@ -273,6 +273,10 @@ void AvHHud::DrawTranslatedString(int inX, int inY, const char* inStringToTransl
 
 		char theCharBuffer[512];
 		sprintf(theCharBuffer, "%s", theTranslatedText.c_str());
+
+		theR *= alpha;
+		theB *= alpha;
+		theG *= alpha;
 
 		if(inCentered)
 		{
@@ -4010,17 +4014,26 @@ void AvHHud::RenderAlienUI()
 
 				if(AvHCUWorldToScreen(theMessageWorldPos, (float*)&theScreenPos))
 				{
-					if((theBlipName != "") && (theBlipStatusText != "") && (theLocationName != ""))
+					if((theBlipName != "") && (theBlipStatusText != "") && (theLocationName != "") && (CVAR_GET_FLOAT(kvHideBlipText) == 0))
 					{
+						// Find alpha for the blip-text based on position on the screen
+						float screenWidth = ScreenWidth();
+						float screenHeight = ScreenHeight();
+						float xdiff = fabs(theScreenPos[0] - screenWidth/2);
+						float ydiff = fabs(theScreenPos[1] - screenHeight/2);
+						float quadrance = xdiff * xdiff + ydiff * ydiff;
+						float alpha = max(0.0f, 0.9f - quadrance / (screenHeight * screenHeight));
+						alpha *= alpha * alpha * alpha;
+
 						// "MonsieurEvil is under attack"
 						// "Resource tower is under attack"
 						char theFirstLine[512];
 						sprintf(theFirstLine, "%s %s\n", theBlipName.c_str(), theBlipStatusText.c_str());
-						this->DrawTranslatedString(theScreenPos[0], theScreenPos[1], theFirstLine, true, true);
+						this->DrawTranslatedString(theScreenPos[0], theScreenPos[1], theFirstLine, true, true, false, alpha);
 						
 						char theLocationNameCStr[512];
 						strcpy(theLocationNameCStr, theLocationName.c_str());
-						this->DrawTranslatedString(theScreenPos[0], theScreenPos[1] + .022f*ScreenHeight(), theLocationNameCStr, true, true, true);
+						this->DrawTranslatedString(theScreenPos[0], theScreenPos[1] + .022f*ScreenHeight(), theLocationNameCStr, true, true, true, alpha);
 					}
 				}
 			

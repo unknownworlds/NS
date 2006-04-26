@@ -40,6 +40,7 @@ extern cvar_t*	cl_musicdir;
 // :puzl
 // tankefugl: 0001070 - enables forced gamma ramp loading
 #define kvGammaRamp			"cl_gammaramp"
+#define kvHideBlipText		"cl_hidebliptext"
 #define kvCustomCrosshair	"cl_customcrosshair"
 // :tankefugl
 #define	kvCMHotKeys			"cl_cmhotkeys"

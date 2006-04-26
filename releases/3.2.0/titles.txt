@@ -1594,13 +1594,15 @@ There are too many webs nearby.
 
 TeamOneWon
 {
-The TSA Marines have exterminated the alien infestation!
+The marines has won the game!
 }
+// The TSA Marines have exterminated the alien infestation!
 
 TeamTwoWon
 {
-The alien Kharaa have eradicated the human presence!
+The aliens has won the game!
 }
+// The alien Kharaa have eradicated the human presence!
 
 GameDraw
 {

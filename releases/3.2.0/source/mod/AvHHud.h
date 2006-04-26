@@ -351,7 +351,7 @@ public:
 	int				GetCurrentWeaponID(void);
 
 	void			DrawTopDownBG();
-	void			DrawTranslatedString(int inX, int inY, const char* inStringToTranslate, bool inCentered = false, bool inIgnoreUpgrades = false, bool inTrimExtraInfo = false);
+	void			DrawTranslatedString(int inX, int inY, const char* inStringToTranslate, bool inCentered = false, bool inIgnoreUpgrades = false, bool inTrimExtraInfo = false, float alpha = 1.0f);
 	void			HandleFog();
 	void			PostModelRender(char* inModelName);
 	void			PreRenderFrame();

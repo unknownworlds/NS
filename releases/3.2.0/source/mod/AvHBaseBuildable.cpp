@@ -243,7 +243,7 @@ void AvHBaseBuildable::ConstructUse( CBaseEntity *pActivator, CBaseEntity *pCall
 				    // Ensure that buildings are never absolutely painful to create
 				    int theBuildTime = max(GetGameRules()->GetBuildTimeForMessageID(this->mMessageID), 1);
 	    
-				    if(GetGameRules()->GetIsTesting() || GetGameRules()->GetCheatsEnabled())
+				    if((GetGameRules()->GetIsTesting() || GetGameRules()->GetCheatsEnabled()) && !GetGameRules()->GetIsCheatEnabled(kcSlowResearch))
 				    {
 					    theBuildTime = 2;
 				    }

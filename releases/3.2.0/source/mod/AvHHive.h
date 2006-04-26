@@ -156,6 +156,8 @@ public:
 		
 	virtual void	Spawn();
 
+	void EXPORT		TeleportUse(CBaseEntity* inActivator, CBaseEntity* inCaller, USE_TYPE inUseType, float inValue);
+
 	//virtual void	UpdateReinforcements();
 
 protected:
@@ -179,6 +181,9 @@ private:
 	float			mTimeLastWoundSound;
 	float			mTimeOfNextUmbra;
 	float			mEnergy;
+	float			mLastTimeScannedHives;
+	int				mTeleportHiveIndex;
+
 };
 
 #endif

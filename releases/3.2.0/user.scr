@@ -97,11 +97,11 @@ DESCRIPTION INFO_OPTIONS
 		{ "1" }
 	}
 
-	"cl_hidebliptext"
+	"cl_labelhivesight"
 	{
 		"Show alien hivesight text"
 		{ BOOL }
-		{ "0" }
+		{ "1" }
 	}
 
 	"cl_dynamiclights"

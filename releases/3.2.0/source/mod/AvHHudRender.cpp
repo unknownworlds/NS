@@ -4014,7 +4014,7 @@ void AvHHud::RenderAlienUI()
 
 				if(AvHCUWorldToScreen(theMessageWorldPos, (float*)&theScreenPos))
 				{
-					if((theBlipName != "") && (theBlipStatusText != "") && (theLocationName != "") && (CVAR_GET_FLOAT(kvHideBlipText) == 0))
+					if((theBlipName != "") && (theBlipStatusText != "") && (theLocationName != "") && (CVAR_GET_FLOAT(kvLabelHivesight) == 0))
 					{
 						// Find alpha for the blip-text based on position on the screen
 						float screenWidth = ScreenWidth();

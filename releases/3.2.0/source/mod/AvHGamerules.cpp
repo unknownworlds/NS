@@ -339,6 +339,8 @@ AvHGamerules::AvHGamerules() : mTeamA(TEAM_ONE), mTeamB(TEAM_TWO)
 	avh_drawinvisible.value = 1;
 	#endif
 
+	this->mGameInReset = false;
+
 	this->ResetGame();
 }
 
@@ -852,6 +854,8 @@ void AvHGamerules::DeathNotice(CBasePlayer* pVictim, entvars_t* pKiller, entvars
 
 void AvHGamerules::DeleteAndResetEntities()
 {
+	this->mGameInReset = true;
+
 	// Print reset message at console
 	char theResetString[128];
 
@@ -954,6 +958,9 @@ void AvHGamerules::DeleteAndResetEntities()
 
 	sprintf(theResetString, "Game reset complete.\n");
 	ALERT(at_logged, theResetString);
+
+	this->mGameInReset = false;
+
 }
 
 BOOL AvHGamerules::FAllowMonsters( void )

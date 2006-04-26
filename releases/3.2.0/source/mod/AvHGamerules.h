@@ -286,6 +286,8 @@ public:
     bool                GetMapVoteStrings(StringList& outMapVoteList);
 	void				RemovePlayerFromVotemap(int inPlayerIndex);
 
+	bool				GetIsGameInReset() {return this->mGameInReset; };
+
 protected:
 	void				AutoAssignPlayer(AvHPlayer* inPlayer);
 	void				PerformMapValidityCheck();
@@ -389,6 +391,8 @@ private:
 
 	typedef map<int, float>		EntityUnderAttackListType;
 	EntityUnderAttackListType	mEntitiesUnderAttack;
+
+	bool				mGameInReset;
 
 	AvHMiniMap			mMiniMap;
 

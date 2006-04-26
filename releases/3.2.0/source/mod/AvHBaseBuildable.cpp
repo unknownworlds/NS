@@ -683,26 +683,31 @@ AvHTeamNumber AvHBaseBuildable::GetTeamNumber() const
 
 void AvHBaseBuildable::Killed(entvars_t* pevAttacker, int iGib)
 {
+	bool theInReset = GetGameRules()->GetIsGameInReset();
+	
 	AvHBaseBuildable::SetHasBeenKilled();
 
 	this->mKilled = true;
     this->mInternalSetConstructionComplete = false;
 
-	// puzl: 980
-	// Less smoke for recycled buildings
-	this->TriggerDeathAudioVisuals(iGib == GIB_RECYCLED);
-	
-	if(!this->GetIsOrganic())
+	if (!theInReset)
 	{
-		// More sparks for recycled buildings
-		int numSparks = ( iGib == GIB_RECYCLED ) ? 7 : 3;
-		for ( int i=0; i < numSparks; i++ ) {
-			Vector vecSrc = Vector( (float)RANDOM_FLOAT( pev->absmin.x, pev->absmax.x ), (float)RANDOM_FLOAT( pev->absmin.y, pev->absmax.y ), (float)0 );
-			vecSrc = vecSrc + Vector( (float)0, (float)0, (float)RANDOM_FLOAT( pev->origin.z, pev->absmax.z ) );
-			UTIL_Sparks(vecSrc);
+		// puzl: 980
+		// Less smoke for recycled buildings
+		this->TriggerDeathAudioVisuals(iGib == GIB_RECYCLED);
+		
+		if(!this->GetIsOrganic())
+		{
+			// More sparks for recycled buildings
+			int numSparks = ( iGib == GIB_RECYCLED ) ? 7 : 3;
+			for ( int i=0; i < numSparks; i++ ) {
+				Vector vecSrc = Vector( (float)RANDOM_FLOAT( pev->absmin.x, pev->absmax.x ), (float)RANDOM_FLOAT( pev->absmin.y, pev->absmax.y ), (float)0 );
+				vecSrc = vecSrc + Vector( (float)0, (float)0, (float)RANDOM_FLOAT( pev->origin.z, pev->absmax.z ) );
+				UTIL_Sparks(vecSrc);
+			}
 		}
+		// :puzl
 	}
-	// :puzl
 	this->TriggerRemoveTech();
 
 	AvHSURemoveEntityFromHotgroupsAndSelection(this->entindex());

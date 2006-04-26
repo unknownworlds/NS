@@ -167,7 +167,7 @@
 #define kInfantryPortalCost 20
 #define kInfantryPortalHealth 2500
 #define kJetpackCost 10
-#define kJetpacksResearchCost 35
+#define kJetpacksResearchCost 45
 #define kJetpacksResearchTime 75
 #define kKNDamage 30
 #define kKillRewardMax 3

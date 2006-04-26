@@ -9231,7 +9231,7 @@ void AvHPlayer::UpdateMarineUI()
 		return;
     }
 
-	int tmpUpgrades;
+	int tmpUpgrades=0;
     for(int i = 0; i < MAX_ITEM_TYPES; i++)
     {
 		AvHBasePlayerWeapon* theActiveWeapon = dynamic_cast<AvHBasePlayerWeapon*>(this->m_rgpPlayerItems[i]);

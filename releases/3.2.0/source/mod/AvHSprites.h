@@ -50,6 +50,7 @@
 #define		kJetpackSprite			"jetpack"
 
 #define		kAlienEnergySprite		"a-energy"
+#define		kAlienCloakSprite		"a-cloak"
 #define		kAlienResourceSprite	"a-resources"
 
 #define		kCombatExperienceSprite	"experience"

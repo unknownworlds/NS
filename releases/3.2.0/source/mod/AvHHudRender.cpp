@@ -138,6 +138,7 @@
 #include "mod/AvHServerVariables.h"
 #include "mod/AvHSpriteAPI.h"
 #include "mod/AvHParticleEditorHandler.h"
+#include "mod/AvHAlienAbilityConstants.h"
 #include <list>
 #include "common/entity_types.h"
 
@@ -3727,6 +3728,30 @@ void AvHHud::RenderAlienUI()
 
     }
 
+	if (mAlienUICloakSprite)
+    {
+		cl_entity_s* theLocalPlayer = GetVisiblePlayer();
+		if(theLocalPlayer ) {
+				theX = mViewport[2] - theWidth + mViewport[0];
+			
+				int theAmount=kAlienSelfCloakingMinOpacity;
+				if ( theLocalPlayer->curstate.renderamt > 0 ) {
+					theAmount=min(kAlienSelfCloakingMinOpacity, max(kAlienSelfCloakingBaseOpacity,theLocalPlayer->curstate.renderamt));
+				}
+				float theFactor = 1.0f -(float)(theAmount-kAlienSelfCloakingBaseOpacity)/float(kAlienSelfCloakingMinOpacity-kAlienSelfCloakingBaseOpacity);
+		        
+				AvHSpriteSetColor(1,1,1);
+				AvHSpriteSetRenderMode(kRenderTransTexture);
+
+				AvHSpriteDraw(mAlienUICloakSprite, 0, theX, theY, theX + theWidth, theY + theHeight * theFactor, 0, 0, 1, theFactor);    
+				AvHSpriteDraw(mAlienUICloakSprite, 1, theX, theY + theHeight * theFactor, theX + theWidth, theY + theHeight, 0, theFactor, 1, 1);
+//			}
+//			else {
+//				int a=0;
+//			}
+		}
+    }
+
 	// Draw hive indicators.
 
     if (mHiveInfoSprite) //  && (this->mMapMode == MAP_MODE_NS)) // removed check to enable hive with health to be shown in combat
@@ -4281,6 +4306,8 @@ void AvHHud::VidInit(void)
 	// Load alien energy sprite
 	theSpriteName = UINameToSprite(kAlienEnergySprite, theScreenWidth);
 	this->mAlienUIEnergySprite = Safe_SPR_Load(theSpriteName.c_str());
+	theSpriteName = UINameToSprite(kAlienCloakSprite, theScreenWidth);
+	this->mAlienUICloakSprite = Safe_SPR_Load(theSpriteName.c_str());
 
 	// Load background for topdown mode
 	this->mBackgroundSprite = Safe_SPR_Load(kTopDownBGSprite);

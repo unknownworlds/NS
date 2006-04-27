@@ -6382,12 +6382,12 @@ void AvHHud::UpdateViewModelEffects()
 					theRenderMode = kAlienCloakViewModelRenderMode;
 					theRenderAmount = 10;
 				}
-				else if( theRenderAmount > kAlienSelfCloakingBaseOpacity && theRenderAmount < 186)
+				else if( theRenderAmount > kAlienSelfCloakingBaseOpacity && theRenderAmount < kAlienSelfCloakingMinOpacity)
 				{
 					theRenderMode = kAlienCloakViewModelRenderMode;
 					theRenderAmount = 40;
 				}
-				else if ( theRenderAmount == 186 )  {
+				else if ( theRenderAmount == kAlienSelfCloakingMinOpacity )  {
 					theRenderMode = kAlienCloakViewModelRenderMode;
 					theRenderAmount = 50;
 				}

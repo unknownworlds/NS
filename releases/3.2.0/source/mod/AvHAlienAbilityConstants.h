@@ -65,6 +65,7 @@ const int		kAlienStructureCloakAmount		= 0;
 // :puzl
 
 const int		kAlienSelfCloakingBaseOpacity	= 130;
+const int		kAlienSelfCloakingMinOpacity	= 186;
 
 const int		kAlienCloakViewModelRenderMode	= kRenderTransAdd;
 const int		kAlienCloakViewModelAmount		= 35;

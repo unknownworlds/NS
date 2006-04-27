@@ -1694,8 +1694,9 @@ void AvHWebStrand::Setup(const Vector& inPointOne, const Vector& inPointTwo)
 	this->BeamInit(kWebStrandSprite, kWebStrandWidth);
 
 	this->PointsInit(inPointOne, inPointTwo);
-	this->SetColor( 255, 255, 100 );
+	this->SetColor( 255, 255, 255 );
 	this->SetScrollRate( 0 );
+	this->SetFrame(0);
 	//this->SetBrightness( 64 );
 	this->SetBrightness( 8 );
 
@@ -1728,10 +1729,9 @@ void AvHWebStrand::Spawn(void)
 void AvHWebStrand::StrandThink() 
 {
 	EMIT_SOUND(ENT(this->pev), CHAN_AUTO, kWebStrandBreakSound, 1.0, ATTN_IDLE);
-	this->SetColor( 255, 255, 255 );
-	this->SetScrollRate( 0 );
 	//this->SetBrightness( 64 );
-	this->SetBrightness( 8 );
+	this->SetColor( 255, 255, 255 );
+	this->SetFrame(1);
 	this->mSolid=true;
 	SetThink(NULL);
 }

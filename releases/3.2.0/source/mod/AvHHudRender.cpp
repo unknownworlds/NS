@@ -3738,7 +3738,7 @@ void AvHHud::RenderAlienUI()
 				if ( theLocalPlayer->curstate.renderamt > 0 ) {
 					theAmount=min(kAlienSelfCloakingMinOpacity, max(kAlienSelfCloakingBaseOpacity,theLocalPlayer->curstate.renderamt));
 				}
-				float theFactor = 1.0f -(float)(theAmount-kAlienSelfCloakingBaseOpacity)/float(kAlienSelfCloakingMinOpacity-kAlienSelfCloakingBaseOpacity);
+				float theFactor = (float)(theAmount-kAlienSelfCloakingBaseOpacity)/float(kAlienSelfCloakingMinOpacity-kAlienSelfCloakingBaseOpacity);
 		        
 				AvHSpriteSetColor(1,1,1);
 				AvHSpriteSetRenderMode(kRenderTransTexture);

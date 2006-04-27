@@ -913,10 +913,11 @@ void AvHHive::TeleportUse(CBaseEntity* inActivator, CBaseEntity* inCaller, USE_T
 
 	AvHPlayer* thePlayer = dynamic_cast<AvHPlayer*>(inActivator);
 
-	vector<int> theHives;
 
 	if(thePlayer && (thePlayer->pev->team == this->pev->team) && (thePlayer->GetUser3() != AVH_USER3_ALIEN_EMBRYO))
 	{
+		vector<int> theHives;
+		vector<int> theHivesUnderAttack;
 		if((this->mLastTimeScannedHives == -1) || (gpGlobals->time > (this->mLastTimeScannedHives + kHiveScanInterval)))
 		{
 			this->mTeleportHiveIndex = -1;
@@ -930,6 +931,8 @@ void AvHHive::TeleportUse(CBaseEntity* inActivator, CBaseEntity* inCaller, USE_T
 					if(!theEntity->GetIsSpawning() || ( theEntity->GetIsSpawning() && theHiveIsUnderAttack ) )
 					{
 						theHives.push_back(theEntity->entindex());
+						if ( theHiveIsUnderAttack ) 
+							theHivesUnderAttack.push_back(theEntity->entindex());
 					}
 				}
 			END_FOR_ALL_ENTITIES(kesTeamHive)
@@ -937,17 +940,21 @@ void AvHHive::TeleportUse(CBaseEntity* inActivator, CBaseEntity* inCaller, USE_T
 			this->mLastTimeScannedHives = gpGlobals->time;
 		}
 
-		if ( theHives.size() > 0 ) {
+		vector<int> *tmpPtr=&theHives;
+		if ( theHivesUnderAttack.size() > 0 )
+			tmpPtr=&theHivesUnderAttack;
+
+		if ( tmpPtr->size() > 0 ) {
 			int myIndex=this->entindex();
-			for ( int i=0; i < theHives.size(); i++ ) {
-				int hiveIndex=theHives[i];
+			for ( int i=0; i < tmpPtr->size(); i++ ) {
+				int hiveIndex=(*tmpPtr)[i];
 				if ( hiveIndex > myIndex ) {
 					this->mTeleportHiveIndex=hiveIndex;
 					break;
 				}
 			}
 			if ( this->mTeleportHiveIndex == -1 ) {
-				this->mTeleportHiveIndex=theHives[0];
+				this->mTeleportHiveIndex=(*tmpPtr)[0];
 			}
 		}
 

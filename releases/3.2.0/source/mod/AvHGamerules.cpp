@@ -227,6 +227,7 @@ extern cvar_t							avh_uplink;
 extern cvar_t							avh_gametime;
 extern cvar_t							avh_ironman;
 extern cvar_t                           avh_mapvoteratio;
+extern cvar_t							avh_structurelimit;
 
 BOOL IsSpawnPointValid( CBaseEntity *pPlayer, CBaseEntity *pSpot );
 inline int FNullEnt( CBaseEntity *ent ) { return (ent == NULL) || FNullEnt( ent->edict() ); }
@@ -1764,6 +1765,14 @@ void AvHGamerules::PlayerGotWeapon(CBasePlayer *pPlayer, CBasePlayerItem *pWeapo
 			}
 		}
 	}
+}
+
+int AvHGamerules::GetStructureLimit()
+{
+	if (GetGameRules()->GetIsTournamentMode())
+		return 300;
+	else
+		return avh_structurelimit.value;
 }
 
 Vector AvHGamerules::GetSpawnAreaCenter(AvHTeamNumber inTeamNumber) const

@@ -270,8 +270,6 @@ extern int gWeaponAnimationEventID;
 extern int gMetabolizeSuccessEventID;
 extern int gPhaseInEventID;
 
-extern cvar_t							avh_structurelimit;
-
 // Yucky globals
 extern AvHParticleTemplateListServer    gParticleTemplateList;
 extern AvHSoundListManager              gSoundListManager;
@@ -492,7 +490,7 @@ bool AvHPlayer::AttemptToBuildAlienStructure(AvHMessageID inMessageID)
                 // Check if collision point is valid for building
                 if(AvHSHUGetIsSiteValidForBuild(inMessageID, &theLocation))
                 {
-					if (theNumBuildings < avh_structurelimit.value)
+					if (theNumBuildings < GetGameRules()->GetStructureLimit())
 					{
 						// Make sure there aren't too many buildings in this area already
 						int theNumBuildingsNearby = UTIL_CountEntitiesInSphere(theLocation, BALANCE_VAR(kBuildingVisibilityRadius), theClassName);
@@ -604,7 +602,7 @@ bool AvHPlayer::BuildTech(AvHMessageID inBuildID, const Vector& inPickRay)
                 // Make sure we haven't exceeded the structure limit
                 int theNumBuildings = AvHSUGetStructureCount(inBuildID);
 
-				if(theNumBuildings < avh_structurelimit.value)
+				if(theNumBuildings < GetGameRules()->GetStructureLimit())
 				{
 					if(theNumFriendlyEntitiesInArea < BALANCE_VAR(kMaxMarineEntitiesAllowedInRadius))
 					{

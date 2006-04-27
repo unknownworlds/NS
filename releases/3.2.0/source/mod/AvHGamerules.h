@@ -288,6 +288,8 @@ public:
 
 	bool				GetIsGameInReset() {return this->mGameInReset; };
 
+	int					GetStructureLimit();
+
 protected:
 	void				AutoAssignPlayer(AvHPlayer* inPlayer);
 	void				PerformMapValidityCheck();

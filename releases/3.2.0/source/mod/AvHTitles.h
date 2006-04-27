@@ -94,6 +94,7 @@
 #define kUpgradeNotAvailable			"UpgradeNotAvailable"
 #define kTooManyStructuresInArea		"TooManyStructuresInArea"
 #define kTooManyStructuresOfThisTypeNearby	"TooManyStructuresOfThisTypeNearby"
+#define kTooManyStructuresOnServer		"TooManyStructuresOnServer"
 #define kTooManyWebs					"TooManyWebs"
 #define kTooManyWebsNearby				"TooManyWebsNearby"
 

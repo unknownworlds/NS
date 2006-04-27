@@ -389,6 +389,51 @@ void AvHSUBuildingJustCreated(AvHMessageID inBuildID, CBaseEntity* theBuilding, 
 	}
 }
 
+// Gets the build count for the given message
+int AvHSUGetStructureCount(AvHMessageID inMessageID)
+{
+	int theNumBuildings = 0;
+	switch (inMessageID)
+	{
+	case ALIEN_BUILD_OFFENSE_CHAMBER:
+	case ALIEN_BUILD_DEFENSE_CHAMBER:
+	case ALIEN_BUILD_SENSORY_CHAMBER:
+	case ALIEN_BUILD_MOVEMENT_CHAMBER:
+	case BUILD_INFANTRYPORTAL:
+	case BUILD_TURRET_FACTORY:
+	case BUILD_TURRET:
+	case BUILD_SIEGE:
+	case BUILD_ARMORY:
+	case BUILD_ARMSLAB:
+	case BUILD_PROTOTYPE_LAB:
+	case BUILD_OBSERVATORY:
+	case BUILD_PHASEGATE:
+		FOR_ALL_BASEENTITIES()
+			switch(theBaseEntity->pev->iuser3)
+			{
+			case AVH_USER3_DEFENSE_CHAMBER:
+			case AVH_USER3_MOVEMENT_CHAMBER:
+			case AVH_USER3_OFFENSE_CHAMBER:
+			case AVH_USER3_SENSORY_CHAMBER:
+			case AVH_USER3_INFANTRYPORTAL:
+			case AVH_USER3_TURRET_FACTORY:
+			case AVH_USER3_ADVANCED_TURRET_FACTORY:
+			case AVH_USER3_SIEGETURRET:
+			case AVH_USER3_TURRET:
+			case AVH_USER3_ARMORY:
+			case AVH_USER3_ADVANCED_ARMORY:
+			case AVH_USER3_ARMSLAB:
+			case AVH_USER3_PROTOTYPE_LAB:
+			case AVH_USER3_OBSERVATORY:
+			case AVH_USER3_PHASEGATE:
+				theNumBuildings++;
+				break;
+			}
+		END_FOR_ALL_BASEENTITIES();
+	}
+	return theNumBuildings;
+}
+
 CBaseEntity* AvHSUBuildTechForPlayer(AvHMessageID inBuildID, const Vector& inLocation, AvHPlayer* inPlayer)
 {
 	CBaseEntity* theEntity = NULL;

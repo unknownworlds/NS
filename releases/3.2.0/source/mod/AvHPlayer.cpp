@@ -236,6 +236,7 @@
 #include "mod/AvHSelectionHelper.h"
 #include "mod/AvHPlayerUpgrade.h"
 #include "mod/AvHSharedUtil.h"
+#include "mod/AvHServerUtil.h"
 #include "mod/AvHDramaticPriority.h"
 #include "mod/AvHHulls.h"
 #include "mod/AvHMovementUtil.h"
@@ -268,6 +269,8 @@ extern int gNumFullPackCalls;
 extern int gWeaponAnimationEventID;
 extern int gMetabolizeSuccessEventID;
 extern int gPhaseInEventID;
+
+extern cvar_t							avh_structurelimit;
 
 // Yucky globals
 extern AvHParticleTemplateListServer    gParticleTemplateList;
@@ -470,16 +473,10 @@ bool AvHPlayer::AttemptToBuildAlienStructure(AvHMessageID inMessageID)
             char* theClassName = NULL;
             if(AvHSHUGetBuildTechClassName(inMessageID, theClassName))
             {
-                // Make sure we haven't exceeded the limit
-                int theNumBuildings = 0;
-                FOR_ALL_ENTITIES(theClassName, CBaseEntity*)
-                    if(theEntity->pev->team == this->pev->team)
-                    {
-                        theNumBuildings++;
-                    }
-                END_FOR_ALL_ENTITIES(theClassName);
-                    
-                // Now check to make sure the space is big enough to hold the building
+                // Make sure we haven't exceeded the structure limit
+                int theNumBuildings = AvHSUGetStructureCount(inMessageID);
+
+				// Now check to make sure the space is big enough to hold the building
                 UTIL_MakeVectors(this->pev->v_angle);
                 
                 const int kAimRange = 48;
@@ -495,36 +492,43 @@ bool AvHPlayer::AttemptToBuildAlienStructure(AvHMessageID inMessageID)
                 // Check if collision point is valid for building
                 if(AvHSHUGetIsSiteValidForBuild(inMessageID, &theLocation))
                 {
-                    // Make sure there aren't too many buildings in this area already
-                    int theNumBuildingsNearby = UTIL_CountEntitiesInSphere(theLocation, BALANCE_VAR(kBuildingVisibilityRadius), theClassName);
-                    if(theNumBuildingsNearby < BALANCE_VAR(kNumSameAlienStructuresAllowedInRadius) || FStrEq(theClassName, kwsAlienResourceTower))//voogru: allow the building of rt's regardless of how many may be close by (for maps that have a lot of nodes close to each other)
-                    {
-                        // Create the new building
-                        CBaseEntity* theEntity = CBaseEntity::Create(theClassName, theLocation, AvHSUGetRandomBuildingAngles());
-                        
-                        // Set building's team
-                        theEntity->pev->team = this->pev->team;
-                        
-                        AvHSUBuildingJustCreated(inMessageID, theEntity, this);
-                        
-                        // Set owner (this prevents collisions between the entity and it's owner though)
-                        //theEntity->pev->owner = ENT(this->pev);
+					if (theNumBuildings < avh_structurelimit.value)
+					{
+						// Make sure there aren't too many buildings in this area already
+						int theNumBuildingsNearby = UTIL_CountEntitiesInSphere(theLocation, BALANCE_VAR(kBuildingVisibilityRadius), theClassName);
+						if(theNumBuildingsNearby < BALANCE_VAR(kNumSameAlienStructuresAllowedInRadius) || FStrEq(theClassName, kwsAlienResourceTower))//voogru: allow the building of rt's regardless of how many may be close by (for maps that have a lot of nodes close to each other)
+						{
+							// Create the new building
+							CBaseEntity* theEntity = CBaseEntity::Create(theClassName, theLocation, AvHSUGetRandomBuildingAngles());
+	                        
+							// Set building's team
+							theEntity->pev->team = this->pev->team;
+	                        
+							AvHSUBuildingJustCreated(inMessageID, theEntity, this);
+	                        
+							// Set owner (this prevents collisions between the entity and it's owner though)
+							//theEntity->pev->owner = ENT(this->pev);
 
-						//voogru: I've moved this here because whats the point of playing the sound if the building didnt get placed? (it was after " Vector theLocation = theTR.vecEndPos;")
-						// Play sound
-						char* theSoundEffect = kAlienBuildingSound1;
+							//voogru: I've moved this here because whats the point of playing the sound if the building didnt get placed? (it was after " Vector theLocation = theTR.vecEndPos;")
+							// Play sound
+							char* theSoundEffect = kAlienBuildingSound1;
 
-						if(RANDOM_LONG(0, 1) == 1)
-							theSoundEffect = kAlienBuildingSound2;
+							if(RANDOM_LONG(0, 1) == 1)
+								theSoundEffect = kAlienBuildingSound2;
 
-						EMIT_SOUND(this->edict(), CHAN_AUTO, theSoundEffect, this->GetAlienAdjustedEventVolume(), ATTN_NORM);
-                        
-                        theSuccess = true;
-                    }
-                    else
-                    {
-                        this->SendMessage(kTooManyStructuresOfThisTypeNearby);
-                    }
+							EMIT_SOUND(this->edict(), CHAN_AUTO, theSoundEffect, this->GetAlienAdjustedEventVolume(), ATTN_NORM);
+	                        
+							theSuccess = true;
+						}
+						else
+						{
+							this->SendMessage(kTooManyStructuresOfThisTypeNearby);
+						}
+					}
+					else
+					{
+						this->SendMessage(kTooManyStructuresOnServer);
+					}
                 }
                 else
                 {
@@ -597,32 +601,42 @@ bool AvHPlayer::BuildTech(AvHMessageID inBuildID, const Vector& inPickRay)
                     }
                 }
 
-                if(theNumFriendlyEntitiesInArea < BALANCE_VAR(kMaxMarineEntitiesAllowedInRadius))
-                {
-                    // Build it!
-                    theSuccess = (AvHSUBuildTechForPlayer(inBuildID, theLocation, this) != NULL);
-                
-                    // Inform structure about build if possible
-                    if(theSuccess)
-                    {
-                        if(this->mSelected.size() > 0)
-                        {
-                            // Get selected structure and inform
-                            int theFirstEntitySelected = *this->mSelected.begin();
-                            AvHBaseBuildable* theBaseBuildable = dynamic_cast<AvHBaseBuildable*>(CBaseEntity::Instance(g_engfuncs.pfnPEntityOfEntIndex(theFirstEntitySelected)));
-                            if(theBaseBuildable)
-                            {
-                                theBaseBuildable->TechnologyBuilt(inBuildID);
-                            }
-                        }
+                // Make sure we haven't exceeded the structure limit
+                int theNumBuildings = AvHSUGetStructureCount(inBuildID);
 
-                        this->PayPurchaseCost(theCost);
-                    }
-                }
-                else
-                {
-                    this->SendMessage(kTooManyStructuresInArea);
-                }
+				if(theNumBuildings < avh_structurelimit.value)
+				{
+					if(theNumFriendlyEntitiesInArea < BALANCE_VAR(kMaxMarineEntitiesAllowedInRadius))
+					{
+						// Build it!
+						theSuccess = (AvHSUBuildTechForPlayer(inBuildID, theLocation, this) != NULL);
+	                
+						// Inform structure about build if possible
+						if(theSuccess)
+						{
+							if(this->mSelected.size() > 0)
+							{
+								// Get selected structure and inform
+								int theFirstEntitySelected = *this->mSelected.begin();
+								AvHBaseBuildable* theBaseBuildable = dynamic_cast<AvHBaseBuildable*>(CBaseEntity::Instance(g_engfuncs.pfnPEntityOfEntIndex(theFirstEntitySelected)));
+								if(theBaseBuildable)
+								{
+									theBaseBuildable->TechnologyBuilt(inBuildID);
+								}
+							}
+
+							this->PayPurchaseCost(theCost);
+						}
+					}
+					else
+					{
+						this->SendMessage(kTooManyStructuresInArea);
+					}
+				}
+				else
+				{
+					this->SendMessage(kTooManyStructuresOnServer);
+				}
             }
             else
             {

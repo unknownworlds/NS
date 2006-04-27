@@ -1576,6 +1576,11 @@ TooManyStructuresOfThisTypeNearby
 There are too many structures of this type nearby.
 }
 
+TooManyStructuresOnServer
+{
+Server's structure limit exceeded.
+}
+
 TooManyStructuresInArea
 {
 There are too many structures nearby.

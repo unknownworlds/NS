@@ -332,6 +332,7 @@ AvHGamerules::AvHGamerules() : mTeamA(TEAM_ONE), mTeamB(TEAM_TWO)
     RegisterServerVariable(kvTeam3DamagePercent);
     RegisterServerVariable(kvTeam4DamagePercent);
     RegisterServerVariable("sv_cheats");
+    RegisterServerVariable(kvStructureLimit);
 
 	g_VoiceGameMgr.Init(&gVoiceHelper, gpGlobals->maxClients);
 

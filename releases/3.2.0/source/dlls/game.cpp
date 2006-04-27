@@ -110,6 +110,7 @@ cvar_t	avh_team1damagepercent      = {kvTeam1DamagePercent, "100", FCVAR_SERVER}
 cvar_t	avh_team2damagepercent      = {kvTeam2DamagePercent, "100", FCVAR_SERVER};
 cvar_t	avh_team3damagepercent      = {kvTeam3DamagePercent, "100", FCVAR_SERVER};
 cvar_t	avh_team4damagepercent      = {kvTeam4DamagePercent, "100", FCVAR_SERVER};
+cvar_t	avh_structurelimit			= {kvStructureLimit, "300", FCVAR_SERVER};
 cvar_t	avh_votecasttime			= {kvVoteCastTime, "2", FCVAR_SERVER};
 cvar_t	avh_votedowntime			= {kvVoteDownTime, "180", FCVAR_SERVER};
 cvar_t	avh_minvotesneeded			= {kvMinVotesNeeded, "2", FCVAR_SERVER};
@@ -602,6 +603,7 @@ void GameDLLInit( void )
 	CVAR_REGISTER (&avh_team2damagepercent);
 	CVAR_REGISTER (&avh_team3damagepercent);
 	CVAR_REGISTER (&avh_team4damagepercent);
+	CVAR_REGISTER (&avh_structurelimit);
 	CVAR_REGISTER (&avh_votecasttime);
 	CVAR_REGISTER (&avh_votedowntime);
 	CVAR_REGISTER (&avh_minvotesneeded);

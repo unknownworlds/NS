@@ -140,6 +140,7 @@ void AvHSUPushbackPlayersTouchingPlayer(AvHPlayer* inPlayer, entvars_t* inInflic
 void AvHSUKillPlayersTouchingPlayer(AvHPlayer* inPlayer, entvars_t* inInflictor);
 void AvHSUKillBuildablesTouchingPlayer(AvHPlayer* inPlayer, entvars_t* inInflictor);
 void AvHSUBuildingJustCreated(AvHMessageID inBuildID, CBaseEntity* theBuilding, AvHPlayer* inPlayer);
+int AvHSUGetStructureCount(AvHMessageID inMessageID);
 
 CBaseEntity* AvHSUBuildTechForPlayer(AvHMessageID inBuildID, const Vector& inLocation, AvHPlayer* inPlayer);
 

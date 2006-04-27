@@ -77,7 +77,7 @@ void Net_InitializeMessages(void)
 	g_msgHUDSetUpgrades = REG_USER_MSG( "SetUpgrades", 1);
 	g_msgProgressBar = REG_USER_MSG( "Progress", 3 );
 	g_msgServerVar = REG_USER_MSG( "ServerVar", -1 );
-	g_msgSetGammaRamp = REG_USER_MSG( "SetGmma", 2 );
+	g_msgSetGammaRamp = REG_USER_MSG( "SetGmma", 1 );
 	g_msgSetOrder = REG_USER_MSG( "SetOrder", -1 );
 	g_msgSetParticleTemplates = REG_USER_MSG( "Particles", -1 );
 	g_msgSetSelect = REG_USER_MSG( "SetSelect", -1 );
@@ -1539,21 +1539,21 @@ union float_converter
 	void NetMsg_SetGammaRamp( void* const buffer, const int size, float& gamma )
 	{
 		BEGIN_READ( buffer, size );
-			gamma = READ_COORD();
+			gamma = READ_BYTE() / 128.0f;
 		END_READ();
 	}
 #else
 	void NetMsg_SetGammaRamp( entvars_t* const pev, const float gamma )
 	{
 		MESSAGE_BEGIN( MSG_ONE, g_msgSetGammaRamp, NULL, pev );
-			WRITE_COORD( gamma );
+			WRITE_BYTE( floor( min( max(gamma, 0.0f), 1.992f) * 128.0f) );
 		MESSAGE_END();
 	}
 
 	void NetMsgSpec_SetGammaRamp( const float gamma )
 	{
 		MESSAGE_BEGIN( MSG_SPEC, g_msgSetGammaRamp );
-			WRITE_COORD( gamma );
+			WRITE_BYTE( floor( min( max(gamma, 0.0f), 1.992f) * 128.0f) );
 		MESSAGE_END();
 	}
 #endif

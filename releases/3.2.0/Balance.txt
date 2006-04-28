@@ -84,7 +84,7 @@
 #define kDefenseChamberThinkInterval 2
 #define kDefensiveChamberHealRange 400
 #define kDefensiveChamberRegenAmount 10
-#define kDefensiveChamberRegenPercent 4
+#define kDefensiveChamberRegenPercent 1
 #define kDevourDamage 3
 #define kDevourRange 100
 #define kDistressBeaconCost 15

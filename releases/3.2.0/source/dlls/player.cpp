@@ -92,6 +92,7 @@
 #include "game.h"
 #include "common/hltv.h"
 #include "mod/AvHNetworkMessages.h"
+#include "util/MathUtil.h"
 
 // #define DUCKFIX
 
@@ -1778,30 +1779,66 @@ void CBasePlayer::PlayerUse ( void )
 
 	UTIL_MakeVectors ( pev->v_angle );// so we know which way we are facing
 	
-	while ((pObject = UTIL_FindEntityInSphere( pObject, pev->origin, PLAYER_SEARCH_RADIUS )) != NULL)
-	{
-
-		if (pObject->ObjectCaps() & (FCAP_IMPULSE_USE | FCAP_CONTINUOUS_USE | FCAP_ONOFF_USE))
+	if ( AvHGetIsAlien(this->pev->iuser3) ) {
+		while ((pObject = UTIL_FindEntityInSphere( pObject, pev->origin, PLAYER_SEARCH_RADIUS*3)) != NULL)
 		{
-			// !!!PERFORMANCE- should this check be done on a per case basis AFTER we've determined that
-			// this object is actually usable? This dot is being done for every object within PLAYER_SEARCH_RADIUS
-			// when player hits the use key. How many objects can be in that area, anyway? (sjb)
-			vecLOS = (VecBModelOrigin( pObject->pev ) - (pev->origin + pev->view_ofs));
-			
-			// This essentially moves the origin of the target to the corner nearest the player to test to see 
-			// if it's "hull" is in the view cone
-			vecLOS = UTIL_ClampVectorToBox( vecLOS, pObject->pev->size * 0.5 );
-			
-			flDot = DotProduct (vecLOS , gpGlobals->v_forward);
-			if (flDot > flMaxDot )
-			{// only if the item is in front of the user
-				pClosest = pObject;
-				flMaxDot = flDot;
-//				ALERT( at_console, "%s : %f\n", STRING( pObject->pev->classname ), flDot );
+			if ( pObject->pev->iuser3 != AVH_USER3_HIVE ) {
+				vec3_t objectLocation;
+				vec3_t playerLocation;
+				AvHSHUGetEntityLocation(pObject->entindex(), objectLocation);
+				AvHSHUGetEntityLocation(this->entindex(), playerLocation);
+				if ( VectorDistance(objectLocation, playerLocation) > PLAYER_SEARCH_RADIUS ) 
+					continue;
 			}
-//			ALERT( at_console, "%s : %f\n", STRING( pObject->pev->classname ), flDot );
+			if (pObject->ObjectCaps() & (FCAP_IMPULSE_USE | FCAP_CONTINUOUS_USE | FCAP_ONOFF_USE))
+			{
+				// !!!PERFORMANCE- should this check be done on a per case basis AFTER we've determined that
+				// this object is actually usable? This dot is being done for every object within PLAYER_SEARCH_RADIUS
+				// when player hits the use key. How many objects can be in that area, anyway? (sjb)
+				vecLOS = (VecBModelOrigin( pObject->pev ) - (pev->origin + pev->view_ofs));
+				
+				// This essentially moves the origin of the target to the corner nearest the player to test to see 
+				// if it's "hull" is in the view cone
+				vecLOS = UTIL_ClampVectorToBox( vecLOS, pObject->pev->size * 0.5 );
+				
+				flDot = DotProduct (vecLOS , gpGlobals->v_forward);
+				if (flDot > flMaxDot )
+				{// only if the item is in front of the user
+					pClosest = pObject;
+					flMaxDot = flDot;
+	//				ALERT( at_console, "%s : %f\n", STRING( pObject->pev->classname ), flDot );
+				}
+	//			ALERT( at_console, "%s : %f\n", STRING( pObject->pev->classname ), flDot );
+			}
 		}
 	}
+	else {
+		while ((pObject = UTIL_FindEntityInSphere( pObject, pev->origin, PLAYER_SEARCH_RADIUS )) != NULL)
+		{
+
+			if (pObject->ObjectCaps() & (FCAP_IMPULSE_USE | FCAP_CONTINUOUS_USE | FCAP_ONOFF_USE))
+			{
+				// !!!PERFORMANCE- should this check be done on a per case basis AFTER we've determined that
+				// this object is actually usable? This dot is being done for every object within PLAYER_SEARCH_RADIUS
+				// when player hits the use key. How many objects can be in that area, anyway? (sjb)
+				vecLOS = (VecBModelOrigin( pObject->pev ) - (pev->origin + pev->view_ofs));
+				
+				// This essentially moves the origin of the target to the corner nearest the player to test to see 
+				// if it's "hull" is in the view cone
+				vecLOS = UTIL_ClampVectorToBox( vecLOS, pObject->pev->size * 0.5 );
+				
+				flDot = DotProduct (vecLOS , gpGlobals->v_forward);
+				if (flDot > flMaxDot )
+				{// only if the item is in front of the user
+					pClosest = pObject;
+					flMaxDot = flDot;
+	//				ALERT( at_console, "%s : %f\n", STRING( pObject->pev->classname ), flDot );
+				}
+	//			ALERT( at_console, "%s : %f\n", STRING( pObject->pev->classname ), flDot );
+			}
+		}
+	}
+
 	pObject = pClosest;
 
 	// Found an object

@@ -5979,42 +5979,80 @@ bool AvHPlayer::Redeem()
     AvHTeam* theTeam = this->GetTeamPointer();
     if(theTeam && (theTeam->GetNumActiveHives() > 0))
     {
+		vector<int> theSafeHives;
+		vector<int> theAttackedHives;
         // Bring player back
         if(this->GetTeamPointer()->GetNumActiveHives() > 0)
         {
+
+			// Loop through the hives for this team, look for the farthest one (hives under attack take precedence)
+			FOR_ALL_ENTITIES(kesTeamHive, AvHHive*)
+				if(theEntity->pev->team == this->pev->team)
+				{
+					bool theHiveIsUnderAttack = GetGameRules()->GetIsEntityUnderAttack(theEntity->entindex());
+					// allow teleport to any built hive, or unbuilt hives under attack.
+					if(!theEntity->GetIsSpawning())
+					{
+						if ( theHiveIsUnderAttack ) 
+							theAttackedHives.push_back(theEntity->entindex());
+						else
+							theSafeHives.push_back(theEntity->entindex());
+
+					}
+				}
+			END_FOR_ALL_ENTITIES(kesTeamHive)
+		
+		}
+		vector<int> *tmpPtr=&theSafeHives;
+		if ( theSafeHives.size() == 0 )
+			tmpPtr=&theAttackedHives;
+
+		int teleportHiveIndex=-1;
+		if ( tmpPtr->size() > 0 ) {
+			int index=RANDOM_LONG(0, tmpPtr->size()-1);
+			teleportHiveIndex=(*tmpPtr)[index];
+		}
+
+		// If we have a valid hive index, jump the player to it
+		if(teleportHiveIndex != -1)
+		{
             // Play redeem effect where it happened so attackers know it happened
             PLAYBACK_EVENT_FULL(0, this->edict(), gStartCloakEventID, 0, this->pev->origin, (float *)&g_vecZero, this->GetAlienAdjustedEventVolume(), 0.0, /*theWeaponIndex*/ 0, 0, 0, 0 );
-            
-            edict_t* theNewSpawnPoint = GetGameRules()->SelectSpawnPoint(this);
-            if(!FNullEnt(theNewSpawnPoint))
-            {
-                //// Create building here to test getting stuck
-                //const int kOffset = 20;
-                //Vector theBaseOrigin = theNewSpawnPoint->v.origin;
-                //Vector theRandomOffset(theBaseOrigin.x + RANDOM_LONG(-kOffset, kOffset), theBaseOrigin.y + RANDOM_LONG(-kOffset, kOffset), theBaseOrigin.z + RANDOM_LONG(-kOffset, kOffset));
-                //AvHSUBuildTechForPlayer(ALIEN_BUILD_MOVEMENT_CHAMBER, theRandomOffset, this);
+		
+			// Move him to it!
+			AvHHive* theHive = NULL;
+			AvHSUGetEntityFromIndex(teleportHiveIndex, theHive);
+			if(theHive)
+			{
+				CBaseEntity* theSpawnEntity = GetGameRules()->GetRandomHiveSpawnPoint(this, theHive->pev->origin, theHive->GetMaxSpawnDistance());
+				if(theSpawnEntity)
+				{
+					Vector theMinSize;
+					Vector theMaxSize;
+					this->GetSize(theMinSize, theMaxSize);
 
-                theNewSpawnPoint = GetGameRules()->SelectSpawnPoint(this);
-                if(!FNullEnt(theNewSpawnPoint))
-                {
-                    if(this->GetIsDigesting())
-                    {
-                        this->StopDigestion(false);
-                    }
+					int theOffset = AvHMUGetOriginOffsetForUser3(AvHUser3(this->pev->iuser3));
+					Vector theOriginToSpawn = theSpawnEntity->pev->origin;
+					theOriginToSpawn.z += theOffset;
 
-                    mTimeOfLastRedeem = gpGlobals->time;
+					if(AvHSUGetIsEnoughRoomForHull(theOriginToSpawn, AvHMUGetHull(false, this->pev->iuser3), this->edict()))
+					{
+						this->SetPosition(theOriginToSpawn);
+						this->pev->velocity = Vector(0, 0, 0);
+	                    if(this->GetIsDigesting())
+		                {
+			                this->StopDigestion(false);
+				        }
 
-                    // Respawn player normally
-                    this->InitPlayerFromSpawn(theNewSpawnPoint);
-                    
-                    PLAYBACK_EVENT_FULL(0, this->edict(), gStartCloakEventID, 0, this->pev->origin, (float *)&g_vecZero, this->GetAlienAdjustedEventVolume(), 0.0, /*theWeaponIndex*/ 0, 0, 0, 0 );
-                }
+					    mTimeOfLastRedeem = gpGlobals->time;
+		                theSuccess = true;
 
-                theSuccess = true;
-            }
-        }
-    }
-
+						// Play teleport sound before and after
+						PLAYBACK_EVENT_FULL(0, this->edict(), gStartCloakEventID, 0, this->pev->origin, (float *)&g_vecZero, this->GetAlienAdjustedEventVolume(), 0.0, /*theWeaponIndex*/ 0, 0, 0, 0 );					}
+				}
+			}
+		}
+	}
     return theSuccess;
 }
 

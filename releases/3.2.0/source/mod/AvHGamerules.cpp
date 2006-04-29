@@ -1071,6 +1071,16 @@ bool AvHGamerules::CanEntityDoDamageTo(const CBaseEntity* inAttacker, const CBas
 		{
 			*outScalar = theScalar;
 		}
+
+ 		if(!theTeamsAreDifferent && !AvHSUGetIsExternalClassName(STRING(inReceiver->pev->classname)))
+ 		{
+			AvHHive *theHive=(AvHHive *)dynamic_cast<const AvHHive *>(inReceiver);
+			if ( theHive != NULL && !this->GetIsEntityUnderAttack(theHive->entindex()) ) {
+				theCanDoDamage=false;
+				GetGameRules()->TriggerAlert((AvHTeamNumber)inAttacker->pev->team, ALERT_HIVE_DEFEND, theHive->entindex());
+			}
+		}
+
 	}
 	return theCanDoDamage;
 }
@@ -3597,6 +3607,10 @@ void AvHGamerules::TriggerAlert(AvHTeamNumber inTeamNumber, AvHAlertType inAlert
 					{
 						theSound = HUD_SOUND_ALIEN_NEW_TRAIT;
 					}
+					else if(inAlertType == ALERT_HIVE_DEFEND)
+					{
+						theSound = HUD_SOUND_ALIEN_ENEMY_APPROACHES;
+					}
 
 					if(theSound != HUD_SOUND_INVALID)
 					{
@@ -3619,7 +3633,7 @@ void AvHGamerules::TriggerAlert(AvHTeamNumber inTeamNumber, AvHAlertType inAlert
 		}
 
 		// Add entity to our list of entities that are under attack
-		if(((inAlertType == ALERT_UNDER_ATTACK) || (inAlertType == ALERT_PLAYER_ENGAGE) || (inAlertType == ALERT_HIVE_DYING)) && (inEntIndex > 0))
+		if(((inAlertType == ALERT_UNDER_ATTACK) || (inAlertType == ALERT_PLAYER_ENGAGE) || (inAlertType == ALERT_HIVE_DYING)|| (inAlertType == ALERT_HIVE_DEFEND) ) && (inEntIndex > 0))
 		{
 			// This will update current time longer if continually attacked
 			const float kUnderAttackDuration = 5.0f;

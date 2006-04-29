@@ -697,6 +697,7 @@ bool AvHSUGetIsOftRepeatedAlert(AvHAlertType inAlertType)
     {
     case ALERT_UNDER_ATTACK:
     case ALERT_HIVE_DYING:
+	case ALERT_HIVE_DEFEND:
     case ALERT_PLAYER_ENGAGE:
     case ALERT_SENTRY_FIRING:
     case ALERT_SENTRY_DAMAGED:
@@ -722,6 +723,7 @@ bool AvHSUGetIsUrgentAlert(AvHAlertType inAlertType)
 	case ALERT_LOW_RESOURCES:
     case ALERT_UNDER_ATTACK:
     case ALERT_HIVE_DYING:
+    case ALERT_HIVE_DEFEND:
 
 	// These must always be played because they don't have any notification on the commander UI
 	case ALERT_RESEARCH_COMPLETE:

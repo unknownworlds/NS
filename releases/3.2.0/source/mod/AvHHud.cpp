@@ -654,6 +654,9 @@ void AvHHud::ClearData()
 	this->mDisplayOrderTime = 0;
 	this->mDisplayOrderType = 0;
 	// :tankefugl
+
+	this->mProgressBarDrawframe = PROGRESS_BAR_DEFAULT;
+	this->mProgressBarLastDrawn = -10.0f;
 }
 
 
@@ -2573,6 +2576,8 @@ void AvHHud::ResetGame(bool inMapChanged)
 	this->mCenterText.clear();
 	this->mCenterTextTime = -1;
 	// :tankefugl
+
+	this->mProgressBarLastDrawn = -10.0f;
 }
 
 BIND_MESSAGE(SetGmma);
@@ -3563,15 +3568,17 @@ bool AvHHud::GetMouseTwoDown() const
 
 void AvHHud::HideProgressStatus()
 {
-	if(this->mGenericProgressBar)
-	{
-		this->mGenericProgressBar->setVisible(false);
-	}
+	this->mProgressBarLastDrawn = -1.0f;
 
-	if(this->mAlienProgressBar)
-	{
-		this->mAlienProgressBar->setVisible(false);
-	}
+//	if(this->mGenericProgressBar)
+//	{
+//		this->mGenericProgressBar->setVisible(false);
+//	}
+//
+//	if(this->mAlienProgressBar)
+//	{
+//		this->mAlienProgressBar->setVisible(false);
+//	}
 }
 
 void AvHHud::HideResearchProgressStatus()
@@ -4430,32 +4437,37 @@ void AvHHud::SetAlienAbility(AvHMessageID inAlienAbility)
 	this->mAlienAbility = inAlienAbility;
 }
 
-void AvHHud::SetProgressStatus(float inPercentage)
+void AvHHud::SetProgressStatus(float inPercentage, int inProgressbarType)
 {
-	if(this->mGenericProgressBar)
-	{
-		this->mGenericProgressBar->setVisible(false);
-	}
+	this->mProgressBarStatus = inPercentage;
+	this->mProgressBarLastDrawn = this->GetTimeOfLastUpdate();
+	this->mProgressBarDrawframe = inProgressbarType;
 
-	if(this->mAlienProgressBar)
-	{
-		this->mAlienProgressBar->setVisible(false);
-	}
+//	if(this->mGenericProgressBar)
+//	{
+//		this->mGenericProgressBar->setVisible(false);
+//	}
+//
+//	if(this->mAlienProgressBar)
+//	{
+//		this->mAlienProgressBar->setVisible(false);
+//	}
+//
+//	ProgressBar* theProgressBar = this->mGenericProgressBar;
+//	if(this->GetIsAlien())
+//	{
+//		theProgressBar = this->mAlienProgressBar;
+//	}
+//
+//	if(theProgressBar)
+//	{
+//		theProgressBar->setVisible(true);
+//		
+//		int theNumSegments = theProgressBar->getSegmentCount();
+//		int theSegment = inPercentage*theNumSegments;
+//		theProgressBar->setProgress(theSegment);
+//	}
 
-	ProgressBar* theProgressBar = this->mGenericProgressBar;
-	if(this->GetIsAlien())
-	{
-		theProgressBar = this->mAlienProgressBar;
-	}
-
-	if(theProgressBar)
-	{
-		theProgressBar->setVisible(true);
-		
-		int theNumSegments = theProgressBar->getSegmentCount();
-		int theSegment = inPercentage*theNumSegments;
-		theProgressBar->setProgress(theSegment);
-	}
 }
 
 void AvHHud::SetReinforcements(int inReinforcements)
@@ -5696,7 +5708,7 @@ float AvHHud::GetTimeOfLastUpdate() const
 
 void AvHHud::UpdateProgressBar()
 {
-	this->HideProgressStatus();
+	// this->HideProgressStatus();
 	
 	float thePercentage;
 	if(gMiniMap.GetIsProcessing(&thePercentage))
@@ -5746,9 +5758,10 @@ void AvHHud::UpdateProgressBar()
 			}
 			
 			thePercentage = theProgress/kNormalizationNetworkFactor;
+			int theType = (this->GetIsAlien())? PROGRESS_BAR_ALIEN: PROGRESS_BAR_MARINE;
 			if(thePercentage < 1.0f)
 			{
-				this->SetProgressStatus(thePercentage);
+				this->SetProgressStatus(thePercentage, theType);
 			}
 //			else
 //			{
@@ -5764,20 +5777,16 @@ void AvHHud::UpdateProgressBar()
 				if(theEntity)
 				{
 					this->HideProgressStatus();
-					this->HideResearchProgressStatus();
+					//this->HideResearchProgressStatus();
 
 					bool theIsBuilding, theIsResearching;
 					float thePercentage;
 					AvHSHUGetBuildResearchState(theEntity->curstate.iuser3, theEntity->curstate.iuser4, theEntity->curstate.fuser1, theIsBuilding, theIsResearching, thePercentage);
 					
-					if(theIsBuilding && (thePercentage > 0.0f) && (thePercentage < 1.0f))
+					if(theIsResearching && (thePercentage > 0) && (thePercentage < 1.0f))
 					{
-						// Turned off progress bar now that we have circular build icons
-						//this->SetGenericProgressStatus(thePercentage);
-					}
-					else if(theIsResearching && (thePercentage > 0) && (thePercentage < 1.0f))
-					{
-						this->SetResearchProgressStatus(thePercentage);
+						this->SetProgressStatus(thePercentage, PROGRESS_BAR_DEFAULT);
+						//this->SetResearchProgressStatus(thePercentage);
 					}
 				}
 			}

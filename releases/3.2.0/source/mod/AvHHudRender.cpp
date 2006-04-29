@@ -2764,6 +2764,8 @@ void AvHHud::Render()
             {
                 RenderAlienUI();
             }
+
+			RenderProgressBar();
         }
 
     }
@@ -3026,10 +3028,9 @@ void AvHHud::RenderCommonUI()
 	    }
     
     }
-
-	// Draw the combat HUD.
 	
-    if (this->GetIsCombatMode())
+	// Draw the combat HUD.
+	if (this->GetIsCombatMode())
 	{
 		// Now draw our current experience level, so people know how close they are to the next level
 		// Load alien resource and energy sprites
@@ -3079,6 +3080,37 @@ void AvHHud::RenderCommonUI()
 		this->mTopDownActionButtonHelp.Draw();
 	}
 
+}
+
+void AvHHud::RenderProgressBar()
+{
+	// Draw the progress bars
+	const float progressBarStayTime = 0.2f;
+	if (this->mProgressBarLastDrawn + progressBarStayTime > this->GetTimeOfLastUpdate())
+	{
+		if (this->mProgressBarSprite)
+		{
+			const float kNormalizedWidth = .1f;
+			const float kNormalizedYInset = .89f;
+			const float kNormalizedHeight = .025f;
+			
+			// Draw full background
+			const int kXStart = mViewport[0] + (.5f - kNormalizedWidth/2.0f)*(mViewport[2] - mViewport[0]);
+			const int kYStart = mViewport[1] + mViewport[3] - (1 - kNormalizedYInset)*ScreenHeight();
+			
+            AvHSpriteSetColor(1,1,1);
+            AvHSpriteSetRenderMode(kRenderTransAlpha);
+
+			AvHSpriteDraw(this->mProgressBarSprite, this->mProgressBarDrawframe + 1, kXStart, kYStart, kXStart + kNormalizedWidth*ScreenWidth(), kYStart + kNormalizedHeight*ScreenHeight(), 0, 0, 1, 1);
+			
+			// Draw overlay showing progress
+			float theProgress = this->mProgressBarStatus;
+			if((theProgress >= 0.0f) && (theProgress <= 1.0f))
+            {
+    			AvHSpriteDraw(this->mProgressBarSprite, this->mProgressBarDrawframe, kXStart, kYStart, kXStart + theProgress*kNormalizedWidth*ScreenWidth(), kYStart + kNormalizedHeight*ScreenHeight(), 0, 0, theProgress, 1.0f);
+            }
+		}
+	}
 }
 
 void AvHHud::RenderMiniMap(int inX, int inY, int inWidth, int inHeight)
@@ -4039,7 +4071,7 @@ void AvHHud::RenderAlienUI()
 
 				if(AvHCUWorldToScreen(theMessageWorldPos, (float*)&theScreenPos))
 				{
-					if((theBlipName != "") && (theBlipStatusText != "") && (theLocationName != "") && (CVAR_GET_FLOAT(kvLabelHivesight) == 0))
+					if((theBlipName != "") && (theBlipStatusText != "") && (theLocationName != "") && (CVAR_GET_FLOAT(kvLabelHivesight) == 1))
 					{
 						// Find alpha for the blip-text based on position on the screen
 						float screenWidth = ScreenWidth();
@@ -4361,6 +4393,8 @@ void AvHHud::VidInit(void)
 	// tankefugl: 0000971
 	this->mTeammateOrderSprite = Safe_SPR_Load(kTeammateOrderSprite);
 	// :tankefugl
+
+	this->mProgressBarSprite = Safe_SPR_Load(kProgressBarSprite);
 
 	this->mEnemyBlips.VidInit();
 	this->mFriendlyBlips.VidInit();

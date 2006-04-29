@@ -2431,17 +2431,17 @@ void EV_Welder(struct event_args_s* inArgs)
 			float thePercentage;
 			AvHSHUGetBuildResearchState(thePhysEnt->iuser3, thePhysEnt->iuser4, thePhysEnt->fuser1, theIsBuilding, theIsResearching, thePercentage);
 
-			if(thePhysEnt->iuser3 == AVH_USER3_WELD)
-			{
-				if((thePercentage < 1.0f) && (thePercentage != -1))
-				{
-					gHUD.SetProgressStatus(thePercentage);
-				}
-				else
-				{
-					gHUD.HideProgressStatus();
-				}
-			}
+//			if(thePhysEnt->iuser3 == AVH_USER3_WELD)
+//			{
+//				if((thePercentage < 1.0f) && (thePercentage != -1))
+//				{
+//					gHUD.SetProgressStatus(thePercentage);
+//				}
+//				else
+//				{
+//					gHUD.HideProgressStatus();
+//				}
+//			}
 		}
 	}
 	// Fire light smoke from muzzle

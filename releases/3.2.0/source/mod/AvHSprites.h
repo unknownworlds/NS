@@ -93,6 +93,19 @@
 
 #define		kTeammateOrderSprite		"sprites/query.spr"
 
+#define		kProgressBarSprite			"sprites/640experience.spr"
+
+#define PROGRESS_BAR_ALIEN			0
+#define PROGRESS_BAR_GESTATE		PROGRESS_BAR_ALIEN
+#define PROGRESS_BAR_DEVOUR			PROGRESS_BAR_ALIEN
+
+#define PROGRESS_BAR_MARINE			2
+#define PROGRESS_BAR_RESEARCH		PROGRESS_BAR_MARINE
+#define PROGRESS_BAR_RECYCLE		PROGRESS_BAR_MARINE
+#define PROGRESS_BAR_WELD			PROGRESS_BAR_MARINE
+
+#define PROGRESS_BAR_DEFAULT		PROGRESS_BAR_MARINE
+
 //#define		kOverwatchAimSprite			"sprites/overwatch-aim.spr"
 
 #define		kMembraneSprite				"sprites/membrane.spr"

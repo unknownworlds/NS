@@ -321,7 +321,7 @@ public:
 	int				GetMaxAlienResources() const;
 	int				GetNumActiveHives() const;
 	void			HideProgressStatus();
-	void			SetProgressStatus(float inPercentage);
+	void			SetProgressStatus(float inPercentage, int inProgressbarType = 0);
 
 	AvHVisibleBlipList&	GetEnemyBlipList();
 	AvHVisibleBlipList&	GetFriendlyBlipList();
@@ -363,6 +363,7 @@ public:
     void            RenderMarineUI();
     void            RenderCommanderUI();
     void            RenderAlienUI();
+	void			RenderProgressBar();
     void            RenderMiniMap(int inX, int inY, int inWidth, int inHeight);
 
     void            RenderStructureRanges();
@@ -761,11 +762,16 @@ private:
 
 	int						mProgressBarEntityIndex;
 	int						mProgressBarParam;
+	float					mProgressBarStatus;
+	float					mProgressBarLastDrawn;
+	int						mProgressBarDrawframe;
 
 	bool					mFogActive;
 	vec3_t					mFogColor;
 	float					mFogStart;
 	float					mFogEnd;
+
+	HSPRITE					mProgressBarSprite;
 
 	AvHBaseInfoLocationListType		mInfoLocationList;
 	string							mLocationText;

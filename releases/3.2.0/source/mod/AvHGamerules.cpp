@@ -2511,6 +2511,8 @@ void AvHGamerules::ResetGame(bool inPreserveTeams)
 	this->mFirstUpdate = true;
 	this->mPreserveTeams = inPreserveTeams;
 	gSvCheatsLastUpdateTime = -1.0f;
+	this->mHasPlayersToReset = false;
+	this->mLastPlayerResetTime = -1.0f;
 }
 
 void AvHGamerules::RecalculateMapMode( void )
@@ -2648,16 +2650,18 @@ void AvHGamerules::MarkDramaticEvent(int inPriority, short inPrimaryEntityIndex,
 	this->MarkDramaticEvent(inPriority, inPrimaryEntityIndex, secondaryEntityIndex);
 }
 
-void AvHGamerules::ResetEntities()
+// Resets players in chunks of 6 and 6
+void AvHGamerules::ResetPlayers()
 {
-	// Now reset all the world entities and mark useable ones with AVH_USER3_USEABLE
-	//AvHSUPrintDevMessage("FOR_ALL_BASEENTITIES: AvHGamerules::ResetEntities\n");
+	const int maxReset = 6;
+	int numReset = 0;
 
 	FOR_ALL_BASEENTITIES();
 
-	// Reset the entity.  Assumes that players in the ready room have already been reset recently.
+	// Reset the players
+	// Reset only players that have made it to the readyroom and have been on either team
 	AvHPlayer* thePlayer = dynamic_cast<AvHPlayer*>(theBaseEntity);
-	if(thePlayer && (thePlayer->GetPlayMode() == PLAYMODE_READYROOM))
+	if(thePlayer && (thePlayer->GetPlayMode() == PLAYMODE_READYROOM) && (thePlayer->GetHasSeenATeam()))
 	{
 		int theUser3 = thePlayer->pev->iuser3;
 		int theUser4 = thePlayer->pev->iuser4;
@@ -2672,38 +2676,65 @@ void AvHGamerules::ResetEntities()
 		thePlayer->pev->playerclass = thePlayMode;
 		thePlayer->pev->team = thePlayerTeam;
 		thePlayer->pev->solid = theSolidType;
+
+		if (numReset++ >= maxReset)
+		{
+			this->mHasPlayersToReset = true;
+			return;
+		}
+	}
+
+	END_FOR_ALL_BASEENTITIES();
+
+	this->mHasPlayersToReset = false;
+}
+
+void AvHGamerules::ResetEntities()
+{
+	// Now reset all the world entities and mark useable ones with AVH_USER3_USEABLE
+	//AvHSUPrintDevMessage("FOR_ALL_BASEENTITIES: AvHGamerules::ResetEntities\n");
+
+	FOR_ALL_BASEENTITIES();
+
+	// Reset non-player entities
+	AvHPlayer* thePlayer = dynamic_cast<AvHPlayer*>(theBaseEntity);
+	if(thePlayer && (thePlayer->GetPlayMode() == PLAYMODE_READYROOM)) // && (thePlayer->GetHasSeenATeam()))
+	{
+		// SNIP
 	}
 	else
 	{
 		theBaseEntity->ResetEntity();
-	}
 
-	// Don't mark commander stations as useable in this case
-	AvHCommandStation* theCommandStation = dynamic_cast<AvHCommandStation*>(theBaseEntity);
-	if(!theCommandStation)
-	{
-		int	theObjectCaps = theBaseEntity->ObjectCaps();
-		if(theObjectCaps & (FCAP_IMPULSE_USE | FCAP_CONTINUOUS_USE | FCAP_ONOFF_USE))
+		// Don't mark commander stations as useable in this case
+		AvHCommandStation* theCommandStation = dynamic_cast<AvHCommandStation*>(theBaseEntity);
+		if(!theCommandStation)
 		{
-			// After playing once, this is no longer zero
-			if(theBaseEntity->pev->iuser3 == 0)
+			int	theObjectCaps = theBaseEntity->ObjectCaps();
+			if(theObjectCaps & (FCAP_IMPULSE_USE | FCAP_CONTINUOUS_USE | FCAP_ONOFF_USE))
 			{
-				theBaseEntity->pev->iuser3 = AVH_USER3_USEABLE;
-
-				// Now also mark the target entity as useable!
-				if (!FStringNull(theBaseEntity->pev->target))
+				// After playing once, this is no longer zero
+				if(theBaseEntity->pev->iuser3 == 0)
 				{
-					CBaseEntity* theTarget = NULL;
+					theBaseEntity->pev->iuser3 = AVH_USER3_USEABLE;
 
-					while(theTarget = UTIL_FindEntityByTargetname(theTarget, STRING(theBaseEntity->pev->target)))
+					// Now also mark the target entity as useable!
+					if (!FStringNull(theBaseEntity->pev->target))
 					{
-						theTarget->pev->iuser3 = AVH_USER3_USEABLE;
+						CBaseEntity* theTarget = NULL;
+
+						while(theTarget = UTIL_FindEntityByTargetname(theTarget, STRING(theBaseEntity->pev->target)))
+						{
+							theTarget->pev->iuser3 = AVH_USER3_USEABLE;
+						}
 					}
 				}
 			}
 		}
 	}
 	END_FOR_ALL_BASEENTITIES();
+
+	this->mHasPlayersToReset = true;
 }
 
 void AvHGamerules::InternalResetGameRules()
@@ -3194,6 +3225,13 @@ void AvHGamerules::Think(void)
 		NetMsg_GameStatus_State( kGameStatusReset, this->mMapMode );
 
 		this->mFirstUpdate = false;
+	}
+
+	const float playerResetDelay = 0.3f;
+	if(this->mHasPlayersToReset && (this->mLastPlayerResetTime + playerResetDelay < theTime) )
+	{
+		this->ResetPlayers();
+		this->mLastPlayerResetTime = theTime;
 	}
 
 	// Handle queued network messages

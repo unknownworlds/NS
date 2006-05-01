@@ -136,7 +136,7 @@ const	int								kMaxUpgradeLevel = 3;
 const	int								kFuncResourceMaxResources = 300;
 //const	float							kPlayerResourceScalar = 2.0f; // 1.5 might be better
 const	int								kVictoryIntermission = 12;
-const	int								kResetPlayersPerSecond = 8;
+const	int								kResetPlayersPerSecond = 5;
 const	float							kBuildingUseWarmupTime = 2.0f;
 const   float                           kRedeemInvulnerableTime = 1.0f;
 

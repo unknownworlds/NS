@@ -4029,6 +4029,11 @@ bool AvHPlayer::GetHasActiveAlienWeaponWithImpulse(AvHMessageID inMessageID) con
     return theHasWeapon;
 }
 
+bool AvHPlayer::GetHasSeenATeam()
+{
+	return (this->mHasSeenTeamA || this->mHasSeenTeamB);
+}
+
 bool AvHPlayer::GetHasSeenTeam(AvHTeamNumber inNumber) const
 {
     bool theHasBeenOnTeam = false;
@@ -7095,6 +7100,7 @@ void AvHPlayer::ResetEntity(void)
     this->mNewMap = theSavedNewMap;
     this->mDesiredNetName = theSavedDesiredNetName;
     this->mClientInfoLocations = theSavedClientInfoLocations;
+
 }
 
 void AvHPlayer::ResetOverwatch()

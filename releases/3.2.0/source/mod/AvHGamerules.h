@@ -324,6 +324,7 @@ private:
 	void				PostVictoryStatsToWeb(const string& inFormParams) const;
 	bool				ReadyToStartCountdown();
 	void				ResetGame(bool inPreserveTeams = false);
+	void				ResetPlayers();
 	void				SendGameTimeUpdate(bool inReliable = false);
 	void				ProcessTeamUpgrades();
 	void				ResetEntities();
@@ -417,6 +418,9 @@ private:
     std::vector<std::string>	mServerVariableList;
 
 	AvHTeamNumber				mCombatAttackingTeamNumber;
+
+	bool						mHasPlayersToReset;
+	float						mLastPlayerResetTime;
 };
 
 AvHGamerules* GetGameRules();

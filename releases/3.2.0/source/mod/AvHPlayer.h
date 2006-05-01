@@ -478,6 +478,8 @@ public:
 	// tankefugl: 0000953 
 	bool			JoinTeamCooledDown(float inCoolDownTime);
 	// tankefugl
+
+	bool			GetHasSeenATeam();
 private:
 	void				AcquireOverwatchTarget();
 	bool				AttemptToBuildAlienStructure(AvHMessageID inMessageID);

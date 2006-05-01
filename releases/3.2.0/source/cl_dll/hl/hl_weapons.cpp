@@ -536,16 +536,13 @@ void CBasePlayerWeapon::ItemPostFrame( void )
         }
 	}
 	// +movement: Rewritten to allow us to use +attack2 for movement abilities
-	else if ((m_pPlayer->pev->button & IN_ATTACK2) && (m_flNextPrimaryAttack <= 0.0))
+	else if ((m_pPlayer->pev->button & IN_ATTACK2) && (m_flNextPrimaryAttack <= 0.0) && (gHUD.GetIsAlien()))
 	{
 		// Find out what kind of special movement we are using, and execute the animation for it
 		if (this->PrevAttack2Status == false)
 		{
 			int wID = AVH_ABILITY_LEAP;
 			CBasePlayerWeapon* theWeapon = g_pWpns[wID];
-			float test1 = 0.0f;
-			float test2 = 0.0f;
-			bool test3 = false;
 			switch (gHUD.GetHUDUser3())
 			{
 			case AVH_USER3_ALIEN_PLAYER1:
@@ -1318,7 +1315,9 @@ void HUD_WeaponsPostThink( local_state_s *from, local_state_s *to, usercmd_t *cm
 
 	// Make sure that weapon animation matches what the game .dll is telling us
 	//  over the wire ( fixes some animation glitches )
-	if (false) //g_runfuncs && ( HUD_GetWeaponAnim() != to->client.weaponanim ) && !(CheckInAttack2()) )
+	// Ensure that the fade and onos won't get these, to play the blink and charge animations correctly
+	bool noRun = (to->client.iuser3 == AVH_USER3_ALIEN_PLAYER4) || (to->client.iuser3 == AVH_USER3_ALIEN_PLAYER5);
+	if (g_runfuncs && ( HUD_GetWeaponAnim() != to->client.weaponanim ) && !(CheckInAttack2()) && !noRun)
 	{
 		int body = 2;
 

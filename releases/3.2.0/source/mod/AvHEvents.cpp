@@ -3286,7 +3286,8 @@ void EV_MetabolizeSuccess(struct event_args_s* inArgs)
 
 void WebHit(struct tempent_s* ent, struct pmtrace_s* ptr)
 {
-	gEngfuncs.pEventAPI->EV_PlaySound(ent->entity.index, ptr->endpos, CHAN_AUTO, kWebSpinSound1, 1, ATTN_NORM, 0, 94 + gEngfuncs.pfnRandomLong( 0, 0xf ));
+	gEngfuncs.pEventAPI->EV_PlaySound(ent->entity.index, ptr->endpos, CHAN_AUTO, kWebStrandHitSound, 1, ATTN_NORM, 0, 94 + gEngfuncs.pfnRandomLong( 0, 0xf ));
+	//gEngfuncs.pEventAPI->EV_PlaySound(ent->entity.index, ptr->endpos, CHAN_AUTO, kWebSpinSound1, 1, ATTN_NORM, 0, 94 + gEngfuncs.pfnRandomLong( 0, 0xf ));
 	if(ptr && ent)
 	{
 		ent->die = gEngfuncs.GetClientTime();

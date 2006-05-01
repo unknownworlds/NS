@@ -3170,7 +3170,7 @@ Swipe - Deadly close-combat attack.  Get close to your enemies and attack.  Good
 
 Weapon8Help
 {
-Webs - Shoot globules near each other and a web will be created between them.  Wabes take 3 seconds to harden and become active. Webs slow enemies and prevent them from using their weapons for a time.  Webs can be destroyed with the welder or by grenade fire
+Webs - Shoot globules near each other and a web will be created between them.  Wabes take 1.5 seconds to harden and become active. Webs slow enemies and prevent them from using their weapons for a time.  Webs can be destroyed with the welder or by grenade fire
 }
 
 Weapon9Help

@@ -1686,6 +1686,8 @@ void AvHWebStrand::Precache(void)
 	// Precache web strand sprite
 	PRECACHE_UNMODIFIED_MODEL(kWebStrandSprite);
 	PRECACHE_UNMODIFIED_SOUND(kWebStrandBreakSound);
+	PRECACHE_UNMODIFIED_SOUND(kWebStrandHardenSound);
+	PRECACHE_UNMODIFIED_SOUND(kWebStrandFormSound);
 }
 
 void AvHWebStrand::Setup(const Vector& inPointOne, const Vector& inPointTwo)
@@ -1722,13 +1724,15 @@ void AvHWebStrand::Spawn(void)
 	//SetBits(this->pev->flags, FL_MONSTER);
 	
 	this->RelinkBeam();
+
+	EMIT_SOUND(ENT(this->pev), CHAN_AUTO, kWebStrandFormSound, 1.0, ATTN_IDLE);
 	//SetThink(StrandExpire);
 	//this->pev->nextthink = gpGlobals->time + kWebStrandLifetime;
 }
 
 void AvHWebStrand::StrandThink() 
 {
-	EMIT_SOUND(ENT(this->pev), CHAN_AUTO, kWebStrandBreakSound, 1.0, ATTN_IDLE);
+	EMIT_SOUND(ENT(this->pev), CHAN_AUTO, kWebStrandHardenSound, 1.0, ATTN_IDLE);
 	//this->SetBrightness( 64 );
 	this->SetColor( 255, 255, 255 );
 	this->SetFrame(1);

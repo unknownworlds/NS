@@ -147,8 +147,8 @@ SBColumnInfo g_ColumnInfo[NUM_COLUMNS] =
     {NULL,			24,			Label::a_east},		// status icons
 	{NULL,			110,		Label::a_east},		// name
 	{NULL,			56,			Label::a_east},		// class
-	{"#SCORE",		40,			Label::a_east},     // score
 	{"#EXTRA",		40,			Label::a_east},     // resources
+	{"#SCORE",		40,			Label::a_east},     // score
     {"#KILLS",      40,         Label::a_east},     // kills
 	{"#DEATHS",		40,			Label::a_east},     // deaths
 	{"#LATENCY",	40,			Label::a_east},     // ping
@@ -529,11 +529,20 @@ void ScorePanel::SortTeams()
 			g_TeamInfo[i].packetloss /= g_TeamInfo[i].players;  // use the average ping of all the players in the team as the teams ping
 		}
 	}
-	
-	SortActivePlayers(kMarine1Team);
-	SortActivePlayers(kAlien1Team);
-	SortActivePlayers(kMarine2Team);
-	SortActivePlayers(kAlien2Team);
+	vector<string> teams;
+	if ( gHUD.GetIsAlien() ) {
+		SortActivePlayers(kAlien1Team);
+		SortActivePlayers(kMarine1Team);
+		SortActivePlayers(kAlien2Team);
+		SortActivePlayers(kMarine2Team);
+	}
+	else {
+		SortActivePlayers(kMarine1Team);
+		SortActivePlayers(kAlien1Team);
+		SortActivePlayers(kMarine2Team);
+		SortActivePlayers(kAlien2Team);
+	}
+
 	SortActivePlayers(kSpectatorTeam);
 	SortActivePlayers(kUndefinedTeam);
 }

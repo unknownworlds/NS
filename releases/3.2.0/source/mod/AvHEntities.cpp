@@ -1719,7 +1719,7 @@ void AvHWebStrand::Spawn(void)
 	this->pev->takedamage = DAMAGE_YES;
 	this->mSolid=false;
 	this->pev->nextthink = gpGlobals->time + BALANCE_VAR(kWebWarmupTime);
-	SetThink(StrandThink);
+	SetThink(&AvHWebStrand::StrandThink);
 	
 	//SetBits(this->pev->flags, FL_MONSTER);
 	

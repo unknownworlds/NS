@@ -2459,7 +2459,7 @@ void AvHHud::ResetGame(bool inMapChanged)
 	this->mNumLocalSelectEvents = 0;
 	// Removed to allow map to be shown before gamestart. 
 	// The map-mode will be re-set by the Gamestate messages anyway.
-	//this->mMapMode = MAP_MODE_UNDEFINED;
+	this->mMapMode = MAP_MODE_UNDEFINED;
 	this->mInTopDownMode = false;
 	this->mLeftMouseStarted = false;
 	this->mLeftMouseEnded = false;
@@ -6729,7 +6729,11 @@ void AvHHud::UpdateEnableState(PieMenu* inMenu)
 
 void AvHHud::ShowMap()
 {
-    if (!sShowMap && gHUD.GetIsNSMode())
+	bool isNsMode=false;
+	if ( strnicmp(gHUD.GetMapName().c_str(), "ns_", 3) == 0 )
+		isNsMode=true;
+	
+    if (!sShowMap && isNsMode )
     {	
         sShowMap = true;
         gHUD.HideCrosshair();

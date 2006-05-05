@@ -657,6 +657,10 @@ void AvHHud::ClearData()
 
 	this->mProgressBarDrawframe = PROGRESS_BAR_DEFAULT;
 	this->mProgressBarLastDrawn = -10.0f;
+
+	this->mHasWelder=false;
+	this->mHasMines=false;
+	this->mHasGrenades=false; 
 }
 
 
@@ -2578,6 +2582,10 @@ void AvHHud::ResetGame(bool inMapChanged)
 	// :tankefugl
 
 	this->mProgressBarLastDrawn = -10.0f;
+
+	this->mHasGrenades=false;
+	this->mHasMines=false;
+	this->mHasWelder=false;
 }
 
 BIND_MESSAGE(SetGmma);

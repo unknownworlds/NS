@@ -7100,7 +7100,7 @@ void AvHPlayer::ResetEntity(void)
     this->mNewMap = theSavedNewMap;
     this->mDesiredNetName = theSavedDesiredNetName;
     this->mClientInfoLocations = theSavedClientInfoLocations;
-
+	this->mMarineHUDUpgrades=0;
 }
 
 void AvHPlayer::ResetOverwatch()

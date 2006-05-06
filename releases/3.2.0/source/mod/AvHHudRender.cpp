@@ -3355,7 +3355,7 @@ void AvHHud::RenderMarineUI()
             
 			AvHSpriteSetRenderMode(kRenderTransAdd);
 			AvHSpriteEnableClippingRect(false);
-			AvHSpriteSetColor(1, 1, 1, this->GetGammaSlope());
+			AvHSpriteSetColor(1, 1, 1);
             AvHSpriteDraw(mMarineUpgradesSprite, 0, x1, y1, x2, y2, theStartU, theStartV, theEndU, theEndV);
         
         }
@@ -3387,7 +3387,7 @@ void AvHHud::RenderMarineUI()
 	            
 			AvHSpriteSetRenderMode(kRenderTransAdd);
 			AvHSpriteEnableClippingRect(false);
-			AvHSpriteSetColor(1, 1, 1, this->GetGammaSlope());
+			AvHSpriteSetColor(1, 1, 1);
 			AvHSpriteDraw(mMarineUpgradesSprite, theFrame, x1, y1, x2, y2, theStartU, theStartV, theEndU, theEndV);
 		}
 	}
@@ -3934,7 +3934,7 @@ void AvHHud::RenderAlienUI()
 			theNumDrawnInCategory[theCategory]++;
 
 			int theLevelOfUpgrade = AvHGetAlienUpgradeLevel(theUpgradeVar, theUpgradeMask);
-			for(int theLevel = 0; theLevel < theLevelOfUpgrade; theLevel++)
+			for(int theLevel = theLevelOfUpgrade; theLevel > 0; theLevel--)
 			{
 				// Draw them slightly overlapping
 				const float kOffset = .01f;
@@ -3971,7 +3971,7 @@ void AvHHud::RenderAlienUI()
 									numSprites=this->mNumMovement;
 									break;
 							}
-							for ( int j=0; j< numSprites; j++ ) {
+							for ( int j = numSprites; j > 0; j-- ) {
 								const float kOffset = .01f;
 								int theFrame = theCategory-1;
 							

@@ -494,9 +494,6 @@ KeyUpForced
 */
 void KeyUpForced (kbutton_t *b)
 {
-	if (!(b->state & 1))
-		return;		// still up (this should not happen)
-
 	b->state &= ~1;		// now up
 	b->state |= 4; 		// impulse up
 }

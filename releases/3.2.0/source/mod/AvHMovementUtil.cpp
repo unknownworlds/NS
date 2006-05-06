@@ -240,7 +240,8 @@ bool AvHMUGetEnergyCost(AvHWeaponID inWeaponID, float& outEnergyCost)
 		theCost = (float)BALANCE_VAR(kLeapEnergyCost);
 		break;
 	case AVH_ABILITY_CHARGE:
-		theCost = (float)BALANCE_VAR(kChargeEnergyCost);
+		// Charge cost deducted in pm_shared now
+		theCost = 0.0f; // (float)BALANCE_VAR(kChargeEnergyCost);
 		break;
 
 	}

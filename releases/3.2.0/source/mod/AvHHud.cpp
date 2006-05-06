@@ -660,7 +660,10 @@ void AvHHud::ClearData()
 
 	this->mHasWelder=false;
 	this->mHasMines=false;
-	this->mHasGrenades=false; 
+	this->mHasGrenades=false;
+	this->mNumSensory=0;
+	this->mNumMovement=0;
+	this->mNumDefense=0;
 }
 
 
@@ -2586,6 +2589,9 @@ void AvHHud::ResetGame(bool inMapChanged)
 	this->mHasGrenades=false;
 	this->mHasMines=false;
 	this->mHasWelder=false;
+	this->mNumSensory=0;
+	this->mNumMovement=0;
+	this->mNumDefense=0;
 }
 
 BIND_MESSAGE(SetGmma);

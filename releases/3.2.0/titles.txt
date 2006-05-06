@@ -381,6 +381,11 @@ COLWEAP
 Weapon
 }
 
+COLLEVEL
+{
+Level
+}
+
 COLRES
 {
 Res

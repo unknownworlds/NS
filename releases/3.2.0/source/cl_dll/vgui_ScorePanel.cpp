@@ -746,14 +746,17 @@ void ScorePanel::FillGrid()
 	}
 	
 	bool bNextRowIsGap = false;
-	if ( gHUD.GetIsMarine() ) {
-		m_HeaderLabels[COLUMN_EXTRA].setText(CHudTextMessage::BufferedLocaliseTextString("#COLWEAP"));
-	}
-	else if ( gHUD.GetIsAlien() ) { 
-		m_HeaderLabels[COLUMN_EXTRA].setText(CHudTextMessage::BufferedLocaliseTextString("#COLRES"));
+	m_HeaderLabels[COLUMN_EXTRA].setText(CHudTextMessage::BufferedLocaliseTextString("#EXTRA"));
+	if ( strnicmp(gHUD.GetMapName().c_str(), "ns_", 3) == 0 ) {
+		if ( gHUD.GetIsMarine() ) {
+			m_HeaderLabels[COLUMN_EXTRA].setText(CHudTextMessage::BufferedLocaliseTextString("#COLWEAP"));
+		}
+		else if ( gHUD.GetIsAlien() ) { 
+			m_HeaderLabels[COLUMN_EXTRA].setText(CHudTextMessage::BufferedLocaliseTextString("#COLRES"));
+		}
 	}
 	else {
-		m_HeaderLabels[COLUMN_EXTRA].setText(CHudTextMessage::BufferedLocaliseTextString("#EXTRA"));
+		m_HeaderLabels[COLUMN_EXTRA].setText(CHudTextMessage::BufferedLocaliseTextString("#COLLEVEL"));
 	}
 	
 	for(int row=0; row < NUM_ROWS; row++)

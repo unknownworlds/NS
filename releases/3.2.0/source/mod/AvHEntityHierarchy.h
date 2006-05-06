@@ -110,13 +110,18 @@ public:
 	bool		operator!=(const AvHEntityHierarchy& inHierarchy) const;
 	bool		operator==(const AvHEntityHierarchy& inHierarchy) const;
 	
+	int			GetNumSensory() const;
+	int			GetNumDefense() const;
+	int			GetNumMovement() const;
 private:
    
 
 	// The encoded entity info that has been sent to clients
 
 	MapEntityMap    mEntityList;
-
+	int mNumMovement;
+	int mNumSensory;
+	int mNumDefence;
 };
 
 #endif

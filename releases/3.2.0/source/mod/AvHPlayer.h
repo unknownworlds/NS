@@ -836,6 +836,10 @@ private:
     
     string              mNetworkID;
 	int					mMarineHUDUpgrades;
+	int					mNumMovement;
+	int					mNumSensory;
+	int					mNumDefense;
+
     struct ServerVariable
     {
         std::string mName;

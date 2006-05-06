@@ -3579,6 +3579,9 @@ void AvHPlayer::Init()
     this->mPurchasedCombatUpgrades.clear();
     this->mGiveCombatUpgrades.clear();
 	this->mMarineHUDUpgrades=0;
+	this->mNumSensory=0;
+	this->mNumMovement=0;
+	this->mNumDefense=0;
 }
 
 void AvHPlayer::InitializeFromTeam(float inHealthPercentage, float inArmorPercentage)
@@ -7101,6 +7104,9 @@ void AvHPlayer::ResetEntity(void)
     this->mDesiredNetName = theSavedDesiredNetName;
     this->mClientInfoLocations = theSavedClientInfoLocations;
 	this->mMarineHUDUpgrades=0;
+	this->mNumSensory=0;
+	this->mNumMovement=0;
+	this->mNumDefense=0;
 }
 
 void AvHPlayer::ResetOverwatch()
@@ -9273,6 +9279,32 @@ void AvHPlayer::UpdateAlienUI()
                 this->mClientHiveInfo = theTeamHiveInfo;
             }
         }
+
+		if ( theIsAlien ) {
+			int currentMask=0;
+			currentMask |= ( this->mNumSensory & 0x3 );
+			currentMask <<= 2;
+			currentMask |= ( this->mNumDefense & 0x3 );
+			currentMask <<= 2;
+			currentMask |= ( this->mNumMovement & 0x3 );
+			currentMask |= 0x80;
+
+			int teamMask=0;
+			AvHEntityHierarchy& theEntHier=GetGameRules()->GetEntityHierarchy(this->GetTeam());
+			teamMask |= ( theEntHier.GetNumSensory() & 0x3 );
+			teamMask <<= 2;
+			teamMask |= ( theEntHier.GetNumDefense() & 0x3 );
+			teamMask <<= 2;
+			teamMask |= ( theEntHier.GetNumMovement() & 0x3 );
+			teamMask |= 0x80;
+
+			if ( currentMask != teamMask ) {
+				this->mNumSensory=theEntHier.GetNumSensory();
+				this->mNumDefense=theEntHier.GetNumDefense();
+				this->mNumMovement=theEntHier.GetNumMovement();
+				NetMsg_HUDSetUpgrades(this->pev, teamMask);
+			}
+		}
     }
 }
 

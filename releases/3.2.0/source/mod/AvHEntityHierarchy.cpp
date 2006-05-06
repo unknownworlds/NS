@@ -68,6 +68,9 @@ AvHEntityHierarchy::AvHEntityHierarchy()
 
 void AvHEntityHierarchy::Clear()
 {
+	mNumMovement=0;
+	mNumSensory=0;
+	mNumDefence=0;
 	this->mEntityList.clear();
 }
 
@@ -93,6 +96,18 @@ bool AvHEntityHierarchy::operator==(const AvHEntityHierarchy& inHierarchy) const
 void AvHEntityHierarchy::GetEntityInfoList(MapEntityMap& outList) const
 {
     outList = mEntityList;
+}
+
+int AvHEntityHierarchy::GetNumSensory() const {
+	return this->mNumSensory;
+}
+
+int AvHEntityHierarchy::GetNumMovement() const {
+	return this->mNumMovement;
+}
+
+int AvHEntityHierarchy::GetNumDefense() const {
+	return this->mNumDefence;
 }
 
 ////////////////
@@ -129,9 +144,6 @@ int GetHotkeyGroupContainingPlayer(AvHPlayer* player)
     return -1;
 
 }
-static int numMovement=0;
-static int numSensory=0;
-static int numDefence=0;
 
 void AvHEntityHierarchy::BuildFromTeam(const AvHTeam* inTeam, BaseEntityListType& inBaseEntityList)
 {
@@ -265,26 +277,17 @@ void AvHEntityHierarchy::BuildFromTeam(const AvHTeam* inTeam, BaseEntityListType
 
             }
         }
-			if ( inTeam->GetTeamType() == AVH_CLASS_TYPE_ALIEN ) {
-				sc=min(3, sc);
-				dc=min(3,dc);
-				mc=min(3,mc);
-				if ( numSensory != sc || numDefence != dc || numMovement != mc ) {
-					numSensory=sc;
-					numDefence=dc;
-					numMovement=mc;
-					int mask=0;
-					mask |= ( numSensory & 0x3 );
-					mask <<= 2;
-					mask |= ( numDefence & 0x3 );
-					mask <<= 2;
-					mask |= ( numMovement & 0x3 );
-					mask |= 0x80;
-					NetMsg_HUDSetUpgrades(mask);
-				}
+		if ( inTeam->GetTeamType() == AVH_CLASS_TYPE_ALIEN ) {
+			sc=min(3, sc);
+			dc=min(3,dc);
+			mc=min(3,mc);
+			if ( this->mNumSensory != sc || this->mNumDefence != dc || this->mNumMovement != mc ) {
+				this->mNumSensory=sc;
+				this->mNumDefence=dc;
+				this->mNumMovement=mc;
 			}
+		}
     }
-
 }
 
 // Returns true when something was sent

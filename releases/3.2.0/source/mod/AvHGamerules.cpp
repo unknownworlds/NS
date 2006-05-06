@@ -2700,33 +2700,45 @@ void AvHGamerules::ResetEntities()
 	AvHPlayer* thePlayer = dynamic_cast<AvHPlayer*>(theBaseEntity);
 	if(thePlayer && (thePlayer->GetPlayMode() == PLAYMODE_READYROOM)) // && (thePlayer->GetHasSeenATeam()))
 	{
-		// SNIP
+		int theUser3 = thePlayer->pev->iuser3;
+		int theUser4 = thePlayer->pev->iuser4;
+		int thePlayMode = thePlayer->pev->playerclass;
+		int thePlayerTeam = thePlayer->pev->team;
+		int theSolidType = thePlayer->pev->solid;
+
+		thePlayer->ResetEntity();
+
+		thePlayer->pev->iuser3 = theUser3;
+		thePlayer->pev->iuser4 = theUser4;
+		thePlayer->pev->playerclass = thePlayMode;
+		thePlayer->pev->team = thePlayerTeam;
+		thePlayer->pev->solid = theSolidType;
 	}
 	else
 	{
 		theBaseEntity->ResetEntity();
+	}
 
-		// Don't mark commander stations as useable in this case
-		AvHCommandStation* theCommandStation = dynamic_cast<AvHCommandStation*>(theBaseEntity);
-		if(!theCommandStation)
+	// Don't mark commander stations as useable in this case
+	AvHCommandStation* theCommandStation = dynamic_cast<AvHCommandStation*>(theBaseEntity);
+	if(!theCommandStation)
+	{
+		int	theObjectCaps = theBaseEntity->ObjectCaps();
+		if(theObjectCaps & (FCAP_IMPULSE_USE | FCAP_CONTINUOUS_USE | FCAP_ONOFF_USE))
 		{
-			int	theObjectCaps = theBaseEntity->ObjectCaps();
-			if(theObjectCaps & (FCAP_IMPULSE_USE | FCAP_CONTINUOUS_USE | FCAP_ONOFF_USE))
+			// After playing once, this is no longer zero
+			if(theBaseEntity->pev->iuser3 == 0)
 			{
-				// After playing once, this is no longer zero
-				if(theBaseEntity->pev->iuser3 == 0)
+				theBaseEntity->pev->iuser3 = AVH_USER3_USEABLE;
+
+				// Now also mark the target entity as useable!
+				if (!FStringNull(theBaseEntity->pev->target))
 				{
-					theBaseEntity->pev->iuser3 = AVH_USER3_USEABLE;
+					CBaseEntity* theTarget = NULL;
 
-					// Now also mark the target entity as useable!
-					if (!FStringNull(theBaseEntity->pev->target))
+					while(theTarget = UTIL_FindEntityByTargetname(theTarget, STRING(theBaseEntity->pev->target)))
 					{
-						CBaseEntity* theTarget = NULL;
-
-						while(theTarget = UTIL_FindEntityByTargetname(theTarget, STRING(theBaseEntity->pev->target)))
-						{
-							theTarget->pev->iuser3 = AVH_USER3_USEABLE;
-						}
+						theTarget->pev->iuser3 = AVH_USER3_USEABLE;
 					}
 				}
 			}
@@ -3227,12 +3239,13 @@ void AvHGamerules::Think(void)
 		this->mFirstUpdate = false;
 	}
 
-	const float playerResetDelay = 0.3f;
-	if(this->mHasPlayersToReset && (this->mLastPlayerResetTime + playerResetDelay < theTime) )
-	{
-		this->ResetPlayers();
-		this->mLastPlayerResetTime = theTime;
-	}
+// ResetPlayer throttling, commented out for now
+//	const float playerResetDelay = 0.3f;
+//	if(this->mHasPlayersToReset && (this->mLastPlayerResetTime + playerResetDelay < theTime) )
+//	{
+//		this->ResetPlayers();
+//		this->mLastPlayerResetTime = theTime;
+//	}
 
 	// Handle queued network messages
 	#ifdef USE_NETWORK_METERING

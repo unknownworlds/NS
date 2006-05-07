@@ -16,7 +16,7 @@ WizardImageFile=v:\install\images\LrgImage.bmp
 WizardSmallImageFile=v:\install\images\SmlImage.bmp
 
 [Files]
-;Source: "v:\install\config\config.cfg"; DestDir: {app}\nsp\; Flags: confirmoverwrite
+Source: "v:\install\config\*.*"; DestDir: {app}\nsp\; Flags: confirmoverwrite
 ;Source: "v:\install\ns\*.*"; DestDir: "{app}\nsp"; Flags: ignoreversion recursesubdirs
 Source: "v:\install\ns-diff\*.*"; DestDir: "{app}\nsp"; Flags: ignoreversion recursesubdirs
 ;Source: "E:\ns21install\fmod.dll"; DestDir: "{app}"; Flags: ignoreversion
@@ -63,11 +63,11 @@ var
     mbResult: Integer;
 begin
   bResult:=true;
-  // if ( CheckForMutexes('__SteamBootstrapperApp__')) then
-  //begin
-  //  MsgBox( 'STEAM is currently running, please stop STEAM before running this setup.' , mbInformation, MB_OK );
-  //  bResult := false;
-  //end;
+  if ( CheckForMutexes('__SteamBootstrapperApp__')) then
+  begin
+    MsgBox( 'STEAM is currently running, please stop STEAM before running this setup.' , mbInformation, MB_OK );
+    bResult := false;
+  end;
   sSteamPath := GetSteamDir();
   sWonPath := GetWonDir();
   if ((Length(sSteamPath) < 1) and (Length(sWonPath) < 1) and bResult) then

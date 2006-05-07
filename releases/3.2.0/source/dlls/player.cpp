@@ -1783,11 +1783,14 @@ void CBasePlayer::PlayerUse ( void )
 		while ((pObject = UTIL_FindEntityInSphere( pObject, pev->origin, PLAYER_SEARCH_RADIUS*3)) != NULL)
 		{
 			if ( pObject->pev->iuser3 != AVH_USER3_HIVE ) {
-				vec3_t objectLocation;
-				AvHSHUGetEntityLocation(pObject->entindex(), objectLocation);
-				double distance=VectorDistance(objectLocation, pev->origin);
+				vec3_t myOrigin=pev->origin + pev->view_ofs;
+				vec3_t objectLocation=pObject->BodyTarget(myOrigin);
+				
+				//AvHSHUGetEntityLocation(pObject->entindex(), objectLocation);
+
+
+				float distance=VectorDistance(objectLocation, myOrigin);
 				if ( distance > PLAYER_SEARCH_RADIUS )  {
-					ALERT(at_console, "skipping %d\n", pObject->entindex());
 					continue;
 				}
 			}

@@ -2281,7 +2281,7 @@ void AvHPlayer::PlayerTouch(CBaseEntity* inOther)
 			entvars_t* theInflictor = this->m_pActiveItem->pev;
 			            
             float theScalar = 1.0f;
-            if((this->mTimeLeapEnd != -1) && (gpGlobals->time < this->mTimeLeapEnd))
+			if((this->mTimeLeapEnd != -1) && (gpGlobals->time < this->mTimeLeapEnd) && inOther->pev->iuser3 != AVH_USER3_HIVE )
             {
                 // Do damage to entity
                 if(GetGameRules()->CanEntityDoDamageTo(this, inOther, &theScalar) && (inOther->pev->team != this->pev->team))

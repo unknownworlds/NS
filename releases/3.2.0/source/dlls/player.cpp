@@ -1784,11 +1784,12 @@ void CBasePlayer::PlayerUse ( void )
 		{
 			if ( pObject->pev->iuser3 != AVH_USER3_HIVE ) {
 				vec3_t objectLocation;
-				vec3_t playerLocation;
 				AvHSHUGetEntityLocation(pObject->entindex(), objectLocation);
-				AvHSHUGetEntityLocation(this->entindex(), playerLocation);
-				if ( VectorDistance(objectLocation, playerLocation) > PLAYER_SEARCH_RADIUS ) 
+				double distance=VectorDistance(objectLocation, pev->origin);
+				if ( distance > PLAYER_SEARCH_RADIUS )  {
+					ALERT(at_console, "skipping %d\n", pObject->entindex());
 					continue;
+				}
 			}
 			if (pObject->ObjectCaps() & (FCAP_IMPULSE_USE | FCAP_CONTINUOUS_USE | FCAP_ONOFF_USE))
 			{

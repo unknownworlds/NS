@@ -1072,12 +1072,13 @@ bool AvHGamerules::CanEntityDoDamageTo(const CBaseEntity* inAttacker, const CBas
 			*outScalar = theScalar;
 		}
 
- 		if(!theTeamsAreDifferent && !AvHSUGetIsExternalClassName(STRING(inReceiver->pev->classname)))
+ 		if(!theTeamsAreDifferent && !AvHSUGetIsExternalClassName(STRING(inReceiver->pev->classname)) && theGameHasStarted )
  		{
 			AvHHive *theHive=(AvHHive *)dynamic_cast<const AvHHive *>(inReceiver);
-			if ( theHive != NULL && !this->GetIsEntityUnderAttack(theHive->entindex()) ) {
+			if ( theHive != NULL ) {
 				theCanDoDamage=false;
-				GetGameRules()->TriggerAlert((AvHTeamNumber)inAttacker->pev->team, ALERT_HIVE_DEFEND, theHive->entindex());
+				if ( !this->GetIsEntityUnderAttack(theHive->entindex()) )
+					GetGameRules()->TriggerAlert((AvHTeamNumber)inAttacker->pev->team, ALERT_HIVE_DEFEND, theHive->entindex());
 			}
 		}
 

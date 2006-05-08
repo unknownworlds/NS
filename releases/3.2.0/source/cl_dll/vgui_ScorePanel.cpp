@@ -748,10 +748,10 @@ void ScorePanel::FillGrid()
 	bool bNextRowIsGap = false;
 	m_HeaderLabels[COLUMN_EXTRA].setText(CHudTextMessage::BufferedLocaliseTextString("#EXTRA"));
 	if ( strnicmp(gHUD.GetMapName().c_str(), "ns_", 3) == 0 ) {
-		if ( gHUD.GetIsMarine() ) {
+		if ( gHUD.GetHUDTeam() == TEAM_ONE || gHUD.GetHUDTeam() == TEAM_THREE ) {
 			m_HeaderLabels[COLUMN_EXTRA].setText(CHudTextMessage::BufferedLocaliseTextString("#COLWEAP"));
 		}
-		else if ( gHUD.GetIsAlien() ) { 
+		else if ( gHUD.GetHUDTeam() == TEAM_TWO || gHUD.GetHUDTeam() == TEAM_FOUR ) { 
 			m_HeaderLabels[COLUMN_EXTRA].setText(CHudTextMessage::BufferedLocaliseTextString("#COLRES"));
 		}
 	}
@@ -1244,7 +1244,7 @@ void ScorePanel::FillGrid()
 				case COLUMN_EXTRA:
 					if(!theIsForEnemy && theExtraPlayerInfo->teamnumber != TEAM_IND && theExtraPlayerInfo->teamnumber != TEAM_SPECT )
                     {
-						if ( gHUD.GetIsMarine() && !gHUD.GetIsCombatMode() ) {
+						if ( strnicmp(gHUD.GetMapName().c_str(), "ns_", 3) == 0 && ( gHUD.GetHUDTeam() == TEAM_ONE || gHUD.GetHUDTeam() == TEAM_THREE ) ) {
 							int r=CVAR_GET_FLOAT("cl_iconr");
 							int g=CVAR_GET_FLOAT("cl_icong");
 							int b=CVAR_GET_FLOAT("cl_iconb");

@@ -91,10 +91,11 @@ void WeaponsResource::Reset( void )
 
 void WeaponsResource :: LoadAllWeaponSprites( void )
 {
+	int customCrosshairs=CVAR_GET_FLOAT(kvCustomCrosshair);
 	for (int i = 0; i < MAX_WEAPONS; i++)
 	{
 		if ( rgWeapons[i].iId )
-			LoadWeaponSprites( &rgWeapons[i] );
+			LoadWeaponSprites( &rgWeapons[i], customCrosshairs );
 	}
 }
 
@@ -118,10 +119,13 @@ inline void LoadWeaponSprite( client_sprite_t* ptr, HSPRITE& sprite, wrect_t& bo
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-void WeaponsResource :: LoadWeaponSprites( WEAPON *pWeapon )
+void WeaponsResource :: LoadWeaponSprites( WEAPON *pWeapon, int custom )
 {
-	int resolutions[5] = { 320, 640, 800, 1024, 1280 };
-	const int numRes=5;
+	if ( custom < 0 || custom > 4 ) 
+		custom=1;
+
+	int resolutions[6] = { 320, 640, 800, 1024, 1280, 1600};
+	const int numRes=6;
 	int i=0, j=0, iRes=320;
 	int screenWidth=ScreenWidth();
 
@@ -141,10 +145,12 @@ void WeaponsResource :: LoadWeaponSprites( WEAPON *pWeapon )
 	if ( !pWeapon )
 		return;
 
+	memset( &pWeapon->rcCrosshair, 0, sizeof(wrect_t) );
 	memset( &pWeapon->rcActive, 0, sizeof(wrect_t) );
 	memset( &pWeapon->rcInactive, 0, sizeof(wrect_t) );
 	memset( &pWeapon->rcAmmo, 0, sizeof(wrect_t) );
 	memset( &pWeapon->rcAmmo2, 0, sizeof(wrect_t) );
+	pWeapon->hCrosshair =0;
 	pWeapon->hInactive = 0;
 	pWeapon->hActive = 0;
 	pWeapon->hAmmo = 0;
@@ -159,19 +165,15 @@ void WeaponsResource :: LoadWeaponSprites( WEAPON *pWeapon )
 		return;
 	}
 
+	char crosshairName[32];
+	sprintf(crosshairName, "crosshair_%d", custom);
 	for ( j=numRes-1; j>=0; j-- ) {
 		if ( resolutions[j] <= iRes ) {
 			if( pWeapon->hCrosshair == NULL )
-				LoadWeaponSprite( GetSpriteList( pList, "crosshair", resolutions[j], i ), pWeapon->hCrosshair, pWeapon->rcCrosshair );
+				LoadWeaponSprite( GetSpriteList( pList, crosshairName, resolutions[j], i ), pWeapon->hCrosshair, pWeapon->rcCrosshair );
+			if( pWeapon->hCrosshair == NULL && custom != 0 )
+				LoadWeaponSprite( GetSpriteList( pList, "crosshair_0", resolutions[j], i ), pWeapon->hCrosshair, pWeapon->rcCrosshair );
 
-			if( pWeapon->hCrosshair1 == NULL )
-				LoadWeaponSprite( GetSpriteList( pList, "crosshair_1", resolutions[j], i ), pWeapon->hCrosshair1, pWeapon->rcCrosshair1 );
-
-			if( pWeapon->hCrosshair2 == NULL )
-				LoadWeaponSprite( GetSpriteList( pList, "crosshair_2", resolutions[j], i ), pWeapon->hCrosshair2, pWeapon->rcCrosshair2 );
-
-			if( pWeapon->hCrosshair3 == NULL )
-				LoadWeaponSprite( GetSpriteList( pList, "crosshair_3", resolutions[j], i ), pWeapon->hCrosshair3, pWeapon->rcCrosshair3 );
 
 			if( pWeapon->hInactive == NULL )
 				LoadWeaponSprite( GetSpriteList( pList, "weapon", resolutions[j], i ), pWeapon->hInactive, pWeapon->rcInactive );
@@ -187,24 +189,6 @@ void WeaponsResource :: LoadWeaponSprites( WEAPON *pWeapon )
 		}
 	}
 	
-	if( pWeapon->hCrosshair1 == NULL ) //default
-	{
-		pWeapon->hCrosshair1 = pWeapon->hCrosshair;
-		pWeapon->rcCrosshair1 = pWeapon->rcCrosshair;
-	}
-
-	if( pWeapon->hCrosshair2 == NULL ) //default
-	{
-		pWeapon->hCrosshair2 = pWeapon->hCrosshair;
-		pWeapon->rcCrosshair2 = pWeapon->rcCrosshair;
-	}
-
-	if( pWeapon->hCrosshair3 == NULL ) //default
-	{
-		pWeapon->hCrosshair3 = pWeapon->hCrosshair;
-		pWeapon->rcCrosshair3 = pWeapon->rcCrosshair;
-	}
-
 	if( pWeapon->hActive || pWeapon->hInactive || pWeapon->hAmmo || pWeapon->hAmmo2 )
 	{ gHR.iHistoryGap = max( gHR.iHistoryGap, pWeapon->rcActive.bottom - pWeapon->rcActive.top ); }
 }
@@ -337,8 +321,9 @@ HSPRITE* WeaponsResource::GetAmmoPicFromWeapon( int iAmmoId, wrect_t& rect )
 
 void WeaponsResource::AddWeapon( WEAPON *wp ) 
 { 
+	int customCrosshairs=CVAR_GET_FLOAT(kvCustomCrosshair);
 	rgWeapons[ wp->iId ] = *wp;	
-	LoadWeaponSprites( &rgWeapons[ wp->iId ] );
+	LoadWeaponSprites( &rgWeapons[ wp->iId ], customCrosshairs);
 }
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -692,23 +677,8 @@ void CHudAmmo::Think(void)
 		m_customCrosshair=(int)CVAR_GET_FLOAT(kvCustomCrosshair);
 		WEAPON* currentWeapon = gWR.GetWeapon(gHUD.GetCurrentWeaponID());
 		if ( currentWeapon ) {
-			switch (m_customCrosshair) {
-				case 0:
-					gHUD.SetCurrentCrosshair(currentWeapon->hCrosshair, currentWeapon->rcCrosshair, 255, 255, 255);
-					break;
-				case 1:
-					gHUD.SetCurrentCrosshair(currentWeapon->hCrosshair1, currentWeapon->rcCrosshair1, 255, 255, 255);
-					break;
-				case 2:
-						gHUD.SetCurrentCrosshair(currentWeapon->hCrosshair2, currentWeapon->rcCrosshair2, 255, 255, 255);
-					break;
-				case 3:
-					gHUD.SetCurrentCrosshair(currentWeapon->hCrosshair3, currentWeapon->rcCrosshair3, 255, 255, 255);
-					break;
-				default:
-					gHUD.SetCurrentCrosshair(currentWeapon->hCrosshair, currentWeapon->rcCrosshair, 255, 255, 255);
-					break;
-			}
+			gWR.LoadWeaponSprites(currentWeapon, m_customCrosshair);
+			gHUD.SetCurrentCrosshair(currentWeapon->hCrosshair, currentWeapon->rcCrosshair, 255, 255, 255);
 		}
 	}
 
@@ -859,23 +829,7 @@ int CHudAmmo::MsgFunc_CurWeapon(const char *pszName, int iSize, void *pbuf )
 
 	if ( !(gHUD.m_iHideHUDDisplay & ( HIDEHUD_WEAPONS | HIDEHUD_ALL )) )
 	{
-		switch ((int)CVAR_GET_FLOAT(kvCustomCrosshair)) {
-			case 0:
-				gHUD.SetCurrentCrosshair(m_pWeapon->hCrosshair, m_pWeapon->rcCrosshair, 255, 255, 255);
-				break;
-			case 1:
-				gHUD.SetCurrentCrosshair(m_pWeapon->hCrosshair1, m_pWeapon->rcCrosshair1, 255, 255, 255);
-				break;
-			case 2:
-				gHUD.SetCurrentCrosshair(m_pWeapon->hCrosshair2, m_pWeapon->rcCrosshair2, 255, 255, 255);
-				break;
-			case 3:
-				gHUD.SetCurrentCrosshair(m_pWeapon->hCrosshair3, m_pWeapon->rcCrosshair3, 255, 255, 255);
-				break;
-			default:
-				gHUD.SetCurrentCrosshair(m_pWeapon->hCrosshair, m_pWeapon->rcCrosshair, 255, 255, 255);
-				break;
-		}
+		gHUD.SetCurrentCrosshair(m_pWeapon->hCrosshair, m_pWeapon->rcCrosshair, 255, 255, 255);
 
 /*		if ( gHUD.m_iFOV >= 90 )
 		{ // normal crosshairs

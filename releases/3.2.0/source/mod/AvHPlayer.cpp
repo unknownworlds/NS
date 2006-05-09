@@ -4088,6 +4088,9 @@ void AvHPlayer::HandleTopDownInput()
     // If we are a commander
     if(this->pev->iuser3 == AVH_USER3_COMMANDER_PLAYER)
     {
+		// Ensure that orders are given through attack2, even though used as +movement
+		theAttackTwoDown = FBitSet(this->mCurrentCommand.buttons, IN_ATTACK2);
+
         this->mLastTimeInCommandStation = gpGlobals->time;
 
         // Fetch world x and world y from move.

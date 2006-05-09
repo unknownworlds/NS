@@ -4368,7 +4368,9 @@ bool PM_BlinkMove (void)
 
 	SetUpgradeMask(&pmove->iuser4, MASK_ALIEN_MOVEMENT, true);
 
-	PM_NSPlaySound(CHAN_WEAPON, kBlinkSound, 1.0f, ATTN_NORM, 0, 94 + pmove->RandomLong(0, 0xf));
+	int theSilenceUpgradeLevel = AvHGetAlienUpgradeLevel(pmove->iuser4, MASK_UPGRADE_6);
+	float theVolumeScalar = 1.0f - theSilenceUpgradeLevel/3.0f;
+	PM_NSPlaySound(CHAN_WEAPON, kBlinkSound, theVolumeScalar, ATTN_NORM, 0, 94 + pmove->RandomLong(0, 0xf));
 
 	vec3_t forward, right, up;
 	AngleVectors(pmove->angles, forward, right, up);
@@ -4479,7 +4481,9 @@ bool PM_LeapMove()
 
 	SetUpgradeMask(&pmove->iuser4, MASK_ALIEN_MOVEMENT, true);
 
-	PM_NSPlaySound(CHAN_WEAPON, kLeapSound, 1.0f, ATTN_NORM, 0, 94 + pmove->RandomLong(0, 0xf));
+	int theSilenceUpgradeLevel = AvHGetAlienUpgradeLevel(pmove->iuser4, MASK_UPGRADE_6);
+	float theVolumeScalar = 1.0f - theSilenceUpgradeLevel/3.0f;
+	PM_NSPlaySound(CHAN_WEAPON, kLeapSound, theVolumeScalar, ATTN_NORM, 0, 94 + pmove->RandomLong(0, 0xf));
 
 	vec3_t forward, right, up;
 	AngleVectors(pmove->angles, forward, right, up);

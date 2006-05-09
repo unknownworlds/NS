@@ -2726,6 +2726,7 @@ void AvHHud::Render()
             DrawWarpedOverlaySprite(mDigestingSprite, 4, 3, .02, .02, .3, .15);
         }        
 
+		RenderProgressBar();
 	}
     else
     {

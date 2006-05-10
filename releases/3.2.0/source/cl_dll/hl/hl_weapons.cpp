@@ -543,11 +543,33 @@ void CBasePlayerWeapon::ItemPostFrame( void )
 		{
 			int wID = AVH_ABILITY_LEAP;
 			CBasePlayerWeapon* theWeapon = g_pWpns[wID];
+
+			// HACKIER THAN HACKEST =( 
+			// predict whether we can fire the weapon
+			bool enabled = false;
+			
+			ItemInfo theItemInfo;
+			theWeapon->GetItemInfo(&theItemInfo);
+			WEAPON *pWeapon = gWR.GetWeapon( theItemInfo.iId );
+			if ( pWeapon != 0 ) {
+				enabled = (pWeapon->iEnabled == 1);
+			}
+
+			float theEnergyCost = (float)(BALANCE_VAR(kLeapEnergyCost));
+			float theFuser3 = 0.0f;
+			cl_entity_s* theLocalPlayer = gEngfuncs.GetLocalPlayer();
+			if(theLocalPlayer)
+				theFuser3 = theLocalPlayer->curstate.fuser3;
+
+			// Make sure we have enough energy for this attack
+			enabled &= AvHMUHasEnoughAlienEnergy(theFuser3, theEnergyCost);
+			// END FUGLY HACK
+
 			switch (gHUD.GetHUDUser3())
 			{
 			case AVH_USER3_ALIEN_PLAYER1:
-				if ((this->m_flLastAnimationPlayed + (float)BALANCE_VAR(kLeapROF) <= gpGlobals->time) && 
-					(theWeapon->IsUseable()))
+
+				if (enabled && (this->m_flLastAnimationPlayed + (float)BALANCE_VAR(kLeapROF) <= gpGlobals->time))
 				{
 					this->SendWeaponAnim(3);
 					this->m_flLastAnimationPlayed = gpGlobals->time;

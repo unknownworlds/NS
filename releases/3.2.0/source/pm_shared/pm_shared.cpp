@@ -5212,7 +5212,7 @@ int PM_GetCelerityLevel() {
 // Comment: Respect to the valve function name below
 // Prevent lerks from having extreme vertical velocities
 
-float ascentModifier=0;
+
 void PM_PreventMegaCrazyLerkPancakage() {
 
     // Current player speed
@@ -5234,8 +5234,8 @@ void PM_PreventMegaCrazyLerkPancakage() {
 	if ( dp > -0.025 && dp < 0.025 ) 
 		dp=0.0;
 
-	ascentModifier=1.0f + dp;
-	maxbasespeed *= ascentModifier;
+	
+	maxbasespeed *= 1.0f + dp;
 
 	if ( spd <= maxbasespeed )
 		return;

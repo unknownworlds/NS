@@ -1514,6 +1514,7 @@ void CL_ResetButtonBits( int bits )
 		{
 			// totally clear state
 			in_attack.state &= ~7;
+			in_attack2.state &= ~7;
 		}
 	}
 }

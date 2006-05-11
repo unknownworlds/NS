@@ -58,6 +58,8 @@
 #include "mod/AvHHud.h"
 extern int g_runfuncs;
 void IN_Attack2Down();
+void IN_Attack2Up();
+bool CheckInAttack();
 #endif
 
 LINK_ENTITY_TO_CLASS(kwLeap, AvHLeap);
@@ -303,7 +305,11 @@ void AvHCharge::SecondaryAttack()
 void AvHCharge::FireProjectiles(void)
 {
 #ifdef AVH_CLIENT
-	IN_Attack2Down();
+	if (CheckInAttack())
+		IN_Attack2Down();
+	else
+		IN_Attack2Up();
+
 	//gHUD.SetAlienAbility(this->GetAbilityImpulse());
 #endif
 

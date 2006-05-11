@@ -186,7 +186,7 @@ public:
 	virtual BOOL		FPlayerCanTakeDamage( CBasePlayer *pPlayer, CBaseEntity *pAttacker );
 
 	// TODO: Add splash damage parameter and outgoing float percentage damage?  This way splash damage could do some damage in non-tourny mode?
-	virtual bool		CanEntityDoDamageTo(const CBaseEntity* inAttacker, const CBaseEntity* inReceiver, float* outScalar = NULL);
+	virtual bool		CanEntityDoDamageTo(const CBaseEntity* inAttacker, const CBaseEntity* inReceiver, float* outScalar = NULL, bool triggerHiveDefend = true);
 
 	//virtual edict_t*    GetPlayerSpawnSpot( CBasePlayer *pPlayer );
 	virtual void		PlayerThink( CBasePlayer *pPlayer );

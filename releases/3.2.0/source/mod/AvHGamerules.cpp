@@ -977,7 +977,7 @@ BOOL AvHGamerules::FPlayerCanRespawn( CBasePlayer *pPlayer )
 	return theCanRespawn;
 }
 
-bool AvHGamerules::CanEntityDoDamageTo(const CBaseEntity* inAttacker, const CBaseEntity* inReceiver, float* outScalar)
+bool AvHGamerules::CanEntityDoDamageTo(const CBaseEntity* inAttacker, const CBaseEntity* inReceiver, float* outScalar, bool triggerHiveDefend)
 {
 	bool theCanDoDamage = false;
 
@@ -1072,13 +1072,15 @@ bool AvHGamerules::CanEntityDoDamageTo(const CBaseEntity* inAttacker, const CBas
 			*outScalar = theScalar;
 		}
 
- 		if(!theTeamsAreDifferent && !AvHSUGetIsExternalClassName(STRING(inReceiver->pev->classname)) && theGameHasStarted )
- 		{
-			AvHHive *theHive=(AvHHive *)dynamic_cast<const AvHHive *>(inReceiver);
-			if ( theHive != NULL ) {
-				theCanDoDamage=false;
-				if ( !this->GetIsEntityUnderAttack(theHive->entindex()) )
-					GetGameRules()->TriggerAlert((AvHTeamNumber)inAttacker->pev->team, ALERT_HIVE_DEFEND, theHive->entindex());
+		if ( triggerHiveDefend ) {
+ 			if(!theTeamsAreDifferent && !AvHSUGetIsExternalClassName(STRING(inReceiver->pev->classname)) && theGameHasStarted )
+ 			{
+				AvHHive *theHive=(AvHHive *)dynamic_cast<const AvHHive *>(inReceiver);
+				if ( theHive != NULL ) {
+					theCanDoDamage=false;
+					if ( !this->GetIsEntityUnderAttack(theHive->entindex()) )
+						GetGameRules()->TriggerAlert((AvHTeamNumber)inAttacker->pev->team, ALERT_HIVE_DEFEND, theHive->entindex());
+				}
 			}
 		}
 

@@ -3513,6 +3513,7 @@ void AvHPlayer::Init()
     // Don't set this, must propagate
     //this->mClientProgressBarEntityIndex = -1;
     this->mProgressBarParam = -1;
+	this->mProgressBarCompleted = -1;
     this->mTimeProgressBarTriggered = -1;
     this->mTimeOfLastFogTrigger = -1;
     this->mFogExpireTime = -1;
@@ -5444,12 +5445,15 @@ void AvHPlayer::InternalDigestionThink()
             
             // Set status bar estimating how long before player will be digested (for both digestee and digester)
             theDigestee->TriggerProgressBar(theDigesteeIndex, 3);
-            this->TriggerProgressBar(theDigesteeIndex, 3);
             
             // Set fuser3 appropriately
             int theMaxHealth = AvHPlayerUpgrade::GetMaxHealth(theDigestee->pev->iuser4, theDigestee->GetUser3(), this->GetExperienceLevel());
             float theDigestingScalar = (((float)theMaxHealth - theDigestee->pev->health)/(float)theMaxHealth);
             /*this->pev->fuser3 =*/ theDigestee->pev->fuser3 = theDigestingScalar*kNormalizationNetworkFactor;
+
+			int thePercent=theDigestingScalar*100.0f	;
+			thePercent=min(100, max(0, thePercent));
+            this->TriggerProgressBar(theDigesteeIndex, 5, thePercent);
 
             // Set sound effects as player gets more and more digested
             int theDesiredRoomType = 26; // strange sounds right before you die
@@ -5479,6 +5483,7 @@ void AvHPlayer::InternalDigestionThink()
         // If digestee is dead and no longer relevant
         if(!theDigestee->IsAlive() || !theDigestee->GetIsRelevant() || (theDigestee->GetTeam() == this->GetTeam()))
         {
+			this->mProgressBarParam = -1;
             this->StopDigestion(thePlayerWasDigested);
         }
     }
@@ -6958,6 +6963,7 @@ void AvHPlayer::InternalProgressBarThink()
             this->mTimeProgressBarTriggered = -1;
             this->mProgressBarEntityIndex = -1;
             this->mProgressBarParam = -1;
+			this->mProgressBarCompleted = -1;
         }
     }
 }
@@ -8702,13 +8708,15 @@ void AvHPlayer::TriggerFog(int inFogEntity, float inFogExpireTime)
     }
 }
 
-void AvHPlayer::TriggerProgressBar(int inEntityID, int inParam)
+void AvHPlayer::TriggerProgressBar(int inEntityID, int inParam, int inPercent)
 {
     ASSERT(inEntityID >= 0);
 
     this->mProgressBarEntityIndex = inEntityID;
     this->mProgressBarParam = inParam;
+	this->mProgressBarCompleted = inPercent;
     this->mTimeProgressBarTriggered = gpGlobals->time;
+	
 }
 
 float AvHPlayer::GetTimeOfLastTeleport() const
@@ -9638,9 +9646,13 @@ void AvHPlayer::UpdateProgressBar()
     // Assumes that progress is normalized and stored in one of the fuser variables of the entity index sent down
     if(this->mClientProgressBarEntityIndex != this->mProgressBarEntityIndex)
     {
-		NetMsg_ProgressBar( this->pev, this->mProgressBarEntityIndex, this->mProgressBarParam );
+		NetMsg_ProgressBar( this->pev, this->mProgressBarEntityIndex, this->mProgressBarParam, this->mProgressBarCompleted );
         this->mClientProgressBarEntityIndex = this->mProgressBarEntityIndex;
     }
+	// onos digestion uses a parameter to the network message
+	else if ( this->mProgressBarParam == 5 ) {
+		NetMsg_ProgressBar( this->pev, this->mProgressBarEntityIndex, this->mProgressBarParam, this->mProgressBarCompleted );
+	}
 }
 
 void AvHPlayer::UpdateVUser4()

@@ -2403,7 +2403,9 @@ int AvHHud::ServerVar(const char* pszName, int iSize, void* pbuf)
 BIND_MESSAGE(Progress);
 int AvHHud::Progress(const char* pszName, int iSize, void* pbuf)
 {
-	NetMsg_ProgressBar( pbuf, iSize, this->mProgressBarEntityIndex, this->mProgressBarParam );
+	NetMsg_ProgressBar( pbuf, iSize, this->mProgressBarEntityIndex, this->mProgressBarParam, this->mProgressBarCompleted );
+	char msg[1024];
+	CenterPrint(msg);
 	return 1;
 }
 
@@ -2485,6 +2487,7 @@ void AvHHud::ResetGame(bool inMapChanged)
 	this->mCurrentCursorFrame = 0;
 	this->mProgressBarEntityIndex = -1;
 	this->mProgressBarParam = -1;
+	this->mProgressBarCompleted = -1;
 
 	this->mEnemyBlips.Clear();
 	this->mFriendlyBlips.Clear();
@@ -3675,6 +3678,7 @@ void AvHHud::Init(void)
 
 	this->mProgressBarEntityIndex = -1;
 	this->mProgressBarParam = -1;
+	this->mProgressBarCompleted = -1;
 	this->mSelectedNodeResourceCost = -1;
 	this->mCurrentUseableEnergyLevel = 0;
 	this->mVisualEnergyLevel = 0.0f;
@@ -5747,31 +5751,36 @@ void AvHHud::UpdateProgressBar()
 		if(theProgressEntity)
 		{
 			ASSERT(this->mProgressBarParam >= 1);
-			ASSERT(this->mProgressBarParam <= 4);
+			ASSERT(this->mProgressBarParam <= 5);
 
 			float theProgress = 0.0f;
-			switch(this->mProgressBarParam)
-			{
-			case 1:
-				theProgress = theProgressEntity->curstate.fuser1;
-				break;
-			case 2:
-				theProgress = theProgressEntity->curstate.fuser2;
-				break;
-			case 3:
-				theProgress = theProgressEntity->curstate.fuser3;
-				break;
-			case 4: // NOTE: check delta.lst for fuser4, it isn't propagated currently
-				theProgress = theProgressEntity->curstate.fuser4;
-				break;
+			if ( this->mProgressBarParam == 5 ) {
+				thePercentage=(float)(this->mProgressBarCompleted)/100.0f;
 			}
+			else {
+				switch(this->mProgressBarParam)
+				{
+				case 1:
+					theProgress = theProgressEntity->curstate.fuser1;
+					break;
+				case 2:
+					theProgress = theProgressEntity->curstate.fuser2;
+					break;
+				case 3:
+					theProgress = theProgressEntity->curstate.fuser3;
+					break;
+				case 4: // NOTE: check delta.lst for fuser4, it isn't propagated currently
+					theProgress = theProgressEntity->curstate.fuser4;
+					break;
+				}
 
-			if((this->GetHUDUser3() == AVH_USER3_ALIEN_EMBRYO) || this->GetIsDigesting())
-			{
-				theProgress = pmove->fuser3;
+				if((this->GetHUDUser3() == AVH_USER3_ALIEN_EMBRYO) || this->GetIsDigesting() )
+				{
+					theProgress = pmove->fuser3;
+				}
+				
+				thePercentage = theProgress/kNormalizationNetworkFactor;
 			}
-			
-			thePercentage = theProgress/kNormalizationNetworkFactor;
 			int theType = (this->GetIsAlien())? PROGRESS_BAR_ALIEN: PROGRESS_BAR_MARINE;
 			if(thePercentage < 1.0f)
 			{

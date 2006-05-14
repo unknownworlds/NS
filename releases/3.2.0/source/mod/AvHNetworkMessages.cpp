@@ -75,7 +75,7 @@ void Net_InitializeMessages(void)
 	g_msgListPS = REG_USER_MSG( "ListPS", -1 );
 	g_msgPlayHUDNotification = REG_USER_MSG( "PlayHUDNot", 6 );
 	g_msgHUDSetUpgrades = REG_USER_MSG( "SetUpgrades", 1);
-	g_msgProgressBar = REG_USER_MSG( "Progress", 3 );
+	g_msgProgressBar = REG_USER_MSG( "Progress", -1 );
 	g_msgServerVar = REG_USER_MSG( "ServerVar", -1 );
 	g_msgSetGammaRamp = REG_USER_MSG( "SetGmma", 1 );
 	g_msgSetOrder = REG_USER_MSG( "SetOrder", -1 );
@@ -1496,19 +1496,24 @@ union float_converter
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 #ifndef AVH_SERVER
-	void NetMsg_ProgressBar( void* const buffer, const int size, int& entity_number, int& progress )
+	void NetMsg_ProgressBar( void* const buffer, const int size, int& entity_number, int& progress, int& seconds)
 	{
 		BEGIN_READ( buffer, size );
 			entity_number = READ_SHORT();
 			progress = READ_BYTE();
+			if ( progress == 5 ) 
+				seconds=READ_BYTE();
+			
 		END_READ();
 	}
 #else
-	void NetMsg_ProgressBar( entvars_t* const pev, const int entity_number, const int progress )
+	void NetMsg_ProgressBar( entvars_t* const pev, const int entity_number, const int progress, int seconds )
 	{
 		MESSAGE_BEGIN( MSG_ONE_UNRELIABLE, g_msgProgressBar, NULL, pev );
 			WRITE_SHORT( entity_number );
 			WRITE_BYTE( progress );
+			if ( progress == 5 ) 
+				WRITE_BYTE( seconds );
 		MESSAGE_END();
 	}
 #endif

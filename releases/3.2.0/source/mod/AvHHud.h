@@ -762,6 +762,7 @@ private:
 
 	int						mProgressBarEntityIndex;
 	int						mProgressBarParam;
+	int						mProgressBarCompleted;
 	float					mProgressBarStatus;
 	float					mProgressBarLastDrawn;
 	int						mProgressBarDrawframe;

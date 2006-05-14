@@ -332,7 +332,7 @@ public:
 	void			SetCurrentCommand(const struct usercmd_s* inCommand);
 	void			SetDebugCSP(weapon_data_t* inWeaponData);
 	void			SetPendingCommand(char* inCommand);
-	void			TriggerProgressBar(int inEntityID, int inParam);
+	void			TriggerProgressBar(int inEntityID, int inParam, int inPercent=0);
 	float			GetTimeOfLastTeleport() const;
 	void			SetTimeOfLastTeleport(float inTime);
 	bool			SwitchWeapon(const char* inString);
@@ -764,6 +764,7 @@ private:
 	int					mClientProgressBarEntityIndex;
 	int					mProgressBarEntityIndex;
 	int					mProgressBarParam;
+	int					mProgressBarCompleted;
 	float				mTimeProgressBarTriggered;
 
 	float				mTimeOfLastFogTrigger;

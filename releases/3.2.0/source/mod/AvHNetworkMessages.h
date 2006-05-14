@@ -93,7 +93,7 @@
 	void NetMsg_HUDSetUpgrades( int upgradeMask );
 	void NetMsg_HUDSetUpgrades( entvars_t* const pev, int upgradeMask );
 	void NetMsg_PlayHUDNotification( entvars_t* const pev, const int flags, const int sound, const float location_x, const float location_y );
-	void NetMsg_ProgressBar( entvars_t* const pev, const int entity_number, const int progress );
+	void NetMsg_ProgressBar( entvars_t* const pev, const int entity_number, const int progress, int percent=0 );
 	void NetMsg_ServerVar( entvars_t* const pev, const string& name, const string& value );
 	void NetMsg_SetGammaRamp( entvars_t* const pev, const float gamma );
 	void NetMsg_SetOrder( entvars_t* const pev, const AvHOrder& order );
@@ -182,7 +182,7 @@
 	void NetMsg_ListPS( void* const buffer, const int size, string& system_name );
 	void NetMsg_HUDSetUpgrades( void* const buffer, const int size, int& upgradeMask );
 	void NetMsg_PlayHUDNotification( void* const buffer, const int size, int& flags, int& sound, float& location_x, float& location_y );
-	void NetMsg_ProgressBar( void* const buffer, const int size, int& entity_number, int& progress );
+	void NetMsg_ProgressBar( void* const buffer, const int size, int& entity_number, int& progress, int &percent);
 	//45
 	void NetMsg_ServerVar( void* const buffer, const int size, string& name, string& value );
 	void NetMsg_SetGammaRamp( void* const buffer, const int size, float& gamma );

@@ -400,28 +400,32 @@ bool HACK_GetPlayerUniqueID( int iPlayer, char playerID[16] )
 void ScorePanel::Update()
 {
 	// Set the title
-	string theTitleName;
+	char title[128];
 
+	char theServerName[MAX_SERVERNAME_LENGTH+1];
 	if (gViewPort->m_szServerName)
 	{
 		int iServerNameLength = max((int)strlen(gViewPort->m_szServerName),MAX_SERVERNAME_LENGTH);
-		theTitleName += string(gViewPort->m_szServerName,iServerNameLength);
+		sprintf(theServerName, "%32s", gViewPort->m_szServerName);
 	}
 
-	string theMapName = gHUD.GetMapName();
-	if(theMapName != "")
-	{
-		if(theTitleName != "")
-		{
-			theTitleName += " ";
-		}
+	char theMapName[MAX_MAPNAME_LENGTH+1];
+	sprintf(theMapName, "%s", gHUD.GetMapName().c_str());
 
-		theTitleName += "(";
-		theTitleName += theMapName;
-		theTitleName += ")";
+	int theTimeElapsed = gHUD.GetGameTime();
+	char elapsedString[64];
+	if ( theTimeElapsed > 0 ) {
+		int theMinutesElapsed = theTimeElapsed/60;
+		int theSecondsElapsed = theTimeElapsed%60;
+		sprintf(elapsedString, "Game time: %d:%02d", theMinutesElapsed, theSecondsElapsed);
+	}
+	else {
+		sprintf(elapsedString, "");
 	}
 
-	m_TitleLabel.setText(theTitleName.c_str());
+	sprintf(title, "%s    Map: %s        %s", theServerName, theMapName, elapsedString);
+
+	m_TitleLabel.setText(title);
 
     int theColorIndex = 0;
     

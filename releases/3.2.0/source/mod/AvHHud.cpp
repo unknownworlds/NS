@@ -2404,8 +2404,6 @@ BIND_MESSAGE(Progress);
 int AvHHud::Progress(const char* pszName, int iSize, void* pbuf)
 {
 	NetMsg_ProgressBar( pbuf, iSize, this->mProgressBarEntityIndex, this->mProgressBarParam, this->mProgressBarCompleted );
-	char msg[1024];
-	CenterPrint(msg);
 	return 1;
 }
 

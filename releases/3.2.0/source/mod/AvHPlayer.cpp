@@ -1887,6 +1887,14 @@ bool AvHPlayer::GetCanReceiveResources() const
     return theCanReceiveResources;
 }
 
+bool AvHPlayer::GetCanUseHive() const {
+	return (gpGlobals->time > this->mTimeOfLastHiveUse + 0.4f );
+}
+
+void AvHPlayer::SetTimeOfLastHiveUse(float time) {
+	this->mTimeOfLastHiveUse=time;
+}
+
 int AvHPlayer::GetEffectivePlayerClass()
 {
     AvHPlayerClass theEffectivePlayerClass = PLAYERCLASS_NONE;
@@ -3410,7 +3418,9 @@ void AvHPlayer::Init()
 	this->mTimeLastJoinTeam = -1;
 	// tankefugl
 
+	this->mTimeOfLastHiveUse = -1;
     // alien upgrades
+
     this->mTimeOfLastRegeneration = -1;
     this->mTimeOfLastPheromone = -1;
     this->mMaxGallopSpeed = 0;

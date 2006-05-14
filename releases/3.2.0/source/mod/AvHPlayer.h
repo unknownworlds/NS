@@ -233,6 +233,8 @@ public:
 	void			SetSkin(int inSkin);
 	bool			GetCanCommand(string& outErrorMessage);
 	bool			GetCanReceiveResources() const;
+	bool			GetCanUseHive() const;
+	void			SetTimeOfLastHiveUse(float time);
 
 	void			SetPlayMode(AvHPlayMode inPlayMode, bool inForceSpawn = false);
 	bool			GetHasBeenSpectator(void) const;
@@ -625,6 +627,7 @@ private:
 	// tankefugl
 
 	// alien upgrades
+	float				mTimeOfLastHiveUse;
 	float				mTimeOfLastRegeneration;
 	float				mTimeOfLastPheromone;
 

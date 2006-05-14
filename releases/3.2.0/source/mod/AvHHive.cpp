@@ -914,7 +914,7 @@ void AvHHive::TeleportUse(CBaseEntity* inActivator, CBaseEntity* inCaller, USE_T
 	AvHPlayer* thePlayer = dynamic_cast<AvHPlayer*>(inActivator);
 
 
-	if(thePlayer && (thePlayer->pev->team == this->pev->team) && (thePlayer->GetUser3() != AVH_USER3_ALIEN_EMBRYO))
+	if(thePlayer && (thePlayer->pev->team == this->pev->team) && (thePlayer->GetUser3() != AVH_USER3_ALIEN_EMBRYO) && thePlayer->GetCanUseHive() )
 	{
 		vector<int> theHives;
 		vector<int> theHivesUnderAttack;
@@ -982,6 +982,7 @@ void AvHHive::TeleportUse(CBaseEntity* inActivator, CBaseEntity* inCaller, USE_T
 
 					if(AvHSUGetIsEnoughRoomForHull(theOriginToSpawn, AvHMUGetHull(false, thePlayer->pev->iuser3), thePlayer->edict()))
 					{
+						thePlayer->SetTimeOfLastHiveUse(gpGlobals->time);
 						thePlayer->SetPosition(theOriginToSpawn);
 						thePlayer->pev->velocity = Vector(0, 0, 0);
 

@@ -675,11 +675,16 @@ void CHudAmmo::Think(void)
 	}
 	if ( (int)CVAR_GET_FLOAT(kvCustomCrosshair) != m_customCrosshair ) {
 		m_customCrosshair=(int)CVAR_GET_FLOAT(kvCustomCrosshair);
-		WEAPON* currentWeapon = gWR.GetWeapon(gHUD.GetCurrentWeaponID());
-		if ( currentWeapon ) {
-			gWR.LoadWeaponSprites(currentWeapon, m_customCrosshair);
-			gHUD.SetCurrentCrosshair(currentWeapon->hCrosshair, currentWeapon->rcCrosshair, 255, 255, 255);
+		for ( int i=0; i < MAX_WEAPONS; i++ ) {
+			WEAPON *weapon = gWR.GetWeapon(i);
+			if ( weapon ) {
+				gWR.LoadWeaponSprites(weapon, m_customCrosshair);
+				if ( gHUD.GetHUDPlayMode() != PLAYMODE_READYROOM && gHUD.GetCurrentWeaponID() == weapon->iId ) {
+					gHUD.SetCurrentCrosshair(weapon->hCrosshair, weapon->rcCrosshair, 255, 255, 255);
+				}
+			}
 		}
+
 	}
 
 	if(gHUD.GetIsAlien()) //check for hive death causing loss of current weapon

@@ -6833,15 +6833,17 @@ void AvHPlayer::InternalMovementThink()
 					float dot = DotProduct(heading, direction);
 					if (dot > 0.0f)
 					{
-						direction[0] = 50;
 						VectorScale(direction, factor * dot, direction);
 						VectorAdd(theEntity->pev->velocity, direction, theEntity->pev->velocity);
+						theEntity->pev->velocity[2] = max(181, theEntity->pev->velocity[2]);
 						if (Length(theEntity->pev->velocity) > theEntity->pev->maxspeed * maxpushbackspeedfactor)
 						{
 							VectorNormalize(theEntity->pev->velocity);
 							VectorScale(theEntity->pev->velocity, theEntity->pev->maxspeed * maxpushbackspeedfactor, theEntity->pev->velocity);
 						}
 					}
+
+					// ALERT(at_console, UTIL_VarArgs("direction %f %f %f heading %f %f %f endvel %f %f %f\n", direction[0], direction[1], direction[2], heading[0], heading[1], heading[2], theEntity->pev->velocity[0], theEntity->pev->velocity[1], theEntity->pev->velocity[2]));
 				}
 			}
 	    }

@@ -2593,6 +2593,9 @@ void AvHHud::ResetGame(bool inMapChanged)
 	this->mNumSensory=0;
 	this->mNumMovement=0;
 	this->mNumDefense=0;
+	if ( this->mCrosshairShowCount != 1 ) {
+		this->mCrosshairShowCount = 1;
+	}
 }
 
 BIND_MESSAGE(SetGmma);

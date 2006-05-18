@@ -82,6 +82,8 @@ void AvHBuildable::TriggerRemoveTech() const
 	if(theTeam)
 	{
 		theTeam->TriggerRemoveTech(this->mTechID);
+		if ( this->mTechID == TECH_ADVANCED_ARMORY )
+			theTeam->TriggerRemoveTech(TECH_ARMORY);
 	}
 }
 

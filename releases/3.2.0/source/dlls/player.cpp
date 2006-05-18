@@ -1778,72 +1778,57 @@ void CBasePlayer::PlayerUse ( void )
 	float flDot;
 
 	UTIL_MakeVectors ( pev->v_angle );// so we know which way we are facing
-	
-	if ( AvHGetIsAlien(this->pev->iuser3) ) {
-		while ((pObject = UTIL_FindEntityInSphere( pObject, pev->origin, PLAYER_SEARCH_RADIUS*3)) != NULL)
+
+
+	while ((pObject = UTIL_FindEntityInSphere( pObject, pev->origin, PLAYER_SEARCH_RADIUS )) != NULL)
+	{
+
+		if (pObject->ObjectCaps() & (FCAP_IMPULSE_USE | FCAP_CONTINUOUS_USE | FCAP_ONOFF_USE))
 		{
-			if ( pObject->pev->iuser3 != AVH_USER3_HIVE ) {
-				vec3_t myOrigin=pev->origin + pev->view_ofs;
-				vec3_t objectLocation=pObject->BodyTarget(myOrigin);
-				
-				//AvHSHUGetEntityLocation(pObject->entindex(), objectLocation);
-
-
-				float distance=VectorDistance(objectLocation, myOrigin);
-				if ( distance > PLAYER_SEARCH_RADIUS )  {
-					continue;
-				}
+			// !!!PERFORMANCE- should this check be done on a per case basis AFTER we've determined that
+			// this object is actually usable? This dot is being done for every object within PLAYER_SEARCH_RADIUS
+			// when player hits the use key. How many objects can be in that area, anyway? (sjb)
+			vecLOS = (VecBModelOrigin( pObject->pev ) - (pev->origin + pev->view_ofs));
+			
+			// This essentially moves the origin of the target to the corner nearest the player to test to see 
+			// if it's "hull" is in the view cone
+			vecLOS = UTIL_ClampVectorToBox( vecLOS, pObject->pev->size * 0.5 );
+			
+			flDot = DotProduct (vecLOS , gpGlobals->v_forward);
+			if (flDot > flMaxDot )
+			{// only if the item is in front of the user
+				pClosest = pObject;
+				flMaxDot = flDot;
+//				ALERT( at_console, "%s : %f\n", STRING( pObject->pev->classname ), flDot );
 			}
-			if (pObject->ObjectCaps() & (FCAP_IMPULSE_USE | FCAP_CONTINUOUS_USE | FCAP_ONOFF_USE))
-			{
-				// !!!PERFORMANCE- should this check be done on a per case basis AFTER we've determined that
-				// this object is actually usable? This dot is being done for every object within PLAYER_SEARCH_RADIUS
-				// when player hits the use key. How many objects can be in that area, anyway? (sjb)
-				vecLOS = (VecBModelOrigin( pObject->pev ) - (pev->origin + pev->view_ofs));
-				
-				// This essentially moves the origin of the target to the corner nearest the player to test to see 
-				// if it's "hull" is in the view cone
-				vecLOS = UTIL_ClampVectorToBox( vecLOS, pObject->pev->size * 0.5 );
-				
-				flDot = DotProduct (vecLOS , gpGlobals->v_forward);
-				if (flDot > flMaxDot )
-				{// only if the item is in front of the user
-					pClosest = pObject;
-					flMaxDot = flDot;
-	//				ALERT( at_console, "%s : %f\n", STRING( pObject->pev->classname ), flDot );
-				}
-	//			ALERT( at_console, "%s : %f\n", STRING( pObject->pev->classname ), flDot );
-			}
-		}
-	}
-	else {
-		while ((pObject = UTIL_FindEntityInSphere( pObject, pev->origin, PLAYER_SEARCH_RADIUS )) != NULL)
-		{
-
-			if (pObject->ObjectCaps() & (FCAP_IMPULSE_USE | FCAP_CONTINUOUS_USE | FCAP_ONOFF_USE))
-			{
-				// !!!PERFORMANCE- should this check be done on a per case basis AFTER we've determined that
-				// this object is actually usable? This dot is being done for every object within PLAYER_SEARCH_RADIUS
-				// when player hits the use key. How many objects can be in that area, anyway? (sjb)
-				vecLOS = (VecBModelOrigin( pObject->pev ) - (pev->origin + pev->view_ofs));
-				
-				// This essentially moves the origin of the target to the corner nearest the player to test to see 
-				// if it's "hull" is in the view cone
-				vecLOS = UTIL_ClampVectorToBox( vecLOS, pObject->pev->size * 0.5 );
-				
-				flDot = DotProduct (vecLOS , gpGlobals->v_forward);
-				if (flDot > flMaxDot )
-				{// only if the item is in front of the user
-					pClosest = pObject;
-					flMaxDot = flDot;
-	//				ALERT( at_console, "%s : %f\n", STRING( pObject->pev->classname ), flDot );
-				}
-	//			ALERT( at_console, "%s : %f\n", STRING( pObject->pev->classname ), flDot );
-			}
+//			ALERT( at_console, "%s : %f\n", STRING( pObject->pev->classname ), flDot );
 		}
 	}
 
 	pObject = pClosest;
+
+	// Add los test for aliens looking at hives.
+	if ( pObject == NULL && AvHGetIsAlien(this->pev->iuser3) ) {
+		Vector vecAiming = gpGlobals->v_forward;
+		Vector vecSrc = this->GetGunPosition( ) + vecAiming;
+		Vector vecEnd = vecSrc + vecAiming*800;
+
+		TraceResult theTraceResult;
+		UTIL_TraceLine(vecSrc, vecEnd, dont_ignore_monsters, this->edict(), &theTraceResult);
+
+		edict_t* theEntityHit = theTraceResult.pHit;
+		AvHHive *theHive = dynamic_cast<AvHHive *>(CBaseEntity::Instance(theEntityHit));
+		if ( theHive) {
+
+			float the2DDistance = VectorDistance2D(this->pev->origin, theHive->pev->origin);
+			
+			// Enabled state is true
+			if(the2DDistance <= 150.0 && (this->pev->origin < theHive->pev->origin) )
+			{
+				pObject=theHive;
+			}
+		}
+	}
 
 	// Found an object
 	if (pObject )

@@ -534,7 +534,7 @@ void ScorePanel::SortTeams()
 		}
 	}
 	vector<string> teams;
-	if ( gHUD.GetIsAlien() ) {
+	if ( gHUD.GetHUDTeam() == TEAM_TWO || gHUD.GetHUDTeam() == TEAM_FOUR ) {
 		SortActivePlayers(kAlien1Team);
 		SortActivePlayers(kMarine1Team);
 		SortActivePlayers(kAlien2Team);

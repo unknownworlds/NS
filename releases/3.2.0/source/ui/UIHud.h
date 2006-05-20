@@ -65,6 +65,8 @@ public:
 
     virtual void	ToggleMouse(void);
 
+	virtual void	ShowMouse(void);
+
 	virtual int		UpdateClientData(client_data_t *cdata, float time);
 
 	virtual void	SetMusicAllowed(bool inState);

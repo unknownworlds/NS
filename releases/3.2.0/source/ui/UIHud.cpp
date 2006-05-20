@@ -574,6 +574,13 @@ void UIHud::ToggleEditMode(void)
     }
 }
 
+void UIHud::ShowMouse(void)
+{
+    // For now this also changes us into edit mode
+	if ( this->mManager.InMouseMode() == false ) 
+		this->mManager.ToggleMouse();
+}
+
 void UIHud::ToggleMouse(void)
 {
     // For now this also changes us into edit mode

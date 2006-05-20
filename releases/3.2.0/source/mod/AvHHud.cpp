@@ -2814,7 +2814,7 @@ int	AvHHud::SetTopDown(const char* pszName, int iSize, void* pbuf)
 		{
 			// Switch to top down mode!
 			this->mInTopDownMode = true;
-			this->ToggleMouse();
+			this->ShowMouse();
 		}
 		
 		if(is_top_down)

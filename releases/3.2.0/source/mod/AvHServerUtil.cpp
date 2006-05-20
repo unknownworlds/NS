@@ -474,7 +474,12 @@ CBaseEntity* AvHSUBuildTechForPlayer(AvHMessageID inBuildID, const Vector& inLoc
 				{
 					//voogru: play effect at player origin in combat, cause the item is in the middle of nowhere.
 					Vector vecOrigin = (theEntity->IsInWorld() && !GetGameRules()->GetIsCombatMode()) ? inLocation : inPlayer->pev->origin;
-					PLAYBACK_EVENT_FULL(0, inPlayer->edict(), gPhaseInEventID, 0, vecOrigin, (float *)&g_vecZero, 0.0, 0.0, 0, 0, 0, 0 );
+					if( GetGameRules()->GetIsCombatMode() ) {
+						PLAYBACK_EVENT_FULL(0, inPlayer->edict(), gPhaseInEventID, 0, vecOrigin, (float *)&g_vecZero, 0.0, 0.0, 0, 0, 0, 0 );
+					}
+					else {
+						PLAYBACK_EVENT_FULL(0, 0, gPhaseInEventID, 0, vecOrigin, (float *)&g_vecZero, 0.0, 0.0, 0, 0, 0, 0 );
+					}
 				}
 			}
 		}

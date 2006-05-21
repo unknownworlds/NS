@@ -678,7 +678,10 @@ int	AvHBaseBuildable::GetTakeDamageAnimation() const
 
 AvHTeamNumber AvHBaseBuildable::GetTeamNumber() const
 {
-	return (AvHTeamNumber)this->pev->team;
+	AvHTeamNumber ret=TEAM_IND;
+	if ( this->pev ) 
+		ret=(AvHTeamNumber)this->pev->team;
+	return ret;
 }
 
 void AvHBaseBuildable::Killed(entvars_t* pevAttacker, int iGib)

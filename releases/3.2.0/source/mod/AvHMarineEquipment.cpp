@@ -1528,8 +1528,14 @@ void AvHMarineBaseBuildable::SetEnergy(float inEnergy)
 	this->mEnergy = max(min(inEnergy, kMarineStructureMaxEnergy), 0.0f);
 	
 	float theNormValue = this->mEnergy/kMarineStructureMaxEnergy;
+	bool theIsResearching=false;
 
-	if(this->pev && this->GetIsBuilt())
+	const AvHTeam* theTeam = GetGameRules()->GetTeam(AvHTeamNumber(this->GetTeamNumber()));
+
+	if ( theTeam ) {
+		theIsResearching=theTeam->GetResearchManager().GetIsResearching(this->entindex());
+	}
+	if(this->pev && this->GetIsBuilt() && (!theIsResearching))
 	{
 		AvHSHUSetEnergyState(this->pev->iuser3, this->pev->fuser1, theNormValue);
 	}

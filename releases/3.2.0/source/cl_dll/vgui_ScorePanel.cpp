@@ -727,6 +727,8 @@ int ScorePanel::GetIconFrame(void)
 
 void ScorePanel::FillGrid()
 {
+	bool isNsMode=( strnicmp(gHUD.GetMapName().c_str(), "ns_", 3) == 0 );
+
 	CSchemeManager *pSchemes = gViewPort->GetSchemeManager();
 	SchemeHandle_t hScheme = pSchemes->getSchemeHandle("Scoreboard Text");
 	SchemeHandle_t hTitleScheme = pSchemes->getSchemeHandle("Scoreboard Title Text");
@@ -751,7 +753,7 @@ void ScorePanel::FillGrid()
 	
 	bool bNextRowIsGap = false;
 	m_HeaderLabels[COLUMN_EXTRA].setText(CHudTextMessage::BufferedLocaliseTextString("#EXTRA"));
-	if ( strnicmp(gHUD.GetMapName().c_str(), "ns_", 3) == 0 ) {
+	if ( isNsMode ) {
 		if ( gHUD.GetHUDTeam() == TEAM_ONE || gHUD.GetHUDTeam() == TEAM_THREE ) {
 			m_HeaderLabels[COLUMN_EXTRA].setText(CHudTextMessage::BufferedLocaliseTextString("#COLWEAP"));
 		}
@@ -1248,41 +1250,48 @@ void ScorePanel::FillGrid()
 				case COLUMN_EXTRA:
 					if(!theIsForEnemy && theExtraPlayerInfo->teamnumber != TEAM_IND && theExtraPlayerInfo->teamnumber != TEAM_SPECT )
                     {
-						if ( strnicmp(gHUD.GetMapName().c_str(), "ns_", 3) == 0 && ( gHUD.GetHUDTeam() == TEAM_ONE || gHUD.GetHUDTeam() == TEAM_THREE ) ) {
-							int r=CVAR_GET_FLOAT("cl_iconr");
-							int g=CVAR_GET_FLOAT("cl_icong");
-							int b=CVAR_GET_FLOAT("cl_iconb");
-							r=max(min(255, r), 0);
-							g=max(min(255, g), 0);
-							b=max(min(255, b), 0);
+						if ( isNsMode ) {
+							if ( gHUD.GetHUDTeam() == TEAM_ONE || gHUD.GetHUDTeam() == TEAM_THREE )  {
+								int r=CVAR_GET_FLOAT("cl_iconr");
+								int g=CVAR_GET_FLOAT("cl_icong");
+								int b=CVAR_GET_FLOAT("cl_iconb");
+								r=max(min(255, r), 0);
+								g=max(min(255, g), 0);
+								b=max(min(255, b), 0);
 
-							switch(theExtraPlayerInfo->extra) {
-							case AVH_WEAPON_HMG:
-								pLabel->setFgColorAsImageColor(false);
-								pLabel->setImage(m_pHMG);
-								m_pHMG->setColor(BuildColor(r, g, b, gHUD.GetGammaSlope()));
-								break;
-							case AVH_WEAPON_MG:
-								pLabel->setFgColorAsImageColor(false);
-								pLabel->setImage(m_pLMG);
-								m_pLMG->setColor(BuildColor(r, g, b, gHUD.GetGammaSlope()));
-								break;
-							case AVH_WEAPON_SONIC:
-								pLabel->setFgColorAsImageColor(false);
-								pLabel->setImage(m_pSG);
-								m_pSG->setColor(BuildColor(r, g, b, gHUD.GetGammaSlope()));
-								break;
-							case AVH_WEAPON_GRENADE_GUN:
-								pLabel->setFgColorAsImageColor(false);
-								pLabel->setImage(m_pGL);
-								m_pGL->setColor(BuildColor(r, g, b, gHUD.GetGammaSlope()));
-								break;
-							default:
-								break;
+								switch(theExtraPlayerInfo->extra) {
+								case AVH_WEAPON_HMG:
+									pLabel->setFgColorAsImageColor(false);
+									pLabel->setImage(m_pHMG);
+									m_pHMG->setColor(BuildColor(r, g, b, gHUD.GetGammaSlope()));
+									break;
+								case AVH_WEAPON_MG:
+									pLabel->setFgColorAsImageColor(false);
+									pLabel->setImage(m_pLMG);
+									m_pLMG->setColor(BuildColor(r, g, b, gHUD.GetGammaSlope()));
+									break;
+								case AVH_WEAPON_SONIC:
+									pLabel->setFgColorAsImageColor(false);
+									pLabel->setImage(m_pSG);
+									m_pSG->setColor(BuildColor(r, g, b, gHUD.GetGammaSlope()));
+									break;
+								case AVH_WEAPON_GRENADE_GUN:
+									pLabel->setFgColorAsImageColor(false);
+									pLabel->setImage(m_pGL);
+									m_pGL->setColor(BuildColor(r, g, b, gHUD.GetGammaSlope()));
+									break;
+								default:
+									break;
+								}
+							}
+							else if ( gHUD.GetHUDTeam() == TEAM_TWO || gHUD.GetHUDTeam() == TEAM_FOUR ) {
+								sprintf(sz, "%d", theExtraPlayerInfo->extra);
 							}
 						}
 						else {
-							sprintf(sz, "%d", theExtraPlayerInfo->extra);
+							if ( gHUD.GetHUDTeam() != TEAM_IND && gHUD.GetHUDTeam() != TEAM_SPECT )  {
+								sprintf(sz, "%d", theExtraPlayerInfo->extra);
+							}
 						}
 					}
                     break;

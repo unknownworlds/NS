@@ -4358,19 +4358,19 @@ bool PM_BlinkMove (void)
 	if (pmove->fuser4 != 0.0f)
 		return false;
 
-    float theScalar = 500;
+    float theScalar = 225;
 	float theEnergyCost = 0;
 	
 	AvHMUGetEnergyCost(AVH_WEAPON_BLINK, theEnergyCost);
 
-	if(AvHMUHasEnoughAlienEnergy(pmove->fuser3, theEnergyCost * 2))
+	if(AvHMUHasEnoughAlienEnergy(pmove->fuser3, theEnergyCost))
 	{
-		AvHMUDeductAlienEnergy(pmove->fuser3, theEnergyCost * 2);
+		AvHMUDeductAlienEnergy(pmove->fuser3, theEnergyCost);
 	}
 	else
 		return false;
 
-	pmove->fuser4 = 2 * (float)BALANCE_VAR(kBlinkROF);
+	pmove->fuser4 = (float)BALANCE_VAR(kBlinkROF);
 
 	SetUpgradeMask(&pmove->iuser4, MASK_ALIEN_MOVEMENT, true);
 
@@ -5435,7 +5435,7 @@ void PM_Jump (void)
 	}
 	// :tankefugl
 
-    // No more effect
+	// No more effect
     if ( pmove->onground == -1 )
     {
         // Flag that we jumped.

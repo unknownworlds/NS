@@ -177,7 +177,7 @@ void AvHLeap::FireProjectiles(void)
 	if(g_runfuncs)
 	{
 		//IN_Attack2Down();
-		//this->SendWeaponAnim(3);
+		//CBasePlayerWeapon::SendWeaponAnim(3);
 		gHUD.SetAlienAbility(this->GetAbilityImpulse());
 	}
 #endif

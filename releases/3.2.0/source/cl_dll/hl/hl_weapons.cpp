@@ -528,12 +528,19 @@ void CBasePlayerWeapon::ItemPostFrame( void )
 			    m_fFireOnEmpty = TRUE;
 		    }
 
-		    //#ifdef AVH_CLIENT
+
+//			if ((gHUD.GetHUDUser3() == AVH_USER3_ALIEN_PLAYER1) && (gHUD.GetCurrentWeaponID() == AVH_ABILITY_LEAP))
+//			{
+//				this->SendWeaponAnim(3);
+//				this->m_flLastAnimationPlayed = gpGlobals->time;
+//			}
+			//#ifdef AVH_CLIENT
 		    //if((m_iClip == 0) && ?
 		    //#endif
 
-		    PrimaryAttack();
-        }
+			PrimaryAttack();
+			//return;
+		}
 	}
 	// +movement: Rewritten to allow us to use +attack2 for movement abilities
 	else if ((m_pPlayer->pev->button & IN_ATTACK2) && (m_flNextPrimaryAttack <= 0.0) && (gHUD.GetIsAlien()))
@@ -603,7 +610,8 @@ void CBasePlayerWeapon::ItemPostFrame( void )
 			}
 		}
 
-		if (this->m_flLastAnimationPlayed + BALANCE_VAR(kLeapROF) < gpGlobals->time)
+		if ((gHUD.GetHUDUser3() == AVH_USER3_ALIEN_PLAYER1) 
+			&& (this->m_flLastAnimationPlayed + BALANCE_VAR(kLeapROF) < gpGlobals->time))
 			this->PrevAttack2Status = false;
 		else
 			this->PrevAttack2Status = true;

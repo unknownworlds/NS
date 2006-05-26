@@ -19,7 +19,7 @@
 "blank"				"=========================="
 "+attack"			"Attack (important)"
 "+use"				"Use/build"
-"+reload"			"Reload weapon"
+"+movement"			"Reload/Alien movement"
 "impulse 100"			"Flashlight"
 "+showmap"			"Show map"
 "+showscores"			"Display multiplayer scores"

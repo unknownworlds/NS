@@ -17,7 +17,7 @@
 "INS"			"+klook"
 ";"				"+mlook"
 "c"				"+showmap"
-"r"				"+reload"
+"r"				"+movement"
 "SHIFT"			"+speed"
 "MOUSE1"		"+attack"
 "MOUSE2"		"+popupmenu"

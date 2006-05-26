@@ -149,8 +149,7 @@ void AvHLeap::Spawn()
 
 float AvHLeap::GetRateOfFire(void) const
 {
-	// Dunno why the 2 has to be there ...
-	return 2 * (float)BALANCE_VAR(kLeapROF);
+	return (float)BALANCE_VAR(kLeapROF);
 }
 
 bool AvHLeap::UsesAmmo(void) const

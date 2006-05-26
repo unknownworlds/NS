@@ -149,7 +149,7 @@ void AvHLeap::Spawn()
 
 float AvHLeap::GetRateOfFire(void) const
 {
-	return (float)BALANCE_VAR(kLeapROF);
+	return (float)BALANCE_VAR(kLeapROF) * 0.5f;
 }
 
 bool AvHLeap::UsesAmmo(void) const
@@ -177,6 +177,7 @@ void AvHLeap::FireProjectiles(void)
 	if(g_runfuncs)
 	{
 		//IN_Attack2Down();
+		//this->SendWeaponAnim(3);
 		gHUD.SetAlienAbility(this->GetAbilityImpulse());
 	}
 #endif

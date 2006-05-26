@@ -474,7 +474,7 @@ void CBasePlayerWeapon::ItemPostFrame( void )
 {
 
 	// Hack initialization
-	if (this->m_flLastAnimationPlayed >= 3 * BALANCE_VAR(kLeapROF) * gpGlobals->time)
+	if (this->m_flLastAnimationPlayed >= 3 * BALANCE_VAR(kLeapROF) + gpGlobals->time)
 		this->m_flLastAnimationPlayed = 0.0f;
 
 	if ((m_fInReload) && (m_pPlayer->m_flNextAttack <= 0.0))
@@ -603,7 +603,11 @@ void CBasePlayerWeapon::ItemPostFrame( void )
 			}
 		}
 
-		this->PrevAttack2Status = true;
+		if (this->m_flLastAnimationPlayed + BALANCE_VAR(kLeapROF) < gpGlobals->time)
+			this->PrevAttack2Status = false;
+		else
+			this->PrevAttack2Status = true;
+
 		return;
 //		if (GetCanUseWeapon())
 //		{

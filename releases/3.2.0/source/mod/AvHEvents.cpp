@@ -3016,7 +3016,7 @@ void EV_Leap(struct event_args_s* inArgs)
 {
 	char* theSoundToPlay = kLeapSound;
 	
-	gEngfuncs.pEventAPI->EV_PlaySound(inArgs->entindex, inArgs->origin, CHAN_WEAPON, theSoundToPlay, inArgs->fparam1, ATTN_NORM, 0, 94 + gEngfuncs.pfnRandomLong( 0, 0xf ));
+	// gEngfuncs.pEventAPI->EV_PlaySound(inArgs->entindex, inArgs->origin, CHAN_WEAPON, theSoundToPlay, inArgs->fparam1, ATTN_NORM, 0, 94 + gEngfuncs.pfnRandomLong( 0, 0xf ));
 
 	if (EV_IsLocal(inArgs->entindex))
 	{

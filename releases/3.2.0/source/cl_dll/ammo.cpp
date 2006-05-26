@@ -42,6 +42,8 @@ WeaponsResource gWR;
 
 int g_weaponselect = 0;
 
+extern bool gCanMove;
+
 void IN_AttackDownForced(void);
 void IN_AttackUpForced(void);
 void IN_Attack2Down(void);
@@ -830,6 +832,13 @@ int CHudAmmo::MsgFunc_CurWeapon(const char *pszName, int iSize, void *pbuf )
 	if( !bIsCurrent )
 	{ return 1; }
 
+//	char temp[255];
+//	sprintf(temp, "iState %d iId %d iClip %d\n", iState, iId, iClip);
+//	gEngfuncs.pfnConsolePrint(temp);
+
+	if (iId == 22 || iId == 11 || iId == 21)
+		gCanMove = pWeapon->iEnabled;
+
 	m_pWeapon = pWeapon;
 
 	if ( !(gHUD.m_iHideHUDDisplay & ( HIDEHUD_WEAPONS | HIDEHUD_ALL )) )
@@ -881,6 +890,9 @@ int CHudAmmo::MsgFunc_WeaponList(const char *pszName, int iSize, void *pbuf )
 	Weapon.iClip = 0;
 	// puzl: 497 - default value for enable state
 	Weapon.iEnabled = 0;
+
+//	if (Weapon.iId == 22 || Weapon.iId == 11 || Weapon.iId == 21)
+//		gCanMove = true; //Weapon.iEnabled;
 
 	gWR.AddWeapon( &Weapon );
 	return 1;

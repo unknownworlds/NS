@@ -3593,6 +3593,8 @@ void AvHPlayer::Init()
 	this->mNumSensory=0;
 	this->mNumMovement=0;
 	this->mNumDefense=0;
+
+	this->mTimeOfLastMovementSound = -1.0f;
 }
 
 void AvHPlayer::InitializeFromTeam(float inHealthPercentage, float inArmorPercentage)
@@ -6802,51 +6804,91 @@ void AvHPlayer::InternalPreThink()
 // Charge pushback
 void AvHPlayer::InternalMovementThink()
 {
-	// Ensure that we do leap damage
-	if(GetHasUpgrade(this->pev->iuser4, MASK_ALIEN_MOVEMENT) && (GetUser3() == AVH_USER3_ALIEN_PLAYER1))
-		this->StartLeap();
+	const char	*theSoundToPlay;
+	bool	thePlaySound = false;
+	float	theSoundDelay = 0.0f;
 
-	// Check whether we're in a charge
+	// SKULK
+	if(GetHasUpgrade(this->pev->iuser4, MASK_ALIEN_MOVEMENT) && (GetUser3() == AVH_USER3_ALIEN_PLAYER1))
+	{
+		thePlaySound = true;
+		theSoundDelay = kLeapROF;
+		theSoundToPlay = kLeapSound;
+
+		// Ensure that we do leap damage
+		this->StartLeap();
+	}
+
+	// FADE
+	if(GetHasUpgrade(this->pev->iuser4, MASK_ALIEN_MOVEMENT) && (GetUser3() == AVH_USER3_ALIEN_PLAYER4))
+	{
+		thePlaySound = true;
+		theSoundDelay = 2.0f;
+		theSoundToPlay = kBlinkSound;
+	}
+
+	// ONOS
 	if(GetHasUpgrade(this->pev->iuser4, MASK_ALIEN_MOVEMENT) && (GetUser3() == AVH_USER3_ALIEN_PLAYER5))
 	{
+		thePlaySound = true;
+		theSoundDelay = 2.0f;
+		theSoundToPlay = "weapons/charge2.wav";
+
+		// Push back players
 		CBaseEntity* theEntity = NULL;
 		float radius = (float)BALANCE_VAR(kChargePushbackRadius);
 		float maxpushbackspeedfactor = (float)BALANCE_VAR(kChargeMaxPushbackSpeedFactor);
 		float pushbackfactor = (float)BALANCE_VAR(kChargeMaxPushbackForce);
 
-		// Find all entities around the onos
-	    while((theEntity = UTIL_FindEntityInSphere(theEntity, this->pev->origin, radius)) != NULL)
-	    {
-			if (theEntity->IsPlayer() && theEntity->IsAlive())
+		// Ensure that we don't push back players in the readyroom
+		if (this->GetPlayMode() == PLAYMODE_PLAYING)
+		{
+			// Find all entities around the onos
+			while((theEntity = UTIL_FindEntityInSphere(theEntity, this->pev->origin, radius)) != NULL)
 			{
-				float distance = VectorDistance(this->pev->origin, theEntity->pev->origin);
-				if (distance > 0.0f)
+				if (theEntity->IsPlayer() && theEntity->IsAlive())
 				{
-					float factor = pushbackfactor / (radius / distance);
-					vec3_t direction, heading;
-					VectorSubtract(theEntity->pev->origin, this->pev->origin, direction);
-					VectorNormalize(direction);
-
-					VectorCopy(this->pev->velocity, heading);
-					VectorNormalize(heading);
-					
-					float dot = DotProduct(heading, direction);
-					if (dot > 0.0f)
+					float distance = VectorDistance(this->pev->origin, theEntity->pev->origin);
+					if (distance > 0.0f)
 					{
-						VectorScale(direction, factor * dot, direction);
-						VectorAdd(theEntity->pev->velocity, direction, theEntity->pev->velocity);
-						theEntity->pev->velocity[2] = max(181, theEntity->pev->velocity[2]);
-						if (Length(theEntity->pev->velocity) > theEntity->pev->maxspeed * maxpushbackspeedfactor)
-						{
-							VectorNormalize(theEntity->pev->velocity);
-							VectorScale(theEntity->pev->velocity, theEntity->pev->maxspeed * maxpushbackspeedfactor, theEntity->pev->velocity);
-						}
-					}
+						float factor = pushbackfactor / (radius / distance);
+						vec3_t direction, heading;
+						VectorSubtract(theEntity->pev->origin, this->pev->origin, direction);
+						VectorNormalize(direction);
 
-					// ALERT(at_console, UTIL_VarArgs("direction %f %f %f heading %f %f %f endvel %f %f %f\n", direction[0], direction[1], direction[2], heading[0], heading[1], heading[2], theEntity->pev->velocity[0], theEntity->pev->velocity[1], theEntity->pev->velocity[2]));
+						VectorCopy(this->pev->velocity, heading);
+						VectorNormalize(heading);
+						
+						float dot = DotProduct(heading, direction);
+						if (dot > 0.0f)
+						{
+							VectorScale(direction, factor * dot, direction);
+							VectorAdd(theEntity->pev->velocity, direction, theEntity->pev->velocity);
+							theEntity->pev->velocity[2] = max(181, theEntity->pev->velocity[2]);
+							if (Length(theEntity->pev->velocity) > theEntity->pev->maxspeed * maxpushbackspeedfactor)
+							{
+								VectorNormalize(theEntity->pev->velocity);
+								VectorScale(theEntity->pev->velocity, theEntity->pev->maxspeed * maxpushbackspeedfactor, theEntity->pev->velocity);
+							}
+						}
+
+						// ALERT(at_console, UTIL_VarArgs("direction %f %f %f heading %f %f %f endvel %f %f %f\n", direction[0], direction[1], direction[2], heading[0], heading[1], heading[2], theEntity->pev->velocity[0], theEntity->pev->velocity[1], theEntity->pev->velocity[2]));
+					}
 				}
 			}
-	    }
+		}
+	}
+
+	if (thePlaySound && (mTimeOfLastMovementSound + theSoundDelay < gpGlobals->time))
+	{
+		float theVolumeScalar = this->GetAlienAdjustedEventVolume();
+		if (this->GetPlayMode() != PLAYMODE_PLAYING)
+			theVolumeScalar *= 0.2f;
+		float thePitch = 94.0f + (float)RANDOM_LONG(0, 16);
+
+		EMIT_SOUND_DYN(ENT(this->pev), CHAN_WEAPON, theSoundToPlay, theVolumeScalar, ATTN_NORM, 0, 100);
+
+		this->mTimeOfLastMovementSound = gpGlobals->time;
 	}
 }
 

@@ -126,6 +126,7 @@ MULTIDAMAGE gMultiDamage;
 
 #define TRACER_FREQ		4			// Tracers fire every fourth bullet
 
+extern bool gCanMove[];
 
 //=========================================================
 // MaxAmmoCarry - pass in a name and this function will tell
@@ -1170,6 +1171,9 @@ int CBasePlayerWeapon::UpdateClientData( CBasePlayer *pPlayer )
 	{
 		bSend = TRUE;
 	}
+
+	if (m_iId == 22 || m_iId == 11 || m_iId == 21)
+		gCanMove[pPlayer->entindex() - 1] = m_iEnabled;
 
 	if ( bSend )
 	{

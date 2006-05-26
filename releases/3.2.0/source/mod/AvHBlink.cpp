@@ -125,12 +125,12 @@ void AvHBlinkGun::FireProjectiles(void)
 		thePlayer->TriggerUncloak();
 	}
 #endif
-	if(this->mTimeOfNextBlinkEvent <= 0)
-	{
-		const float kEventDelay = 2.0f;
-		this->PlaybackEvent(this->mBlinkSuccessEvent, this->GetShootAnimation());
-		this->mTimeOfNextBlinkEvent = UTIL_WeaponTimeBase() + kEventDelay;
-	}
+//	if(this->mTimeOfNextBlinkEvent <= 0)
+//	{
+//		const float kEventDelay = 2.0f;
+//		this->PlaybackEvent(this->mBlinkSuccessEvent, this->GetShootAnimation());
+//		this->mTimeOfNextBlinkEvent = UTIL_WeaponTimeBase() + kEventDelay;
+//	}
 }
 
 bool AvHBlinkGun::GetMustPressTriggerForEachShot() const

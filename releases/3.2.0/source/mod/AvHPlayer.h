@@ -653,6 +653,8 @@ private:
 	float				mTimeOfLastEnemySighting;
 	bool				mEnemySighted;
 
+	float				mTimeOfLastMovementSound;
+
 	bool				mTriggerUncloak;
 
 	bool				mHasLeftReadyRoom;

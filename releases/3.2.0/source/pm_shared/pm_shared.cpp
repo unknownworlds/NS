@@ -217,6 +217,12 @@ vec3_t gSurfaceNormal = { 0, 0, 0 };
 bool canWallJump = false;
 // :tankefugl
 
+#ifdef AVH_SERVER
+bool    gCanMove[MAX_CLIENTS];
+#else
+bool	gCanMove;
+#endif
+
 #ifdef AVH_CLIENT
 extern vec3_t gPlayerAngles;
 extern vec3_t gTargetPlayerAngles;
@@ -4368,10 +4374,6 @@ bool PM_BlinkMove (void)
 
 	SetUpgradeMask(&pmove->iuser4, MASK_ALIEN_MOVEMENT, true);
 
-	int theSilenceUpgradeLevel = AvHGetAlienUpgradeLevel(pmove->iuser4, MASK_UPGRADE_6);
-	float theVolumeScalar = 1.0f - theSilenceUpgradeLevel/3.0f;
-	PM_NSPlaySound(CHAN_WEAPON, kBlinkSound, theVolumeScalar, ATTN_NORM, 0, 94 + pmove->RandomLong(0, 0xf));
-
 	vec3_t forward, right, up;
 	AngleVectors(pmove->angles, forward, right, up);
 
@@ -4480,10 +4482,6 @@ bool PM_LeapMove()
 	pmove->fuser4 = (float)BALANCE_VAR(kLeapROF);
 
 	SetUpgradeMask(&pmove->iuser4, MASK_ALIEN_MOVEMENT, true);
-
-	int theSilenceUpgradeLevel = AvHGetAlienUpgradeLevel(pmove->iuser4, MASK_UPGRADE_6);
-	float theVolumeScalar = 1.0f - theSilenceUpgradeLevel/3.0f;
-	PM_NSPlaySound(CHAN_WEAPON, kLeapSound, theVolumeScalar, ATTN_NORM, 0, 94 + pmove->RandomLong(0, 0xf));
 
 	vec3_t forward, right, up;
 	AngleVectors(pmove->angles, forward, right, up);
@@ -4641,9 +4639,6 @@ bool PM_ChargeMove()
 		AvHMUDeductAlienEnergy(pmove->fuser3, theEnergyCost);
 		if (pmove->fuser4 == 0.0f)
 		{
-			int theSilenceUpgradeLevel = AvHGetAlienUpgradeLevel(pmove->iuser4, MASK_UPGRADE_6);
-			float theVolumeScalar = 1.0f - theSilenceUpgradeLevel/3.0f;
-			PM_NSPlaySound( CHAN_WEAPON, "weapons/charge2.wav", theVolumeScalar, ATTN_NORM, 0, PITCH_NORM );
 			pmove->fuser4 = 0.3f;
 		}
 		pmove->fuser4 += (float)pmove->frametime;
@@ -4707,9 +4702,9 @@ void PM_AlienAbilities()
 
 	bool canmove = true;
 #ifdef AVH_SERVER
-	//canmove = gCanMove[pmove->player_index];
+	canmove = gCanMove[pmove->player_index];
 #else
-	//canmove = gCanMove;
+	canmove = gCanMove;
 #endif
 	bool success = false;
 	if ((pmove->cmd.buttons & IN_ATTACK2) && (AvHGetIsAlien(pmove->iuser3)))

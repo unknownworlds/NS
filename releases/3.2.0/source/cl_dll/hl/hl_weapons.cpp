@@ -529,15 +529,16 @@ void CBasePlayerWeapon::ItemPostFrame( void )
 		    }
 
 
-//			if ((gHUD.GetHUDUser3() == AVH_USER3_ALIEN_PLAYER1) && (gHUD.GetCurrentWeaponID() == AVH_ABILITY_LEAP))
-//			{
-//				this->SendWeaponAnim(3);
-//				this->m_flLastAnimationPlayed = gpGlobals->time;
-//			}
+			if ((gHUD.GetHUDUser3() == AVH_USER3_ALIEN_PLAYER1) 
+				&& (gHUD.GetCurrentWeaponID() == AVH_ABILITY_LEAP)
+				&& (this->m_flLastAnimationPlayed + (float)BALANCE_VAR(kLeapROF) <= gpGlobals->time))
+			{
+				gEngfuncs.pEventAPI->EV_WeaponAnimation(3, 2);
+				this->m_flLastAnimationPlayed = gpGlobals->time;
+			}
 			//#ifdef AVH_CLIENT
 		    //if((m_iClip == 0) && ?
 		    //#endif
-
 			PrimaryAttack();
 			//return;
 		}

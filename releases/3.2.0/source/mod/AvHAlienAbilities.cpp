@@ -127,7 +127,7 @@ void AvHLeap::Precache(void)
 	PRECACHE_UNMODIFIED_SOUND(kLeapHitSound1);
 	PRECACHE_UNMODIFIED_SOUND(kLeapKillSound);
 	
-	this->mEvent = PRECACHE_EVENT(1, kLeapEventName);
+	this->mEvent = 0; //PRECACHE_EVENT(1, kLeapEventName);
 	this->mAbilityEvent = PRECACHE_EVENT(1, kAbilityEventName);
 }
 
@@ -149,7 +149,7 @@ void AvHLeap::Spawn()
 
 float AvHLeap::GetRateOfFire(void) const
 {
-	return (float)BALANCE_VAR(kLeapROF) * 0.5f;
+	return (float)BALANCE_VAR(kLeapROF);// * 0.5f;
 }
 
 bool AvHLeap::UsesAmmo(void) const

@@ -1,7 +1,27 @@
-6
-weapon			320 320w	0	0	80	20
-weapon_s		320 320w-s	0	0	80	20
-ammo			320 640hud7	96	96	24	24
-weapon			640 640aw1	0	0	170	45
-weapon_s		640 640aw1-s	0	0	170	45
-ammo			640 640hud7	96	96	24	24
+26
+weapon			320 320w		0	0	80	20
+weapon_s		320 320w-s		0	0	80	20
+ammo			320 640hud7		96	96	24	24
+weapon			640 640aw1		0	0	170	45
+weapon_s		640 640aw1-s		0	0	170	45
+ammo			640 640hud7		96	96	24	24
+crosshair_1		320 xhairal1-1 		0	0	256	256
+crosshair_2		320 xhairal2-1 		0	0	256	256
+crosshair_3		320 xhairmw3 		0	0	40	40
+crosshair_4		320 xhairmw4 		0	0	40	40
+crosshair_1		640 xhairal1-1 		0	0	256	256
+crosshair_2		640 xhairal2-1 		0	0	256	256
+crosshair_3		640 xhairmw3 		0	0	40	40
+crosshair_4		640 xhairmw4 		0	0	40	40
+crosshair_1		800 xhairal1-2 		0	0	256	256
+crosshair_2		800 xhairal2-2 		0	0	256	256
+crosshair_3		800 xhairmw3 		40	0	50	50
+crosshair_4		800 xhairmw4 		40	0	50	50
+crosshair_1		1024 xhairal1-3 	0	0	256	256
+crosshair_2		1024 xhairal2-3 	0	0	256	256
+crosshair_3		1024 xhairmw3 		90	0	64	64
+crosshair_4		1024 xhairmw4 		90	0	64	64
+crosshair_1		1280 xhairal1-4 	0	0	256	256
+crosshair_2		1280 xhairal2-4 	0	0	256	256
+crosshair_3		1280 xhairmw3 		154	0	80	80
+crosshair_4		1280 xhairmw4 		154	0	80	80

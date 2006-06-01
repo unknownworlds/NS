@@ -147,11 +147,11 @@ SBColumnInfo g_ColumnInfo[NUM_COLUMNS] =
     {NULL,			24,			Label::a_east},		// status icons
 	{NULL,			110,		Label::a_east},		// name
 	{NULL,			56,			Label::a_east},		// class
-	{"#EXTRA",		40,			Label::a_east},     // resources
 	{"#SCORE",		40,			Label::a_east},     // score
     {"#KILLS",      40,         Label::a_east},     // kills
 	{"#DEATHS",		40,			Label::a_east},     // deaths
 	{"#LATENCY",	40,			Label::a_east},     // ping
+	{NULL,			40,			Label::a_east},     // resources
 	{"#VOICE",		40,			Label::a_east},     
 	{NULL,			2,			Label::a_east},		// blank column to take up the slack
 };

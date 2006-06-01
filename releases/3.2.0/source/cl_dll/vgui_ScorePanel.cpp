@@ -752,7 +752,7 @@ void ScorePanel::FillGrid()
 	}
 	
 	bool bNextRowIsGap = false;
-	m_HeaderLabels[COLUMN_EXTRA].setText(CHudTextMessage::BufferedLocaliseTextString("#EXTRA"));
+	m_HeaderLabels[COLUMN_EXTRA].setText("");
 	if ( isNsMode ) {
 		if ( gHUD.GetHUDTeam() == TEAM_ONE || gHUD.GetHUDTeam() == TEAM_THREE ) {
 			m_HeaderLabels[COLUMN_EXTRA].setText(CHudTextMessage::BufferedLocaliseTextString("#COLWEAP"));
@@ -762,7 +762,8 @@ void ScorePanel::FillGrid()
 		}
 	}
 	else {
-		m_HeaderLabels[COLUMN_EXTRA].setText(CHudTextMessage::BufferedLocaliseTextString("#COLLEVEL"));
+		if ( gHUD.GetHUDTeam() != TEAM_IND && gHUD.GetHUDTeam() != TEAM_SPECT )
+			m_HeaderLabels[COLUMN_EXTRA].setText(CHudTextMessage::BufferedLocaliseTextString("#COLLEVEL"));
 	}
 	
 	for(int row=0; row < NUM_ROWS; row++)
@@ -1289,9 +1290,7 @@ void ScorePanel::FillGrid()
 							}
 						}
 						else {
-							if ( gHUD.GetHUDTeam() != TEAM_IND && gHUD.GetHUDTeam() != TEAM_SPECT )  {
-								sprintf(sz, "%d", theExtraPlayerInfo->extra);
-							}
+							sprintf(sz, "%d", theExtraPlayerInfo->extra);
 						}
 					}
                     break;

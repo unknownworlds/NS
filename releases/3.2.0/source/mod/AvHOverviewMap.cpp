@@ -132,11 +132,17 @@ void AvHOverviewMap::GetSpriteForEntity(const DrawableEntity& entity, int& outSp
 		if ( entity.mUser3 == AVH_USER3_HIVE ) {
 			outFrame=4;
 		}
-		else if ( (entity.mUser3 == AVH_USER3_RESTOWER) || (entity.mUser3 == AVH_USER3_ALIENRESTOWER) || (entity.mUser3 == AVH_USER3_FUNC_RESOURCE) ) {
+		else if ( (entity.mUser3 == AVH_USER3_ALIENRESTOWER) || (entity.mUser3 == AVH_USER3_FUNC_RESOURCE) || (entity.mUser3 == AVH_USER3_RESTOWER)) {
 			outFrame=3;
 		}
+		else if ( entity.mUser3 == AVH_USER3_MINE ) {
+			outFrame=2;
+		}
+		else if ( entity.mUser3 == AVH_USER3_WELD ) {
+			outFrame=5;
+		}
 		else if ( isStructure ) {
-			outFrame=isFriendly? 0 : 2;
+			outFrame=0;
 		}
     }
     else
@@ -145,7 +151,34 @@ void AvHOverviewMap::GetSpriteForEntity(const DrawableEntity& entity, int& outSp
     }
 
 }
+#define STR_TO_RGB(str, r, g, b)
 
+/*void STR_TO_RGB(char *str, float &r, float &g, float &b) {
+	if ( str ) {
+		char *value=CVAR_GET_STRING(str);
+
+		if ( value && strlen(value) > 0 ) {
+			char tmp[64];
+			strncpy(tmp, value, 63);
+			tmp[63]=0;
+			int tr=255, tg=255, tb=255;
+			char *rs=0, *gs=0, *bs=0;
+			rs=strtok(tmp, " ");
+			gs=strtok(NULL, " ");
+			bs=strtok(NULL, " ");
+			if ( rs ) tr=atoi(rs);
+			if ( gs) tg=atoi(gs);
+			if ( bs) tb=atoi(bs);
+			tr=max(0, min(255, tr));
+			tg=max(0, min(255, tg));
+			tb=max(0, min(255, tb));
+			r=(float)tr/255.0f;
+			g=(float)tg/255.0f;
+			b=(float)tb/255.0f;			
+		}
+	}
+}
+*/
 void AvHOverviewMap::GetColorForEntity(const DrawableEntity& entity, float& outR, float& outG, float& outB)
 {
 	static float attackBlinkPeriod=0.3f;
@@ -178,6 +211,7 @@ void AvHOverviewMap::GetColorForEntity(const DrawableEntity& entity, float& outR
 			outR = 0.8;
 			outG = 0.8;
 			outB = 0.2;
+			STR_TO_RGB("cl_mm_attack", outR, outG, outB);
 			return;
 		}
 	}
@@ -187,6 +221,7 @@ void AvHOverviewMap::GetColorForEntity(const DrawableEntity& entity, float& outR
         outR = 0.1;
 	    outG = 0.8;
 		outB = 1.0;
+		STR_TO_RGB("cl_mm_wp", outR, outG, outB);
 	}
     else if (entity.mTeam == TEAM_IND)
     {   
@@ -195,12 +230,14 @@ void AvHOverviewMap::GetColorForEntity(const DrawableEntity& entity, float& outR
             outR = 1.0;
             outG = 0.7;
             outB = 0.5;
+			STR_TO_RGB("cl_mm_weld", outR, outG, outB);
         }
         else
         {
 			outR = 0.5;
 			outG = 0.5;
 			outB = 0.5;
+			STR_TO_RGB("cl_mm_neutral", outR, outG, outB);
         }
     }
 	else if ( gEngfuncs.IsSpectateOnly() ) {
@@ -208,11 +245,13 @@ void AvHOverviewMap::GetColorForEntity(const DrawableEntity& entity, float& outR
 			outR = 0.1;
 			outG = 0.1;
 			outB = 0.8;
+			STR_TO_RGB("cl_mm_specmarine", outR, outG, outB);
 		}
 		else if ( entity.mTeam == TEAM_TWO || entity.mTeam == TEAM_FOUR ) {
 			outR = 0.8;
 			outG = 0.6;
 			outB = 0.1;
+			STR_TO_RGB("cl_mm_specalien", outR, outG, outB);
 		}
 	}
     else if (entity.mTeam == mTeam)
@@ -221,19 +260,21 @@ void AvHOverviewMap::GetColorForEntity(const DrawableEntity& entity, float& outR
 			outR = 0.0;
 	    	outG = 0.4;
 			outB = 0.0;
+			STR_TO_RGB("cl_mm_mine", outR, outG, outB);
 		}
 		else if ( isStructure )
 		{
 			outR = 0.1;
 	    	outG = 0.8;
 			outB = 0.1;
+			STR_TO_RGB("cl_mm_structure", outR, outG, outB);
 		}
 		else
 		{
     		outR = 0.1;
 	    	outG = 1.0;
 			outB = 0.1;
-
+			STR_TO_RGB("cl_mm_team", outR, outG, outB);
 			// Color squads.
 
 			int localPlayerSquad;
@@ -255,12 +296,14 @@ void AvHOverviewMap::GetColorForEntity(const DrawableEntity& entity, float& outR
     				outR = 1.0;
 	    			outG = 1.0;
 					outB = 1.0;
+					STR_TO_RGB("cl_mm_self", outR, outG, outB);
 				}
 				if (entity.mSquadNumber != 0 && entity.mSquadNumber == localPlayerSquad)
 				{
     				outR = 1.0;
 	    			outG = 8.0;
 					outB = 8.0;
+					STR_TO_RGB("cl_mm_squad", outR, outG, outB);
 				}
 					    
 			}
@@ -271,6 +314,10 @@ void AvHOverviewMap::GetColorForEntity(const DrawableEntity& entity, float& outR
 		outR = isStructure ? 0.8 : 1.0;
 		outG = 0.1;
 		outB = 0.0;
+		if ( isStructure ) 
+			STR_TO_RGB("cl_mm_enemystructure", outR, outG, outB);
+		else
+			STR_TO_RGB("cl_mm_enemyplayer", outR, outG, outB);
     }
 }
 

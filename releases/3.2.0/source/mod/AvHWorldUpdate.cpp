@@ -95,7 +95,7 @@ bool AvHSUGetInViewOfEnemy(CBaseEntity* inEntity, int& outSightedStatus)
 				// Loop through observatories, uncloaking and detecting all enemy players in range
 				for(AvHObservatoryListType::iterator theObservatoryIter = gObservatoryList.begin(); theObservatoryIter != gObservatoryList.end(); theObservatoryIter++)
 				{
-					if((*theObservatoryIter)->pev->team != inEntity->pev->team && !(*theObservatoryIter)->GetIsRecycling() )
+					if((*theObservatoryIter)->pev->team != inEntity->pev->team && ( inEntity->pev->team != TEAM_IND ) && !(*theObservatoryIter)->GetIsRecycling() )
 					{
 						// Check that entity is in range of scan (only check XY distance, for commander's purposes)
 						float theDistance = VectorDistance2D((*theObservatoryIter)->pev->origin, inEntity->pev->origin);

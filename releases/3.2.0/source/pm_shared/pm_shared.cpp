@@ -4849,12 +4849,13 @@ void PM_LadderMove( physent_t *pLadder )
         if ( pmove->cmd.buttons & IN_MOVERIGHT )
             right += MAX_CLIMB_SPEED;
 
-        if ( PM_GetIsBlinking() )
-        {
-            pmove->movetype = MOVETYPE_WALK;
-            VectorScale( trace.plane.normal, 270, pmove->velocity );
-        }
-        else if ( pmove->cmd.buttons & IN_JUMP )
+//        if ( PM_GetIsBlinking() )
+        //{
+            //pmove->movetype = MOVETYPE_WALK;
+            //VectorScale( trace.plane.normal, 270, pmove->velocity );
+        //}
+        //else 
+		if ( pmove->cmd.buttons & IN_JUMP )
         {
             pmove->movetype = MOVETYPE_WALK;
             VectorScale( trace.plane.normal, 270, pmove->velocity );
@@ -6502,14 +6503,20 @@ void PM_PlayerMove ( qboolean server )
     bool theIsFlyingAlien = (pmove->iuser3 == AVH_USER3_ALIEN_PLAYER3) && (pmove->onground == -1);
     bool theIsSkulk = (pmove->iuser3 == AVH_USER3_ALIEN_PLAYER1);
 
-    if ( !pmove->dead && !(pmove->flags & FL_ONTRAIN) && !gIsJetpacking[pmove->player_index] && !GetHasUpgrade(pmove->iuser4, MASK_WALLSTICKING) && !theIsFlyingAlien && !theIsSkulk)
-    {
-        pLadder = PM_Ladder();
-        if ( pLadder )
-        {
-            g_onladder[pmove->player_index] = 1;
-        }
-    }
+//	if ( PM_GetIsBlinking() ) {
+	if ( pmove->iuser3 == AVH_USER3_ALIEN_PLAYER4 && ( PM_GetIsBlinking() || pmove->velocity[2] > 175 || pmove->velocity[2] < -175 )) {
+		g_onladder[pmove->player_index] = 0;
+	}
+	else {
+		if ( !pmove->dead && !(pmove->flags & FL_ONTRAIN) && !gIsJetpacking[pmove->player_index] && !GetHasUpgrade(pmove->iuser4, MASK_WALLSTICKING) && !theIsFlyingAlien && !theIsSkulk)
+		{
+			pLadder = PM_Ladder();
+			if ( pLadder )
+			{
+				g_onladder[pmove->player_index] = 1;
+			}
+		}
+	}
 
     //pmove->Con_DPrintf("g_onladder: %d\n", g_onladder);
     

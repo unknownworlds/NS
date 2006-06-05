@@ -151,34 +151,7 @@ void AvHOverviewMap::GetSpriteForEntity(const DrawableEntity& entity, int& outSp
     }
 
 }
-#define STR_TO_RGB(str, r, g, b)
 
-/*void STR_TO_RGB(char *str, float &r, float &g, float &b) {
-	if ( str ) {
-		char *value=CVAR_GET_STRING(str);
-
-		if ( value && strlen(value) > 0 ) {
-			char tmp[64];
-			strncpy(tmp, value, 63);
-			tmp[63]=0;
-			int tr=255, tg=255, tb=255;
-			char *rs=0, *gs=0, *bs=0;
-			rs=strtok(tmp, " ");
-			gs=strtok(NULL, " ");
-			bs=strtok(NULL, " ");
-			if ( rs ) tr=atoi(rs);
-			if ( gs) tg=atoi(gs);
-			if ( bs) tb=atoi(bs);
-			tr=max(0, min(255, tr));
-			tg=max(0, min(255, tg));
-			tb=max(0, min(255, tb));
-			r=(float)tr/255.0f;
-			g=(float)tg/255.0f;
-			b=(float)tb/255.0f;			
-		}
-	}
-}
-*/
 void AvHOverviewMap::GetColorForEntity(const DrawableEntity& entity, float& outR, float& outG, float& outB)
 {
 	static float attackBlinkPeriod=0.3f;
@@ -208,117 +181,89 @@ void AvHOverviewMap::GetColorForEntity(const DrawableEntity& entity, float& outR
 			this->mBlinkTime=gpGlobals->time;
 		}
 		if ( this->mBlinkOn ) {
-			outR = 0.8;
-			outG = 0.8;
-			outB = 0.2;
-			STR_TO_RGB("cl_mm_attack", outR, outG, outB);
+			outR = 1.0;
+			outG = 0.0;
+			outB = 0.0;
 			return;
 		}
 	}
 
-    if (entity.mUser3 == AVH_USER3_WAYPOINT)
-    {
+    if (entity.mUser3 == AVH_USER3_WAYPOINT)    {
         outR = 0.1;
 	    outG = 0.8;
 		outB = 1.0;
-		STR_TO_RGB("cl_mm_wp", outR, outG, outB);
 	}
-    else if (entity.mTeam == TEAM_IND)
-    {   
-        if (entity.mUser3 == AVH_USER3_WELD)
-        {
-            outR = 1.0;
-            outG = 0.7;
-            outB = 0.5;
-			STR_TO_RGB("cl_mm_weld", outR, outG, outB);
-        }
-        else
-        {
-			outR = 0.5;
-			outG = 0.5;
-			outB = 0.5;
-			STR_TO_RGB("cl_mm_neutral", outR, outG, outB);
-        }
+	else if (entity.mUser3 == AVH_USER3_WELD)    {
+        outR = 1.0;
+        outG = 0.7;
+        outB = 0.3;
     }
-	else if ( gEngfuncs.IsSpectateOnly() ) {
-		if ( entity.mTeam == TEAM_ONE || entity.mTeam == TEAM_THREE ) {
-			outR = 0.1;
-			outG = 0.1;
-			outB = 0.8;
-			STR_TO_RGB("cl_mm_specmarine", outR, outG, outB);
+	else if ( entity.mUser3 == AVH_USER3_MINE ) {
+		outR = 0.05;
+    	outG = 0.44;
+		outB = 0.61;
+	}
+    else if (entity.mTeam == TEAM_IND)    {   
+		outR = 0.5;
+		outG = 0.5;
+		outB = 0.5;
+    }
+    else if (entity.mTeam == mTeam && !isStructure)    {
+		outR = 1.0;
+		outG = 1.0;
+		outB = 1.0;
+
+		int localPlayerSquad;
+		
+		if (g_iUser1 == OBS_NONE) {
+			localPlayerSquad = gHUD.GetCurrentSquad();
 		}
-		else if ( entity.mTeam == TEAM_TWO || entity.mTeam == TEAM_FOUR ) {
-			outR = 0.8;
-			outG = 0.6;
-			outB = 0.1;
-			STR_TO_RGB("cl_mm_specalien", outR, outG, outB);
+		else {
+			// We don't have access to the squad information for player's
+			// we're spectating.
+			localPlayerSquad = 0;
+		}
+
+		if (mUser3 != AVH_USER3_COMMANDER_PLAYER) {
+			if (entity.mIsLocalPlayer ) {
+    			outR = 0.0;
+	    		outG = 1.0;
+				outB = 0.0;
+			}
+			if (entity.mSquadNumber != 0 && entity.mSquadNumber == localPlayerSquad){
+    			outR = 0.0;
+	    		outG = 1.0;
+				outB = 0.0;
+			}			    
+		}
+    }
+	else  {
+		if ( entity.mTeam == TEAM_ONE ) {
+			outR=0.43;
+			outG=0.70;
+			outB=1.0;
+		}
+		else if ( entity.mTeam == TEAM_TWO ) {
+			outR=1.0;
+			outG=0.73;
+			outB=0.0;
+		}
+		else if ( entity.mTeam == TEAM_THREE ) {
+			outR=0.92;
+			outG=0.0;
+			outB=0.47;
+		}
+		else if ( entity.mTeam == TEAM_FOUR ) {
+			outR=0.65;
+			outG=0.92;
+			outB=0.0;
+		}
+		else {
+			outR=0.0;
+			outG=0.0;
+			outB=0.0;
 		}
 	}
-    else if (entity.mTeam == mTeam)
-    {
-		if ( entity.mUser3 == AVH_USER3_MINE ) {
-			outR = 0.0;
-	    	outG = 0.4;
-			outB = 0.0;
-			STR_TO_RGB("cl_mm_mine", outR, outG, outB);
-		}
-		else if ( isStructure )
-		{
-			outR = 0.1;
-	    	outG = 0.8;
-			outB = 0.1;
-			STR_TO_RGB("cl_mm_structure", outR, outG, outB);
-		}
-		else
-		{
-    		outR = 0.1;
-	    	outG = 1.0;
-			outB = 0.1;
-			STR_TO_RGB("cl_mm_team", outR, outG, outB);
-			// Color squads.
-
-			int localPlayerSquad;
-	        
-			if (g_iUser1 == OBS_NONE)
-			{
-				localPlayerSquad = gHUD.GetCurrentSquad();
-			}
-			else
-			{
-				// We don't have access to the squad information for player's
-				// we're spectating.
-				localPlayerSquad = 0;
-			}
-
-			if (mUser3 != AVH_USER3_COMMANDER_PLAYER)
-			{
-				if (entity.mIsLocalPlayer ) {
-    				outR = 1.0;
-	    			outG = 1.0;
-					outB = 1.0;
-					STR_TO_RGB("cl_mm_self", outR, outG, outB);
-				}
-				if (entity.mSquadNumber != 0 && entity.mSquadNumber == localPlayerSquad)
-				{
-    				outR = 1.0;
-	    			outG = 8.0;
-					outB = 8.0;
-					STR_TO_RGB("cl_mm_squad", outR, outG, outB);
-				}
-					    
-			}
-		}
-    }
-    else
-    {
-		outR = isStructure ? 0.8 : 1.0;
-		outG = 0.1;
-		outB = 0.0;
-		if ( isStructure ) 
-			STR_TO_RGB("cl_mm_enemystructure", outR, outG, outB);
-		else
-			STR_TO_RGB("cl_mm_enemyplayer", outR, outG, outB);
-    }
 }
 
 void AvHOverviewMap::DrawMiniMapEntity(const DrawInfo& inDrawInfo, const DrawableEntity& inEntity)

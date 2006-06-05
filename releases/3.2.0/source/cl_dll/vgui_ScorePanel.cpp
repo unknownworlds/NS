@@ -405,10 +405,11 @@ void ScorePanel::Update()
 	char theServerName[MAX_SERVERNAME_LENGTH+1];
 	if (gViewPort->m_szServerName)
 	{
+		memset(theServerName, 0, MAX_SERVERNAME_LENGTH+1);
 		int iServerNameLength = max((int)strlen(gViewPort->m_szServerName),MAX_SERVERNAME_LENGTH);
-		sprintf(theServerName, "%32s", gViewPort->m_szServerName);
+		strncat(theServerName, gViewPort->m_szServerName, iServerNameLength);
 	}
-
+	theServerName[MAX_SERVERNAME_LENGTH]=0;
 	char theMapName[MAX_MAPNAME_LENGTH+1];
 	sprintf(theMapName, "%s", gHUD.GetMapName().c_str());
 
@@ -423,7 +424,7 @@ void ScorePanel::Update()
 		sprintf(elapsedString, "");
 	}
 
-	sprintf(title, "%s    Map: %s        %s", theServerName, theMapName, elapsedString);
+	sprintf(title, "%32s    Map: %s        %s", theServerName, theMapName, elapsedString);
 
 	m_TitleLabel.setText(title);
 

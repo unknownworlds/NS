@@ -150,8 +150,8 @@ SBColumnInfo g_ColumnInfo[NUM_COLUMNS] =
 	{"#SCORE",		40,			Label::a_east},     // score
     {"#KILLS",      40,         Label::a_east},     // kills
 	{"#DEATHS",		40,			Label::a_east},     // deaths
-	{"#LATENCY",	40,			Label::a_east},     // ping
 	{NULL,			40,			Label::a_east},     // resources
+	{"#LATENCY",	40,			Label::a_east},     // ping
 	{"#VOICE",		40,			Label::a_east},     
 	{NULL,			2,			Label::a_east},		// blank column to take up the slack
 };
@@ -1252,7 +1252,7 @@ void ScorePanel::FillGrid()
 					if(!theIsForEnemy && theExtraPlayerInfo->teamnumber != TEAM_IND && theExtraPlayerInfo->teamnumber != TEAM_SPECT )
                     {
 						if ( isNsMode ) {
-							if ( gHUD.GetHUDTeam() == TEAM_ONE || gHUD.GetHUDTeam() == TEAM_THREE )  {
+							if ( theExtraPlayerInfo->teamnumber == TEAM_ONE || theExtraPlayerInfo->teamnumber == TEAM_THREE )  {
 								int r=CVAR_GET_FLOAT("cl_iconr");
 								int g=CVAR_GET_FLOAT("cl_icong");
 								int b=CVAR_GET_FLOAT("cl_iconb");
@@ -1285,7 +1285,7 @@ void ScorePanel::FillGrid()
 									break;
 								}
 							}
-							else if ( gHUD.GetHUDTeam() == TEAM_TWO || gHUD.GetHUDTeam() == TEAM_FOUR ) {
+							else if ( theExtraPlayerInfo->teamnumber == TEAM_TWO || theExtraPlayerInfo->teamnumber == TEAM_FOUR ) {
 								sprintf(sz, "%d", theExtraPlayerInfo->extra);
 							}
 						}

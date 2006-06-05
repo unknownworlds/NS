@@ -23,8 +23,8 @@
 #define COLUMN_SCORE        4
 #define COLUMN_KILLS        5
 #define COLUMN_DEATHS		6
-#define COLUMN_LATENCY		7
-#define COLUMN_EXTRA	    8
+#define COLUMN_EXTRA	    7
+#define COLUMN_LATENCY		8
 #define COLUMN_VOICE		9
 #define COLUMN_BLANK		10
 #define NUM_COLUMNS			11

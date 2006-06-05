@@ -114,6 +114,38 @@ bool getIsStructure(int user3) {
 	       user3 == AVH_USER3_ALIENRESTOWER ||
 	       user3 == AVH_USER3_ADVANCED_TURRET_FACTORY;
 }
+bool getIsOnCommMinimap(int user3) {
+	return	user3 ==  AVH_USER3_WAYPOINT || 
+			user3 ==  AVH_USER3_MARINE_PLAYER || 
+			user3 ==  AVH_USER3_HEAVY || 
+			user3 ==  AVH_USER3_COMMANDER_STATION || 
+			user3 ==  AVH_USER3_TURRET_FACTORY ||  
+			user3 ==  AVH_USER3_ADVANCED_TURRET_FACTORY || 
+			user3 ==  AVH_USER3_ARMORY || 
+		    user3 ==  AVH_USER3_ADVANCED_ARMORY || 
+			user3 ==  AVH_USER3_ARMSLAB || 
+			user3 ==  AVH_USER3_PROTOTYPE_LAB || 
+			user3 ==  AVH_USER3_OBSERVATORY || 
+			user3 ==  AVH_USER3_TURRET || 
+			user3 ==  AVH_USER3_SIEGETURRET || 
+			user3 ==  AVH_USER3_RESTOWER || 
+			user3 ==  AVH_USER3_INFANTRYPORTAL || 
+			user3 ==  AVH_USER3_PHASEGATE || 
+			user3 ==  AVH_USER3_DEFENSE_CHAMBER || 
+			user3 ==  AVH_USER3_MOVEMENT_CHAMBER || 
+			user3 ==  AVH_USER3_OFFENSE_CHAMBER || 
+			user3 ==  AVH_USER3_SENSORY_CHAMBER || 
+			user3 ==  AVH_USER3_ALIENRESTOWER || 
+			user3 ==  AVH_USER3_HIVE || 
+			user3 ==  AVH_USER3_ALIEN_PLAYER1 || 
+			user3 ==  AVH_USER3_ALIEN_PLAYER2 || 
+			user3 ==  AVH_USER3_ALIEN_PLAYER3 || 
+			user3 ==  AVH_USER3_ALIEN_PLAYER4 || 
+			user3 ==  AVH_USER3_ALIEN_PLAYER5 || 
+			user3 ==  AVH_USER3_ALIEN_EMBRYO  || 
+			user3 ==  AVH_USER3_FUNC_RESOURCE || 
+			user3 ==  AVH_USER3_WELD;
+}
 void AvHOverviewMap::GetSpriteForEntity(const DrawableEntity& entity, int& outSprite, int& outFrame, int& outRenderMode)
 {
     outRenderMode = kRenderTransTexture;
@@ -125,23 +157,29 @@ void AvHOverviewMap::GetSpriteForEntity(const DrawableEntity& entity, int& outSp
 	}
     else if (this->mUser3 == AVH_USER3_COMMANDER_PLAYER)
     {
-		bool isStructure=getIsStructure(entity.mUser3);
-		bool isFriendly=entity.mTeam == mTeam;
-        outSprite = Safe_SPR_Load(kCommBlipSprite);
-		outFrame=1;
-		if ( entity.mUser3 == AVH_USER3_HIVE ) {
-			outFrame=4;
+		if ( getIsOnCommMinimap(entity.mUser3 ) ) {
+			bool isStructure=getIsStructure(entity.mUser3);
+			bool isFriendly=entity.mTeam == mTeam;
+			outSprite = Safe_SPR_Load(kCommBlipSprite);
+			outFrame=1;
+			if ( entity.mUser3 == AVH_USER3_HIVE ) {
+				outFrame=4;
+			}
+			else if ( (entity.mUser3 == AVH_USER3_ALIENRESTOWER) || (entity.mUser3 == AVH_USER3_FUNC_RESOURCE) || (entity.mUser3 == AVH_USER3_RESTOWER)) {
+				outFrame=3;
+			}
+			else if ( entity.mUser3 == AVH_USER3_MINE ) {
+				outFrame=2;
+			}
+			else if ( entity.mUser3 == AVH_USER3_WELD ) {
+				outFrame=5;
+			}
+			else if ( isStructure ) {
+				outFrame=0;
+			}
 		}
-		else if ( (entity.mUser3 == AVH_USER3_ALIENRESTOWER) || (entity.mUser3 == AVH_USER3_FUNC_RESOURCE) || (entity.mUser3 == AVH_USER3_RESTOWER)) {
-			outFrame=3;
-		}
-		else if ( entity.mUser3 == AVH_USER3_MINE ) {
-			outFrame=2;
-		}
-		else if ( entity.mUser3 == AVH_USER3_WELD ) {
-			outFrame=5;
-		}
-		else if ( isStructure ) {
+		else {
+			outSprite=0;
 			outFrame=0;
 		}
     }

@@ -2778,37 +2778,47 @@ void AvHHud::Render()
 
 void AvHHud::RenderCommonUI()
 {
+	static bool speedMeasured=false;
     if (!mSteamUIActive)
     {
         
-        if (gHUD.GetServerVariableFloat("sv_cheats") != 0 && CVAR_GET_FLOAT("cl_showspeed") != 0)
-        {
-
-            // Draw the speedometer.
+		if (gHUD.GetServerVariableFloat("sv_cheats") != 0 ) {
 			static int maxSpeed=0, maxGroundSpeed=0, maxClimb=0, maxDive=0;
-            int theR, theG, theB;
-            this->GetPrimaryHudColor(theR, theG, theB, true, false);
+			if ( CVAR_GET_FLOAT("cl_showspeed") != 0) {
 
-            extern playermove_s* pmove;
-        
-            char buffer[1024];
+				// Draw the speedometer.
+				int theR, theG, theB;
+				this->GetPrimaryHudColor(theR, theG, theB, true, false);
 
-			maxClimb=max(maxClimb, (int)pmove->velocity[2]);
-			maxDive=min(maxDive, (int)pmove->velocity[2]);
+				extern playermove_s* pmove;
+	        
+				char buffer[1024];
 
-			int speed=(int)Length(pmove->velocity);
+				maxClimb=max(maxClimb, (int)pmove->velocity[2]);
+				maxDive=min(maxDive, (int)pmove->velocity[2]);
 
-			maxSpeed=max(speed, maxSpeed);
-            sprintf(buffer, "Speed = %d (%d) %d/%d", speed, maxSpeed, maxClimb, maxDive);
-            mFont.DrawString(10, 10, buffer, theR, theG, theB);
+				int speed=(int)Length(pmove->velocity);
 
-            float theGroundSpeed = sqrtf(pmove->velocity[0] * pmove->velocity[0] + pmove->velocity[1] * pmove->velocity[1]);
-			maxGroundSpeed=max(theGroundSpeed, maxGroundSpeed);
-            sprintf(buffer, "Ground speed = %d (%d)", (int)theGroundSpeed, maxGroundSpeed);
-            mFont.DrawString(10, 12 + mFont.GetStringHeight(), buffer, theR, theG, theB);
-            
+				maxSpeed=max(speed, maxSpeed);
+				sprintf(buffer, "Speed = %d (%d) %d/%d", speed, maxSpeed, maxClimb, maxDive);
+				mFont.DrawString(10, 10, buffer, theR, theG, theB);
 
-        }
+				float theGroundSpeed = sqrtf(pmove->velocity[0] * pmove->velocity[0] + pmove->velocity[1] * pmove->velocity[1]);
+				maxGroundSpeed=max(theGroundSpeed, maxGroundSpeed);
+				sprintf(buffer, "Ground speed = %d (%d)", (int)theGroundSpeed, maxGroundSpeed);
+				mFont.DrawString(10, 12 + mFont.GetStringHeight(), buffer, theR, theG, theB);
+				speedMeasured = true;
+			}
+			else if ( speedMeasured == true ) {
+				char msg[256];
+				sprintf(msg, "Current Speed(%d)\tCurrent Ground Speed(%d) Max Speed(%d)\t Max Ground Speed (%d)\tMax Climb (%d)\tMax Dive(%d)\n", 
+					(int)Length(pmove->velocity), (int)sqrtf(pmove->velocity[0] * pmove->velocity[0] + pmove->velocity[1] * pmove->velocity[1]),
+					maxSpeed, maxGroundSpeed, maxClimb, maxDive);
+				ConsolePrint(msg);
+				maxSpeed=0, maxGroundSpeed=0, maxClimb=0, maxDive=0;
+				speedMeasured = false;
+			}
+         }
 
         DrawInfoLocationText();
         DrawHUDStructureNotification();

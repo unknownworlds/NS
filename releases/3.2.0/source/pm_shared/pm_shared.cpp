@@ -5219,19 +5219,24 @@ void PM_PreventMegaCrazyLerkPancakage() {
 
 	vec3_t vertical={0,0,-1.0f};
 
-	vec3_t forward;
-	vec3_t tmp;
+	vec3_t normalizedVelocity;
+
 
 	spd = Length( pmove->velocity );
 
-	// pseudo-gravity based on angle of ascent.
-	AngleVectors(pmove->angles, forward, tmp, tmp);
-	float dp=DotProduct(forward, vertical);
+
+	VectorCopy(pmove->velocity, normalizedVelocity);
+	VectorNormalize(normalizedVelocity);
+	float dp=DotProduct(normalizedVelocity, vertical);
+
 	if ( dp > 0 ) 
 		dp /= 10.0f;
 	else
 		dp /= 5.0f;
-	
+
+//	if ( DotProduct(up, pmove->velocity) < 0.0f ) 
+//		dp *= -1.0f;
+
 	maxbasespeed *= 1.0f + dp;
 
 	if ( spd <= maxbasespeed )

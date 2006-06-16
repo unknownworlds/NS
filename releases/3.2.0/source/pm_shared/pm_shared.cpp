@@ -5215,7 +5215,7 @@ void PM_PreventMegaCrazyLerkPancakage() {
     float spd;
     // If we have to crop, apply this cropping fraction to velocity
     float fraction;
-	float maxbasespeed=BALANCE_VAR(kLerkBaseSpeedMax) + BALANCE_VAR(kAlienCelerityBonus) * PM_GetCelerityLevel();
+	float maxbasespeed=BALANCE_VAR(kLerkBaseSpeedMax) + (BALANCE_VAR(kAlienCelerityBonus)-5) * PM_GetCelerityLevel();
 
 	vec3_t vertical={0,0,-1.0f};
 
@@ -5226,10 +5226,11 @@ void PM_PreventMegaCrazyLerkPancakage() {
 
 	// pseudo-gravity based on angle of ascent.
 	AngleVectors(pmove->angles, forward, tmp, tmp);
-	float dp=DotProduct(forward, vertical)/10.0f;
-	if ( dp > -0.025 && dp < 0.025 ) 
-		dp=0.0;
-
+	float dp=DotProduct(forward, vertical);
+	if ( dp > 0 ) 
+		dp /= 10.0f;
+	else
+		dp /= 5.0f;
 	
 	maxbasespeed *= 1.0f + dp;
 

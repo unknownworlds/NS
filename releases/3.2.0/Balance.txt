@@ -405,7 +405,7 @@
 #define kJoinTeamCooldown 3.00
 #define kKNROF 0.65
 #define kLeapEnergyCost 0.25
-#define kLerkBaseSpeedMax 600.0
+#define kLerkBaseSpeedMax 650.0
 #define kLeapROF 0.50
 #define kMGROF 0.10
 #define kMarineArmorLevelOne 0.20

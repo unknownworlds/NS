@@ -732,30 +732,30 @@ void Net_InitializeMessages(void)
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 #ifndef AVH_SERVER
-	void NetMsg_TeamScore( void* const buffer, const int size, string& team_name, int& score, int& deaths )
+	void NetMsg_TeamScore( void* const buffer, const int size, string& team_name, int& score, int& reset )
 	{
 		BEGIN_READ( buffer, size );
 			team_name = READ_STRING();
 			score = READ_SHORT();
-			deaths = READ_SHORT();
+			reset = READ_SHORT();
 		END_READ();
 	}
 #else
-	void NetMsg_TeamScore( entvars_t* const pev, const string& team_name, const int score, const int deaths )
+	void NetMsg_TeamScore( entvars_t* const pev, const string& team_name, const int score, const int reset )
 	{
 		MESSAGE_BEGIN( MSG_ONE, g_msgTeamScore, NULL, pev );
 			WRITE_STRING( team_name.c_str() );
 			WRITE_SHORT( score );
-			WRITE_SHORT( deaths );
+			WRITE_SHORT( reset );
 		MESSAGE_END();
 	}
 
-	void NetMsg_TeamScore( const string& team_name, const int score, const int deaths )
+	void NetMsg_TeamScore( const string& team_name, const int score, const int reset )
 	{
 		MESSAGE_BEGIN( MSG_ALL, g_msgTeamScore );
 			WRITE_STRING( team_name.c_str() );
 			WRITE_SHORT( score );
-			WRITE_SHORT( deaths );
+			WRITE_SHORT( reset );
 		MESSAGE_END();
 	}
 #endif

@@ -147,10 +147,10 @@ SBColumnInfo g_ColumnInfo[NUM_COLUMNS] =
     {NULL,			24,			Label::a_east},		// status icons
 	{NULL,			110,		Label::a_east},		// name
 	{NULL,			56,			Label::a_east},		// class
+	{NULL,			40,			Label::a_east},     // resources
 	{"#SCORE",		40,			Label::a_east},     // score
     {"#KILLS",      40,         Label::a_east},     // kills
 	{"#DEATHS",		40,			Label::a_east},     // deaths
-	{NULL,			40,			Label::a_east},     // resources
 	{"#LATENCY",	40,			Label::a_east},     // ping
 	{"#VOICE",		40,			Label::a_east},     
 	{NULL,			2,			Label::a_east},		// blank column to take up the slack
@@ -482,8 +482,8 @@ void ScorePanel::SortTeams()
 	for ( int i = 1; i <= m_iNumTeams; i++ )
 	{
 		if ( !g_TeamInfo[i].scores_overriden )
-			g_TeamInfo[i].score = g_TeamInfo[i].frags = g_TeamInfo[i].deaths = 0;
-		g_TeamInfo[i].ping = g_TeamInfo[i].packetloss = 0;
+			g_TeamInfo[i].score =0;
+		g_TeamInfo[i].deaths = g_TeamInfo[i].ping = g_TeamInfo[i].packetloss = 0;
 	}
 
 	// recalc the team scores, then draw them
@@ -507,10 +507,10 @@ void ScorePanel::SortTeams()
 		if ( !g_TeamInfo[j].scores_overriden )
 		{
             g_TeamInfo[j].score += g_PlayerExtraInfo[i].score;
-			g_TeamInfo[j].frags += g_PlayerExtraInfo[i].frags;
-			g_TeamInfo[j].deaths += g_PlayerExtraInfo[i].deaths;
 		}
 
+		g_TeamInfo[j].deaths += g_PlayerExtraInfo[i].deaths;
+		g_TeamInfo[j].frags += g_PlayerExtraInfo[i].frags;
 		g_TeamInfo[j].ping += g_PlayerInfoList[i].ping;
 		g_TeamInfo[j].packetloss += g_PlayerInfoList[i].packetloss;
 
@@ -993,7 +993,7 @@ void ScorePanel::FillGrid()
 					break;
                 case COLUMN_SCORE:
                     // Don't show score for enemies unless spectating or in RR
-                    if ((m_iIsATeam[row] == TEAM_YES) && team_info && ((theLocalPlayerTeam == 0) || (theLocalPlayerTeam == team_info->teamnumber)))
+                    if ((m_iIsATeam[row] == TEAM_YES) && team_info && (theLocalPlayerTeam == team_info->teamnumber))
                         sprintf(sz, "%d",  team_info->score);
                     break;
 				case COLUMN_EXTRA:
@@ -1231,7 +1231,7 @@ void ScorePanel::FillGrid()
 #endif
 					break;
                 case COLUMN_SCORE:
-                    if(!theIsForEnemy)
+                    if(!theIsForEnemy && theLocalPlayerTeam != TEAM_IND )
                     {
                         const float kDeltaDisplayTime = 3.0f;
                         float theTimeSinceChange = gHUD.GetTimeOfLastUpdate() - theExtraPlayerInfo->timeOfLastScoreChange;
@@ -1250,7 +1250,7 @@ void ScorePanel::FillGrid()
                     break;
 
 				case COLUMN_EXTRA:
-					if(!theIsForEnemy && theExtraPlayerInfo->teamnumber != TEAM_IND && theExtraPlayerInfo->teamnumber != TEAM_SPECT )
+					if(( !theIsForEnemy || theLocalPlayerTeam == TEAM_SPECT  )&& theLocalPlayerTeam != TEAM_IND && theExtraPlayerInfo->teamnumber != TEAM_IND && theExtraPlayerInfo->teamnumber != TEAM_SPECT )
                     {
 						if ( isNsMode ) {
 							if ( theExtraPlayerInfo->teamnumber == TEAM_ONE || theExtraPlayerInfo->teamnumber == TEAM_THREE )  {

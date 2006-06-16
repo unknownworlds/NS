@@ -1916,8 +1916,8 @@ void AvHGamerules::TallyVictoryStats() const
 		theLosingTeam = &this->mTeamA;
 	}
 
-	ALERT(at_logged, "Team \"%d\" scored \"%d\" with \"%d\" players\n", this->mTeamA.GetTeamNumber(), this->mTeamA.GetTotalResourcesGathered(), this->mTeamA.GetPlayerCount());
-	ALERT(at_logged, "Team \"%d\" scored \"%d\" with \"%d\" players\n", this->mTeamB.GetTeamNumber(), this->mTeamB.GetTotalResourcesGathered(), this->mTeamB.GetPlayerCount());
+	ALERT(at_logged, "Team \"%d\" scored \"%.2f\" with \"%d\" players\n", this->mTeamA.GetTeamNumber(), this->mTeamA.GetTotalResourcesGathered(), this->mTeamA.GetPlayerCount());
+	ALERT(at_logged, "Team \"%d\" scored \"%.2f\" with \"%d\" players\n", this->mTeamB.GetTeamNumber(), this->mTeamB.GetTotalResourcesGathered(), this->mTeamB.GetPlayerCount());
 
 	if(!this->mVictoryDraw)
 	{
@@ -4116,13 +4116,18 @@ void AvHGamerules::UpdateVictoryStatus(void)
 				// Final game time update to all clients have same winning time
 				this->SendGameTimeUpdate(true);
 
-				// Send final score to everyone if needed
-				this->mTeamA.SendResourcesGatheredScore(false);
-				this->mTeamB.SendResourcesGatheredScore(false);
 
 			END_FOR_ALL_ENTITIES(kAvHPlayerClassName)
+
+			// Send final score to everyone if needed
+			this->mTeamA.SendResourcesGatheredScore(false);
+			this->mTeamB.SendResourcesGatheredScore(false);
+
 			// Tell everyone that the game ended
 			NetMsg_GameStatus_State( kGameStatusEnded, this->mMapMode );
+
+			NetMsg_TeamScore(this->mTeamA.GetTeamName(), 0, 1 );
+			NetMsg_TeamScore(this->mTeamB.GetTeamName(), 0, 1 );
 		}
 	}
 }

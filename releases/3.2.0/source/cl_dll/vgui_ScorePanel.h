@@ -20,10 +20,10 @@
 #define COLUMN_RANK_ICON	1
 #define COLUMN_NAME			2
 #define COLUMN_CLASS		3
-#define COLUMN_SCORE        4
-#define COLUMN_KILLS        5
-#define COLUMN_DEATHS		6
-#define COLUMN_EXTRA	    7
+#define COLUMN_EXTRA	    4
+#define COLUMN_SCORE        5
+#define COLUMN_KILLS        6
+#define COLUMN_DEATHS		7
 #define COLUMN_LATENCY		8
 #define COLUMN_VOICE		9
 #define COLUMN_BLANK		10

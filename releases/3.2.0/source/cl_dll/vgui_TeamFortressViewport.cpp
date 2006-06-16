@@ -2580,8 +2580,8 @@ int TeamFortressViewport::MsgFunc_ScoreInfo( const char *pszName, int iSize, voi
 int TeamFortressViewport::MsgFunc_TeamScore( const char *pszName, int iSize, void *pbuf )
 {
 	string team_name;
-	int score, deaths;
-	NetMsg_TeamScore( pbuf, iSize, team_name, score, deaths );
+	int score, reset;
+	NetMsg_TeamScore( pbuf, iSize, team_name, score, reset);
 
 	// find the team matching the name
 	for ( int i = 1; i <= m_pScoreBoard->m_iNumTeams; i++ )
@@ -2594,9 +2594,12 @@ int TeamFortressViewport::MsgFunc_TeamScore( const char *pszName, int iSize, voi
 		return 1;
 
 	// use this new score data instead of combined player scores
-	g_TeamInfo[i].scores_overriden = TRUE;
-	g_TeamInfo[i].frags = score;
-	g_TeamInfo[i].deaths = deaths;
+	if ( reset )
+		g_TeamInfo[i]. scores_overriden = FALSE;
+	else
+		g_TeamInfo[i]. scores_overriden = TRUE;
+
+	g_TeamInfo[i].score = score;
 
 	return 1;
 }

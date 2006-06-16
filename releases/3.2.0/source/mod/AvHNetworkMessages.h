@@ -65,7 +65,7 @@
 	void NetMsg_StatusValue( entvars_t* const pev, const int location, const int state );
 	void NetMsg_TeamInfo( entvars_t* const pev, const int player_index, const string& team_id );
 	void NetMsg_TeamNames( entvars_t* const pev, const vector<string>& team_names );
-	void NetMsg_TeamScore( entvars_t* const pev, const string& team_name, const int score, const int deaths );
+	void NetMsg_TeamScore( entvars_t* const pev, const string& team_name, const int score, const int reset );
 	void NetMsg_TextMsg( entvars_t* const pev, const int destination, const vector<string>& message );
 	void NetMsg_Train( entvars_t* const pev, const int state );
 	void NetMsg_WeaponList( entvars_t* const pev, const WeaponList& weapon );
@@ -116,7 +116,7 @@
 	void NetMsg_GameStatus_Time( const int status_code, const int map_mode, const int game_time, const int timelimit, const int attacking_team_number, const bool is_reliable );
 	void NetMsg_SayText( const int entity_index, const string& text, const string& location );
 	void NetMsg_TeamInfo( const int player_index, const string& team_id );
-	void NetMsg_TeamScore( const string& team_name, const int score, const int deaths );
+	void NetMsg_TeamScore( const string& team_name, const int score, const int reset );
 	void NetMsg_TextMsg( const int destination, const vector<string>& message );
 	void NetMsg_ScoreInfo( const ScoreInfo& info );
 	void NetMsg_UpdateCountdown( const int countdown );
@@ -162,7 +162,7 @@
 	void NetMsg_StatusValue( void* const buffer, const int size, int& location, int& state );
 	void NetMsg_TeamInfo( void* const buffer, const int size, int& player_index, string& team_id );
 	void NetMsg_TeamNames( void* const buffer, const int size, vector<string>& team_names );
-	void NetMsg_TeamScore( void* const buffer, const int size, string& team_name, int& score, int& deaths );
+	void NetMsg_TeamScore( void* const buffer, const int size, string& team_name, int& score, int& reset );
 	void NetMsg_TextMsg( void* const buffer, const int size, int& destination, vector<string>& message );
 	//30
 	void NetMsg_Train( void* const buffer, const int size, int& state );

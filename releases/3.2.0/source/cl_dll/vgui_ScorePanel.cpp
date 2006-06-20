@@ -483,7 +483,7 @@ void ScorePanel::SortTeams()
 	{
 		if ( !g_TeamInfo[i].scores_overriden )
 			g_TeamInfo[i].score =0;
-		g_TeamInfo[i].deaths = g_TeamInfo[i].ping = g_TeamInfo[i].packetloss = 0;
+		g_TeamInfo[i].frags = g_TeamInfo[i].deaths = g_TeamInfo[i].ping = g_TeamInfo[i].packetloss = 0;
 	}
 
 	// recalc the team scores, then draw them

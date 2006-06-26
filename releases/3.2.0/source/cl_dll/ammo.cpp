@@ -829,15 +829,14 @@ int CHudAmmo::MsgFunc_CurWeapon(const char *pszName, int iSize, void *pbuf )
 	pWeapon->iEnabled = (iState & WEAPON_IS_ENABLED) != 0 ? TRUE : FALSE;
 	pWeapon->iClip = abs(iClip);
 
+	// Ensure that movement is enabled/disabled according to weapons
+	if (iId == 22 || iId == 11 || iId == 21)
+	{
+		gCanMove = pWeapon->iEnabled;
+	}
+
 	if( !bIsCurrent )
 	{ return 1; }
-
-//	char temp[255];
-//	sprintf(temp, "iState %d iId %d iClip %d\n", iState, iId, iClip);
-//	gEngfuncs.pfnConsolePrint(temp);
-
-	if (iId == 22 || iId == 11 || iId == 21)
-		gCanMove = pWeapon->iEnabled;
 
 	m_pWeapon = pWeapon;
 
@@ -890,9 +889,6 @@ int CHudAmmo::MsgFunc_WeaponList(const char *pszName, int iSize, void *pbuf )
 	Weapon.iClip = 0;
 	// puzl: 497 - default value for enable state
 	Weapon.iEnabled = 0;
-
-//	if (Weapon.iId == 22 || Weapon.iId == 11 || Weapon.iId == 21)
-//		gCanMove = true; //Weapon.iEnabled;
 
 	gWR.AddWeapon( &Weapon );
 	return 1;

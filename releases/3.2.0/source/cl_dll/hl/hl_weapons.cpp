@@ -546,6 +546,7 @@ void CBasePlayerWeapon::ItemPostFrame( void )
 	// +movement: Rewritten to allow us to use +attack2 for movement abilities
 	else if ((m_pPlayer->pev->button & IN_ATTACK2) && (m_flNextPrimaryAttack <= 0.0) && (gHUD.GetIsAlien()))
 	{
+		//m_flNextSecondaryAttack
 		// Find out what kind of special movement we are using, and execute the animation for it
 		if (this->PrevAttack2Status == false)
 		{

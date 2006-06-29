@@ -254,6 +254,7 @@ int gVisibleMouse = 0;
 cvar_t *gl_monolights = NULL;
 cvar_t *gl_overbright = NULL;
 cvar_t *gl_clear = NULL;
+cvar_t *cl_rate = NULL;
 cvar_t *hud_draw = NULL;
 cvar_t *r_drawviewmodel = NULL;
 extern cvar_t *cl_movespeedkey;
@@ -3730,6 +3731,7 @@ void AvHHud::Init(void)
 	this->mViewport[0] = this->mViewport[1] = this->mViewport[2] = this->mViewport[3] = 0;
 
 	gl_monolights = gEngfuncs.pfnGetCvarPointer("gl_monolights");
+	cl_rate = gEngfuncs.pfnGetCvarPointer("cl_rate");
 	gl_overbright = gEngfuncs.pfnGetCvarPointer("gl_overbright");
 	gl_clear = gEngfuncs.pfnGetCvarPointer("gl_clear");
 	hud_draw = gEngfuncs.pfnGetCvarPointer("hud_draw");
@@ -4714,6 +4716,7 @@ void AvHHud::UpdateExploitPrevention()
 {
 	//Note: Sometimes some clients will not have these cvars, so be sure to check that they are not null.
 	FORCE_CVAR(gl_monolights, 0.0f);
+	FORCE_CVAR(cl_rate, 9999.0f);
 	FORCE_CVAR(gl_overbright, 0.0f);
 	FORCE_CVAR(gl_clear, 0.0f);
 	FORCE_CVAR(hud_draw, 1.0f);

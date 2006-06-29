@@ -93,7 +93,8 @@
 
 #define		kTeammateOrderSprite		"sprites/query.spr"
 
-#define		kProgressBarSprite			"sprites/640experience.spr"
+#define		kExperienceBarSprite	"sprites/640experience.spr"
+#define		kProgressBarSprite		"sprites/640progress.spr"
 
 #define PROGRESS_BAR_ALIEN			0
 #define PROGRESS_BAR_GESTATE		PROGRESS_BAR_ALIEN

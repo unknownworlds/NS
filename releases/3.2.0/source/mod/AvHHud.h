@@ -363,7 +363,7 @@ public:
     void            RenderMarineUI();
     void            RenderCommanderUI();
     void            RenderAlienUI();
-	void			RenderProgressBar();
+	void			RenderProgressBar(char *spriteName);
     void            RenderMiniMap(int inX, int inY, int inWidth, int inHeight);
 
     void            RenderStructureRanges();
@@ -772,6 +772,7 @@ private:
 	float					mFogStart;
 	float					mFogEnd;
 
+	HSPRITE					mExperienceBarSprite;
 	HSPRITE					mProgressBarSprite;
 
 	AvHBaseInfoLocationListType		mInfoLocationList;

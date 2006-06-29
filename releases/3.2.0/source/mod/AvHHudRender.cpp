@@ -2726,7 +2726,7 @@ void AvHHud::Render()
             DrawWarpedOverlaySprite(mDigestingSprite, 4, 3, .02, .02, .3, .15);
         }        
 
-		RenderProgressBar();
+		RenderProgressBar(kProgressBarSprite);
 	}
     else
     {
@@ -2766,7 +2766,7 @@ void AvHHud::Render()
                 RenderAlienUI();
             }
 
-			RenderProgressBar();
+			RenderProgressBar(kProgressBarSprite);
         }
 
     }
@@ -3093,13 +3093,20 @@ void AvHHud::RenderCommonUI()
 
 }
 
-void AvHHud::RenderProgressBar()
+void AvHHud::RenderProgressBar(char *spriteName)
 {
 	// Draw the progress bars
 	const float progressBarStayTime = 0.2f;
 	if (this->mProgressBarLastDrawn + progressBarStayTime > this->GetTimeOfLastUpdate())
 	{
-		if (this->mProgressBarSprite)
+		HSPRITE currentSprite=0;
+		if ( spriteName && ( strcmp(spriteName, kExperienceBarSprite) == 0 ) ) {
+			currentSprite=this->mExperienceBarSprite;
+		}
+		if ( spriteName && ( strcmp(spriteName, kProgressBarSprite) == 0 ) ) {
+			currentSprite=this->mProgressBarSprite;
+		}
+		if (currentSprite)
 		{
 			const float kNormalizedWidth = .1f;
 			const float kNormalizedYInset = .89f;
@@ -3112,13 +3119,13 @@ void AvHHud::RenderProgressBar()
             AvHSpriteSetColor(1,1,1);
             AvHSpriteSetRenderMode(kRenderTransAlpha);
 
-			AvHSpriteDraw(this->mProgressBarSprite, this->mProgressBarDrawframe + 1, kXStart, kYStart, kXStart + kNormalizedWidth*ScreenWidth(), kYStart + kNormalizedHeight*ScreenHeight(), 0, 0, 1, 1);
+			AvHSpriteDraw(currentSprite, this->mProgressBarDrawframe + 1, kXStart, kYStart, kXStart + kNormalizedWidth*ScreenWidth(), kYStart + kNormalizedHeight*ScreenHeight(), 0, 0, 1, 1);
 			
 			// Draw overlay showing progress
 			float theProgress = this->mProgressBarStatus;
 			if((theProgress >= 0.0f) && (theProgress <= 1.0f))
             {
-    			AvHSpriteDraw(this->mProgressBarSprite, this->mProgressBarDrawframe, kXStart, kYStart, kXStart + theProgress*kNormalizedWidth*ScreenWidth(), kYStart + kNormalizedHeight*ScreenHeight(), 0, 0, theProgress, 1.0f);
+    			AvHSpriteDraw(currentSprite, this->mProgressBarDrawframe, kXStart, kYStart, kXStart + theProgress*kNormalizedWidth*ScreenWidth(), kYStart + kNormalizedHeight*ScreenHeight(), 0, 0, theProgress, 1.0f);
             }
 		}
 	}
@@ -4405,6 +4412,7 @@ void AvHHud::VidInit(void)
 	this->mTeammateOrderSprite = Safe_SPR_Load(kTeammateOrderSprite);
 	// :tankefugl
 
+	this->mExperienceBarSprite = Safe_SPR_Load(kExperienceBarSprite);
 	this->mProgressBarSprite = Safe_SPR_Load(kProgressBarSprite);
 
 	this->mEnemyBlips.VidInit();

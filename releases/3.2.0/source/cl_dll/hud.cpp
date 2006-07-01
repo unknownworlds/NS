@@ -167,6 +167,8 @@ int __MsgFunc_TeamInfo(const char *pszName, int iSize, void *pbuf)
 
 void __CmdFunc_SpecialDummy(void) {}
 
+void __CmdFunc_ClRateDummy(void) { }
+
 // This is called every time the DLL is loaded
 void CHud :: Init( void )
 {
@@ -178,6 +180,7 @@ void CHud :: Init( void )
 	HOOK_COMMAND( "special", SpecialDummy);
 	HOOK_COMMAND( "_special", SpecialDummy);							//prevent abuse
 
+	HOOK_COMMAND( "cl_rate", ClRateDummy);
 
 	HOOK_MESSAGE( TeamNames );
 	HOOK_MESSAGE( MOTD );

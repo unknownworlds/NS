@@ -190,7 +190,7 @@ char* AvHSUGetGameVersionString()
     string theGameVersionString;
     
     theGameVersionString = "v"	+ MakeStringFromInt(BALANCE_VAR(kGameVersionMajor)) + "." + MakeStringFromInt(BALANCE_VAR(kGameVersionMinor)) + "." +
-		MakeStringFromInt(BALANCE_VAR(kGameVersionRevision)) + "-552";
+		MakeStringFromInt(BALANCE_VAR(kGameVersionRevision)) + "-557";
     
     //memset(theGameVersion, 0, 1024);
     strcpy(theGameVersion, theGameVersionString.c_str());

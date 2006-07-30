@@ -150,7 +150,7 @@ void AvHParasiteGun::FireProjectiles(void)
 	{
 		float theScalar = 1.0f;
 		
-		bool theCanDoDamageTo = GetGameRules()->CanEntityDoDamageTo(this->m_pPlayer, theEntityHit, &theScalar, false);
+		bool theCanDoDamageTo = GetGameRules()->CanEntityDoDamageTo(this->m_pPlayer, theEntityHit, &theScalar);
 		
 		theScalar *= AvHPlayerUpgrade::GetAlienRangedDamageUpgrade(this->m_pPlayer->pev->iuser4);
 

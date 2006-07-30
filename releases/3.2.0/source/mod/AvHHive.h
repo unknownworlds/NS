@@ -156,6 +156,9 @@ public:
 		
 	virtual void	Spawn();
 
+	virtual void	SetEmergencyUse();
+	virtual bool	GetEmergencyUse() const;
+
 	void EXPORT		TeleportUse(CBaseEntity* inActivator, CBaseEntity* inCaller, USE_TYPE inUseType, float inValue);
 
 	//virtual void	UpdateReinforcements();
@@ -182,6 +185,7 @@ private:
 	float			mTimeOfNextUmbra;
 	float			mEnergy;
 	float			mLastTimeScannedHives;
+	float			mTimeEmergencyUseEnabled;
 	int				mTeleportHiveIndex;
 
 };

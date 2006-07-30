@@ -114,7 +114,8 @@ AvHHive::AvHHive() : AvHBaseBuildable(TECH_HIVE, ALIEN_BUILD_HIVE, kesTeamHive, 
 	this->mTechnology = MESSAGE_NULL;	
 	this->mEnergy = 0.0f;
 	this->mLastTimeScannedHives=-1.0f;
-	this->mTeleportHiveIndex=-1;;
+	this->mTimeEmergencyUseEnabled=-1.0f;
+	this->mTeleportHiveIndex=-1;
 
 }
 
@@ -676,7 +677,8 @@ int	AvHHive::TakeDamage( entvars_t *pevInflictor, entvars_t *pevAttacker, float 
 				}
 				else
 				{
-					GetGameRules()->TriggerAlert((AvHTeamNumber)this->pev->team, ALERT_UNDER_ATTACK, this->entindex());
+					if ( pevAttacker->team != this->pev->team ) 
+						GetGameRules()->TriggerAlert((AvHTeamNumber)this->pev->team, ALERT_UNDER_ATTACK, this->entindex());
 				}
 
 				if((this->mTimeLastWoundSound == -1) || ((this->mTimeLastWoundSound + kWoundSoundInterval) < gpGlobals->time))
@@ -904,10 +906,23 @@ void AvHHive::HiveTouch(CBaseEntity* inOther)
     AvHBaseBuildable::BuildableTouch(inOther);
 }
 
+void AvHHive::SetEmergencyUse() {
+	if ( !this->GetEmergencyUse() ) {
+		GetGameRules()->TriggerAlert((AvHTeamNumber)this->pev->team, ALERT_HIVE_DEFEND, this->entindex());
+	}
+	this->mTimeEmergencyUseEnabled=gpGlobals->time;
+}
+
+bool AvHHive::GetEmergencyUse() const {
+	return ( this->mTimeEmergencyUseEnabled > gpGlobals->time - 5.0f ); //BALANCE_VAR(kHiveEmergencyInterval)
+}
+
 void AvHHive::TeleportUse(CBaseEntity* inActivator, CBaseEntity* inCaller, USE_TYPE inUseType, float inValue)
 {
-	if ( this->GetIsSpawning()  ) 
+	if ( this->GetIsSpawning() ) {
+		this->SetEmergencyUse();
 		return;
+	}
 
 	const float kHiveScanInterval = 1.0f;
 
@@ -928,7 +943,7 @@ void AvHHive::TeleportUse(CBaseEntity* inActivator, CBaseEntity* inCaller, USE_T
 				{
 					bool theHiveIsUnderAttack = GetGameRules()->GetIsEntityUnderAttack(theEntity->entindex());
 					// allow teleport to any built hive, or unbuilt hives under attack.
-					if(!theEntity->GetIsSpawning() || ( theEntity->GetIsSpawning() && theHiveIsUnderAttack ) )
+					if(!theEntity->GetIsSpawning() || ( theEntity->GetIsSpawning() && ( theHiveIsUnderAttack || theEntity->GetEmergencyUse()) ) )
 					{
 						theHives.push_back(theEntity->entindex());
 						if ( theHiveIsUnderAttack ) 

@@ -607,7 +607,7 @@ void AvHMovementChamber::TeleportUse(CBaseEntity* inActivator, CBaseEntity* inCa
 				{
 					bool theHiveIsUnderAttack = GetGameRules()->GetIsEntityUnderAttack(theEntity->entindex());
 
-					if(theEntity->GetIsActive() || theHiveIsUnderAttack)
+					if(theEntity->GetIsActive() || theHiveIsUnderAttack || theEntity->GetEmergencyUse() )
 					{
 						float theCurrentDistance = VectorDistance(theEntity->pev->origin, inActivator->pev->origin);
 						bool theHiveIsFarther = (theCurrentDistance > theFarthestDistance);

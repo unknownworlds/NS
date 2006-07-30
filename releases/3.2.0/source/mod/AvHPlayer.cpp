@@ -856,7 +856,7 @@ void AvHPlayer::ClearRoleAbilities()
     this->pev->iuser4 &= ~MASK_ALIEN_EMBRYO;
     this->pev->iuser4 &= ~MASK_ALIEN_MOVEMENT;
     this->mIsScreaming = false;
-    this->mAlienSightActive = false;
+    //this->mAlienSightActive = false;
     this->mDesiredRoomType = 0;
 }
 
@@ -4593,7 +4593,7 @@ void AvHPlayer::Killed( entvars_t *pevAttacker, int iGib )
         this->mTimeToBeUnensnared = -1;
         this->mLastTimeEnsnared = -1;
         
-        this->mAlienSightActive = false;
+        //this->mAlienSightActive = false;
         this->mEvolution = MESSAGE_NULL;
 		this->SetUsedKilled(false);
         

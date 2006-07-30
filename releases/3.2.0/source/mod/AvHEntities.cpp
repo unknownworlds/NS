@@ -1693,7 +1693,7 @@ void AvHWebStrand::Precache(void)
 void AvHWebStrand::Setup(const Vector& inPointOne, const Vector& inPointTwo)
 {
 	// Create a new entity with CBeam private data
-	this->BeamInit(kWebStrandSprite, kWebStrandWidth);
+	this->BeamInit(kWebStrandSprite, 40); //kWebStrandWidth);
 
 	this->PointsInit(inPointOne, inPointTwo);
 	this->SetColor( 255, 255, 255 );
@@ -1703,6 +1703,9 @@ void AvHWebStrand::Setup(const Vector& inPointOne, const Vector& inPointTwo)
 	this->SetBrightness( 8 );
 
 	this->pev->classname = MAKE_STRING(kesTeamWebStrand);
+	this->pev->rendermode = kRenderNormal;
+	this->pev->renderfx = kRenderFxFlickerFast;
+	this->pev->renderamt = 20;
 }
 
 void AvHWebStrand::Spawn(void)
@@ -1737,6 +1740,9 @@ void AvHWebStrand::StrandThink()
 	this->SetColor( 255, 255, 255 );
 	this->SetFrame(1);
 	this->mSolid=true;
+	this->pev->rendermode = kRenderTransAdd;
+	this->pev->renderfx = kRenderFxNone;
+	this->pev->renderamt = 30;
 	SetThink(NULL);
 }
 void AvHWebStrand::StrandExpire()

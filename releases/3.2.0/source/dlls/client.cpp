@@ -2810,7 +2810,7 @@ int AddToFullPack( struct entity_state_s *state, int e, edict_t *ent, edict_t *h
 			marineGlow = true;
 		}
 
-		if(( marineGlow || (ent->v.team == theReceivingPlayer->pev->team)) && (ent != theReceivingPlayer->edict()) && (ent->v.team != 0))
+		if(( marineGlow || (ent->v.team == theReceivingPlayer->pev->team)) && (ent != theReceivingPlayer->edict()) && (ent->v.team != TEAM_IND) && (ent->v.team != TEAM_SPECT ))
 		{
 			state->rendermode = kRenderTransAdd;
 			state->renderamt = 150;

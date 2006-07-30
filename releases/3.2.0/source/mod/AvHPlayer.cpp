@@ -1338,7 +1338,7 @@ bool AvHPlayer::ExecuteMessage(AvHMessageID inMessageID, bool inInstantaneous, b
 			case ALIEN_ABILITY_LEAP:
 				this->StartLeap();
 				break;
-			case 100:
+			case IMPULSE_FLASHLIGHT:
 				// Eat flashlight event.  Add special mode for alien view here?
 				if(!this->mAlienSightActive)
 					PLAYBACK_EVENT_FULL(FEV_HOSTONLY, this->edict(), gAlienSightOnEventID, 0, this->pev->origin, (float *)&g_vecZero, this->GetAlienAdjustedEventVolume(), 0.0, 0, 0, 0, 0 );

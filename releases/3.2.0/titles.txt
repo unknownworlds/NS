@@ -1511,6 +1511,11 @@ MustGestateUp
 You can only change to higher lifeforms.
 }
 
+SurfaceTooSteep
+{
+You need a flatter surface to gestate on.
+}
+
 MustGestateOnGround
 {
 You must stand on flat ground to gestate.

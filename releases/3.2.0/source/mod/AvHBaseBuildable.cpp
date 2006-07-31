@@ -692,6 +692,7 @@ void AvHBaseBuildable::Killed(entvars_t* pevAttacker, int iGib)
 
 	this->mKilled = true;
     this->mInternalSetConstructionComplete = false;
+	this->mTimeOfLastAutoHeal = -1;
 
 	if (!theInReset)
 	{

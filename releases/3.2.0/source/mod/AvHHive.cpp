@@ -626,6 +626,7 @@ void AvHHive::SetInactive()
 	this->mSpawning = false;
 	this->mSolid = false;
 	this->mTimeLastContributed = -1;
+	this->mTimeEmergencyUseEnabled=-1.0f;
 	this->mTechnology = MESSAGE_NULL;
 
 	this->pev->health = 0;

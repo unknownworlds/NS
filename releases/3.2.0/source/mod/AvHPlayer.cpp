@@ -1151,7 +1151,7 @@ bool AvHPlayer::ExecuteAlienMorphMessage(AvHMessageID inMessageID, bool inInstan
 				vecEnd[2]-=100;
 				UTIL_TraceLine(vecStart, vecEnd, ignore_monsters, dont_ignore_glass, NULL, &tr);
 
-				if ( tr.vecPlaneNormal[2] > 0.7 ) {
+				if ( tr.flFraction == 1.0f || tr.vecPlaneNormal[2] > 0.7 ) {
 					this->Evolve(inMessageID, inInstantaneous);
 					theMessageExecuted = true;
 				}

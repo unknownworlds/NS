@@ -1700,7 +1700,7 @@ void AvHWebStrand::Setup(const Vector& inPointOne, const Vector& inPointTwo)
 	this->SetScrollRate( 0 );
 	this->SetFrame(0);
 	//this->SetBrightness( 64 );
-	this->SetBrightness( 8 );
+	this->SetBrightness( 12 );
 
 	this->pev->classname = MAKE_STRING(kesTeamWebStrand);
 	this->pev->rendermode = kRenderNormal;

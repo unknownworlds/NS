@@ -1144,9 +1144,20 @@ bool AvHPlayer::ExecuteAlienMorphMessage(AvHMessageID inMessageID, bool inInstan
                 {
                     int a = 0;
                 }
-                
-                this->Evolve(inMessageID, inInstantaneous);
-                theMessageExecuted = true;
+				TraceResult tr;
+				Vector vecStart, vecEnd;
+				VectorCopy(this->pev->origin, vecStart);
+				VectorCopy(this->pev->origin, vecEnd);
+				vecEnd[2]-=100;
+				UTIL_TraceLine(vecStart, vecEnd, ignore_monsters, dont_ignore_glass, NULL, &tr);
+
+				if ( tr.vecPlaneNormal[2] > 0.7 ) {
+					this->Evolve(inMessageID, inInstantaneous);
+					theMessageExecuted = true;
+				}
+				else {
+	                this->SendMessage(kSurfaceTooSteep);
+				}
             }
             else
             {

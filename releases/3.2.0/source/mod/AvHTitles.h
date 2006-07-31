@@ -81,6 +81,7 @@
 #define kMustGestateUp					"MustGestateUp"
 #define kMustGestateOnGround			"MustGestateOnGround"
 #define kNotWhileDigesting				"NotWhileDigesting"
+#define kSurfaceTooSteep				"SurfaceTooSteep"
 #define kNoReadyRoomWhileDigested		"NoReadyRoomWhileDigested"
 #define kNeedMoreRoomToGestate			"NeedMoreRoomToGestate"
 #define kNeedOneHiveToGestate			"NeedOneHiveToGestate"

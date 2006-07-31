@@ -2934,7 +2934,7 @@ void CBasePlayer::PostThink()
 				// EMIT_SOUND(ENT(pev), CHAN_BODY, "player/pl_wade1.wav", 1, ATTN_NORM);
 		}
 		// skulks, lerks, fades and jetpackers don't take falling damage
-		else if ((m_flFallVelocity > PLAYER_MAX_SAFE_FALL_SPEED) && (this->pev->iuser3 != AVH_USER3_ALIEN_PLAYER1) && (this->pev->iuser3 != AVH_USER3_ALIEN_PLAYER3) && (this->pev->iuser3 != AVH_USER3_ALIEN_PLAYER4) && (!GetHasUpgrade(this->pev->iuser4, MASK_UPGRADE_7) || !(this->pev->iuser3 == AVH_USER3_MARINE_PLAYER)) )
+		else if ((m_flFallVelocity > PLAYER_MAX_SAFE_FALL_SPEED) && (this->pev->iuser3 != AVH_USER3_ALIEN_PLAYER1) && (this->pev->iuser3 != AVH_USER3_ALIEN_PLAYER3) && (this->pev->iuser3 != AVH_USER3_ALIEN_PLAYER4) && (this->pev->iuser3 != AVH_USER3_ALIEN_EMBRYO) && (!GetHasUpgrade(this->pev->iuser4, MASK_UPGRADE_7) || !(this->pev->iuser3 == AVH_USER3_MARINE_PLAYER)) )
 		{// after this point, we start doing damage
 			
 			float flFallDamage = g_pGameRules->FlPlayerFallDamage( this );

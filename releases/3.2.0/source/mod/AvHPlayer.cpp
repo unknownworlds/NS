@@ -1516,233 +1516,233 @@ void AvHPlayer::GetAnimationForActivity(int inActivity, char outAnimation[64], b
 	
     //bool theIsBlinking = this->GetIsBlinking();
 
-    switch(inActivity)
-    {
-    case ACT_RELOAD:
-        if(!theIsAlien)
+	switch(inActivity)
+	{
+	case ACT_RELOAD:
+		if(!theIsAlien)
 		{
-            strcat(outAnimation, this->m_szAnimExtention);
+			strcat(outAnimation, this->m_szAnimExtention);
 			strcat(outAnimation, "_reload");
 	
 			theIsReloading = true;
-        };
-        break;
+		};
+		break;
 	// updated by Elven for TPRAs
-     case ACT_RELOAD_START: 
-        if(!theIsAlien)
-        {
+	case ACT_RELOAD_START: 
+		if(!theIsAlien)
+		{
 			strcat(outAnimation, this->m_szAnimExtention);
 			strcat(outAnimation, "_reload_start");
 			theIsReloading = true;
 		};
 		break;
 	case ACT_RELOAD_INSERT:
-        if(!theIsAlien)
-        {
-			 strcat(outAnimation, this->m_szAnimExtention);
+		if(!theIsAlien)
+		{
+			strcat(outAnimation, this->m_szAnimExtention);
 			strcat(outAnimation, "_reload_insert");
 			theIsReloading = true;
 		};
 		break;
 	case ACT_RELOAD_END:
-        if(!theIsAlien)
-        {
+		if(!theIsAlien)
+		{
 			strcat(outAnimation, this->m_szAnimExtention);
 			strcat(outAnimation, "_reload_end");
 			theIsReloading = true;
 		};
 		break;
-    case ACT_RANGE_PRIME:
-        if(theCanCrouch && theIsCrouched)
-        {
-            strcpy(outAnimation, "crouch_" );
-        }
-        strcat(outAnimation, this->m_szAnimExtention);
-        strcat(outAnimation, "_prime");
-        break;
+	case ACT_RANGE_PRIME:
+		if(theCanCrouch && theIsCrouched)
+		{
+			strcpy(outAnimation, "crouch_" );
+		}
+		strcat(outAnimation, this->m_szAnimExtention);
+		strcat(outAnimation, "_prime");
+		break;
 
-    case ACT_RANGE_ATTACK1:
-        if(theCanCrouch && theIsCrouched)
-        {
-            strcpy(outAnimation, "crouch_" );
-        }
-        strcat(outAnimation, this->m_szAnimExtention);
-        if(theIsAlien)
-        {
-            strcat(outAnimation, "_alien");
-        }
-        else
-        {
-            strcat(outAnimation, "_fire");
-        }
-        break;
+	case ACT_RANGE_ATTACK1:
+		if(theCanCrouch && theIsCrouched && !theIsAlien )
+		{
+			strcpy(outAnimation, "crouch_" );
+		}
+		strcat(outAnimation, this->m_szAnimExtention);
+		if(theIsAlien)
+		{
+			strcat(outAnimation, "_alien");
+		}
+		else
+		{
+			strcat(outAnimation, "_fire");
+		}
+		break;
 
-    case ACT_HOP:
-        strcat(outAnimation, "jump");
-        break;
+	case ACT_HOP:
+		strcat(outAnimation, "jump");
+		break;
 
-    case ACT_WALK:
-        if(inGaitSequence || !strcmp(this->m_szAnimExtention, ""))
-        {
-            strcat(outAnimation, "walk");
-        }
-        else
-        {
-            if(theCanCrouch && theIsCrouched)
-            {
-                strcpy(outAnimation, "crouch_" );
-            }
-            strcat(outAnimation, this->m_szAnimExtention);
-            if(theCanCrouch)
-            {
-                if(theIsReloading)
-                {
-                    strcat(outAnimation, "_reload");
-                }
-                else
-                {
-                    strcat(outAnimation, "_look");
-                }
-            }
-        }
-        break;
+	case ACT_WALK:
+		if(inGaitSequence || !strcmp(this->m_szAnimExtention, ""))
+		{
+			strcat(outAnimation, "walk");
+		}
+		else
+		{
+			if(theCanCrouch && theIsCrouched)
+			{
+				strcpy(outAnimation, "crouch_" );
+			}
+			strcat(outAnimation, this->m_szAnimExtention);
+			if(theCanCrouch)
+			{
+				if(theIsReloading)
+				{
+					strcat(outAnimation, "_reload");
+				}
+				else
+				{
+					strcat(outAnimation, "_look");
+				}
+			}
+		}
+		break;
 
-    case ACT_RUN:
-        if(inGaitSequence || !strcmp(this->m_szAnimExtention, ""))
-        {
-            strcat(outAnimation, "run");
-        }
-        else
-        {
-            if(theCanCrouch && theIsCrouched)
-            {
-                strcpy(outAnimation, "crouch_" );
-            }
-            strcat(outAnimation, this->m_szAnimExtention);
-            if(theCanCrouch)
-            {
-                //if(theIsReloading)
-                //{
-                //  strcat(outAnimation, "_reload");
-                //}
-                //else
-                //{
-                if(theIsReloading)
-                {
-                    strcpy(outAnimation, this->m_szAnimExtention);
-                    strcat(outAnimation, "_reload");
-                }
-                else
-                {
-                    strcat(outAnimation, "_look");
-                }
-                //}
-            }
-        }
-        break;
+	case ACT_RUN:
+		if(inGaitSequence || !strcmp(this->m_szAnimExtention, ""))
+		{
+			strcat(outAnimation, "run");
+		}
+		else
+		{
+			if(theCanCrouch && theIsCrouched)
+			{
+				strcpy(outAnimation, "crouch_" );
+			}
+			strcat(outAnimation, this->m_szAnimExtention);
+			if(theCanCrouch)
+			{
+				//if(theIsReloading)
+				//{
+				//  strcat(outAnimation, "_reload");
+				//}
+				//else
+				//{
+				if(theIsReloading)
+				{
+					strcpy(outAnimation, this->m_szAnimExtention);
+					strcat(outAnimation, "_reload");
+				}
+				else
+				{
+					strcat(outAnimation, "_look");
+				}
+				//}
+			}
+		}
+		break;
 
-    case ACT_CROUCHIDLE:
-        if(theCanCrouch)
-        {
-            if(inGaitSequence)
-            {
-                strcat(outAnimation, "crouch_idle");
-            }
-        }
-        break;
-    case ACT_CROUCH:
-        if(theCanCrouch)
-        {
-            if(inGaitSequence)
-            {
-                strcat(outAnimation, "crawl");
-            }
-            else
-            {
-            }
-        }
-        break;
-    case ACT_IDLE:
-        // Weird hack/fix for gyrating and ready room spazzing
-        //if(this->GetPlayMode() != PLAYMODE_READYROOM)
-        //{
-            if(inGaitSequence)
-            {
-                if(theIsReloading)
-                {
-                    strcat(outAnimation, "_reload");
-                }
-                else
-                {
-                    strcat(outAnimation, "idle1");
-                }
-            }
-            else
-            {
-                strcat(outAnimation, "look_idle");
-            }
-        //}
-        break;
+	case ACT_CROUCHIDLE:
+		if(theCanCrouch)
+		{
+			if(inGaitSequence)
+			{
+				strcat(outAnimation, "crouch_idle");
+			}
+		}
+		break;
+	case ACT_CROUCH:
+		if(theCanCrouch)
+		{
+			if(inGaitSequence)
+			{
+				strcat(outAnimation, "crawl");
+			}
+			else
+			{
+			}
+		}
+		break;
+	case ACT_IDLE:
+		// Weird hack/fix for gyrating and ready room spazzing
+		//if(this->GetPlayMode() != PLAYMODE_READYROOM)
+		//{
+			if(inGaitSequence)
+			{
+				if(theIsReloading)
+				{
+					strcat(outAnimation, "_reload");
+				}
+				else
+				{
+					strcat(outAnimation, "idle1");
+				}
+			}
+			else
+			{
+				strcat(outAnimation, "look_idle");
+			}
+		//}
+		break;
 
-    case ACT_DIESIMPLE:
-    case ACT_DIEVIOLENT:
-        if(this->pev->iuser3 == AVH_USER3_ALIEN_PLAYER3)
-        {
-            strcpy(outAnimation, "death1_die");
-        }
-        else
-        {
-            if(theIsCrouched)
-            {
-                strcpy(outAnimation, "crouch_die");
-            }
-            else
-            {
-                switch(RANDOM_LONG(0, 2))
-                {
-                case 0:
-                    strcpy(outAnimation, "death1_die");
-                    break;
-                case 1:
-                    strcpy(outAnimation, "death2_die");
-                    break;
-                case 2:
-                    strcpy(outAnimation, "death3_die");
-                    break;
-                }
-            }
-        }
-        theIsDeathAnim = true;
-        break;
-    case ACT_DIE_HEADSHOT:
-        strcpy(outAnimation, "head_die");
-        theIsDeathAnim = true;
-        break;
-    case ACT_DIE_GUTSHOT:
-        strcpy(outAnimation, "gut_die");
-        theIsDeathAnim = true;
-        break;
-    case ACT_DIEBACKWARD:
-        // Hack for skulk until artwork can be updated (it has no back_die)
-        if(this->pev->iuser3 != AVH_USER3_ALIEN_PLAYER1)
-        {
-            strcpy(outAnimation, "back_die");
-        }
-        else
-        {
-            strcpy(outAnimation, "gut_die");
-        }
-        theIsDeathAnim = true;
-        break;
-    case ACT_DIEFORWARD:
-        strcpy(outAnimation, "forward_die");
-        theIsDeathAnim = true;
-        break;
-    case ACT_SWIM:
-        // die
-        strcpy(outAnimation, "treadwater");
-        break;
-    }
+	case ACT_DIESIMPLE:
+	case ACT_DIEVIOLENT:
+		if(this->pev->iuser3 == AVH_USER3_ALIEN_PLAYER3)
+		{
+			strcpy(outAnimation, "death1_die");
+		}
+		else
+		{
+			if(theIsCrouched)
+			{
+				strcpy(outAnimation, "crouch_die");
+			}
+			else
+			{
+				switch(RANDOM_LONG(0, 2))
+				{
+				case 0:
+					strcpy(outAnimation, "death1_die");
+					break;
+				case 1:
+					strcpy(outAnimation, "death2_die");
+					break;
+				case 2:
+					strcpy(outAnimation, "death3_die");
+					break;
+				}
+			}
+		}
+		theIsDeathAnim = true;
+		break;
+	case ACT_DIE_HEADSHOT:
+		strcpy(outAnimation, "head_die");
+		theIsDeathAnim = true;
+		break;
+	case ACT_DIE_GUTSHOT:
+		strcpy(outAnimation, "gut_die");
+		theIsDeathAnim = true;
+		break;
+	case ACT_DIEBACKWARD:
+		// Hack for skulk until artwork can be updated (it has no back_die)
+		if(this->pev->iuser3 != AVH_USER3_ALIEN_PLAYER1)
+		{
+			strcpy(outAnimation, "back_die");
+		}
+		else
+		{
+			strcpy(outAnimation, "gut_die");
+		}
+		theIsDeathAnim = true;
+		break;
+	case ACT_DIEFORWARD:
+		strcpy(outAnimation, "forward_die");
+		theIsDeathAnim = true;
+		break;
+	case ACT_SWIM:
+		// die
+		strcpy(outAnimation, "treadwater");
+		break;
+	}
 
     if(theIsGestating)
     {

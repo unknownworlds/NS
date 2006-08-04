@@ -2295,8 +2295,10 @@ void CBasePlayer::PreThink(void)
 
 
 	// If trying to duck, already ducked, or in the process of ducking
-	if ((pev->button & IN_DUCK) || FBitSet(pev->flags,FL_DUCKING) || (m_afPhysicsFlags & PFLAG_DUCKING) )
-		Duck();
+	if ((pev->button & IN_DUCK) || FBitSet(pev->flags,FL_DUCKING) || (m_afPhysicsFlags & PFLAG_DUCKING) ) {
+		if ( AvHMUGetCanDuck(this->pev->iuser3) ) 
+			Duck();
+	}
 
 	if ( !FBitSet ( pev->flags, FL_ONGROUND ) )
 	{

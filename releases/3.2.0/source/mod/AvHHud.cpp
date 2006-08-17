@@ -4722,7 +4722,7 @@ void AvHHud::UpdateExploitPrevention()
 	FORCE_CVAR("gl_clear", gl_clear, 0.0f);
 	FORCE_CVAR("hud_draw", hud_draw, 1.0f);
 	FORCE_CVAR("r_drawviewmodel", r_drawviewmodel, 1.0f);
-	int movespeedkey=AvHMUGetWalkSpeedFactor(this->GetHUDUser3());
+	float movespeedkey=AvHMUGetWalkSpeedFactor(this->GetHUDUser3());
 	FORCE_CVAR("cl_movespeedkey", cl_movespeedkey, movespeedkey);
 	FORCE_CVAR("gl_d3dflip", gl_d3dflip, 1.0f);
 	FORCE_CVAR("s_show", s_show, 0.0f);

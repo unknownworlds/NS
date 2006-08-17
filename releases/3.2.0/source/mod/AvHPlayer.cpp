@@ -1462,7 +1462,7 @@ bool AvHPlayer::ExecuteMessage(AvHMessageID inMessageID, bool inInstantaneous, b
 
 bool AvHPlayer::GetIsAlienSightActive() const
 {
-    return this->mAlienSightActive;
+    return this->mAlienSightActive && this->IsAlive();
 }
 
 void AvHPlayer::SetDesiredNetName(string inDesiredNetName)

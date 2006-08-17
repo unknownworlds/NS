@@ -1144,6 +1144,10 @@ void ClientPrecache( void )
 	PRECACHE_UNMODIFIED_MODEL("sprites/umbra.spr"); 
 	PRECACHE_UNMODIFIED_MODEL("sprites/umbra2.spr"); 
 	PRECACHE_UNMODIFIED_MODEL("sprites/webstrand.spr"); 
+
+	PRECACHE_UNMODIFIED_GENERIC("ns.wad");
+	PRECACHE_UNMODIFIED_GENERIC("ns2.wad");
+	PRECACHE_UNMODIFIED_GENERIC("v_wad.wad");
 }
 
 /*
@@ -2252,6 +2256,7 @@ int	InconsistentFile( const edict_t *player, const char *filename, char *disconn
 			return 0;
 		i++;
 	}
+
 	// Default behavior is to kick the player
 	sprintf( disconnect_message, "Server is enforcing file consistency for %s\n", filename );
 

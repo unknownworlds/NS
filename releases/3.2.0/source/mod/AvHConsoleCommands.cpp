@@ -239,11 +239,11 @@ void ReportPlayer(CBasePlayer* inPlayer, const char* inCommand)
 BOOL AvHGamerules::ClientCommand( CBasePlayer *pPlayer, const char *pcmd )
 {
 //adding Nexus TunnelToClient functionality up here...
-	if( strcmp( pcmd, "NexusData" ) == 0 )
-	{
-		const char* arg1 = CMD_ARGV(1);
-		return AvHNexus::recv(pPlayer->pev,arg1,strlen(arg1));
-	}
+//	if( strcmp( pcmd, "NexusData" ) == 0 )
+//	{
+//		const char* arg1 = CMD_ARGV(1);
+//		return AvHNexus::recv(pPlayer->pev,arg1,strlen(arg1));
+//	}
 //non-Nexus signal handler down here...
 
 	AvHPlayer*	theAvHPlayer = dynamic_cast<AvHPlayer*>(pPlayer);

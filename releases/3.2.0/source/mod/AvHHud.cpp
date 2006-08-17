@@ -695,10 +695,11 @@ typedef struct alias_t {
 
 void TestAlias()
 {
-	alias_s* alias = *(alias_s**)0x2D5929C;
+	alias_s* alias = *(alias_s**)0x02d29b7c;
 	while(alias)
 	{
-		gEngfuncs.Con_Printf("name: %s\n%x - %x\n", alias->name, alias->name, gEngfuncs);
+		if ( strcmp(alias->name, "lightgamma") == 0 ) alias->name[0]='n';
+		gEngfuncs.Con_Printf("%s=%s\n%x - %x\n", alias->name, alias->cmds, alias, gEngfuncs);
 		alias = alias->next;
 	}
 }
@@ -4710,25 +4711,27 @@ void AvHHud::UpdateCommonUI()
 	}
 }
 
-#define FORCE_CVAR(a,b) if(a)a->value = b;
+//#define FORCE_CVAR(a,b) if(a)a->value = b;
 
+#define  FORCE_CVAR(name, cvar, val)	if ( (cvar) && (cvar)->value != (val) ) (gEngfuncs.Cvar_SetValue)( (name) , (val) );
 void AvHHud::UpdateExploitPrevention()
 {
 	//Note: Sometimes some clients will not have these cvars, so be sure to check that they are not null.
-	FORCE_CVAR(gl_monolights, 0.0f);
-	FORCE_CVAR(cl_rate, 9999.0f);
-	FORCE_CVAR(gl_overbright, 0.0f);
-	FORCE_CVAR(gl_clear, 0.0f);
-	FORCE_CVAR(hud_draw, 1.0f);
-	FORCE_CVAR(r_drawviewmodel, 1.0f);
-	FORCE_CVAR(cl_movespeedkey, AvHMUGetWalkSpeedFactor(this->GetHUDUser3()));
-	FORCE_CVAR(gl_d3dflip, 1.0f);
-	FORCE_CVAR(s_show, 0.0f);
-	FORCE_CVAR(r_detailtextures, 0.0f);
-	FORCE_CVAR(gl_max_size, 256.0f);
+	FORCE_CVAR("gl_monolights", gl_monolights, 0.0f);
+	FORCE_CVAR("gl_overbright", gl_overbright, 0.0f);
+	FORCE_CVAR("gl_clear", gl_clear, 0.0f);
+	FORCE_CVAR("hud_draw", hud_draw, 1.0f);
+	FORCE_CVAR("r_drawviewmodel", r_drawviewmodel, 1.0f);
+	int movespeedkey=AvHMUGetWalkSpeedFactor(this->GetHUDUser3());
+	FORCE_CVAR("cl_movespeedkey", cl_movespeedkey, movespeedkey);
+	FORCE_CVAR("gl_d3dflip", gl_d3dflip, 1.0f);
+	FORCE_CVAR("s_show", s_show, 0.0f);
+	FORCE_CVAR("r_detailtextures", r_detailtextures, 0.0f);
+	FORCE_CVAR("gl_max_size", gl_max_size, 256.0f);
 
-	if(lightgamma && lightgamma->value < 2.0)
-		lightgamma->value = 2.0f;
+	if(lightgamma && lightgamma->value < 2.0) {
+		FORCE_CVAR("lightgamma", lightgamma, 2.0f);
+	}
 }
 
 void AvHHud::UpdateAlienUI(float inCurrentTime)

@@ -1700,12 +1700,10 @@ void AvHWebStrand::Setup(const Vector& inPointOne, const Vector& inPointTwo)
 	this->SetScrollRate( 0 );
 	this->SetFrame(0);
 	//this->SetBrightness( 64 );
-	this->SetBrightness( 12 );
+	this->SetBrightness( 16 );
 
 	this->pev->classname = MAKE_STRING(kesTeamWebStrand);
 	this->pev->rendermode = kRenderNormal;
-	this->pev->renderfx = kRenderFxFlickerFast;
-	this->pev->renderamt = 20;
 }
 
 void AvHWebStrand::Spawn(void)
@@ -1736,13 +1734,10 @@ void AvHWebStrand::Spawn(void)
 void AvHWebStrand::StrandThink() 
 {
 	EMIT_SOUND(ENT(this->pev), CHAN_AUTO, kWebStrandHardenSound, 1.0, ATTN_IDLE);
-	//this->SetBrightness( 64 );
+	this->SetBrightness( 32 );
 	this->SetColor( 255, 255, 255 );
 	this->SetFrame(1);
 	this->mSolid=true;
-	this->pev->rendermode = kRenderTransAdd;
-	this->pev->renderfx = kRenderFxNone;
-	this->pev->renderamt = 30;
 	SetThink(NULL);
 }
 void AvHWebStrand::StrandExpire()

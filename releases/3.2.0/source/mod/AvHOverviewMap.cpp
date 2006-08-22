@@ -707,12 +707,21 @@ void AvHOverviewMap::Draw(const DrawInfo& inDrawInfo)
         AvHSpriteEnableClippingRect(false);
     }
 
+	DrawableEntityListType attackedEntities;
     for (DrawableEntityListType::const_iterator theIter = this->mDrawableEntityList.begin(); theIter != this->mDrawableEntityList.end(); theIter++)
 	{
-        DrawMiniMapEntity(inDrawInfo, *theIter);
+		if ( (*theIter).mIsUnderAttack == true ) 
+				attackedEntities.push_back(*theIter);
+		else
+			DrawMiniMapEntity(inDrawInfo, *theIter);
 	}
 
-    // Draw the way points as entities.
+    for (DrawableEntityListType::const_iterator theIter = attackedEntities.begin(); theIter != attackedEntities.end(); theIter++)
+	{
+			DrawMiniMapEntity(inDrawInfo, *theIter);
+	}
+
+	// Draw the way points as entities.
     
     {
     

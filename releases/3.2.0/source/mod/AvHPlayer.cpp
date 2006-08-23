@@ -10107,13 +10107,13 @@ void AvHPlayer::UpdateEntityHierarchy()
 	//if((theTeam) && GetGameRules()->GetGameStarted())
 	if((theTeam)) // && GetGameRules()->GetGameStarted())
     {
-        if (theTeam->GetTeamType() == AVH_CLASS_TYPE_MARINE ||
-            theTeam->GetTeamType() == AVH_CLASS_TYPE_ALIEN)
+		if (theTeam->GetTeamType() == AVH_CLASS_TYPE_MARINE ||
+				 theTeam->GetTeamType() == AVH_CLASS_TYPE_ALIEN)
         {
             // Pass in previous version so it can optimize and only send diff
             AvHEntityHierarchy& theEntityList = GetGameRules()->GetEntityHierarchy(player->GetTeam());
 
-            if(theEntityList.SendToNetworkStream(this->mClientEntityHierarchy, this->pev))
+            if(theEntityList.SendToNetworkStream(this->mClientEntityHierarchy, this->pev, false))
             {
                 this->mClientEntityHierarchy = theEntityList;
             }

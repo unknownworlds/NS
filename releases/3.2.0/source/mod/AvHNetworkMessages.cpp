@@ -1665,32 +1665,35 @@ union float_converter
 	{
 		ParticleParams gen_params, vel_params;
 		PSVector gravity;
-		MESSAGE_BEGIN( MSG_ONE, g_msgSetParticleTemplates, NULL, pev );
-			WRITE_STRING( particle_template.GetName().c_str() );
-			WRITE_LONG( particle_template.GetMaxParticles() );
-			WRITE_COORD( particle_template.GetParticleSize() );
-			WRITE_STRING( particle_template.GetSprite().c_str() );
-			WRITE_COORD( particle_template.GetParticleSystemLifetime() );
-			WRITE_COORD( particle_template.GetParticleLifetime() );
-			WRITE_COORD( particle_template.GetAnimationSpeed() );
-			WRITE_BYTE( particle_template.GetNumSpriteFrames() );
-			WRITE_COORD( particle_template.GetParticleScaling() );
-			WRITE_BYTE( particle_template.GetRenderMode() );
-			WRITE_LONG( particle_template.GetGenerationRate() );
-			WRITE_BYTE( particle_template.GetGenerationShape() );
-			particle_template.GetGenerationParams( gen_params );
-			for( int counter = 0; counter < 8; counter++ ) { WRITE_LONG( gen_params[counter] ); }
-			WRITE_LONG( particle_template.GetGenerationEntityIndex() );
-			WRITE_COORD( particle_template.GetGenerationEntityParameter() );
-			WRITE_BYTE( particle_template.GetStartingVelocityShape() );
-			particle_template.GetStartingVelocityParams( vel_params );
-			for( int counter = 0; counter < 8; counter++ ) { WRITE_LONG( vel_params[counter] ); }
-			particle_template.GetGravity( gravity );
-			for( int counter = 0; counter < 3; counter++ ) { WRITE_COORD( gravity[counter] ); }
-			WRITE_COORD( particle_template.GetMaxAlpha() );
-			WRITE_LONG( particle_template.GetParticleSystemIndexToGenerate() );
-			WRITE_LONG( particle_template.GetFlags() );
-		MESSAGE_END();
+		if ( pev )
+			MESSAGE_BEGIN( MSG_ONE, g_msgSetParticleTemplates, NULL, pev );
+		else
+			MESSAGE_BEGIN( MSG_SPEC, g_msgSetParticleTemplates);
+				WRITE_STRING( particle_template.GetName().c_str() );
+				WRITE_LONG( particle_template.GetMaxParticles() );
+				WRITE_COORD( particle_template.GetParticleSize() );
+				WRITE_STRING( particle_template.GetSprite().c_str() );
+				WRITE_COORD( particle_template.GetParticleSystemLifetime() );
+				WRITE_COORD( particle_template.GetParticleLifetime() );
+				WRITE_COORD( particle_template.GetAnimationSpeed() );
+				WRITE_BYTE( particle_template.GetNumSpriteFrames() );
+				WRITE_COORD( particle_template.GetParticleScaling() );
+				WRITE_BYTE( particle_template.GetRenderMode() );
+				WRITE_LONG( particle_template.GetGenerationRate() );
+				WRITE_BYTE( particle_template.GetGenerationShape() );
+				particle_template.GetGenerationParams( gen_params );
+				for( int counter = 0; counter < 8; counter++ ) { WRITE_LONG( gen_params[counter] ); }
+				WRITE_LONG( particle_template.GetGenerationEntityIndex() );
+				WRITE_COORD( particle_template.GetGenerationEntityParameter() );
+				WRITE_BYTE( particle_template.GetStartingVelocityShape() );
+				particle_template.GetStartingVelocityParams( vel_params );
+				for( int counter = 0; counter < 8; counter++ ) { WRITE_LONG( vel_params[counter] ); }
+				particle_template.GetGravity( gravity );
+				for( int counter = 0; counter < 3; counter++ ) { WRITE_COORD( gravity[counter] ); }
+				WRITE_COORD( particle_template.GetMaxAlpha() );
+				WRITE_LONG( particle_template.GetParticleSystemIndexToGenerate() );
+				WRITE_LONG( particle_template.GetFlags() );
+			MESSAGE_END();
 	}
 #endif
 
@@ -1921,17 +1924,20 @@ union float_converter
 #else
 	void NetMsg_SetupMap_Extents( entvars_t* const pev, const string& name, const float* const min_extents, const float* const max_extents, const bool draw_background )
 	{
-		MESSAGE_BEGIN( MSG_ONE, g_msgSetupMap, NULL, pev );
-			WRITE_BYTE( 0 );
-			WRITE_STRING( name.c_str() );
-			WRITE_COORD( min_extents[2] );
-			WRITE_COORD( max_extents[2] );
-			WRITE_COORD( min_extents[0] );
-			WRITE_COORD( min_extents[1] );
-			WRITE_COORD( max_extents[0] );
-			WRITE_COORD( max_extents[1] );
-			WRITE_BYTE( draw_background ? 1 : 0 );
-		MESSAGE_END();
+		if ( pev)
+			MESSAGE_BEGIN( MSG_ONE, g_msgSetupMap, NULL, pev );
+		else
+			MESSAGE_BEGIN( MSG_SPEC, g_msgSetupMap);
+				WRITE_BYTE( 0 );
+				WRITE_STRING( name.c_str() );
+				WRITE_COORD( min_extents[2] );
+				WRITE_COORD( max_extents[2] );
+				WRITE_COORD( min_extents[0] );
+				WRITE_COORD( min_extents[1] );
+				WRITE_COORD( max_extents[0] );
+				WRITE_COORD( max_extents[1] );
+				WRITE_BYTE( draw_background ? 1 : 0 );
+			MESSAGE_END();
 	}
 
 	void NetMsg_SetupMap_Location( entvars_t* const pev, const string& name, const float* const min_extents, const float* const max_extents )
@@ -2032,10 +2038,6 @@ const int	kEntHierFlagUnderAttack = 0x04;
 		int index = 0;
 
 		ent.mUnderAttack = ((flags & kEntHierFlagUnderAttack) == kEntHierFlagUnderAttack );
-		if ( ent.mUnderAttack )
-		{
-			int a=0;
-		}
 		ent.mUser3 = (AvHUser3)(long_data & kStatusMask);
 		long_data >>= kNumStatusBits;
 		ent.mTeam = (AvHTeamNumber)(long_data & kTeamMask);
@@ -2074,7 +2076,7 @@ const int	kEntHierFlagUnderAttack = 0x04;
 #else
 	void WriteEntHier( const int index, const MapEntity& ent, bool delete_flag, int& short_data, int& long_data );
 	int PackageCoord( const float coord );
-	void NetMsg_UpdateEntityHierarchy( entvars_t* const pev, const MapEntityMap& NewItems, const EntityListType& OldItems )
+	void NetMsg_UpdateEntityHierarchy( entvars_t* const pev, const MapEntityMap& NewItems, const EntityListType& OldItems, bool specMsg )
 	{
 		const int kMaxUpdatesPerPacket = 30;
 		if( NewItems.empty() && OldItems.empty() ) { return; } //nothing to send!
@@ -2083,29 +2085,43 @@ const int	kEntHierFlagUnderAttack = 0x04;
 		MapEntity temp;
 		EntityListType::const_iterator old_current, old_end = OldItems.end();
 		int short_data, long_data, count = 1;
-		MESSAGE_BEGIN( MSG_ONE, g_msgUpdateEntityHierarchy, NULL, pev );
-			for( new_current = NewItems.begin(); new_current != new_end; ++new_current, ++count )
+		if ( specMsg )  {
+			MESSAGE_BEGIN( MSG_SPEC, g_msgUpdateEntityHierarchy);
+		}
+		else {
+			MESSAGE_BEGIN( MSG_ONE, g_msgUpdateEntityHierarchy, NULL, pev );
+		}
+		for( new_current = NewItems.begin(); new_current != new_end; ++new_current, ++count )
+		{
+			if( count % kMaxUpdatesPerPacket == 0 )
 			{
-				if( count % kMaxUpdatesPerPacket == 0 )
-				{
-					MESSAGE_END();
-					MESSAGE_BEGIN( MSG_ONE, g_msgUpdateEntityHierarchy, NULL, pev );
+				MESSAGE_END();
+				if ( specMsg ) {
+					MESSAGE_BEGIN( MSG_SPEC, g_msgUpdateEntityHierarchy);
 				}
-				WriteEntHier( new_current->first, new_current->second, false, short_data, long_data );
-				WRITE_SHORT(short_data);
-				WRITE_LONG(long_data);
+				else
+					MESSAGE_BEGIN( MSG_ONE, g_msgUpdateEntityHierarchy, NULL, pev );
 			}
-			for( old_current = OldItems.begin(); old_current != old_end; ++old_current, ++count )
+			WriteEntHier( new_current->first, new_current->second, false, short_data, long_data );
+			WRITE_SHORT(short_data);
+			WRITE_LONG(long_data);
+		}
+		for( old_current = OldItems.begin(); old_current != old_end; ++old_current, ++count )
+		{
+			if( count % kMaxUpdatesPerPacket == 0 )
 			{
-				if( count % kMaxUpdatesPerPacket == 0 )
-				{
-					MESSAGE_END();
-					MESSAGE_BEGIN( MSG_ONE, g_msgUpdateEntityHierarchy, NULL, pev );
+				MESSAGE_END();
+				if ( specMsg ) {
+					MESSAGE_BEGIN( MSG_SPEC, g_msgUpdateEntityHierarchy);
 				}
-				WriteEntHier( *old_current, temp, true, short_data, long_data );
-				WRITE_SHORT(short_data);
+				else
+					MESSAGE_BEGIN( MSG_ONE, g_msgUpdateEntityHierarchy, NULL, pev );
 			}
+			WriteEntHier( *old_current, temp, true, short_data, long_data );
+			WRITE_SHORT(short_data);
+		}
 		MESSAGE_END();
+		}
 	}
 
 	void WriteEntHier( const int index, const MapEntity& ent, bool delete_flag, int& short_data, int& long_data )

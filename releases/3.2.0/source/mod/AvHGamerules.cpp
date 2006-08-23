@@ -200,6 +200,7 @@
 #include "util/MathUtil.h"
 #include "mod/AvHNetworkMessages.h"
 #include "mod/AvHNexusServer.h"
+#include "mod/AvHParticleTemplateClient.h"
 
 // puzl: 0001073
 #ifdef USE_OLDAUTH
@@ -704,7 +705,18 @@ BOOL AvHGamerules::GetIsClientAuthorizedToPlay(edict_t* inEntity, bool inDisplay
         theAuthMask = GetGameRules()->GetAuthenticationMask(theAuthID);
     }
 
-	if(theAuthMask & theSecurityMask)
+	if ( inEntity->v.flags & FL_PROXY ) 
+	{
+		if(inDisplayMessage)
+		{
+			char theAuthenticateString[512];
+			sprintf(theAuthenticateString, "Allowing HLTV proxy to join\n");
+			ALERT(at_logged, theAuthenticateString);
+		}
+
+		theIsAuthorized = true;
+	}
+	else if(theAuthMask & theSecurityMask)
 	{
 		if(inDisplayMessage)
 		{
@@ -858,6 +870,8 @@ void AvHGamerules::DeleteAndResetEntities()
 {
 	this->mGameInReset = true;
 
+	mHLTVEntityHierarchy.Clear();
+
 	// Print reset message at console
 	char theResetString[128];
 
@@ -933,10 +947,6 @@ void AvHGamerules::DeleteAndResetEntities()
 		if(GetHasUpgrade(theBaseEntity->pev->iuser4, MASK_BUILDABLE) && (!theBuildable || !theBuildable->GetIsPersistent()))
 		{
 			ASSERT(theBaseEntity->pev->iuser3 != AVH_USER3_HIVE);
-			if(theBaseEntity->pev->iuser3 == AVH_USER3_HIVE)
-			{
-				int a = 0;
-			}
 			UTIL_Remove(theBaseEntity);
 		}
 	END_FOR_ALL_BASEENTITIES();
@@ -1384,6 +1394,9 @@ AvHEntityHierarchy& AvHGamerules::GetEntityHierarchy(AvHTeamNumber inTeam)
 	else if(inTeam == this->mTeamB.GetTeamNumber())
 	{
 		return this->mTeamBEntityHierarchy;
+	}
+	else if (inTeam == TEAM_SPECT) {
+		return this->mSpecEntityHierarchy;
 	}
 	else
 	{
@@ -2043,6 +2056,7 @@ void AvHGamerules::PostWorldPrecacheReset(bool inNewMap)
 
 	this->mTeamAEntityHierarchy.Clear();
 	this->mTeamBEntityHierarchy.Clear();
+	this->mSpecEntityHierarchy.Clear();
 
 	// Set up both sides
 	this->mTeamA.SetTeamType(this->mGameplay.GetTeamAType());
@@ -2751,6 +2765,9 @@ void AvHGamerules::InternalResetGameRules()
 	this->mTimeGameStarted = -1;
 	this->mTimeOfLastGameTimeUpdate = -1;
     this->mTimeOfLastHLTVProxyUpdate = -1;
+	this->mTimeOfForcedLastHLTVProxyUpdate = -1;
+	this->mTimeOfLastHLTVParticleTemplateSending = -1;
+	this->mHLTVNumParticleTemplatesSent=0;
 	this->mTimeSentCountdown = 0;
 	this->mTimeLastWontStartMessageSent = 0;
 	this->mStartedCountdown = false;
@@ -2989,10 +3006,58 @@ void AvHGamerules::UpdateHLTVProxy()
     // Update proxy if connected
     if(theHLTVProxyConnected)
     {
-        const float kHLTVProxyUpdateTime = 6.0f;
+
+
+		const float kParticleTemplateRate = 0.25f;
+		if(gParticleTemplateList.GetCreatedTemplates())
+		{
+			// Make sure client clears out all particle systems first
+			int theNumberTemplates = gParticleTemplateList.GetNumberTemplates();
+			if(theNumberTemplates > this->mHLTVNumParticleTemplatesSent)
+			{
+				if((this->mTimeOfLastHLTVParticleTemplateSending == -1) || (gpGlobals->time > this->mTimeOfLastHLTVParticleTemplateSending + kParticleTemplateRate))
+				{
+					AvHParticleTemplate* theTemplate = gParticleTemplateList.GetTemplateAtIndex(this->mHLTVNumParticleTemplatesSent);
+					ASSERT(theTemplate);
+					NetMsg_SetParticleTemplate( NULL, *theTemplate );
+					this->mHLTVNumParticleTemplatesSent++;
+					this->mTimeOfLastHLTVParticleTemplateSending = gpGlobals->time;
+				}
+			}
+			else {
+					this->mHLTVNumParticleTemplatesSent=0;
+					this->mTimeOfLastHLTVParticleTemplateSending = -1;
+			}
+		}
+
+		const float kHLTVProxyUpdateTime = 6.0f;
+		const float kForcedHLTVProxyUpdateTime = 50.0f;
 
         if((this->mTimeOfLastHLTVProxyUpdate == -1) || (gpGlobals->time > (this->mTimeOfLastHLTVProxyUpdate + kHLTVProxyUpdateTime)))
         {
+			if((this->mTimeOfForcedLastHLTVProxyUpdate == -1) || (gpGlobals->time > (this->mTimeOfForcedLastHLTVProxyUpdate + kForcedHLTVProxyUpdateTime))) {
+				mHLTVEntityHierarchy.Clear();
+				this->mTimeOfForcedLastHLTVProxyUpdate=gpGlobals->time;
+				// Send down map extents so players can start computing it
+				// Cache this so it isn't computed every round, only the when a player connects or a new map starts?
+				const char* theCStrLevelName = STRING(gpGlobals->mapname);
+				const AvHMapExtents& theMapExtents = GetGameRules()->GetMapExtents();
+
+//				ASSERT(theCStrLevelName);
+//				ASSERT(!FStrEq(theCStrLevelName, ""));
+
+				float mins[3] = { theMapExtents.GetMinMapX(), theMapExtents.GetMinMapY(), theMapExtents.GetMinViewHeight() };
+				float maxs[3] = { theMapExtents.GetMaxMapX(), theMapExtents.GetMaxMapY(), theMapExtents.GetMaxViewHeight() };
+
+				NetMsg_SetupMap_Extents( NULL, string( theCStrLevelName ), mins, maxs, theMapExtents.GetDrawMapBG() );
+				int theNumberTemplates = gParticleTemplateList.GetNumberTemplates();
+			}
+
+			AvHEntityHierarchy& theEntityList = GetGameRules()->GetEntityHierarchy(TEAM_SPECT);
+			if ( theEntityList.SendToNetworkStream(mHLTVEntityHierarchy, NULL, true) ) 
+			{
+				mHLTVEntityHierarchy = theEntityList;
+			}
             //char theMessage[256];
             //sprintf(theMessage, "AvHGamerules::UpdateHLTVProxy...\n");
             //ALERT(at_console, theMessage);
@@ -3329,10 +3394,6 @@ void AvHGamerules::Think(void)
 		kServerFrameRate = 0;
 		kNumReturn0 = kNumReturn1 = kNumCached = kNumComputed = 0;
 	}
-	else
-	{
-		int a = 0;
-	}
 
 	this->UpdateServerCommands();
 	this->UpdateGameTime();
@@ -3655,8 +3716,6 @@ void AvHGamerules::TriggerAlert(AvHTeamNumber inTeamNumber, AvHAlertType inAlert
 
 					if(theSound != HUD_SOUND_INVALID)
 					{
-						int a = 0;
-
 						// For all players on this team, play the sound
 						FOR_ALL_ENTITIES(kAvHPlayerClassName, AvHPlayer*)
 							if((theEntity->pev->team == inTeamNumber) || this->GetIsTesting() || (theEntity->GetIsSpectatingTeam(inTeamNumber)))

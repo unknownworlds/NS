@@ -289,7 +289,6 @@ public:
 	bool				GetIsGameInReset() {return this->mGameInReset; };
 
 	int					GetStructureLimit();
-
 protected:
 	void				AutoAssignPlayer(AvHPlayer* inPlayer);
 	void				PerformMapValidityCheck();
@@ -351,6 +350,11 @@ private:
 	float				mTimeCountDownStarted;
 	float				mTimeGameStarted;
     float				mTimeOfLastHLTVProxyUpdate;
+	float				mTimeOfForcedLastHLTVProxyUpdate;
+	float				mTimeOfLastHLTVParticleTemplateSending;
+	int					mHLTVNumParticleTemplatesSent;
+
+	AvHEntityHierarchy	mHLTVEntityHierarchy;
 	float				mTimeOfLastGameTimeUpdate;
 	float				mTimeSentCountdown;
 	float				mTimeLastWontStartMessageSent;
@@ -386,6 +390,7 @@ private:
 	// Potentially marines vs. marines
 	AvHEntityHierarchy	mTeamAEntityHierarchy;
 	AvHEntityHierarchy	mTeamBEntityHierarchy;
+	AvHEntityHierarchy	mSpecEntityHierarchy;
 
 	AvHGameplay			mGameplay;
 

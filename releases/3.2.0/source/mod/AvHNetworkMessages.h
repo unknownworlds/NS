@@ -107,7 +107,7 @@
 	void NetMsg_SetTopDown_TechSlots( entvars_t* const pev, const int tech_slots );
 	void NetMsg_SetupMap_Extents( entvars_t* const pev, const string& name, const float* const min_extents, const float* const max_extents, const bool draw_background );
 	void NetMsg_SetupMap_Location( entvars_t* const pev, const string& name, const float* const min_extents, const float* const max_extents );
-	void NetMsg_UpdateEntityHierarchy( entvars_t* const pev, const MapEntityMap& NewItems, const EntityListType& OldItems );
+	void NetMsg_UpdateEntityHierarchy( entvars_t* const pev, const MapEntityMap& NewItems, const EntityListType& OldItems, bool specMsg);
 	void NetMsg_IssueOrder(entvars_t* const pev, const int ordertype, const int ordersource, const int ordertarget);
 
 	//BROADCAST MESSAGE TRANSMISSION

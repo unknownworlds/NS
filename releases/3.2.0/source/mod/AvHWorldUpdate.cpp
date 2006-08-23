@@ -336,10 +336,10 @@ void UpdateWorldEntity(CBaseEntity* inBaseEntity)
 		if(AvHSUGetInViewOfEnemy(inBaseEntity, theSightedStatus))
 		{
 			inBaseEntity->pev->iuser4 |= theSightedStatus;
-			if(inBaseEntity->pev->classname == MAKE_STRING(kesParticlesCustom))
-			{
-				int a = 0;
-			}
+//			if(inBaseEntity->pev->classname == MAKE_STRING(kesParticlesCustom))
+//			{
+//				int a = 0;
+//			}
 		}
 	}
 	
@@ -474,6 +474,7 @@ void AvHGamerules::UpdateWorldEntities()
     PROFILE_START()
 	this->mTeamAEntityHierarchy.BuildFromTeam(&this->mTeamA, gBaseEntityList);
 	this->mTeamBEntityHierarchy.BuildFromTeam(&this->mTeamB, gBaseEntityList);
+	this->mSpecEntityHierarchy.BuildForSpec(gBaseEntityList);
     PROFILE_END(kUpdateWorldEntitiesBuildEntityHierarchies)
 
 	// Update blips

@@ -290,8 +290,112 @@ void AvHEntityHierarchy::BuildFromTeam(const AvHTeam* inTeam, BaseEntityListType
     }
 }
 
+void AvHEntityHierarchy::BuildForSpec(BaseEntityListType& inBaseEntityList)
+{
+
+	this->Clear();
+
+	// Loop through all entities in the world
+	for(BaseEntityListType::iterator theIter = inBaseEntityList.begin(); theIter != inBaseEntityList.end(); theIter++)
+	{			
+        CBaseEntity* theBaseEntity = *theIter;
+
+		int  theEntityIndex = theBaseEntity->entindex();
+		bool theEntityIsVisible = false;
+		if ( theBaseEntity->pev->team == TEAM_ONE || theBaseEntity->pev->team == TEAM_TWO || theBaseEntity->pev->team == TEAM_THREE || theBaseEntity->pev->team == TEAM_FOUR )
+			theEntityIsVisible=true;
+		bool theEntityIsUnderAttack = GetGameRules()->GetIsEntityUnderAttack(theEntityIndex);
+		// Don't send ammo, health, weapons, or scans
+		bool theIsTransient = ((AvHUser3)(theBaseEntity->pev->iuser3) == AVH_USER3_MARINEITEM) || (theBaseEntity->pev->classname == MAKE_STRING(kwsScan));
+	
+		MapEntity mapEntity;
+
+        mapEntity.mX     = theBaseEntity->pev->origin.x;
+        mapEntity.mY     = theBaseEntity->pev->origin.y;
+        mapEntity.mUser3 = (AvHUser3)(theBaseEntity->pev->iuser3);
+
+        mapEntity.mAngle = theBaseEntity->pev->angles[1];
+        mapEntity.mTeam  = (AvHTeamNumber)(theBaseEntity->pev->team);
+        mapEntity.mSquadNumber = 0;
+		mapEntity.mUnderAttack = theEntityIsUnderAttack ? 1 : 0;
+
+        bool sendEntity = false;
+
+        if (mapEntity.mUser3 == AVH_USER3_HIVE)
+        {
+            if (!theEntityIsVisible)
+            {
+                mapEntity.mTeam = TEAM_IND;
+            }
+            sendEntity = true;
+        }
+        else if (mapEntity.mUser3 == AVH_USER3_WELD)
+        {
+			vec3_t theEntityOrigin = AvHSHUGetRealLocation(theBaseEntity->pev->origin, theBaseEntity->pev->mins, theBaseEntity->pev->maxs);
+            mapEntity.mX = theEntityOrigin.x;
+            mapEntity.mY = theEntityOrigin.y;
+            sendEntity = true;
+        }
+        else if (mapEntity.mUser3 == AVH_USER3_FUNC_RESOURCE)
+        {
+            sendEntity = true;
+        }
+        else if (theEntityIsVisible && !(theBaseEntity->pev->effects & EF_NODRAW) && !theIsTransient)
+        {
+            AvHPlayer* thePlayer = dynamic_cast<AvHPlayer*>(theBaseEntity);
+            
+            if (thePlayer)
+            {
+                ASSERT(theEntityIndex > 0);
+                ASSERT(theEntityIndex <= 32);
+                mapEntity.mSquadNumber = GetHotkeyGroupContainingPlayer(thePlayer) + 1;
+
+                if ((thePlayer->GetPlayMode() == PLAYMODE_PLAYING) && !thePlayer->GetIsSpectator())
+                {
+
+                    sendEntity = true;
+
+                    // If the player has the heavy armor upgrade switch the
+                    // user3 to something that will let us reconstruct that later.
+
+                    if (thePlayer->pev->iuser3 == AVH_USER3_MARINE_PLAYER && 
+                        GetHasUpgrade(thePlayer->pev->iuser4, MASK_UPGRADE_13))
+                    {
+                        mapEntity.mUser3 = AVH_USER3_HEAVY;
+                    }
+                    
+                }
+
+            }
+            else
+            {
+                if (mapEntity.mUser3 != AVH_USER3_HEAVY)
+                {
+                    sendEntity = true;
+                }
+            }
+            
+        }
+
+        if (sendEntity)
+        {
+
+	        const AvHMapExtents& theMapExtents = GetGameRules()->GetMapExtents();
+//				commented this out here, commented out corresponding shift in AvHOverviewMap::Draw at line 771
+//				float theMinMapX = theMapExtents.GetMinMapX();
+//				float theMinMapY = theMapExtents.GetMinMapY();
+
+//				mapEntity.mX -= theMinMapX;
+//				mapEntity.mY -= theMinMapY; 
+            
+            mEntityList[theEntityIndex] = mapEntity;
+
+        }
+    }
+}
+
 // Returns true when something was sent
-bool AvHEntityHierarchy::SendToNetworkStream(AvHEntityHierarchy& inClientHierarchy, entvars_t* inPlayer)
+bool AvHEntityHierarchy::SendToNetworkStream(AvHEntityHierarchy& inClientHierarchy, entvars_t* inPlayer, bool spectating)
 {
 	// Get iterators for both hierarchies
 
@@ -340,7 +444,7 @@ bool AvHEntityHierarchy::SendToNetworkStream(AvHEntityHierarchy& inClientHierarc
 		++clientIter;
 	}
 
-	NetMsg_UpdateEntityHierarchy( inPlayer, NewItems, OldItems );
+	NetMsg_UpdateEntityHierarchy( inPlayer, NewItems, OldItems, spectating );
 	return (!NewItems.empty() || !OldItems.empty());
 }
 

@@ -95,8 +95,9 @@ public:
 	void		Clear();
 				
 	#ifdef AVH_SERVER
-	bool		SendToNetworkStream(AvHEntityHierarchy& inClientHierarchy, entvars_t* inPlayer);
+	bool		SendToNetworkStream(AvHEntityHierarchy& inClientHierarchy, entvars_t* inPlayer, bool spectating);
 	void		BuildFromTeam(const AvHTeam* inTeam, BaseEntityListType& inBaseEntityList);
+	void		BuildForSpec(BaseEntityListType& inBaseEntityList);
 	#endif
 
 	bool		GetHasBaseLineBeenSent() const;

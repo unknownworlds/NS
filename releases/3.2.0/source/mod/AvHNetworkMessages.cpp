@@ -2121,7 +2121,6 @@ const int	kEntHierFlagUnderAttack = 0x04;
 			WRITE_SHORT(short_data);
 		}
 		MESSAGE_END();
-		}
 	}
 
 	void WriteEntHier( const int index, const MapEntity& ent, bool delete_flag, int& short_data, int& long_data )

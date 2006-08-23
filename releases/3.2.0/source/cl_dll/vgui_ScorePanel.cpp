@@ -1250,16 +1250,12 @@ void ScorePanel::FillGrid()
                     break;
 
 				case COLUMN_EXTRA:
-					if(( !theIsForEnemy || theLocalPlayerTeam == TEAM_SPECT  )&& theLocalPlayerTeam != TEAM_IND && theExtraPlayerInfo->teamnumber != TEAM_IND && theExtraPlayerInfo->teamnumber != TEAM_SPECT )
+					if( (!theIsForEnemy || theLocalPlayerTeam == TEAM_SPECT ) && theLocalPlayerTeam != TEAM_IND && theExtraPlayerInfo->teamnumber != TEAM_IND && theExtraPlayerInfo->teamnumber != TEAM_SPECT )
                     {
 						if ( isNsMode ) {
 							if ( theExtraPlayerInfo->teamnumber == TEAM_ONE || theExtraPlayerInfo->teamnumber == TEAM_THREE )  {
-								int r=CVAR_GET_FLOAT("cl_iconr");
-								int g=CVAR_GET_FLOAT("cl_icong");
-								int b=CVAR_GET_FLOAT("cl_iconb");
-								r=max(min(255, r), 0);
-								g=max(min(255, g), 0);
-								b=max(min(255, b), 0);
+
+								int r=0,	g=149,	b=221;
 
 								switch(theExtraPlayerInfo->extra) {
 								case AVH_WEAPON_HMG:

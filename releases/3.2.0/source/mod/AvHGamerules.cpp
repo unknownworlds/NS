@@ -737,7 +737,7 @@ BOOL AvHGamerules::GetIsClientAuthorizedToPlay(edict_t* inEntity, bool inDisplay
 		}
 	}
 	// Local players or bots are always allowed
-	else if((theAuthID == kSteamIDLocal) || (theAuthID == kSteamIDBot))
+	else if((theAuthID == kSteamIDLocal) || (theAuthID == kSteamIDBot) || strncmp(theAuthID.c_str(), "HLTV", 4) == 0 )
 	{
 		theIsAuthorized = true;
 	}

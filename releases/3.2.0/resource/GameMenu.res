@@ -30,13 +30,13 @@
 //		"command" "OpenLoadGameDialog"
 //		"notmulti" "1"
 //	}
-	"6"
-	{
-		"label" "#GameUI_GameMenu_SaveGame"
-		"command" "OpenSaveGameDialog"
-		"notmulti" "1"
-		"OnlyInGame" "1"
-	}
+//	"6"
+//	{
+//	"label" "#GameUI_GameMenu_SaveGame"
+//	"command" "OpenSaveGameDialog"
+//	"notmulti" "1"
+//	"OnlyInGame" "1"
+//	}
 	"7"
 	{
 		"label" ""
@@ -45,20 +45,27 @@
 	}
 	"8"
 	{
-		"label" "#GameUI_GameMenu_FindServers"
-		"command" "OpenServerBrowser"
+ 		"label" "#GameUI_GameMenu_PlayerList"
+ 		"command" "OpenPlayerListDialog"
+ 		"OnlyInGame" "1"
+ 		"notmulti" "0"
 	}
 	"9"
 	{
 		"label" "#GameUI_GameMenu_CreateServer"
 		"command" "OpenCreateMultiplayerGameDialog"
 	}
-//	"10"
-//	{
-//		"name" "LoadDemo"
-//		"label" "#GameUI_GameMenu_PlayDemo"
-//		"command" "OpenLoadDemoDialog"
-//	}
+	"10"
+	{
+		"label" "#GameUI_GameMenu_FindServers"
+		"command" "OpenServerBrowser"
+	}
+	//"11"
+	//{
+		//"name" "LoadDemo"
+		//"label" "#GameUI_GameMenu_PlayDemo"
+		//"command" "OpenLoadDemoDialog"
+	//}
 	"11"
 	{
 		"label" ""

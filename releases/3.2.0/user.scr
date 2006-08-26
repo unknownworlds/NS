@@ -46,7 +46,6 @@ DESCRIPTION INFO_OPTIONS
 		"Show hints"
 		{ BOOL }
 		{ "1" }
-		SetInfo
 	}
 
 	"cl_labelmaps"

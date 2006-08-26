@@ -3503,7 +3503,12 @@ void AvHHud::PlayHUDSound(AvHHUDSound inSound)
 		
 		if(theSoundPtr)
 		{
-			gEngfuncs.pfnPlaySoundByName(theSoundPtr, theVolume);
+			//gEngfuncs.pfnPlaySoundByNameAtLocation( sound, volume, (float *)&g_finalstate->playerstate.origin );
+			cl_entity_s* thePlayer = this->GetVisiblePlayer();
+			if ( thePlayer ) 
+				gEngfuncs.pfnPlaySoundByNameAtLocation(theSoundPtr, theVolume, thePlayer->origin);
+			else
+				gEngfuncs.pfnPlaySoundByName(theSoundPtr, theVolume);
 			if(theSoundLength >= 0.0f)
 			{
 				this->mTimeOfNextHudSound = this->mTimeOfCurrentUpdate + theSoundLength;

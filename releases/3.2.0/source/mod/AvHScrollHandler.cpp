@@ -94,11 +94,18 @@ void AvHScrollHandler::KeyScrollDown()
 	ScrollDown();
 }
 
+void AvHScrollHandler::KeyScrollUpStop()
+{
+	sKeyDown--;
+	if ( sKeyDown < 0 ) sKeyDown=0;
+	sScrollY=0;
+}
+
 void AvHScrollHandler::KeyScrollDownStop()
 {
 	sKeyDown--;
 	if ( sKeyDown < 0 ) sKeyDown=0;
-	ScrollDown();
+	sScrollY=0;
 }
 
 void AvHScrollHandler::KeyScrollLeftStop()
@@ -115,12 +122,6 @@ void AvHScrollHandler::KeyScrollRightStop()
 	sScrollX=0;
 }
 
-void AvHScrollHandler::KeyScrollUpStop()
-{
-	sKeyDown--;
-	if ( sKeyDown < 0 ) sKeyDown=0;
-	sScrollY=0;
-}
 
 void AvHScrollHandler::ScrollLeft()
 {

@@ -93,11 +93,11 @@ void SpectatorPanel::StateChanged(CCheckButton2* pButton)
     {
         if (m_autoDirectorButton->IsChecked())
         {
-            gEngfuncs.Cvar_SetValue("spec_autodirector", 1);
+            gEngfuncs.Cvar_SetValue("spec_autodirector", 0);
         }
         else
         {
-            gEngfuncs.Cvar_SetValue("spec_autodirector", 0);
+            gEngfuncs.Cvar_SetValue("spec_autodirector", 1);
         }
     }
 

@@ -1250,7 +1250,7 @@ void ScorePanel::FillGrid()
                     break;
 
 				case COLUMN_EXTRA:
-					if( (!theIsForEnemy || theLocalPlayerTeam == TEAM_SPECT ) && theLocalPlayerTeam != TEAM_IND && theExtraPlayerInfo->teamnumber != TEAM_IND && theExtraPlayerInfo->teamnumber != TEAM_SPECT )
+					if ((theLocalPlayerTeam == theTeamNumber) || (gHUD.GetPlayMode() == PLAYMODE_OBSERVER))
                     {
 						if ( isNsMode ) {
 							if ( theExtraPlayerInfo->teamnumber == TEAM_ONE || theExtraPlayerInfo->teamnumber == TEAM_THREE )  {
@@ -1286,7 +1286,8 @@ void ScorePanel::FillGrid()
 								sprintf(sz, "%d", theExtraPlayerInfo->extra);
 							}
 						}
-						else {
+						else if ( theExtraPlayerInfo->teamnumber == TEAM_ONE || theExtraPlayerInfo->teamnumber == TEAM_TWO ||
+								  theExtraPlayerInfo->teamnumber == TEAM_THREE || theExtraPlayerInfo->teamnumber == TEAM_FOUR ) {
 							sprintf(sz, "%d", theExtraPlayerInfo->extra);
 						}
 					}

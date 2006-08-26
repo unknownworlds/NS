@@ -720,17 +720,17 @@ void AvHHud::AddCommands()
 	gEngfuncs.pfnAddCommand ("-mousepopupmenu", AvHPieMenuHandler::ClosePieMenu);
 	
 	// Add scrolling commands
-    gEngfuncs.pfnAddCommand ("+scrollup", AvHScrollHandler::ScrollUp);
-    gEngfuncs.pfnAddCommand ("-scrollup", AvHScrollHandler::StopScroll);
+    gEngfuncs.pfnAddCommand ("+scrollup", AvHScrollHandler::KeyScrollUp);
+    gEngfuncs.pfnAddCommand ("-scrollup", AvHScrollHandler::KeyScrollUpStop);
 	
-    gEngfuncs.pfnAddCommand ("+scrolldown", AvHScrollHandler::ScrollDown);
-    gEngfuncs.pfnAddCommand ("-scrolldown", AvHScrollHandler::StopScroll);
+    gEngfuncs.pfnAddCommand ("+scrolldown", AvHScrollHandler::KeyScrollDown);
+    gEngfuncs.pfnAddCommand ("-scrolldown", AvHScrollHandler::KeyScrollDownStop);
 	
-    gEngfuncs.pfnAddCommand ("+scrollleft", AvHScrollHandler::ScrollLeft);
-    gEngfuncs.pfnAddCommand ("-scrollleft", AvHScrollHandler::StopScroll);
+    gEngfuncs.pfnAddCommand ("+scrollleft", AvHScrollHandler::KeyScrollLeft);
+    gEngfuncs.pfnAddCommand ("-scrollleft", AvHScrollHandler::KeyScrollLeftStop);
 	
-    gEngfuncs.pfnAddCommand ("+scrollright", AvHScrollHandler::ScrollRight);
-    gEngfuncs.pfnAddCommand ("-scrollright", AvHScrollHandler::StopScroll);
+    gEngfuncs.pfnAddCommand ("+scrollright", AvHScrollHandler::KeyScrollRight);
+    gEngfuncs.pfnAddCommand ("-scrollright", AvHScrollHandler::KeyScrollRightStop);
 
     gEngfuncs.pfnAddCommand ("toggleeditps", AvHParticleEditorHandler::ToggleEdit);
 

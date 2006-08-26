@@ -7209,7 +7209,7 @@ void AvHPlayer::SetModelFromState()
 	{
 	case AVH_USER3_MARINE_PLAYER:
 	    theModelName = kMarineSoldierModel;
-	    if(this->GetHasHeavyArmor())
+	    if(GetHasUpgrade(this->pev->iuser4, MASK_UPGRADE_13))
 	    {
 	        theModelName = kHeavySoldierModel;
 	    }
@@ -7259,7 +7259,7 @@ void AvHPlayer::SetModelFromState()
 
 	// Set body group for marine armor
 	this->pev->body = 0;
-	if(this->GetHasJetpack())
+	if(this->pev->iuser3 == AVH_USER3_MARINE_PLAYER && GetHasUpgrade(this->pev->iuser4, MASK_UPGRADE_7))
 	{
 		this->pev->body = 1;
 	}

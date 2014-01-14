@@ -1,0 +1,29 @@
+Particle system goals
+---------------------
+
+Versatility
+  Not dependent on Half-life, OpenGL or any particular output device or API
+
+Collision detection with arbitrary areas
+  This would be nice but isn't necessarily needed
+
+Arbitrary updating of particle source
+
+Ability to hook into Worldcraft or be dynamically generated
+  As an entity
+
+Ability to have multiple particle systems at once, all with different parameters
+
+Allow static and near-static systems
+  Volumetric light, haze
+
+Allow custom behavior on collision (less important)
+  Including altering particle lifetime, draw mode or creation of new particles inheriting characteristics with some randomly alteration
+  Allows rain that spatters on hit, waterfall that mists
+
+
+Suggests handle/manager based system
+Suggests extendable classes for drawing, updating and iterating through systems
+Allow creating of templates which can be named and then later created
+
+

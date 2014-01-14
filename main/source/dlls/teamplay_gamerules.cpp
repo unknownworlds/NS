@@ -95,12 +95,12 @@ void CHalfLifeTeamplay :: Think ( void )
 		return;
 	}
 
-	float flTimeLimit = CVAR_GET_FLOAT("mp_timelimit") * 60;
+	float flTimeLimit = ns_cvar_float(&timelimit) * 60;
 	
 	time_remaining = (int)(flTimeLimit ? ( flTimeLimit - gpGlobals->time ) : 0);
 
 	// Don't map switch in tourny mode, it signals the end of the match instead
-	bool theIsTournyMode = (CVAR_GET_FLOAT(kvTournamentMode) > 0);
+	bool theIsTournyMode = (ns_cvar_int(&avh_tournamentmode) > 0);
 	if ( flTimeLimit != 0 && (gpGlobals->time >= flTimeLimit) && !theIsTournyMode)
 	{
 		GoToIntermission();

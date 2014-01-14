@@ -389,16 +389,18 @@ void AvHDefenseChamber::RegenAliensThink()
 		{
 			AvHBaseBuildable* theBuildable = dynamic_cast<AvHBaseBuildable*>(theBaseEntity);
 			AvHPlayer* thePlayer = dynamic_cast<AvHPlayer*>(theBaseEntity);
+			float thePercent=BALANCE_VAR(kDefensiveChamberRegenPercent)/100.0f;
+			float amount=BALANCE_VAR(kDefensiveChamberRegenAmount) + (theBaseEntity->pev->max_health*thePercent);
 			if(thePlayer && thePlayer->IsAlive())
 			{
-				if(thePlayer->Heal(BALANCE_VAR(kDefensiveChamberRegenAmount)))
+				if(thePlayer->Heal(amount, true, true))
 				{
 					theNumEntsHealed++;
 				}
 			}
 			else if(theBuildable && theBuildable->GetIsBuilt() && (theBuildable != this))
 			{
-				if(theBuildable->Regenerate(BALANCE_VAR(kDefensiveChamberRegenAmount)))
+				if(theBuildable->Regenerate(amount, true, true))
 				{
 					theNumEntsHealed++;
 				}
@@ -605,7 +607,7 @@ void AvHMovementChamber::TeleportUse(CBaseEntity* inActivator, CBaseEntity* inCa
 				{
 					bool theHiveIsUnderAttack = GetGameRules()->GetIsEntityUnderAttack(theEntity->entindex());
 
-					if(theEntity->GetIsActive() || theHiveIsUnderAttack)
+					if(theEntity->GetIsActive() || theHiveIsUnderAttack || theEntity->GetEmergencyUse() )
 					{
 						float theCurrentDistance = VectorDistance(theEntity->pev->origin, inActivator->pev->origin);
 						bool theHiveIsFarther = (theCurrentDistance > theFarthestDistance);
@@ -655,7 +657,7 @@ void AvHMovementChamber::TeleportUse(CBaseEntity* inActivator, CBaseEntity* inCa
 					{
 						thePlayer->SetPosition(theOriginToSpawn);
 						thePlayer->pev->velocity = Vector(0, 0, 0);
-
+						thePlayer->TriggerUncloak();
 						// Play teleport sound before and after
 						EMIT_SOUND(inActivator->edict(), CHAN_AUTO, kAlienSightOffSound, 1.0f, ATTN_NORM);
 					}

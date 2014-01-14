@@ -32,6 +32,7 @@
 #include "gamerules.h"
 #include "mod/AvHServerUtil.h"
 #include "mod/AvHNetworkMessages.h"
+#include "mod/AvHServerVariables.h"
 //#include "mod/AvHSharedUtil.h"
 //#include "mod/AvHGamerules.h"
 
@@ -1189,12 +1190,12 @@ BOOL UTIL_ShouldShowBlood( int color )
 	{
 		if ( color == BLOOD_COLOR_RED )
 		{
-			if ( CVAR_GET_FLOAT("violence_hblood") != 0 )
+			if ( ns_cvar_float(violence_hblood) != 0 )
 				return TRUE;
 		}
 		else
 		{
-			if ( CVAR_GET_FLOAT("violence_ablood") != 0 )
+			if ( ns_cvar_float(violence_ablood) != 0 )
 				return TRUE;
 		}
 	}

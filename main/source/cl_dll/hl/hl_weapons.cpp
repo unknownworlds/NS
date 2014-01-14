@@ -77,6 +77,7 @@
 #include "mod/AvHAlienWeapons.h"
 #include "mod/AvHAlienAbilities.h"
 #include "mod/AvHAlienWeaponConstants.h"
+#include "mod/AvHAlienAbilityConstants.h"
 #include "mod/AvHMovementUtil.h"
 
 #include "engine/APIProxy.h"
@@ -96,6 +97,8 @@ static CBasePlayer	player;
 static globalvars_t	Globals; 
 
 static CBasePlayerWeapon *g_pWpns[ 32 ];
+
+bool CheckInAttack2(void);
 
 vec3_t previousorigin;
 
@@ -470,6 +473,9 @@ Handles weapon firing, reloading, etc.
 */
 void CBasePlayerWeapon::ItemPostFrame( void )
 {
+	// Hack initialization
+	if (this->m_flLastAnimationPlayed >= 3.0f * BALANCE_VAR(kLeapROF) + gpGlobals->time)
+		this->m_flLastAnimationPlayed = 0.0f;
 
 	if ((m_fInReload) && (m_pPlayer->m_flNextAttack <= 0.0))
 	{
@@ -489,20 +495,30 @@ void CBasePlayerWeapon::ItemPostFrame( void )
 		m_fInReload = FALSE;
 	}
 
-	if ((m_pPlayer->pev->button & IN_ATTACK2) && (m_flNextSecondaryAttack <= 0.0))
+	// Properly propagate the end animation
+	if (this->PrevAttack2Status == true && !(m_pPlayer->pev->button & IN_ATTACK2))
 	{
-        if (GetCanUseWeapon())
-        {
-		    if ( pszAmmo2() && !m_pPlayer->m_rgAmmo[SecondaryAmmoIndex()] )
-		    {
-			    m_fFireOnEmpty = TRUE;
-		    }
-
-		    SecondaryAttack();
-		    m_pPlayer->pev->button &= ~IN_ATTACK2;
-        }
+		switch (gHUD.GetCurrentWeaponID())
+		{
+		case AVH_WEAPON_SWIPE:
+			this->SendWeaponAnim(12);
+			break;
+		case AVH_WEAPON_ACIDROCKET:
+			this->SendWeaponAnim(8);
+			break;
+		case AVH_WEAPON_CLAWS:
+			this->SendWeaponAnim(9);
+			break;
+		case AVH_WEAPON_STOMP:
+			this->SendWeaponAnim(8);
+			break;
+		case AVH_WEAPON_DEVOUR:
+			this->SendWeaponAnim(11);
+			break;
+		}
 	}
-    else if ( (m_pPlayer->pev->button & IN_ATTACK) && (m_flNextPrimaryAttack <= 0.0) )
+
+	if ( (m_pPlayer->pev->button & IN_ATTACK) && !(m_pPlayer->pev->button & IN_ATTACK2) && (m_flNextPrimaryAttack <= 0.0) )
 	{
         if (GetCanUseWeapon())
         {
@@ -512,12 +528,121 @@ void CBasePlayerWeapon::ItemPostFrame( void )
 			    m_fFireOnEmpty = TRUE;
 		    }
 
-		    //#ifdef AVH_CLIENT
+
+			if ((gHUD.GetHUDUser3() == AVH_USER3_ALIEN_PLAYER1) 
+				&& (gHUD.GetCurrentWeaponID() == AVH_ABILITY_LEAP)
+				&& (this->m_flLastAnimationPlayed + (float)BALANCE_VAR(kLeapROF) <= gpGlobals->time))
+			{
+				// : 0001151 predict energy too
+				AvHAlienWeapon* theWeapon = dynamic_cast<AvHAlienWeapon *>(g_pWpns[AVH_ABILITY_LEAP]);
+				if ( theWeapon && theWeapon->IsUseable() ) {
+					float theVolumeScalar = 1.0f;
+					cl_entity_t *player = gEngfuncs.GetLocalPlayer();
+					int theSilenceLevel = AvHGetAlienUpgradeLevel(player->curstate.iuser4, MASK_UPGRADE_6);
+					switch(theSilenceLevel)
+					{
+					case 1:
+						theVolumeScalar = (float)BALANCE_VAR(kSilenceLevel1Volume);
+						break;
+					case 2:
+						theVolumeScalar = (float)BALANCE_VAR(kSilenceLevel2Volume);
+						break;
+					case 3:
+						theVolumeScalar = (float)BALANCE_VAR(kSilenceLevel3Volume);
+						break;
+					}
+					HUD_PlaySound( kLeapSound,  theVolumeScalar);
+					AvHMUDeductAlienEnergy(m_pPlayer->pev->fuser3, theWeapon->GetEnergyForAttack() );
+					gEngfuncs.pEventAPI->EV_WeaponAnimation(3, 2);
+					this->m_flLastAnimationPlayed = gpGlobals->time;
+				}
+			}
+			//#ifdef AVH_CLIENT
 		    //if((m_iClip == 0) && ?
 		    //#endif
+			PrimaryAttack();
+			//return;
+		}
+	}
+	// +movement: Rewritten to allow us to use +attack2 for movement abilities
+	else if ((m_pPlayer->pev->button & IN_ATTACK2) && (gHUD.GetIsAlien()))
+	{
+		//m_flNextSecondaryAttack
+		// Find out what kind of special movement we are using, and execute the animation for it
+		if (this->PrevAttack2Status == false)
+		{
+			bool enabled=false;
+			// : 0001151 predict energy too
+			AvHAlienWeapon *theWeapon = dynamic_cast<AvHAlienWeapon *>(g_pWpns[AVH_ABILITY_LEAP]);
+			if ( theWeapon ) 
+				enabled=theWeapon->IsUseable();
 
-		    PrimaryAttack();
-        }
+			switch (gHUD.GetHUDUser3())
+			{
+			case AVH_USER3_ALIEN_PLAYER1:
+
+				if (enabled && (this->m_flLastAnimationPlayed + (float)BALANCE_VAR(kLeapROF) <= gpGlobals->time))
+				{
+					float theVolumeScalar = 1.0f;
+					cl_entity_t *player = gEngfuncs.GetLocalPlayer();
+					int theSilenceLevel = AvHGetAlienUpgradeLevel(player->curstate.iuser4, MASK_UPGRADE_6);
+					switch(theSilenceLevel)
+					{
+					case 1:
+						theVolumeScalar = (float)BALANCE_VAR(kSilenceLevel1Volume);
+						break;
+					case 2:
+						theVolumeScalar = (float)BALANCE_VAR(kSilenceLevel2Volume);
+						break;
+					case 3:
+						theVolumeScalar = (float)BALANCE_VAR(kSilenceLevel3Volume);
+						break;
+					}
+					HUD_PlaySound( kLeapSound,  theVolumeScalar);
+					AvHMUDeductAlienEnergy(m_pPlayer->pev->fuser3, theWeapon->GetEnergyForAttack() );
+					this->SendWeaponAnim(3);
+					this->m_flLastAnimationPlayed = gpGlobals->time;
+				}
+				break;
+			case AVH_USER3_ALIEN_PLAYER4:
+				switch (gHUD.GetCurrentWeaponID())
+				{
+				case AVH_WEAPON_SWIPE:
+					this->SendWeaponAnim(9);
+					break;
+				case AVH_WEAPON_ACIDROCKET:
+					this->SendWeaponAnim(11);
+					break;
+				}
+				break;
+			case AVH_USER3_ALIEN_PLAYER5:
+				switch (gHUD.GetCurrentWeaponID())
+				{
+				case AVH_WEAPON_CLAWS:
+					this->SendWeaponAnim(5);
+					break;
+				case AVH_WEAPON_DEVOUR:
+					this->SendWeaponAnim(18);
+					break;
+				case AVH_WEAPON_STOMP:
+					this->SendWeaponAnim(15);
+					break;
+				}
+				break;
+			}
+		}
+
+		if ((gHUD.GetHUDUser3() == AVH_USER3_ALIEN_PLAYER1) 
+			&& (this->m_flLastAnimationPlayed + BALANCE_VAR(kLeapROF) < gpGlobals->time))
+			this->PrevAttack2Status = false;
+		else
+			this->PrevAttack2Status = true;
+
+		return;
+//		if (GetCanUseWeapon())
+//		{
+//			PrimaryAttack();
+//		}
 	}
 	else if ( m_pPlayer->pev->button & IN_RELOAD && iMaxClip() != WEAPON_NOCLIP && !m_fInReload ) 
 	{
@@ -527,7 +652,8 @@ void CBasePlayerWeapon::ItemPostFrame( void )
 	    	Reload();
         }
 	}
-	else if ( !(m_pPlayer->pev->button & (IN_ATTACK|IN_ATTACK2) ) )
+	// +movement: Removed case for +attack2
+	else if ( !(m_pPlayer->pev->button & (IN_ATTACK /*|IN_ATTACK2 */) ) )
 	{
         if (GetCanUseWeapon())
         {
@@ -549,9 +675,12 @@ void CBasePlayerWeapon::ItemPostFrame( void )
 
 		    WeaponIdle( );
         }
+		this->PrevAttack2Status = false;
 		return;
 	}
 	
+	this->PrevAttack2Status = false;
+
 	// catch all
 	if ( ShouldWeaponIdle() )
 	{
@@ -642,6 +771,8 @@ void CBasePlayer::Spawn( void )
 {
 	if (m_pActiveItem)
 		m_pActiveItem->Deploy( );
+
+//	this->m_flLastAnimationPlayed = gpGlobals->time;
 }
 
 /*
@@ -989,7 +1120,7 @@ bool HUD_GetWeaponEnabled(int inID)
 	ASSERT(inID >= 0);
 	ASSERT(inID < 32);
 
-	// puzl: 497 - use the enabled state in the associated WEAPON instead of the CBasePlayerWeapon's iuser3
+	// : 497 - use the enabled state in the associated WEAPON instead of the CBasePlayerWeapon's iuser3
 	bool theWeaponEnabled = false;
 	CBasePlayerWeapon* theWeapon = g_pWpns[inID];
 	if(theWeapon)
@@ -1240,7 +1371,9 @@ void HUD_WeaponsPostThink( local_state_s *from, local_state_s *to, usercmd_t *cm
 
 	// Make sure that weapon animation matches what the game .dll is telling us
 	//  over the wire ( fixes some animation glitches )
-	if ( g_runfuncs && ( HUD_GetWeaponAnim() != to->client.weaponanim ) )
+	// Ensure that the fade and onos won't get these, to play the blink and charge animations correctly
+	bool noRun = (to->client.iuser3 == AVH_USER3_ALIEN_PLAYER4) || (to->client.iuser3 == AVH_USER3_ALIEN_PLAYER5);
+	if (g_runfuncs && ( HUD_GetWeaponAnim() != to->client.weaponanim ) && !(CheckInAttack2()) && !noRun)
 	{
 		int body = 2;
 

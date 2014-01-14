@@ -31,7 +31,9 @@ TEXT_OBJDIR=$(TEXT_SRCDIR)/obj
 UTIL_OBJDIR=$(UTIL_SRCDIR)/obj
 OUTPUT_DIR=../../hlds_l/ns/dlls
 
-BASE_CFLAGS=-Dstricmp=strcasecmp -D_strnicmp=strncasecmp -Dstrnicmp=strncasecmp -DAVH_SERVER -DLINUX  -DVALVE_DLL -DQUIVER -DVOXEL -DQUAKE2 -DDEDICATED -DSWDS -D_STLP_USE_GLIBC -DAVH_PLAYTEST_BUILD -DUSE_OLDAUTH -DAVH_SECURE_PRERELEASE_BUILD
+BASE_CFLAGS=-Dstricmp=strcasecmp -D_strnicmp=strncasecmp -Dstrnicmp=strncasecmp -DAVH_SERVER -DLINUX  -DVALVE_DLL -DQUIVER -DVOXEL -DQUAKE2 -DDEDICATED -DSWDS -D_STLP_USE_GLIBC -DUSE_OLDAUTH 
+
+# -DAVH_SECURE_PRERELEASE_BUILD for CM testing
 
 #full optimization
 CFLAGS=$(BASE_CFLAGS) -w -Wall -nostdinc++ -ffor-scope -fPIC -mcpu=i486 -O3 -pipe  -funroll-loops -fdelayed-branch -malign-loops=4 -malign-jumps=4 -malign-functions=4  

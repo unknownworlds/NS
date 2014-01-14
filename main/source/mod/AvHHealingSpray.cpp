@@ -165,11 +165,12 @@ void AvHHealingSpray::FireProjectiles(void)
 
 	while((theCurrentEntity = UTIL_FindEntityInSphere(theCurrentEntity, theOriginatingPosition, kHealingSprayRange)) != NULL)
 	{
+		bool isSelf=(theCurrentEntity == this->m_pPlayer);
 		// Can't affect self
-		if(theCurrentEntity != this->m_pPlayer)
-		{
+//		if(theCurrentEntity != this->m_pPlayer)
+//		{
 			// If entity is in view cone, and within range
-			if(this->m_pPlayer->FInViewCone(&theCurrentEntity->pev->origin))
+			if(isSelf  || this->m_pPlayer->FInViewCone(&theCurrentEntity->pev->origin) )
 			{
 				// UTIL_FindEntityInSphere doesn't seem to take height into account.  Make sure the entity is within range.
                 float theMaxEntitySize = max(Length(theCurrentEntity->pev->mins), Length(theCurrentEntity->pev->maxs));
@@ -208,6 +209,7 @@ void AvHHealingSpray::FireProjectiles(void)
 								// Players heal by base amount, plus percentage of health
 								float thePercentage = BALANCE_VAR(kHealingSprayPlayerPercent)/100.0f;
 								theDamage += thePercentage*theCurrentEntity->pev->max_health;
+								if ( isSelf ) theDamage *= 0.5f;
 								thePlayer->Heal(theDamage, true);
 							}
 							else if(theBuildable)
@@ -240,7 +242,7 @@ void AvHHealingSpray::FireProjectiles(void)
 					}
 				}
 			}
-		}
+//		}
 	}
 	
 	#endif	

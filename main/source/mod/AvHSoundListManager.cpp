@@ -108,7 +108,7 @@ bool AvHSoundListManager::PrecacheSoundList(const string& inDirName)
 			{
 				CString& theSoundToPrecache = theIter->second[i];
 
-				int iString = ALLOC_STRING((char*)theSoundToPrecache);//voogru: We cant do "(char*)theSoundToPrecache" directly cause it causes some wierd problems.
+				int iString = ALLOC_STRING((char*)theSoundToPrecache);//: We cant do "(char*)theSoundToPrecache" directly cause it causes some wierd problems.
 				PRECACHE_UNMODIFIED_SOUND((char*)STRING(iString));
 
 				// Success

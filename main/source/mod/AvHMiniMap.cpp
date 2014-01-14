@@ -222,14 +222,24 @@ string AvHMiniMap::GetSpriteNameFromMap(int inSpriteWidth, const string& inMapNa
 {
 	char theWidthString[128];
 	sprintf(theWidthString, "%d", inSpriteWidth);
-	// puzl: 1064
+	// : 1064
 	// insert _labelled into the filename before ".spr"
 	string extraname="";
-	if ( useLabels == 1 ) {
-		extraname="_labelled";
+	switch ( useLabels ) {
+		case 1:
+			extraname="_1";
+			break;
+		case 2:
+			extraname="_2";
+			break;
+		case 3:
+			extraname="_3";
+			break;
+		default:
+			break;
 	}
 	string theMiniMapName = kMiniMapSpritesDirectory + string("/") /*+ string(theWidthString)*/ + inMapName + extraname + string(".spr");
-	// :puzl
+	// :
 	return theMiniMapName;
 }
 
@@ -330,10 +340,10 @@ bool AvHMiniMap::WriteMapToSprite()
 	if(this->GetIsProcessing())
 	{
 		// Open file
-		// puzl: 1064
+		// : 1064
 		// We always want to use the normal filename when generating a minimap
 		string theSpriteFileName = string(getModDirectory()) + string("/") + GetSpriteNameFromMap(0, this->mMapName, 0);
-		// :puzl
+		// :
 		FILE* theFile = fopen(theSpriteFileName.c_str(), "wb");
 		if(theFile)
 		{
@@ -434,14 +444,6 @@ void AvHMiniMap::WriteMapToSprite(FILE* inFileHandle)
 bool AvHMiniMap::WriteSpritesIfJustFinished()
 {
 	bool theSuccess = false;
-
-	// test
-	char test[255];
-	sprintf(test, "this->GetIsProcessing() = %d, this->mNumSamplesProcessed = %d, this->mNumSamplesToProcess = %d\n", this->GetIsProcessing(), this->mNumSamplesProcessed, this->mNumSamplesToProcess);
-	gEngfuncs.pfnConsolePrint(test);
-
-	// :test
-
 
 	if(this->GetIsProcessing() && (this->mNumSamplesProcessed == this->mNumSamplesToProcess))
 	{

@@ -390,8 +390,10 @@ int CHudSpectator::Draw(float flTime)
 	// draw only in spectator mode
 	if ( !g_iUser1  )
 		return 0;
+//	string error;
+//	gHUD.Update( flTime, error);
 
-    // Removed by mmcguire.
+	// Removed by mmcguire.
     /*
 	// if user pressed zoom, aplly changes
 	if ( (m_zoomDelta != 0.0f) && (	g_iUser1 == OBS_MAP_FREE ) )
@@ -515,7 +517,7 @@ void CHudSpectator::DrawOverviewMap()
     theDrawInfo.mY = YRES(SPECTATOR_PANEL_HEIGHT + 4);
     theDrawInfo.mWidth  = ScreenWidth() - theDrawInfo.mX - XRES(4);
     theDrawInfo.mHeight = ScreenHeight() - YRES(SPECTATOR_PANEL_HEIGHT + 4) - theDrawInfo.mY;
-    
+    theDrawInfo.mZoomScale = 1.0f;
     AvHMapExtents theMapExtents;
     theOverviewMap.GetMapExtents(theMapExtents);
 
@@ -1924,6 +1926,7 @@ void CHudSpectator::Reset()
 
 void CHudSpectator::InitHUDData()
 {
+	gHUD.InitHUDData();
 	m_lastPrimaryObject = m_lastSecondaryObject = 0;
 	m_flNextObserverInput = 0.0f;
 	m_lastHudMessage = 0;

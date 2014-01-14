@@ -240,7 +240,8 @@ bool AvHMUGetEnergyCost(AvHWeaponID inWeaponID, float& outEnergyCost)
 		theCost = (float)BALANCE_VAR(kLeapEnergyCost);
 		break;
 	case AVH_ABILITY_CHARGE:
-		theCost = (float)BALANCE_VAR(kChargeEnergyCost);
+		// Charge cost deducted in pm_shared now
+		theCost = 0.0f; // (float)BALANCE_VAR(kChargeEnergyCost);
 		break;
 
 	}
@@ -285,12 +286,20 @@ float AvHMUGetWalkSpeedFactor(AvHUser3 inUser3)
 	return theMoveSpeed;
 }
 
-bool AvHMUHasEnoughAlienEnergy(float& ioFuser, float inNormAmount)
+// : 991 -- added latency-based prediction for the ammount of energy available to the alien
+bool AvHMUHasEnoughAlienEnergy(float& ioFuser, float inNormAmount, float latency)
 {
 	bool theSuccess = false;
 	
 	float theCurrentEnergy = ioFuser/kNormalizationNetworkFactor;
-	if(theCurrentEnergy >= inNormAmount)
+	float thePredictedByLatency = 0.0f;
+
+#ifdef AVH_CLIENT
+	float theAlienEnergyRate = (float)BALANCE_VAR(kAlienEnergyRate);
+	float theUpgradeFactor = 1.0f;
+	thePredictedByLatency = (latency / 1000) * theAlienEnergyRate * theUpgradeFactor;
+#endif
+	if((theCurrentEnergy + thePredictedByLatency) >= inNormAmount)
 	{
 		theSuccess = true;
 	}

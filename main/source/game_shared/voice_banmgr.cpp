@@ -9,7 +9,7 @@
 #include <stdio.h>
 #include "voice_banmgr.h"
 #include "dlls/extdll.h"
-
+#include "localassert.h"
 #define BANMGR_FILEVERSION	1
 char const *g_pBanMgrFilename = "voice_ban.dt";
 
@@ -18,12 +18,12 @@ char const *g_pBanMgrFilename = "voice_ban.dt";
 // Hash a player ID to a byte.
 unsigned char HashPlayerID(char const playerID[16])
 {
-	unsigned char curHash = 0;
+	char curHash = 0;
 
 	for(int i=0; i < 16; i++)
-		curHash += (unsigned char)(playerID[i] & 0xFF);
+		curHash += (char)(playerID[i]);
 
-	return curHash;
+	return (unsigned char)curHash;
 }
 
 
@@ -169,7 +169,7 @@ void CVoiceBanMgr::Clear()
 
 CVoiceBanMgr::BannedPlayer* CVoiceBanMgr::InternalFindPlayerSquelch(char const playerID[16])
 {
-	int index = HashPlayerID(playerID);
+	int index = (int)HashPlayerID(playerID) & 0xFF;
 	BannedPlayer *pListHead = &m_PlayerHash[index];
 	for(BannedPlayer *pCur=pListHead->m_pNext; pCur != pListHead; pCur=pCur->m_pNext)
 	{

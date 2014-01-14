@@ -56,6 +56,7 @@
 #include "common/vector_util.h"
 #include "mod/AvHAlienWeaponConstants.h"
 #include "mod/AvHPlayerUpgrade.h"
+#include "mod/AvHHive.h"
 
 #ifdef AVH_SERVER
 #include "mod/AvHGamerules.h"
@@ -143,6 +144,11 @@ void AvHSpit::SpitTouch(CBaseEntity* pOther)
 
 		// Kill it off
 		this->SpitDeath();
+	}
+	AvHHive *hive=dynamic_cast<AvHHive *>(pOther);
+	if ( hive && hive->GetIsSpawning() ) {
+		CBaseEntity	*pOwner = CBaseEntity::Instance( this->pev->owner );
+		hive->TeleportUse(pOwner, pOwner, USE_ON, 0);
 	}
 }
 #endif

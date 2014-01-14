@@ -4,7 +4,7 @@
 #include "cl_dll/demo.h"
 #include "common/demo_api.h"
 
-int	AvHParticleTemplateListClient::InitializeDemoPlayback(int inSize, unsigned char* inBuffer)
+int	AvHParticleTemplateListClient::InitializeDemoPlayback(int inSize, unsigned char* inBuffer, int index)
 {
 	// Read one particle template and add it to the list
 	int theBytesRead = 0;
@@ -105,7 +105,7 @@ int	AvHParticleTemplateListClient::InitializeDemoPlayback(int inSize, unsigned c
 	theTemplate.SetMaxAlpha(theMaxAlpha);
 
 	// Save the template
-	this->mTemplateList.push_back(theTemplate);
+	this->mTemplateList[index]=theTemplate;
 
 	return theBytesRead;
 }
@@ -231,7 +231,8 @@ void AvHParticleTemplateListClient::InitializeDemoRecording() const
 	}
 }
 
-void AvHParticleTemplateListClient::Insert(const AvHParticleTemplate& inTemplate)
+void AvHParticleTemplateListClient::Insert(const AvHParticleTemplate& inTemplate, int index)
 {
-	this->mTemplateList.insert(this->mTemplateList.end(), inTemplate);
+	this->mTemplateList[index]=inTemplate;
 }
+

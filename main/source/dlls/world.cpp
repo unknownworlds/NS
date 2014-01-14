@@ -35,6 +35,7 @@
 #include "gamerules.h"
 #include "teamplay_gamerules.h"
 #include "mod/AvHGamerules.h"
+#include "mod/AvHServerVariables.h"
 #include "pm_shared/pm_defs.h"
 
 extern CGraph WorldGraph;
@@ -480,7 +481,7 @@ void CWorld :: Spawn( void )
 {
 	g_fGameOver = FALSE;
 	Precache( );
-	g_flWeaponCheat = CVAR_GET_FLOAT( "sv_cheats" );  // Is the impulse 101 command allowed?
+	g_flWeaponCheat = ns_cvar_float(avh_cheats );  // Is the impulse 101 command allowed?
 }
 
 void CWorld :: Precache( void )

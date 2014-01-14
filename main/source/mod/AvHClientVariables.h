@@ -35,12 +35,16 @@ extern cvar_t*	cl_musicdir;
 
 // Variables
 #define kvAutoHelp			"cl_autohelp"
-// puzl: 1064 The cl var that controls the display of labelled minimaps
+// : 1064 The cl var that controls the display of labelled minimaps
 #define kvLabelMaps			"cl_labelmaps"
-// :puzl
-// tankefugl: 0001070 - enables forced gamma ramp loading
+// :
+// : 0001070 - enables forced gamma ramp loading
 #define kvGammaRamp			"cl_gammaramp"
-// :tankefugl
+#define kvLabelHivesight	"cl_labelhivesight"
+#define kvCustomCrosshair	"cl_customcrosshair"
+#define kvHudMapZoom		"cl_hudmapzoom"
+
+// :
 #define	kvCMHotKeys			"cl_cmhotkeys"
 #define	kvForceDefaultFOV	"cl_forcedefaultfov"
 #define kvCenterEntityID	"cl_centerentityid"

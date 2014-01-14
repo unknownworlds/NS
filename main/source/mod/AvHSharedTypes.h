@@ -58,11 +58,20 @@ typedef struct ScoreInfo_s
 	int player_index;
 	int score;
 	int frags;
+	int extra;
 	int deaths;
 	int player_class;
 	int auth;
 	int team;
+	int health;
 } ScoreInfo;
+
+#define WEAPON_SG			0x1
+#define WEAPON_GL			0x2
+#define WEAPON_HMG			0x4
+#define WEAPON_MINE			0x8
+#define WEAPON_WELDER		0x10
+
 
 typedef struct WeaponList_s
 {

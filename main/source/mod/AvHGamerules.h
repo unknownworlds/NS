@@ -121,7 +121,7 @@ public:
 typedef vector< pair <string, int> >	MapVoteListType;
 typedef map< int, int >					PlayerMapVoteListType;
 typedef map< int, float >				PlayerVoteTimeType;
-// puzl: 0001073
+// : 0001073
 #ifdef USE_OLDAUTH
 typedef vector< pair<string, string> >					AuthIDListType;
 typedef map<AvHPlayerAuthentication, AuthIDListType>	AuthMaskListType;
@@ -133,7 +133,7 @@ public:
 						AvHGamerules();
     virtual				~AvHGamerules();
 
-// puzl: 0001073
+// : 0001073
 #ifdef USE_OLDAUTH
 	virtual BOOL		GetIsClientAuthorizedToPlay(edict_t* inEntity, bool inDisplayMessage, bool inForcePending = false) const;
 	virtual bool		PerformHardAuthorization(AvHPlayer* inPlayer) const;
@@ -213,9 +213,9 @@ public:
 	bool				RoamingAllowedForPlayer(CBasePlayer* inPlayer) const;
 	virtual void		Think(void);
     
-    void                RegisterServerVariable(const char* inName);
+    void                RegisterServerVariable(const cvar_t* inCvar);
     int                 GetNumServerVariables() const;
-    const std::string&  GetServerVariable(int i) const;
+    const cvar_t*		GetServerVariable(int i) const;
 
 	bool				GetCheatsEnabled(void) const;
 	bool				GetIsCheatEnabled(const string& inCheatName) const;
@@ -263,7 +263,6 @@ public:
 	virtual bool		GetIsCombatMode(void) const;
 	virtual AvHTeamNumber	GetCombatAttackingTeamNumber() const;
     virtual bool		GetIsNSMode(void) const;
-    virtual bool		GetIsScriptedMode(void) const;
 	virtual bool		GetIsTrainingMode(void) const;
 
 	int					GetBaseHealthForMessageID(AvHMessageID inMessageID) const;
@@ -287,6 +286,10 @@ public:
     bool                GetMapVoteStrings(StringList& outMapVoteList);
 	void				RemovePlayerFromVotemap(int inPlayerIndex);
 
+	bool				GetIsGameInReset() {return this->mGameInReset; };
+
+	int					GetStructureLimit();
+	void				RemoveEntityUnderAttack(int entIndex);
 protected:
 	void				AutoAssignPlayer(AvHPlayer* inPlayer);
 	void				PerformMapValidityCheck();
@@ -296,7 +299,7 @@ protected:
 	virtual void		SendMOTDToClient( edict_t *client );
 
 
-// puzl: 0001073
+// : 0001073
 #ifdef USE_OLDAUTH
 
 	void				AddAuthStatus(AvHPlayerAuthentication inAuthMask, const string& inWONID, const string& inSteamID);
@@ -316,11 +319,12 @@ private:
     int                 GetVotesNeededForMapChange() const;
 	void				InitializeTechNodes();
 	void				InternalResetGameRules();
-	int					GetNumberOfPlayers() const;
+	int					GetNumberOfPlayers(bool inPlayingGame=false) const;
 	void				TallyVictoryStats() const;
 	void				PostVictoryStatsToWeb(const string& inFormParams) const;
 	bool				ReadyToStartCountdown();
 	void				ResetGame(bool inPreserveTeams = false);
+	void				ResetPlayers();
 	void				SendGameTimeUpdate(bool inReliable = false);
 	void				ProcessTeamUpgrades();
 	void				ResetEntities();
@@ -342,10 +346,17 @@ private:
 	bool				mFirstUpdate;
 	bool				mPreserveTeams;
 	bool				mGameStarted;
+    float  			    mLastJoinMessage;
 	AvHTeamNumber		mVictoryTeam;
 	float				mTimeCountDownStarted;
 	float				mTimeGameStarted;
     float				mTimeOfLastHLTVProxyUpdate;
+	float				mTimeOfForcedLastHLTVProxyUpdate;
+	float				mTimeOfLastHLTVParticleTemplateSending;
+	int					mHLTVNumParticleTemplatesSent;
+	int					mHLTVCurrentPlayer;
+
+	AvHEntityHierarchy	mHLTVEntityHierarchy;
 	float				mTimeOfLastGameTimeUpdate;
 	float				mTimeSentCountdown;
 	float				mTimeLastWontStartMessageSent;
@@ -357,7 +368,7 @@ private:
 	AvHTeam				mTeamB;
 	float				mVictoryTime;
     AvHMapMode			mMapMode;
-// puzl: 0001073
+// : 0001073
 #ifdef USE_OLDAUTH
 	bool				mUpdatedUplink;
 	AuthIDListType		mServerOpList;
@@ -381,6 +392,7 @@ private:
 	// Potentially marines vs. marines
 	AvHEntityHierarchy	mTeamAEntityHierarchy;
 	AvHEntityHierarchy	mTeamBEntityHierarchy;
+	AvHEntityHierarchy	mSpecEntityHierarchy;
 
 	AvHGameplay			mGameplay;
 
@@ -389,6 +401,8 @@ private:
 
 	typedef map<int, float>		EntityUnderAttackListType;
 	EntityUnderAttackListType	mEntitiesUnderAttack;
+
+	bool				mGameInReset;
 
 	AvHMiniMap			mMiniMap;
 
@@ -408,9 +422,12 @@ private:
 	PlayerMapVoteListType		mPlayersVoted;
 	PlayerVoteTimeType			mPlayersVoteTime; 
 
-    std::vector<std::string>	mServerVariableList;
+    std::vector<const cvar_t *>		mServerVariableList;
 
 	AvHTeamNumber				mCombatAttackingTeamNumber;
+
+	bool						mHasPlayersToReset;
+	float						mLastPlayerResetTime;
 };
 
 AvHGamerules* GetGameRules();

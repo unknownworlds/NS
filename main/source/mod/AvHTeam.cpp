@@ -753,14 +753,14 @@ void AvHTeam::PlayHUDSoundForAlivePlayers(AvHHUDSound inHUDSound) const
 	END_FOR_ALL_ENTITIES(kAvHPlayerClassName);
 }
 
-// joev: Bug 0000767
+// : Bug 0000767
 void AvHTeam::PlayHUDSoundForAllPlayers(AvHHUDSound inHUDSound) const
 {
 	FOR_ALL_ENTITIES(kAvHPlayerClassName, AvHPlayer*)
 		theEntity->PlayHUDSound(inHUDSound);
 	END_FOR_ALL_ENTITIES(kAvHPlayerClassName);
 }
-// :joev
+// :
 
 
 // Assumes rank change has been approved from on high.  It just does the best job it can,
@@ -888,8 +888,6 @@ void AvHTeam::ResetGame()
 		this->mGroupTypes[i] = AVH_USER3_NONE;
 	}
 	this->mSelectAllGroup.clear();
-
-	this->mObjectiveManager.Clear();
 }
 
 void AvHTeam::SpawnResourceTower()
@@ -1760,8 +1758,8 @@ void AvHTeam::UpdateVoting()
 		{
 			bool theResetVote = false;
 
-			// If commander logs out after vote started, cancel vote
-			if(this->mCommander != this->mCommanderWhenVoteStarted)
+			// If a new comm logs in after vote started, cancel vote
+			if((this->mCommander > 0) && (this->mCommander != this->mCommanderWhenVoteStarted))
 			{
 				theMessageForPlayers = kVoteCancelled;
 				theResetVote = true;
@@ -1776,7 +1774,7 @@ void AvHTeam::UpdateVoting()
 				// #545: If the voting has changed, indicate so in the HUD
 				if ((this->mVotesNeeded != theVotesNeeded) || (this->mVotes != this->mPreviousVotes)) {
 
-					// tankefugl: 0000545
+					// : 0000545
 					char theVoteMessage[512];
 					sprintf(theVoteMessage, "Eject commander: %d of %d votes needed.", this->mVotes, theVotesNeeded);
 
@@ -1793,7 +1791,7 @@ void AvHTeam::UpdateVoting()
 
 					this->mVotesNeeded = theVotesNeeded;
 					this->mPreviousVotes = this->mVotes;
-					// :tankefugl
+					// :
 				}
 
 				if(this->mVotes >= theVotesNeeded)
@@ -2482,43 +2480,13 @@ void AvHTeam::UpdateResources()
         this->mLastResourceUpdateTime = theCurrentTime;
     }
 }
-// puzl: 1041
-// o Added back in steamid based authids 
-#ifndef USE_OLDAUTH
-#ifdef AVH_PLAYTEST_BUILD
-// Function that is backwards-compatible with WON ids 
-string AvHSUGetPlayerAuthIDString(edict_t* inPlayer)
-{
-	const char* kSteamIDInvalidID = "-1";
-	string thePlayerAuthID;
-	
-	// Try to get SteamID
-	const char* theSteamID = g_engfuncs.pfnGetPlayerAuthId(inPlayer);
-	if(strcmp(theSteamID, kSteamIDInvalidID))
-	{
-		thePlayerAuthID = theSteamID;
-	}
-	// If that fails, get WonID and put it into a string
-	else
-	{
-		int theWonID = g_engfuncs.pfnGetPlayerWONId(inPlayer);
-		thePlayerAuthID = MakeStringFromInt(theWonID);
-	}
-	
-	return thePlayerAuthID;
-}
-#endif
-#endif
+
 AvHServerPlayerData* AvHTeam::GetServerPlayerData(edict_t* inEdict)
 {
-#ifdef AVH_PLAYTEST_BUILD
-	string theNetworkID = AvHSUGetPlayerAuthIDString(inEdict);
-#else
 	string theNetworkID = AvHNexus::getNetworkID(inEdict);
-#endif
 	return &this->mServerPlayerData[theNetworkID];
 }
-// :puzl
+// :
 void AvHTeam::UpdateServerPlayerData()
 {
 	const float kServerPlayerDataUpdateInterval = 1.0f;
@@ -2812,10 +2780,4 @@ EntityListType AvHTeam::GetSelectAllGroup()
 void AvHTeam::SetSelectAllGroup(EntityListType& inGroup)
 {
 	this->mSelectAllGroup = inGroup;
-}
-
-// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-AvHObjectiveManager *AvHTeam::GetObjectiveManager()
-{
-	return &this->mObjectiveManager;
 }

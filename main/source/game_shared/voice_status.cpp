@@ -360,13 +360,13 @@ void CVoiceStatus::CreateEntities()
 		pEnt->baseline.renderamt = 255;
 		pEnt->curstate.renderfx = kRenderFxNoDissipation;
 		pEnt->curstate.framerate = 1;
-		// tankefugl: different sprite for each team
+		// : different sprite for each team
 		if (pClient->curstate.team <= SPR_Frames(m_VoiceHeadModel))
 			pEnt->curstate.frame = pClient->curstate.team;
 		else
 			pEnt->curstate.frame = 0;
         //pEnt->curstate.frame = 0;
-		// :tankefugl
+		// :
 		pEnt->model = (struct model_s*)gEngfuncs.GetSpritePointer(m_VoiceHeadModel);
 		pEnt->angles[0] = pEnt->angles[1] = pEnt->angles[2] = 0;
 		pEnt->curstate.scale = 0.5f;

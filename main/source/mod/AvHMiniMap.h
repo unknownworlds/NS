@@ -29,7 +29,7 @@ public:
 	#endif
 
 	#ifdef AVH_CLIENT
-	// puzl: 1064
+	// : 1064
 	// Allow the caller to specify the use of the labelled minimap
 	static string	GetSpriteNameFromMap(int inSpriteWidth, const string& inMapName, int useLabels);
 	int				ReceiveFromNetworkStream(void* const buffer, const int size);

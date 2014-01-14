@@ -34,7 +34,7 @@ extern int gmsgMOTD;
 //=========================================================
 CHalfLifeRules::CHalfLifeRules( void )
 {
-	RefreshSkillData();
+	//RefreshSkillData();
 }
 
 //=========================================================

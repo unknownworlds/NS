@@ -7,6 +7,7 @@
 #include "mod/AvHActionButtons.h"
 #include "ui/UIUtil.h"
 
+
 int AvHScrollHandler::sScrollX = 0;
 int AvHScrollHandler::sScrollY = 0;
 int AvHScrollHandler::sScrollZ = 0;
@@ -18,9 +19,11 @@ int AvHScrollHandler::sLastMouseUpX = 0;
 int AvHScrollHandler::sLastMouseUpY = 0;
 bool AvHScrollHandler::sMouseOneDown = false;
 bool AvHScrollHandler::sMouseTwoDown = false;
+int AvHScrollHandler::sKeyDown = 0;
 
 AvHScrollHandler::AvHScrollHandler()
 {
+	sKeyDown = 0;
 }
 
 bool AvHScrollHandler::GetMouseOneDown() const
@@ -63,6 +66,63 @@ void AvHScrollHandler::ClearScrollHeight()
 	sScrollZ = 0;
 }
 
+void AvHScrollHandler::KeyScrollLeft()
+{
+	if ( sKeyDown < 0 ) sKeyDown=0;
+	sKeyDown++;
+	ScrollLeft();
+}
+
+void AvHScrollHandler::KeyScrollRight()
+{
+	if ( sKeyDown < 0 ) sKeyDown=0;
+	sKeyDown++;
+	ScrollRight();
+}
+
+void AvHScrollHandler::KeyScrollUp()
+{
+	if ( sKeyDown < 0 ) sKeyDown=0;
+	sKeyDown++;
+	ScrollUp();
+}
+
+void AvHScrollHandler::KeyScrollDown()
+{
+	if ( sKeyDown < 0 ) sKeyDown=0;
+	sKeyDown++;
+	ScrollDown();
+}
+
+void AvHScrollHandler::KeyScrollUpStop()
+{
+	sKeyDown--;
+	if ( sKeyDown < 0 ) sKeyDown=0;
+	sScrollY=0;
+}
+
+void AvHScrollHandler::KeyScrollDownStop()
+{
+	sKeyDown--;
+	if ( sKeyDown < 0 ) sKeyDown=0;
+	sScrollY=0;
+}
+
+void AvHScrollHandler::KeyScrollLeftStop()
+{
+	sKeyDown--;
+	if ( sKeyDown < 0 ) sKeyDown=0;
+	sScrollX=0;
+}
+
+void AvHScrollHandler::KeyScrollRightStop()
+{
+	sKeyDown--;
+	if ( sKeyDown < 0 ) sKeyDown=0;
+	sScrollX=0;
+}
+
+
 void AvHScrollHandler::ScrollLeft()
 {
 	sScrollX = -1;
@@ -102,6 +162,9 @@ void AvHScrollHandler::StopScroll()
 
 void AvHScrollHandler::cursorMoved(int x, int y, Panel* inPanel)
 {
+	if ( sKeyDown > 0 ) 
+		return;
+
 	char theMessage[256];
 	int theRandNumber = rand() % 10;
 	sprintf(theMessage, "Cursor moved, %d, %d, rand = %d", x, y, theRandNumber);

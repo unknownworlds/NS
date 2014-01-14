@@ -33,7 +33,7 @@ struct WEAPON
 	int		iFlags;
 	int		iId;
 	int		iClip;
-	// puzl: 497 - weapon enable state
+	// : 497 - weapon enable state
 	int		iEnabled;
 
 	int		iCount;		// # of itesm in plist
@@ -48,12 +48,14 @@ struct WEAPON
 	wrect_t rcAmmo2;
 	HSPRITE hCrosshair;
 	wrect_t rcCrosshair;
-	HSPRITE hAutoaim;
+
+/*	HSPRITE hAutoaim;
 	wrect_t rcAutoaim;
 	HSPRITE hZoomedCrosshair;
 	wrect_t rcZoomedCrosshair;
 	HSPRITE hZoomedAutoaim;
 	wrect_t rcZoomedAutoaim;
+	*/
 };
 
 typedef int AMMO;

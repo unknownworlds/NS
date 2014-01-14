@@ -39,12 +39,13 @@ bool AvHPlayer::GiveCombatModeUpgrade(AvHMessageID inMessageID, bool inInstantan
 		case BUILD_MINES:
 		case BUILD_JETPACK:
 		case BUILD_HEAVY:
-			//voogru: spawn the weapon in the middle of nowhere to prevent anyone else from getting it.
+			//: spawn the weapon in the middle of nowhere to prevent anyone else from getting it.
 			theCreatedItem = dynamic_cast<CBasePlayerItem*>(AvHSUBuildTechForPlayer(inMessageID, Vector(9999,9999,9999), this));
 			
 			 ASSERT(theCreatedItem);
 
-			if((inMessageID == BUILD_JETPACK) || (inMessageID == BUILD_HEAVY))
+			if((inMessageID == BUILD_JETPACK) || (inMessageID == BUILD_HEAVY) || (inMessageID == BUILD_HMG) || 
+				(inMessageID == BUILD_SHOTGUN) || (inMessageID == BUILD_GRENADE_GUN))
 			{
 				theEffectivePlayerClassChanged = true;
 			}
@@ -215,7 +216,9 @@ void AvHPlayer::SetExperience(float inExperience)
 		{
 			int theIsMarine = this->GetIsMarine();
 			PLAYBACK_EVENT_FULL(0, this->edict(), gLevelUpEventID, 0, this->pev->origin, (float *)&g_vecZero, 0.0, 0.0, theIsMarine, 0, 0, 0 );
-			
+		
+			this->EffectivePlayerClassChanged();
+
 			// Give player health and armor back on level-up, to allow more soloing, heroics, and reduce dependence on hives/resupply
 			AvHUser3 theUser3 = AvHUser3(this->pev->iuser3);
             float theMaxHealth = AvHPlayerUpgrade::GetMaxHealth(this->pev->iuser4, theUser3, theCurrentLevel);

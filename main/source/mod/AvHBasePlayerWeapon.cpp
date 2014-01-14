@@ -117,6 +117,21 @@ Vector UTIL_GetRandomSpreadDir(unsigned int inSeed, int inShotNumber, const Vect
 	return theRandomDir;
 }
 
+// test
+Vector UTIL_GetRandomSpreadDirFrom(unsigned int inSeed, int inShotNumber, const Vector& inBaseDirection, const Vector& inRight, const Vector& inUp, const Vector& inSpread, const Vector& inFromSpread)
+{
+	// Use player's random seed.
+	// get circular gaussian spread
+	float x = UTIL_SharedRandomFloat( inSeed + inShotNumber, -0.5, 0.5 ) + UTIL_SharedRandomFloat( inSeed + ( 1 + inShotNumber ) , -0.5, 0.5 );
+	float y = UTIL_SharedRandomFloat( inSeed + ( 2 + inShotNumber ), -0.5, 0.5 ) + UTIL_SharedRandomFloat( inSeed + ( 3 + inShotNumber ), -0.5, 0.5 );
+	float z = x * x + y * y;
+	float xdir = x / fabs(x);
+	float ydir = y / fabs(y);
+	
+	Vector theRandomDir = inBaseDirection + inFromSpread.x * inRight * xdir + x * inSpread.x * inRight + inFromSpread.y * inUp * ydir + y * inSpread.y * inUp;
+	
+	return theRandomDir;
+}
 
 AvHBasePlayerWeapon::AvHBasePlayerWeapon()
 {
@@ -186,14 +201,14 @@ int	AvHBasePlayerWeapon::AddToPlayer( CBasePlayer *pPlayer )
 
 BOOL AvHBasePlayerWeapon::Deploy()
 {
-	// tankefugl: 0000938
+	// : 0000938
 	// removed deploy sounds for all weapons, leaving the sounds to the models
 	// char* theDeploySound = this->GetDeploySound();
 	// if(theDeploySound)
 	// {
 	//	EMIT_SOUND(ENT(this->pev), CHAN_WEAPON, this->GetDeploySound(), this->GetDeploySoundVolume(), ATTN_NORM);
 	//}
-	// :tankefugl
+	// :
 
 	char* theAnimExt = this->GetAnimationExtension();
 
@@ -246,10 +261,10 @@ BOOL AvHBasePlayerWeapon::DefaultDeploy( char *szViewModel, char *szWeaponModel,
 
 BOOL AvHBasePlayerWeapon::DefaultReload( int iClipSize, int iAnim, float fDelay, int body)
 {
-	// tankefugl: 0000996
+	// : 0000996
 	if (m_fInReload == TRUE)
 		return TRUE;
-	// :tankefugl
+	// :
 
 	if (m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType] <= 0)
 		return FALSE;
@@ -709,7 +724,7 @@ bool AvHBasePlayerWeapon::ProcessValidAttack(void)
 
 	// Only shoot if deployed and enabled (iuser3 is 0 when disabled, 1 when enabled <from m_fireState>)
 
-	// puzl: 497 call GetEnabledState instead of testing directly
+	// : 497 call GetEnabledState instead of testing directly
 	int enabledState=this->GetEnabledState();
 
 	if(this->m_pPlayer->pev->viewmodel && ( enabledState == 1))
@@ -1109,7 +1124,7 @@ bool AvHBasePlayerWeapon::GetEnabledState() const
 #ifdef AVH_SERVER
 	result= (this->m_iEnabled == 1);		
 #else
-	// puzl: 497 client now uses the enabled state in the appropriate WEAPON
+	// : 497 client now uses the enabled state in the appropriate WEAPON
 	ItemInfo theItemInfo;
 	this->GetItemInfo(&theItemInfo);
 	WEAPON *pWeapon = gWR.GetWeapon( theItemInfo.iId );
@@ -1207,7 +1222,7 @@ void AvHBasePlayerWeapon::UpdateInventoryEnabledState(int inNumActiveHives)
 		}
 	}
 	
-	// puzl: 497 save the state for when we send the CurWeapon message
+	// : 497 save the state for when we send the CurWeapon message
 	this->m_iEnabled =  theEnabledState;
 }
 

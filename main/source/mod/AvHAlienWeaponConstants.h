@@ -339,7 +339,7 @@ const float		kBileBombPunch				= 8.0;
 
 const int		kBileBombBarrelLength		= 20;
 const float		kBileBombFrictionConstant	= .8f;
-const int		kBileBombVelocity			= 750;
+const int		kBileBombVelocity			= 650;
 
 // The bile bomb size must be small so that the collision results on the server
 // are close to the collision results for the temp entity on the client.

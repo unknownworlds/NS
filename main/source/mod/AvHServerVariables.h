@@ -66,9 +66,44 @@
 
 #include "common/cvardef.h"
 
-extern cvar_t	avh_tournamentmode;
+extern cvar_t avh_blockscripts;
+extern cvar_t avh_combattime;
+extern cvar_t *avh_cheats;
+extern cvar_t avh_defaultteam;
+extern cvar_t avh_drawdamage;
+extern cvar_t avh_footsteps;
+extern cvar_t avh_gravity;
+extern cvar_t avh_ironman;
+extern cvar_t avh_ironmantime;
+extern cvar_t avh_networkdebug;
+extern cvar_t avh_team1damagepercent;
+extern cvar_t avh_team2damagepercent;
+extern cvar_t avh_team3damagepercent;
+extern cvar_t avh_team4damagepercent;
+extern cvar_t avh_testing;
+extern cvar_t timelimit;
+extern cvar_t avh_tournamentmode;
+extern cvar_t avh_trainingmode;
+extern cvar_t avh_structurelimit;
+extern cvar_t avh_latejointime;
+extern cvar_t avh_bulletcam;
+extern cvar_t avh_logdetail;
+extern cvar_t *violence_hblood;
+extern cvar_t *violence_ablood;
+extern cvar_t *violence_hgibs;
+extern cvar_t *violence_agibs;
+extern cvar_t avh_killdelay;
+extern cvar_t *showtriggers;
+
+extern cvar_t *showtriggers;
+
+char	*ns_cvar_string(const cvar_t *cvar);
+int		ns_cvar_int(const cvar_t *cvar);
+float	ns_cvar_float(const cvar_t *cvar);
+
 
 // Variables
+
 #define kvTournamentMode			"mp_tournamentmode"
 #define kvTrainingMode				"mp_trainingmode"
 #define kvDrawDamage				"mp_drawdamage"
@@ -86,6 +121,7 @@ extern cvar_t	avh_tournamentmode;
 #define kvTeam2DamagePercent        "mp_team2damagepercent"
 #define kvTeam3DamagePercent        "mp_team3damagepercent"
 #define kvTeam4DamagePercent        "mp_team4damagepercent"
+#define kvStructureLimit			"sv_structurelimit"
 #define kvSpawnInvulnerableTime		"mp_spawninvulnerabletime"
 #define kvVoteCastTime				"mp_votecasttime"
 #define kvVoteDownTime				"mp_votedowntime"

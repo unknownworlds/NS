@@ -78,6 +78,8 @@ void AvHMine::DeductCostForShot(void)
 	//if(this->m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType] <= 0)
 	if(!this->m_iClip)
 	{
+		if ( this->m_pPlayer )
+			this->m_pPlayer->EffectivePlayerClassChanged();
 		// no more mines! 
 		RetireWeapon();
 	}
@@ -202,7 +204,7 @@ bool AvHMine::GetDropLocation(Vector& outLocation, Vector* outAngles) const
 	{
 		CBaseEntity* theEntity = CBaseEntity::Instance( tr.pHit );
 		
-		// puzl: 981
+		// : 981
 		// Mines can't be planted on players or buildings
         if (!dynamic_cast<AvHDeployedMine*>(theEntity) && !dynamic_cast<AvHPlayer *>(theEntity) && !dynamic_cast<AvHBaseBuildable *>(theEntity))
         {
@@ -225,7 +227,7 @@ bool AvHMine::GetDropLocation(Vector& outLocation, Vector* outAngles) const
 		    theSuccess = true;
 		    for(BaseEntityListType::iterator theIter = theEntityList.begin(); theIter != theEntityList.end(); theIter++)
 		    {
-				// puzl: 225 make sure there are no mines within kMineSearchRadius of each other ( 15 units )
+				// : 225 make sure there are no mines within kMineSearchRadius of each other ( 15 units )
 			    CBaseEntity* theCurrentEntity = *theIter;
 			    if(!theCurrentEntity || (theCurrentEntity->pev->flags & FL_CONVEYOR) || AvHSUGetIsExternalClassName(STRING(theCurrentEntity->pev->classname)) || dynamic_cast<CBaseDoor*>(theCurrentEntity) || dynamic_cast<CRotDoor*>(theCurrentEntity)
 					|| dynamic_cast<AvHDeployedMine*>(theCurrentEntity) )

@@ -426,6 +426,79 @@ AvHParticleTemplate::SetStartingVelocityParams(const ParticleParams& inParms)
 }
 
 
+void AvHParticleTemplate::operator=(const AvHParticleTemplate& other)
+{
+		this->mName = other.mName;
+		this->mMaxParticles = other.mMaxParticles;
+		memcpy(this->mBaseColor, other.mBaseColor, sizeof(PSVector));
+		this->mSprite = other.mSprite;
+		this->mParticleSize = other.mParticleSize;
+		this->mParticleSystemLifetime = other.mParticleSystemLifetime;
+		this->mParticleLifetime = other.mParticleLifetime;
+		memcpy(this->mGravity, other.mGravity, sizeof(PSVector));
+		this->mGenerationRate = other.mGenerationRate;
+		this->mGenerationShape = other.mGenerationShape;
+		memcpy(this->mGenerationParams, other.mGenerationParams, sizeof(ParticleParams));
+		this->mGenerationEntityIndex = other.mGenerationEntityIndex;
+		this->mGenerationEntityParameter = other.mGenerationEntityParameter;
+		this->mGenerationEntityName = other.mGenerationEntityName;
+		this->mStartingVelocityShape = other.mStartingVelocityShape;
+		memcpy(this->mStartingVelocityParams, other.mStartingVelocityParams, sizeof(ParticleParams));
+		this->mDeathShape = other.mDeathShape;
+		memcpy(this->mDeathParams, other.mDeathParams, sizeof(ParticleParams));
+		this->mCollisionShape = other.mCollisionShape;
+		memcpy(this->mCollisionParams, other.mCollisionParams, sizeof(ParticleParams));
+		this->mMinSpeed = other.mMinSpeed;
+		this->mMaxSpeed = other.mMaxSpeed;
+		this->mNumSpriteFrames = other.mNumSpriteFrames;
+		this->mAnimationSpeed = other.mAnimationSpeed;
+		this->mParticleScaling = other.mParticleScaling;
+		this->mRenderMode = other.mRenderMode;
+		this->mMaxAlpha = other.mMaxAlpha;
+		this->mFadeIn = other.mFadeIn;
+		this->mFlags = other.mFlags;
+		this->mParticleSystemToGenerate = other.mParticleSystemToGenerate;
+		this->mParticleSystemIndexToGenerate = other.mParticleSystemIndexToGenerate;
+}
+
+bool AvHParticleTemplate::operator==(const AvHParticleTemplate& other) const
+{
+	bool result=false;
+	if ( this->mName == other.mName &&
+		this->mMaxParticles == other.mMaxParticles &&
+		this->mBaseColor == other.mBaseColor &&
+		this->mSprite == other.mSprite &&
+		this->mParticleSize == other.mParticleSize &&
+		this->mParticleSystemLifetime == other.mParticleSystemLifetime &&
+		this->mParticleLifetime == other.mParticleLifetime &&
+		this->mGravity == other.mGravity &&
+		this->mGenerationRate == other.mGenerationRate &&
+		this->mGenerationShape == other.mGenerationShape &&
+		this->mGenerationParams == other.mGenerationParams &&
+		this->mGenerationEntityIndex == other.mGenerationEntityIndex &&
+		this->mGenerationEntityParameter == other.mGenerationEntityParameter &&
+		this->mGenerationEntityName == other.mGenerationEntityName &&
+		this->mStartingVelocityShape == other.mStartingVelocityShape &&
+		this->mStartingVelocityParams == other.mStartingVelocityParams &&
+		this->mDeathShape == other.mDeathShape &&
+		this->mDeathParams == other.mDeathParams &&
+		this->mCollisionShape == other.mCollisionShape &&
+		this->mCollisionParams == other.mCollisionParams &&
+		this->mMinSpeed == other.mMinSpeed &&
+		this->mMaxSpeed == other.mMaxSpeed &&
+		this->mNumSpriteFrames == other.mNumSpriteFrames &&
+		this->mAnimationSpeed == other.mAnimationSpeed &&
+		this->mParticleScaling == other.mParticleScaling &&
+		this->mRenderMode == other.mRenderMode &&
+		this->mMaxAlpha == other.mMaxAlpha &&
+		this->mFadeIn == other.mFadeIn &&
+		this->mFlags == other.mFlags &&
+		this->mParticleSystemToGenerate == other.mParticleSystemToGenerate &&
+		this->mParticleSystemIndexToGenerate == other.mParticleSystemIndexToGenerate )
+		result=true;
+	return result;
+}
+
 AvHParticleTemplateList::AvHParticleTemplateList()
 {
 }
@@ -434,7 +507,8 @@ void
 AvHParticleTemplateList::Clear()
 {
 	//for(ParticleTemplateListType::iterator theIter = this->mTemplateList.begin(); theIter != this->mTemplateList.end(); theIter++)
-	this->mTemplateList.clear();
+	if ( this->mTemplateList.size() > 0 )
+		this->mTemplateList.erase(this->mTemplateList.begin(), this->mTemplateList.end());
 }
 
 int
@@ -449,8 +523,8 @@ AvHParticleTemplateList::CreateTemplateFromIndex(int inBaseIndex)
 		theNewTemplate = this->mTemplateList[inBaseIndex];
 	}
 
-	this->mTemplateList.push_back(theNewTemplate);
-	int theNewIndex = (int)this->mTemplateList.size() - 1;
+	int theNewIndex = (int)this->mTemplateList.size();
+	this->mTemplateList[theNewIndex]=theNewTemplate;
 		
 	return theNewIndex;
 }
@@ -473,9 +547,12 @@ AvHParticleTemplateList::GetTemplateAtIndex(uint32 inIndex) const
 {
 	const AvHParticleTemplate* theTemplate = NULL;
 
-	if(inIndex < this->mTemplateList.size())
+	ParticleTemplateListType::const_iterator theIter=this->mTemplateList.find(inIndex);
+
+
+	if(theIter != this->mTemplateList.end() )
 	{
-		theTemplate = &(this->mTemplateList[inIndex]);
+		theTemplate =  &(theIter->second);
 	}
 
 	return theTemplate;
@@ -491,7 +568,7 @@ AvHParticleTemplateList::GetTemplateIndexWithName(const string& inName, uint32& 
 
 	for(theIter = this->mTemplateList.begin(); theIter != this->mTemplateList.end(); theIter++, theIndex++)
 	{
-		if(theIter->GetName() == inName)
+		if(theIter->second.GetName() == inName)
 		{
 			outIndex = theIndex;
 			theSuccess = true;
@@ -507,4 +584,6 @@ AvHParticleTemplateList::GetNumberTemplates() const
 {
 	return (uint32)this->mTemplateList.size();
 }
+
+
 

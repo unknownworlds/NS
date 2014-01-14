@@ -21,9 +21,9 @@
 #include "common/r_efx.h"
 #include "mod/AvHNetworkMessages.h"
 
-// tankefugl: duck toggle
+// : duck toggle
 extern bool g_bDuckToggled;
-// :tankefugl
+// :
 
 #define MAX_CLIENTS 32
 
@@ -50,9 +50,9 @@ int CHud :: MsgFunc_ResetHUD(const char *pszName, int iSize, void *pbuf )
 	// reset sensitivity
 	m_flMouseSensitivity = 0;
 
-	// tankefugl: duck toggle
+	// : duck toggle
 	g_bDuckToggled = false;
-	// :tankefugl
+	// :
 
 	return 0;
 }

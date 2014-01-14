@@ -152,7 +152,7 @@ const int		kHGBarrelLength		= 10;
 #define			kHGSpread			VECTOR_CONE_1DEGREES
 
 // Sonic/Shot gun constants.
-const int		kSGRange			= 8192;
+const int		kSGRange			= 700;
 const float		kSGXPunch			= .8f;
 #define			kSGEjectModel		"models/shotshell.mdl"
 #define			kSGEventName		"events/SonicGun.sc"
@@ -169,7 +169,8 @@ const float		kSGXPunch			= .8f;
 #define			kSGDeploySound		"weapons/sg-deploy.wav"
 const int		kSGBarrelLength		= 25;
 #define			kSGSpread			VECTOR_CONE_20DEGREES
-#define			kSGInnerSpread		VECTOR_CONE_7DEGREES
+#define			kSGMidSpread		VECTOR_CONE_8DEGREES
+#define			kSGInnerSpread		VECTOR_CONE_3DEGREES
 
 // Heavy machine gun
 const int		kHMGRange			= 6000;

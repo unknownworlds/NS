@@ -212,10 +212,16 @@ const float kSkulkRotationLookAhead = 75;
 
 // Distance around the skulk to look each in direction for wallsticking.
 const vec3_t kWallstickingDistanceCheck = { 5, 5, 5 };
-// tankefugl: 0000972 
+// : 0000972 
 vec3_t gSurfaceNormal = { 0, 0, 0 };
 bool canWallJump = false;
-// :tankefugl
+// :
+
+#ifdef AVH_SERVER
+bool    gCanMove[MAX_CLIENTS];
+#else
+bool	gCanMove;
+#endif
 
 #ifdef AVH_CLIENT
 extern vec3_t gPlayerAngles;
@@ -318,9 +324,19 @@ static  dclipnode_t box_clipnodes[6];
 static  mplane_t    box_planes[6];
 
 
+// : 243
+// Players should never play sounds when digesting
+void PM_NSPlaySound( int channel, const char *sample, float volume, float attenuation, int fFlags, int pitch ) {
+	if ( AvHGetIsAlien(pmove->iuser3) || !GetHasUpgrade(pmove->iuser4, MASK_DIGESTING) ) 
+	{pmove->PM_PlaySound(channel,sample,volume,attenuation,fFlags,pitch);}
+}
+
 bool PM_GetIsBlinking()
 {
-    if (pmove->cmd.weaponselect == 255 || pmove->flags & FL_FAKECLIENT)
+	if (pmove->iuser3 == AVH_USER3_ALIEN_PLAYER4 && GetHasUpgrade(pmove->iuser4, MASK_ALIEN_MOVEMENT))
+		return true;
+
+	if (pmove->cmd.weaponselect == 255 || pmove->flags & FL_FAKECLIENT)
     {
         return (pmove->iuser3 == AVH_USER3_ALIEN_PLAYER4) && (pmove->cmd.impulse == ALIEN_ABILITY_BLINK);
     }
@@ -329,7 +345,10 @@ bool PM_GetIsBlinking()
 
 bool PM_GetIsLeaping()
 {
-    if (pmove->cmd.weaponselect == 255 || pmove->flags & FL_FAKECLIENT)
+	if (pmove->iuser3 == AVH_USER3_ALIEN_PLAYER1 && GetHasUpgrade(pmove->iuser4, MASK_ALIEN_MOVEMENT))
+		return true;
+
+	if (pmove->cmd.weaponselect == 255 || pmove->flags & FL_FAKECLIENT)
     {
         return (pmove->iuser3 == AVH_USER3_ALIEN_PLAYER1) && (pmove->cmd.impulse == ALIEN_ABILITY_LEAP);
     }
@@ -338,13 +357,15 @@ bool PM_GetIsLeaping()
 
 bool PM_GetIsCharging()
 {
-    if (pmove->cmd.weaponselect == 255 || pmove->flags & FL_FAKECLIENT)
+	if (pmove->iuser3 == AVH_USER3_ALIEN_PLAYER5 && GetHasUpgrade(pmove->iuser4, MASK_ALIEN_MOVEMENT))
+		return true;
+
+	if (pmove->cmd.weaponselect == 255 || pmove->flags & FL_FAKECLIENT)
     {
         return (pmove->cmd.impulse == ALIEN_ABILITY_CHARGE);
     }
     return false;
 }
-
 
 /*
 ===================
@@ -1269,7 +1290,7 @@ bool NS_CheckOffsetFromOrigin(float inX, float inY, float inZ, vec3_t& outNormal
 
     if (trace.fraction < 1)
     {
-        // tankefugl: Don't weight it if surface normal is too plane
+        // : Don't weight it if surface normal is too plane
 		if (trace.plane.normal[2] > 0.7)
 			return true;
         
@@ -1419,14 +1440,14 @@ void NS_UpdateWallsticking()
 
     if (pmove->iuser3 == AVH_USER3_ALIEN_PLAYER1)
     {
-		// tankefugl: 0000972 
+		// : 0000972 
 		pmove->waterjumptime -= pmove->cmd.msec;
 		if (pmove->waterjumptime < 0)
 			pmove->waterjumptime = 0;
 		
 		if(!(pmove->cmd.buttons & IN_DUCK) && !(pmove->oldbuttons & IN_JUMP) && (pmove->waterlevel < 2)) 
 //		if(!(pmove->cmd.buttons & IN_DUCK)) //&& ((pmove->onground != -1) || (pmove->numtouch > 0)))
-		// :tankefugl
+		// :
         {
             
             vec3_t theMinPoint;
@@ -1443,12 +1464,12 @@ void NS_UpdateWallsticking()
             
             bool wallsticking = false;
 
-			// tankefugl: fix to allow skulks to climb walls oriented 45 degrees in the x-y plane
+			// : fix to allow skulks to climb walls oriented 45 degrees in the x-y plane
 			// it also allows for easier climbing around courners
 			//wallsticking |= NS_CheckOffsetFromOrigin(pmove->forward[0], pmove->forward[1], pmove->forward[2], theSurfaceNormal);
 			//if (wallsticking)
 			//	VectorScale(theSurfaceNormal, 5, theSurfaceNormal);
-			// :tankefugl
+			// :
 
             //wallsticking |= NS_CheckOffsetFromOrigin(theMinPoint[0], theMinPoint[1], theMinPoint[2], theSurfaceNormal);
             //wallsticking |= NS_CheckOffsetFromOrigin(theMinPoint[0], theMaxPoint[1], theMinPoint[2], theSurfaceNormal);
@@ -1461,20 +1482,20 @@ void NS_UpdateWallsticking()
             wallsticking |= NS_CheckOffsetFromOrigin(theMaxPoint[0], theMaxPoint[1], theMaxPoint[2], theSurfaceNormal);
 
             VectorNormalize(theSurfaceNormal);
-
             if (wallsticking)
             {
-				// tankefugl: 0000972 
-				if (/*theSurfaceNormal[2] < 0.95 && */ pmove->waterjumptime == 0)
+				// : 0000972 
+				if (pmove->waterjumptime == 0)
 				{
 					//float dotNormalView = DotProduct(pmove->forward, theSurfaceNormal);
 					vec3_t tempNormal = {0, 0, 0};
 					bool checkedDownOffset = NS_CheckOffsetFromOrigin(0, 0, theMinPoint[2], tempNormal);
-		            if (/*dotNormalView < 0.7 && */(checkedDownOffset == false))
+					VectorNormalize(tempNormal);
+		            if ((checkedDownOffset == false) || (tempNormal[2] < 0.7f && tempNormal[2] > 0.05f))
 					{
 						VectorCopy(theSurfaceNormal, gSurfaceNormal);
 
-						if (/*theSurfaceNormal[2] < 0.7 && */(pmove->cmd.buttons & IN_WALK)) 
+						if (pmove->cmd.buttons & IN_WALK) 
 						{
 							vec3_t theDispVect;
 							VectorScale(theSurfaceNormal, theMinPoint[0], theDispVect);
@@ -1496,7 +1517,7 @@ void NS_UpdateWallsticking()
 					// Set wall sticking to true.
 		            SetUpgradeMask(&pmove->iuser4, MASK_WALLSTICKING);
 				}
-				// :tankefugl
+				// :
 
                 vec3_t angles;
                          
@@ -1989,7 +2010,7 @@ void NS_PlayStepSound(int inMaterialType, int inSoundNumber, float inVolume)
         inVolume = inVolume - inVolume*theSilenceUpgradeFactor;
         
         // Play it at the specified volume
-        pmove->PM_PlaySound(CHAN_BODY, theFinalName, inVolume, theNorm, 0, PITCH_NORM);
+        PM_NSPlaySound(CHAN_BODY, theFinalName, inVolume, theNorm, 0, PITCH_NORM);
     }
     else
     {
@@ -2060,55 +2081,55 @@ void PM_PlayStepSound( int step, float fvol )
 //      switch (irand)
 //      {
 //      // right foot
-//      case 0: pmove->PM_PlaySound( CHAN_BODY, "player/pl_step1.wav", fvol, ATTN_NORM, 0, PITCH_NORM );    break;
-//      case 1: pmove->PM_PlaySound( CHAN_BODY, "player/pl_step3.wav", fvol, ATTN_NORM, 0, PITCH_NORM );    break;
+//      case 0: PM_NSPlaySound( CHAN_BODY, "player/pl_step1.wav", fvol, ATTN_NORM, 0, PITCH_NORM );    break;
+//      case 1: PM_NSPlaySound( CHAN_BODY, "player/pl_step3.wav", fvol, ATTN_NORM, 0, PITCH_NORM );    break;
 //      // left foot
-//      case 2: pmove->PM_PlaySound( CHAN_BODY, "player/pl_step2.wav", fvol, ATTN_NORM, 0, PITCH_NORM );    break;
-//      case 3: pmove->PM_PlaySound( CHAN_BODY, "player/pl_step4.wav", fvol, ATTN_NORM, 0, PITCH_NORM );    break;
+//      case 2: PM_NSPlaySound( CHAN_BODY, "player/pl_step2.wav", fvol, ATTN_NORM, 0, PITCH_NORM );    break;
+//      case 3: PM_NSPlaySound( CHAN_BODY, "player/pl_step4.wav", fvol, ATTN_NORM, 0, PITCH_NORM );    break;
 //      }
 //      break;
 //  case STEP_METAL:
 //      switch(irand)
 //      {
 //      // right foot
-//      case 0: pmove->PM_PlaySound( CHAN_BODY, "player/pl_metal1.wav", fvol, ATTN_NORM, 0, PITCH_NORM );   break;
-//      case 1: pmove->PM_PlaySound( CHAN_BODY, "player/pl_metal3.wav", fvol, ATTN_NORM, 0, PITCH_NORM );   break;
+//      case 0: PM_NSPlaySound( CHAN_BODY, "player/pl_metal1.wav", fvol, ATTN_NORM, 0, PITCH_NORM );   break;
+//      case 1: PM_NSPlaySound( CHAN_BODY, "player/pl_metal3.wav", fvol, ATTN_NORM, 0, PITCH_NORM );   break;
 //      // left foot
-//      case 2: pmove->PM_PlaySound( CHAN_BODY, "player/pl_metal2.wav", fvol, ATTN_NORM, 0, PITCH_NORM );   break;
-//      case 3: pmove->PM_PlaySound( CHAN_BODY, "player/pl_metal4.wav", fvol, ATTN_NORM, 0, PITCH_NORM );   break;
+//      case 2: PM_NSPlaySound( CHAN_BODY, "player/pl_metal2.wav", fvol, ATTN_NORM, 0, PITCH_NORM );   break;
+//      case 3: PM_NSPlaySound( CHAN_BODY, "player/pl_metal4.wav", fvol, ATTN_NORM, 0, PITCH_NORM );   break;
 //      }
 //      break;
 //  case STEP_DIRT:
 //      switch(irand)
 //      {
 //      // right foot
-//      case 0: pmove->PM_PlaySound( CHAN_BODY, "player/pl_dirt1.wav", fvol, ATTN_NORM, 0, PITCH_NORM );    break;
-//      case 1: pmove->PM_PlaySound( CHAN_BODY, "player/pl_dirt3.wav", fvol, ATTN_NORM, 0, PITCH_NORM );    break;
+//      case 0: PM_NSPlaySound( CHAN_BODY, "player/pl_dirt1.wav", fvol, ATTN_NORM, 0, PITCH_NORM );    break;
+//      case 1: PM_NSPlaySound( CHAN_BODY, "player/pl_dirt3.wav", fvol, ATTN_NORM, 0, PITCH_NORM );    break;
 //      // left foot
-//      case 2: pmove->PM_PlaySound( CHAN_BODY, "player/pl_dirt2.wav", fvol, ATTN_NORM, 0, PITCH_NORM );    break;
-//      case 3: pmove->PM_PlaySound( CHAN_BODY, "player/pl_dirt4.wav", fvol, ATTN_NORM, 0, PITCH_NORM );    break;
+//      case 2: PM_NSPlaySound( CHAN_BODY, "player/pl_dirt2.wav", fvol, ATTN_NORM, 0, PITCH_NORM );    break;
+//      case 3: PM_NSPlaySound( CHAN_BODY, "player/pl_dirt4.wav", fvol, ATTN_NORM, 0, PITCH_NORM );    break;
 //      }
 //      break;
 //  case STEP_VENT:
 //      switch(irand)
 //      {
 //      // right foot
-//      case 0: pmove->PM_PlaySound( CHAN_BODY, "player/pl_duct1.wav", fvol, ATTN_NORM, 0, PITCH_NORM );    break;
-//      case 1: pmove->PM_PlaySound( CHAN_BODY, "player/pl_duct3.wav", fvol, ATTN_NORM, 0, PITCH_NORM );    break;
+//      case 0: PM_NSPlaySound( CHAN_BODY, "player/pl_duct1.wav", fvol, ATTN_NORM, 0, PITCH_NORM );    break;
+//      case 1: PM_NSPlaySound( CHAN_BODY, "player/pl_duct3.wav", fvol, ATTN_NORM, 0, PITCH_NORM );    break;
 //      // left foot
-//      case 2: pmove->PM_PlaySound( CHAN_BODY, "player/pl_duct2.wav", fvol, ATTN_NORM, 0, PITCH_NORM );    break;
-//      case 3: pmove->PM_PlaySound( CHAN_BODY, "player/pl_duct4.wav", fvol, ATTN_NORM, 0, PITCH_NORM );    break;
+//      case 2: PM_NSPlaySound( CHAN_BODY, "player/pl_duct2.wav", fvol, ATTN_NORM, 0, PITCH_NORM );    break;
+//      case 3: PM_NSPlaySound( CHAN_BODY, "player/pl_duct4.wav", fvol, ATTN_NORM, 0, PITCH_NORM );    break;
 //      }
 //      break;
 //  case STEP_GRATE:
 //      switch(irand)
 //      {
 //      // right foot
-//      case 0: pmove->PM_PlaySound( CHAN_BODY, "player/pl_grate1.wav", fvol, ATTN_NORM, 0, PITCH_NORM );   break;
-//      case 1: pmove->PM_PlaySound( CHAN_BODY, "player/pl_grate3.wav", fvol, ATTN_NORM, 0, PITCH_NORM );   break;
+//      case 0: PM_NSPlaySound( CHAN_BODY, "player/pl_grate1.wav", fvol, ATTN_NORM, 0, PITCH_NORM );   break;
+//      case 1: PM_NSPlaySound( CHAN_BODY, "player/pl_grate3.wav", fvol, ATTN_NORM, 0, PITCH_NORM );   break;
 //      // left foot
-//      case 2: pmove->PM_PlaySound( CHAN_BODY, "player/pl_grate2.wav", fvol, ATTN_NORM, 0, PITCH_NORM );   break;
-//      case 3: pmove->PM_PlaySound( CHAN_BODY, "player/pl_grate4.wav", fvol, ATTN_NORM, 0, PITCH_NORM );   break;
+//      case 2: PM_NSPlaySound( CHAN_BODY, "player/pl_grate2.wav", fvol, ATTN_NORM, 0, PITCH_NORM );   break;
+//      case 3: PM_NSPlaySound( CHAN_BODY, "player/pl_grate4.wav", fvol, ATTN_NORM, 0, PITCH_NORM );   break;
 //      }
 //      break;
 //  case STEP_TILE:
@@ -2117,23 +2138,23 @@ void PM_PlayStepSound( int step, float fvol )
 //      switch(irand)
 //      {
 //      // right foot
-//      case 0: pmove->PM_PlaySound( CHAN_BODY, "player/pl_tile1.wav", fvol, ATTN_NORM, 0, PITCH_NORM );    break;
-//      case 1: pmove->PM_PlaySound( CHAN_BODY, "player/pl_tile3.wav", fvol, ATTN_NORM, 0, PITCH_NORM );    break;
+//      case 0: PM_NSPlaySound( CHAN_BODY, "player/pl_tile1.wav", fvol, ATTN_NORM, 0, PITCH_NORM );    break;
+//      case 1: PM_NSPlaySound( CHAN_BODY, "player/pl_tile3.wav", fvol, ATTN_NORM, 0, PITCH_NORM );    break;
 //      // left foot
-//      case 2: pmove->PM_PlaySound( CHAN_BODY, "player/pl_tile2.wav", fvol, ATTN_NORM, 0, PITCH_NORM );    break;
-//      case 3: pmove->PM_PlaySound( CHAN_BODY, "player/pl_tile4.wav", fvol, ATTN_NORM, 0, PITCH_NORM );    break;
-//      case 4: pmove->PM_PlaySound( CHAN_BODY, "player/pl_tile5.wav", fvol, ATTN_NORM, 0, PITCH_NORM );    break;
+//      case 2: PM_NSPlaySound( CHAN_BODY, "player/pl_tile2.wav", fvol, ATTN_NORM, 0, PITCH_NORM );    break;
+//      case 3: PM_NSPlaySound( CHAN_BODY, "player/pl_tile4.wav", fvol, ATTN_NORM, 0, PITCH_NORM );    break;
+//      case 4: PM_NSPlaySound( CHAN_BODY, "player/pl_tile5.wav", fvol, ATTN_NORM, 0, PITCH_NORM );    break;
 //      }
 //      break;
 //  case STEP_SLOSH:
 //      switch(irand)
 //      {
 //      // right foot
-//      case 0: pmove->PM_PlaySound( CHAN_BODY, "player/pl_slosh1.wav", fvol, ATTN_NORM, 0, PITCH_NORM );   break;
-//      case 1: pmove->PM_PlaySound( CHAN_BODY, "player/pl_slosh3.wav", fvol, ATTN_NORM, 0, PITCH_NORM );   break;
+//      case 0: PM_NSPlaySound( CHAN_BODY, "player/pl_slosh1.wav", fvol, ATTN_NORM, 0, PITCH_NORM );   break;
+//      case 1: PM_NSPlaySound( CHAN_BODY, "player/pl_slosh3.wav", fvol, ATTN_NORM, 0, PITCH_NORM );   break;
 //      // left foot
-//      case 2: pmove->PM_PlaySound( CHAN_BODY, "player/pl_slosh2.wav", fvol, ATTN_NORM, 0, PITCH_NORM );   break;
-//      case 3: pmove->PM_PlaySound( CHAN_BODY, "player/pl_slosh4.wav", fvol, ATTN_NORM, 0, PITCH_NORM );   break;
+//      case 2: PM_NSPlaySound( CHAN_BODY, "player/pl_slosh2.wav", fvol, ATTN_NORM, 0, PITCH_NORM );   break;
+//      case 3: PM_NSPlaySound( CHAN_BODY, "player/pl_slosh4.wav", fvol, ATTN_NORM, 0, PITCH_NORM );   break;
 //      }
 //      break;
 //  case STEP_WADE:
@@ -2151,22 +2172,22 @@ void PM_PlayStepSound( int step, float fvol )
 //      switch (irand)
 //      {
 //      // right foot
-//      case 0: pmove->PM_PlaySound( CHAN_BODY, "player/pl_wade1.wav", fvol, ATTN_NORM, 0, PITCH_NORM );    break;
-//      case 1: pmove->PM_PlaySound( CHAN_BODY, "player/pl_wade2.wav", fvol, ATTN_NORM, 0, PITCH_NORM );    break;
+//      case 0: PM_NSPlaySound( CHAN_BODY, "player/pl_wade1.wav", fvol, ATTN_NORM, 0, PITCH_NORM );    break;
+//      case 1: PM_NSPlaySound( CHAN_BODY, "player/pl_wade2.wav", fvol, ATTN_NORM, 0, PITCH_NORM );    break;
 //      // left foot
-//      case 2: pmove->PM_PlaySound( CHAN_BODY, "player/pl_wade3.wav", fvol, ATTN_NORM, 0, PITCH_NORM );    break;
-//      case 3: pmove->PM_PlaySound( CHAN_BODY, "player/pl_wade4.wav", fvol, ATTN_NORM, 0, PITCH_NORM );    break;
+//      case 2: PM_NSPlaySound( CHAN_BODY, "player/pl_wade3.wav", fvol, ATTN_NORM, 0, PITCH_NORM );    break;
+//      case 3: PM_NSPlaySound( CHAN_BODY, "player/pl_wade4.wav", fvol, ATTN_NORM, 0, PITCH_NORM );    break;
 //      }
 //      break;
 //  case STEP_LADDER:
 //      switch(irand)
 //      {
 //      // right foot
-//      case 0: pmove->PM_PlaySound( CHAN_BODY, "player/pl_ladder1.wav", fvol, ATTN_NORM, 0, PITCH_NORM );  break;
-//      case 1: pmove->PM_PlaySound( CHAN_BODY, "player/pl_ladder3.wav", fvol, ATTN_NORM, 0, PITCH_NORM );  break;
+//      case 0: PM_NSPlaySound( CHAN_BODY, "player/pl_ladder1.wav", fvol, ATTN_NORM, 0, PITCH_NORM );  break;
+//      case 1: PM_NSPlaySound( CHAN_BODY, "player/pl_ladder3.wav", fvol, ATTN_NORM, 0, PITCH_NORM );  break;
 //      // left foot
-//      case 2: pmove->PM_PlaySound( CHAN_BODY, "player/pl_ladder2.wav", fvol, ATTN_NORM, 0, PITCH_NORM );  break;
-//      case 3: pmove->PM_PlaySound( CHAN_BODY, "player/pl_ladder4.wav", fvol, ATTN_NORM, 0, PITCH_NORM );  break;
+//      case 2: PM_NSPlaySound( CHAN_BODY, "player/pl_ladder2.wav", fvol, ATTN_NORM, 0, PITCH_NORM );  break;
+//      case 3: PM_NSPlaySound( CHAN_BODY, "player/pl_ladder4.wav", fvol, ATTN_NORM, 0, PITCH_NORM );  break;
 //      }
 //      break;
 //  }
@@ -2731,9 +2752,9 @@ void PM_AddCorrectGravity()
 //      }
 //  }
 
-    // tankefugl: 0000972 
+    // : 0000972 
 	if (pmove->waterjumptime && !(pmove->waterlevel == 0 && pmove->iuser3 == AVH_USER3_ALIEN_PLAYER1))
-	// :tankefugl
+	// :
         return;
 
     if (pmove->gravity)
@@ -2760,9 +2781,9 @@ void PM_FixupGravityVelocity ()
 {
     float   ent_gravity;
 
-	// tankefugl: 0000972 
+	// : 0000972 
 	if (pmove->waterjumptime && !(pmove->waterlevel == 0 && pmove->iuser3 == AVH_USER3_ALIEN_PLAYER1))
-	// :tankefugl
+	// :
         return;
 
     if (pmove->gravity)
@@ -2911,7 +2932,7 @@ int PM_FlyMove (void)
         {
             for ( i = 0; i < numplanes; i++ )
             {
-                if ( planes[i][2] > 0.7  )
+                if ( planes[i][2] > 0.0  )
                 {// floor or slope
                     PM_ClipVelocity( original_velocity, planes[i], new_velocity, 1 );
                     VectorCopy( new_velocity, original_velocity );
@@ -3004,9 +3025,9 @@ void PM_Accelerate (vec3_t wishdir, float wishspeed, float accel)
         return;
 
     // If waterjumping, don't accelerate
-	// tankefugl: 0000972 
+	// : 0000972 
 	if (pmove->waterjumptime && !(pmove->waterlevel == 0 && pmove->iuser3 == AVH_USER3_ALIEN_PLAYER1))
-	// :tankefugl
+	// :
         return;
 
     // See if we are changing direction a bit
@@ -3191,9 +3212,9 @@ void PM_WalkMove ()
             return;
     }
     
-    // tankefugl: 0000972 
+    // : 0000972 
 	if (pmove->waterjumptime && !(pmove->waterlevel == 0 && pmove->iuser3 == AVH_USER3_ALIEN_PLAYER1))
-	// :tankefugl
+	// :
 		// If we are jumping out of water, don't do anything more.
         return;
 
@@ -3284,9 +3305,9 @@ void PM_Friction (void)
     vec3_t newvel;
     
     // If we are in water jump cycle, don't apply friction
-	// tankefugl: 0000972 
+	// : 0000972 
 	if (pmove->waterjumptime && !(pmove->waterlevel == 0 && pmove->iuser3 == AVH_USER3_ALIEN_PLAYER1))
-	// :tankefugl
+	// :
         return;
 
     if (PM_GetIsBlinking())
@@ -3364,9 +3385,9 @@ void PM_AirAccelerate (vec3_t wishdir, float wishspeed, float accel)
         
     if (pmove->dead)
         return;
-	// tankefugl: 0000972 
+	// : 0000972 
 	if (pmove->waterjumptime && !(pmove->waterlevel == 0 && pmove->iuser3 == AVH_USER3_ALIEN_PLAYER1))
-	// :tankefugl
+	// :
         return;
     if(GetHasUpgrade(pmove->iuser4, MASK_TOPDOWN))
         return;
@@ -3668,9 +3689,11 @@ void PM_CategorizePosition (void)
     point[0] = pmove->origin[0];
     point[1] = pmove->origin[1];
     point[2] = pmove->origin[2] - 2;
-	// puzl: 1027
+	// : 1027
 	// Correctly detect that we are climbing
-    if (pmove->velocity[2] > (MAX_CLIMB_SPEED-10) )   // Shooting up really fast.  Definitely not on ground.
+    if (((pmove->velocity[2] > (MAX_CLIMB_SPEED-10)) && (g_onladder[pmove->player_index] > 0)) 
+		|| (pmove->velocity[2] > 180) )
+		// Shooting up really fast.  Definitely not on ground.
     {
         pmove->onground = -1;
     }
@@ -3699,16 +3722,18 @@ void PM_CategorizePosition (void)
             pmove->onground = tr.ent;  // Otherwise, point to index of ent under us.
         }
 
-        // If we are on something...
-        if (pmove->onground != -1)
-        {
-            // Then we are not in water jump sequence
-            pmove->waterjumptime = 0;
-            // If we could make the move, drop us down that 1 pixel
-            if (pmove->waterlevel < 2 && !tr.startsolid && !tr.allsolid)
-                VectorCopy (tr.endpos, pmove->origin);
-        }
+		if ( gIsJetpacking[pmove->player_index] == 0 ) {
 
+			// If we are on something...
+			if (pmove->onground != -1)
+			{
+				// Then we are not in water jump sequence
+				pmove->waterjumptime = 0;
+				// If we could make the move, drop us down that 1 pixel
+				if (pmove->waterlevel < 2 && !tr.startsolid && !tr.allsolid)
+					VectorCopy (tr.endpos, pmove->origin);
+			}
+		}
         // Standing on an entity other than the world
         if (tr.ent > 0)   // So signal that we are touching something.
         {
@@ -4098,7 +4123,7 @@ void PM_UnDuck( void )
         
         VectorCopy( pmove->origin, newOrigin );
         
-		// tankefugl: remove the jump when pressing and releasing duck quickly
+		// : remove the jump when pressing and releasing duck quickly
 		if ( pmove->onground != -1 && pmove->flags & FL_DUCKING && pmove->bInDuck == false)
         {
             int theStandingHull = AvHMUGetHull(false, pmove->iuser3);
@@ -4329,14 +4354,342 @@ bool NS_PositionFreeForPlayer(vec3_t& inPosition)
 }
 */
 
+// Fade blink
+bool PM_BlinkMove (void) 
+{
+	if (pmove->fuser4 != 0.0f)
+		return false;
+
+    float theScalar = 225;
+	float theEnergyCost = 0;
+	
+	AvHMUGetEnergyCost(AVH_WEAPON_BLINK, theEnergyCost);
+
+	if(AvHMUHasEnoughAlienEnergy(pmove->fuser3, theEnergyCost))
+	{
+		AvHMUDeductAlienEnergy(pmove->fuser3, theEnergyCost);
+	}
+	else
+		return false;
+
+	pmove->fuser4 = (float)BALANCE_VAR(kBlinkROF);
+
+	SetUpgradeMask(&pmove->iuser4, MASK_ALIEN_MOVEMENT, true);
+
+	vec3_t forward, right, up;
+	AngleVectors(pmove->angles, forward, right, up);
+
+	PM_Jump();
+
+    vec3_t theAbilityVelocity;
+    VectorScale(forward, theScalar, theAbilityVelocity);
+    
+    vec3_t theFinalVelocity;
+    VectorAdd(pmove->velocity, theAbilityVelocity, theFinalVelocity);
+    
+    VectorCopy(theFinalVelocity, pmove->velocity);
+
+	return true;
+
+	// Uncomment to experience the tankeblink
+/*	float theEnergyCost = (float)BALANCE_VAR(kBlinkEnergyCost) * (float)pmove->frametime;
+	float theBlinkThresholdTime = (float)BALANCE_VAR(kBlinkThresholdTime);
+	if (AvHMUHasEnoughAlienEnergy(pmove->fuser3, theEnergyCost) && (pmove->fuser4 >= 0.0f))
+	{
+		AvHMUDeductAlienEnergy(pmove->fuser3, theEnergyCost);
+		if (pmove->fuser4 == 0.0f)
+		{
+			int theSilenceUpgradeLevel = AvHGetAlienUpgradeLevel(pmove->iuser4, MASK_UPGRADE_6);
+			float theVolumeScalar = 1.0f - theSilenceUpgradeLevel/3.0f;
+			PM_NSPlaySound( CHAN_WEAPON, "player/metabolize_fire.wav", theVolumeScalar, ATTN_NORM, 0, PITCH_NORM );
+		}
+		pmove->fuser4 += (float)pmove->frametime;
+		pmove->fuser4 = max(0, min(pmove->fuser4, theBlinkThresholdTime));
+	}
+	else
+		return false;
+
+	if (pmove->fuser4 >= theBlinkThresholdTime)
+	{
+		SetUpgradeMask(&pmove->iuser4, MASK_ALIEN_MOVEMENT, true);
+
+		vec3_t		wishvel, dest;
+		pmtrace_t	trace;
+		float		fmove, smove;
+
+		// Copy movement amounts
+		fmove = pmove->cmd.forwardmove;
+		smove = pmove->cmd.sidemove;
+		
+		VectorNormalize(pmove->forward);
+		VectorScale(pmove->forward, 800, wishvel);
+
+		VectorMA(pmove->origin, pmove->frametime, wishvel, dest);
+
+		// first try moving directly to the next spot
+		trace = pmove->PM_PlayerTrace(pmove->origin, dest, PM_NORMAL, -1 );
+		// If we made it all the way, then copy trace end as new player position.
+		if (trace.fraction == 1)
+		{
+			VectorCopy(trace.endpos, pmove->origin);
+		} 
+		else
+		{
+			// if we can't move, adjust velocity to slite along the plane we collided with
+			// and retry
+			int attempts = 0; // in case we continue to collide vs. the old planes
+			while (true) {
+				PM_ClipVelocity(wishvel, trace.plane.normal, wishvel, 1.0);
+				VectorMA(pmove->origin, pmove->frametime, wishvel, dest);
+
+				trace = pmove->PM_PlayerTrace(pmove->origin, dest, PM_NORMAL, -1 );
+				if (trace.fraction == 1)
+				{
+					VectorCopy(trace.endpos, pmove->origin);
+					break;
+				}
+				if (attempts++ > 5) {
+					break;
+				}
+			}
+
+		}
+		VectorClear(pmove->velocity);
+	}
+	else
+	{
+		SetUpgradeMask(&pmove->iuser4, MASK_ALIEN_MOVEMENT, false);
+	}
+*/
+}
+
+// Skulk leap
+bool PM_LeapMove()
+{
+	if (pmove->fuser4 != 0.0f)
+		return false;
+
+    float theScalar = 500;
+	float theEnergyCost = 0;
+	
+	AvHMUGetEnergyCost(AVH_ABILITY_LEAP, theEnergyCost);
+
+	if(AvHMUHasEnoughAlienEnergy(pmove->fuser3, theEnergyCost))
+	{
+#ifdef AVH_SERVER
+		AvHMUDeductAlienEnergy(pmove->fuser3, theEnergyCost);
+#endif
+	}
+	else
+		return false;
+
+	pmove->fuser4 = (float)BALANCE_VAR(kLeapROF);
+
+	SetUpgradeMask(&pmove->iuser4, MASK_ALIEN_MOVEMENT, true);
+
+	vec3_t forward, right, up;
+	AngleVectors(pmove->angles, forward, right, up);
+
+	//gCanJump[pmove->player_index] = true;
+	PM_Jump();
+	//gCanJump[pmove->player_index] = false;
+
+    vec3_t theAbilityVelocity;
+    VectorScale(forward, theScalar, theAbilityVelocity);
+    
+    vec3_t theFinalVelocity;
+    VectorAdd(pmove->velocity, theAbilityVelocity, theFinalVelocity);
+    
+    VectorCopy(theFinalVelocity, pmove->velocity);
+
+	return true;
+}
+
+bool PM_FlapMove()
+{
+	if (pmove->iuser3 != AVH_USER3_ALIEN_PLAYER3)
+		return false;
+
+//	if (pmove->fuser4 != 0.0f)
+//		return false;
+
+
+    if(PM_CanFlap())
+    {
+		// Set to define delay between flaps in seconds
+//		pmove->fuser4 = 0.1f;
+
+		AvHMUDeductAlienEnergy(pmove->fuser3, kAlienEnergyFlap);
+        
+        // Added by mmcguire.
+        // Move the lerk in the direction has is facing.
+        vec3_t theFlapVelocity;
+        
+        float theThrust;
+        float theLift;
+        
+        if (pmove->cmd.forwardmove != 0)
+        {
+
+            if (pmove->cmd.forwardmove > 0)
+            {
+
+                theThrust = pmove->cmd.forwardmove * kWingThrustForwardScalar;
+                theLift = 200 * (pmove->forward[2] + 0.5) / 1.5;
+            
+                if (theLift < 0)
+                {
+                    theLift = 0;
+                }
+
+            }
+            else
+            {
+				// : 0000522 reverse lerk flight
+				// Uncomment to enable backwards flight
+                //theThrust = pmove->cmd.forwardmove * kWingThrustForwardScalar; //kWingThrustBackwardScalar;
+                //theLift = 200 * (pmove->forward[2] + 0.5) / 1.5;
+				//if (theLift < 0)
+                //{
+                //    theLift = 0;
+                //}
+                theThrust = -pmove->cmd.forwardmove * kWingThrustBackwardScalar;
+                theLift = 200;
+				// :
+            }
+
+        }
+        else
+        {
+            theLift = 300;
+            theThrust = 0;
+        }
+
+        VectorScale(pmove->forward, theThrust, theFlapVelocity);
+        theFlapVelocity[2] += theLift;
+
+        vec3_t theNewVelocity;
+        VectorAdd(pmove->velocity, theFlapVelocity, theNewVelocity);
+        VectorCopy(theNewVelocity, pmove->velocity);
+
+        if(pmove->runfuncs)
+        {
+            // Pick a random sound to play
+            int theSoundIndex = pmove->RandomLong(0, 2);
+            char* theSoundToPlay = NULL;
+            switch(theSoundIndex)
+            {
+            case 0:
+                theSoundToPlay = kWingFlapSound1;
+                break;
+            case 1:
+                theSoundToPlay = kWingFlapSound2;
+                break;
+            case 2:
+                theSoundToPlay = kWingFlapSound3;
+                break;
+            }
+            
+            // If alien has silencio upgrade, mute footstep volume
+            int theSilenceUpgradeLevel = AvHGetAlienUpgradeLevel(pmove->iuser4, MASK_UPGRADE_6);
+            const float theBaseVolume = .5f;
+            float theVolumeScalar = theBaseVolume - (theSilenceUpgradeLevel/(float)3)*theBaseVolume;
+            theVolumeScalar = min(max(theVolumeScalar, 0.0f), 1.0f);
+            
+            PM_NSPlaySound(CHAN_BODY, theSoundToPlay, theVolumeScalar, ATTN_NORM, 0, PITCH_NORM);
+        }
+
+        pmove->oldbuttons |= IN_JUMP; // don't jump again until released
+        return true; // in air, so no; effect
+    }
+    else
+    {
+        // Added by mmcguire. Lerk gliding.
+        if (pmove->iuser3 == AVH_USER3_ALIEN_PLAYER3 && pmove->onground == -1)
+        {
+            // Compute the velocity not in the direction we're facing.
+			float theGlideAmount = min(0.2f, PM_GetHorizontalSpeed() / 1000);
+
+			float speed = Length(pmove->velocity);
+            float projectedSpeed = DotProduct(pmove->velocity, pmove->forward);
+
+			// : 0000522 reverse lerk flight
+			//if (projectedSpeed < 0)
+			//	speed *= -1;
+			// :
+			vec3_t forwardVelocity;
+            VectorScale(pmove->forward, speed, forwardVelocity);
+
+            vec3_t glideVelocity;
+            VectorSubtract(pmove->velocity, forwardVelocity, glideVelocity);
+            VectorScale(glideVelocity, theGlideAmount, glideVelocity);
+
+            VectorSubtract(pmove->velocity, glideVelocity, pmove->velocity);
+        }
+    }
+	return true;
+}
+
+// Onos charge
+bool PM_ChargeMove()
+{
+	// TODO: Play event for charge!
+
+	float theEnergyCost = (float)BALANCE_VAR(kChargeEnergyCost) * (float)pmove->frametime;
+	float theChargeThresholdTime = (float)BALANCE_VAR(kChargeThresholdTime);
+	float theChargeSpeed = (float)BALANCE_VAR(kChargeSpeed);
+	if (AvHMUHasEnoughAlienEnergy(pmove->fuser3, theEnergyCost) && (pmove->fuser4 >= 0.0f))
+	{
+		AvHMUDeductAlienEnergy(pmove->fuser3, theEnergyCost);
+		if (pmove->fuser4 == 0.0f)
+		{
+			pmove->fuser4 = 0.3f;
+		}
+		pmove->fuser4 += (float)pmove->frametime;
+		pmove->fuser4 = max(0, min(pmove->fuser4, theChargeThresholdTime));
+	}
+	else
+		return false;
+
+	SetUpgradeMask(&pmove->iuser4, MASK_ALIEN_MOVEMENT, true);
+
+	if (pmove->onground != -1)
+	{
+		vec3_t forward;
+		vec3_t sideways;
+		float length = pmove->maxspeed * (1.0f + (float)BALANCE_VAR(kChargeSpeed) * pmove->fuser4 / theChargeThresholdTime);
+
+		VectorCopy(pmove->forward, forward);
+		VectorScale(forward, -1 * DotProduct(forward, pmove->velocity), forward);
+		VectorAdd(pmove->velocity, forward, sideways);
+		//VectorScale(sideways, 1.5f, sideways);
+		
+		VectorCopy(pmove->forward, forward);
+		forward[2] = 0.0f;
+		VectorNormalize(forward);
+		VectorScale(forward, length, forward);
+		
+		VectorAdd(forward, sideways, pmove->velocity);
+		//VectorCopy(forward, pmove->velocity);
+
+		// pmove->velocity[2] = 0.0f;
+
+		float velocity = Length(pmove->velocity);
+		float maxvel = (pmove->maxspeed * (1.0f + theChargeSpeed));
+		if (velocity > maxvel)
+			VectorScale(pmove->velocity, maxvel / velocity, pmove->velocity);
+	}
+
+	return true;
+}
 
 void PM_AlienAbilities()
 {
     // Give some energy back if we're an alien and not evolving
     string theExt;
+	float theTimePassed = (float)pmove->frametime;
     if(NS_GetIsPlayerAlien(theExt))
     {
-        float theTimePassed = pmove->cmd.msec*0.001f;
         AvHMUUpdateAlienEnergy(theTimePassed, pmove->iuser3, pmove->iuser4, pmove->fuser3);
 
         // Stop charging when we're out of energy
@@ -4348,6 +4701,55 @@ void PM_AlienAbilities()
             }
         }
     }
+
+	// Movement abilities
+
+	bool canmove = true;
+#ifdef AVH_SERVER
+	canmove = gCanMove[pmove->player_index];
+#else
+	canmove = gCanMove;
+#endif
+	bool success = false;
+	if ((pmove->cmd.buttons & IN_ATTACK2) && (AvHGetIsAlien(pmove->iuser3)))
+	{
+		switch (pmove->iuser3)
+		{
+		case AVH_USER3_ALIEN_PLAYER1:
+			success = canmove && PM_LeapMove();
+			break;
+		case AVH_USER3_ALIEN_PLAYER3:
+			pmove->cmd.buttons |= IN_JUMP;
+			success = PM_FlapMove();
+			break;
+		case AVH_USER3_ALIEN_PLAYER4:
+			success = canmove && PM_BlinkMove();
+			break;
+		case AVH_USER3_ALIEN_PLAYER5:
+			success = canmove && PM_ChargeMove();
+			break;
+		default:
+			{
+				break;
+			}
+		}
+	}
+	else if (PM_GetIsBlinking())
+		success = PM_BlinkMove();
+	else if (PM_GetIsLeaping())
+		success = PM_LeapMove();
+
+	if (!success)
+	{
+		SetUpgradeMask(&pmove->iuser4, MASK_ALIEN_MOVEMENT, false);
+
+		if (pmove->fuser4 >= 0.0f)
+			pmove->fuser4 *= -1.0f;
+		pmove->fuser4 += theTimePassed;
+		pmove->fuser4 = min(pmove->fuser4, 0.0f);
+	}
+	
+	return;
 
     //#endif
 
@@ -4364,10 +4766,10 @@ void PM_AlienAbilities()
 		else
 		{
 			AvHMUGetEnergyCost(AVH_ABILITY_LEAP, theEnergyCost);
-			// tankefugl: 0000972 
+			// : 0000972 
 			// Add highjacked "watertime" to release leaping skulk from wall
 			// pmove->waterjumptime = 75;
-			// :tankefugl
+			// :
 		}
 
 		if(AvHMUHasEnoughAlienEnergy(pmove->fuser3, theEnergyCost))
@@ -4376,7 +4778,7 @@ void PM_AlienAbilities()
 		}
 		else
 		{
-			//voogru: I'd like to kill them or do something evil here (since this can only happen if they try the exploit), but nah.
+			// exploiting
 			return;
 		}
 
@@ -4399,84 +4801,11 @@ void PM_AlienAbilities()
             
             //      if(pmove->runfuncs)
             //      {
-            //          pmove->PM_PlaySound(CHAN_WEAPON, kLeapSound, 1.0f, ATTN_NORM, 0, 94 + pmove->RandomLong(0, 0xf));
+            //          PM_NSPlaySound(CHAN_WEAPON, kLeapSound, 1.0f, ATTN_NORM, 0, 94 + pmove->RandomLong(0, 0xf));
             //      }
             //pmove->velocity[2] += 300;
         //}
     }
-
-//      else if((pmove->cmd.impulse == ALIEN_ABILITY_BLINK) && (pmove->iuser3 == AVH_USER3_ALIEN_PLAYER4))
-//      {
-//
-//            vec3_t theBlinkStart;
-//          VectorCopy(pmove->origin, theBlinkStart);
-//          theBlinkStart[2] += pmove->view_ofs[2];
-//
-//          vec3_t theBlinkDirection;
-//          VectorCopy(pmove->forward, theBlinkDirection);
-//
-//          vec3_t theBlinkEnd;
-//          VectorMA(pmove->origin, kMaxMapDimension, theBlinkDirection, theBlinkEnd);
-//
-//          // Do traceline through glass, until we hit something (this uses the current player hull, so it's like it's actually flying forward)
-//          int theTraceFlags = PM_TRACELINE_ANYVISIBLE;
-//          int theHull = -1;//pmove->usehull;
-//          int theIgnoreEntity = -1;
-//          pmtrace_t* theTrace = pmove->PM_TraceLine(theBlinkStart, theBlinkEnd, theTraceFlags, theHull, theIgnoreEntity);
-//          ASSERT(theTrace);
-//
-//          // While position isn't free, bring distance back a little
-//          vec3_t theFreeEndPoint;
-//          VectorCopy(theTrace->endpos, theFreeEndPoint);
-//
-//          // Subtract view height again
-//          theFreeEndPoint[2] -= pmove->view_ofs[2];
-//
-//          int theNumIterations = 0;
-//          bool theSuccess = false;
-//          while(!theSuccess && (theNumIterations < 5))
-//          {
-//              if(NS_PositionFreeForPlayer(theFreeEndPoint))
-//              {
-//                  // If position is still in front of us
-//                  vec3_t theFreeEndPointDirection;
-//                  VectorSubtract(theFreeEndPoint, theBlinkStart, theFreeEndPointDirection);
-//                  if(DotProduct(theBlinkDirection, theFreeEndPointDirection) > 0)
-//                  {
-//                      // Save position so client can use it to draw
-//                      theSuccess = true;
-//                  }
-//              }
-//              else
-//              {
-//                  vec3_t theBackwardsIncrement;
-//                  VectorMA(vec3_origin, -50, theBlinkDirection, theBackwardsIncrement);
-//                      
-//                  VectorAdd(theFreeEndPoint, theBackwardsIncrement, theFreeEndPoint);
-//              }
-//
-//              theNumIterations++;
-//          }
-//
-//          // If position is okay, exit
-//          if(theSuccess)
-//          {
-//              // If so, set our new location to it
-//              VectorCopy(theFreeEndPoint, pmove->origin);
-//
-//              if(pmove->runfuncs)
-//              {
-//                  pmove->PM_PlaybackEventFull(0, pmove->player_index, gBlinkEffectSuccessEventID, 0, (float *)theBlinkStart, (float *)theFreeEndPoint, 0.0, 0.0, 0, 0, 0, 0 );
-//              }
-//          }
-//          //else
-//          //{
-//          //  // Play a "blink failed" event
-//          //  pmove->PM_PlaybackEventFull(0, pmove->player_index, gBlinkEffectFailEventID, 0, (float *)pmove->origin, (float *)pmove->origin, 0.0, 0.0, 0, 0, 0, 0 );
-//          //}
-//
-//      }
-    
 }
 
 void PM_LadderMove( physent_t *pLadder )
@@ -4524,12 +4853,13 @@ void PM_LadderMove( physent_t *pLadder )
         if ( pmove->cmd.buttons & IN_MOVERIGHT )
             right += MAX_CLIMB_SPEED;
 
-        if ( PM_GetIsBlinking() )
-        {
-            pmove->movetype = MOVETYPE_WALK;
-            VectorScale( trace.plane.normal, 270, pmove->velocity );
-        }
-        else if ( pmove->cmd.buttons & IN_JUMP )
+//        if ( PM_GetIsBlinking() )
+        //{
+            //pmove->movetype = MOVETYPE_WALK;
+            //VectorScale( trace.plane.normal, 270, pmove->velocity );
+        //}
+        //else 
+		if ( pmove->cmd.buttons & IN_JUMP )
         {
             pmove->movetype = MOVETYPE_WALK;
             VectorScale( trace.plane.normal, 270, pmove->velocity );
@@ -4624,10 +4954,10 @@ physent_t *PM_Ladder( void )
 
 void PM_WaterJump (void)
 {
-	// tankefugl: 0000972 
+	// : 0000972 
 	if (pmove->iuser3 == AVH_USER3_ALIEN_PLAYER1)
 		return;
-	// :tankefugl
+	// :
 	
 	if ( pmove->waterjumptime > 10000 )
     {
@@ -4859,6 +5189,80 @@ void PM_PlaybackEvent(int inEventID)
     pmove->PM_PlaybackEventFull(theFlags, thisPredictedPlayer, inEventID, 0, (float *)theZeroVector, (float *)theZeroVector, 0.0, 0.0, /*theWeaponIndex*/ 0, 0, 0, 0 );
 }
 
+int PM_GetCelerityLevel() {
+	int theSpeedUpgradeLevel =0;
+    if(GetHasUpgrade(pmove->iuser4, MASK_UPGRADE_4))
+    {
+        theSpeedUpgradeLevel = 1;
+
+        if(GetHasUpgrade(pmove->iuser4, MASK_UPGRADE_12))
+        {
+            theSpeedUpgradeLevel = 2;
+        }
+        else if(GetHasUpgrade(pmove->iuser4, MASK_UPGRADE_13))
+        {
+            theSpeedUpgradeLevel = 3;
+        }
+    }
+	return theSpeedUpgradeLevel;
+}
+
+#define LERK_DIVE_FACTOR -1.3f
+
+// Comment: Respect to the valve function name below
+// Prevent lerks from having extreme vertical velocities
+
+
+void PM_PreventMegaCrazyLerkPancakage() {
+
+    // Current player speed
+    float spd;
+    // If we have to crop, apply this cropping fraction to velocity
+    float fraction;
+	float maxbasespeed=BALANCE_VAR(kLerkBaseSpeedMax) + (BALANCE_VAR(kAlienCelerityBonus)-5) * PM_GetCelerityLevel();
+
+	vec3_t vertical={0,0,-1.0f};
+
+	vec3_t normalizedVelocity;
+
+
+	spd = Length( pmove->velocity );
+
+
+	VectorCopy(pmove->velocity, normalizedVelocity);
+	VectorNormalize(normalizedVelocity);
+	float dp=DotProduct(normalizedVelocity, vertical);
+
+	if ( dp > 0 ) 
+		dp /= 10.0f;
+	else
+		dp /= 5.0f;
+
+//	if ( DotProduct(up, pmove->velocity) < 0.0f ) 
+//		dp *= -1.0f;
+
+	maxbasespeed *= 1.0f + dp;
+
+	if ( spd <= maxbasespeed )
+		return;
+	
+	// Returns the modifier for the velocity
+	fraction = maxbasespeed/spd;
+
+	VectorScale( pmove->velocity, fraction, pmove->velocity ); //Crop it down!.
+
+	//int theAdjustment=PM_GetCelerityLevel() * BALANCE_VAR(kAlienCelerityBonus);
+	//float theAscendMax=BALANCE_VAR(kLerkBaseAscendSpeedMax) + (float)theAdjustment;
+	//float theDescendMax=theAscendMax*LERK_DIVE_FACTOR;
+	//if ( pmove->velocity[2] > theAscendMax ) {
+	//	pmove->velocity[2]=theAscendMax;
+	//}
+	// cap diving too
+	//else if ( pmove->velocity[2] < theDescendMax ) {
+	//	pmove->velocity[2]=theDescendMax;
+	//}
+}
+
 // Only allow bunny jumping up to 1.1x server / player maxspeed setting
 #define BUNNYJUMP_MAX_SPEED_FACTOR 1.7f
 
@@ -4880,6 +5284,11 @@ void PM_PreventMegaBunnyJumping(bool inAir)
     maxscaledspeed = BUNNYJUMP_MAX_SPEED_FACTOR * pmove->maxspeed;
     if(inAir)
     {
+		// prevent pancaking
+		if ( pmove->iuser3 == AVH_USER3_ALIEN_PLAYER3 ) {
+			PM_PreventMegaCrazyLerkPancakage();
+			return;
+		}
         // Allow flyers, leapers, and JPers to go faster in the air, but still capped
         maxscaledspeed = BALANCE_VAR(kAirspeedMultiplier)*pmove->maxspeed;
     }
@@ -4947,9 +5356,9 @@ void PM_Jump (void)
     }
     
     // See if we are waterjumping.  If so, decrement count and return.
-	// tankefugl: 0000972 
+	// : 0000972 
 	if (pmove->waterjumptime && !(pmove->waterlevel == 0 && pmove->iuser3 == AVH_USER3_ALIEN_PLAYER1))
-	// :tankefugl
+	// :
 //    if ( pmove->waterjumptime )
     {
         pmove->waterjumptime -= pmove->cmd.msec;
@@ -4984,16 +5393,16 @@ void PM_Jump (void)
             switch ( pmove->RandomLong( 0, 3 ) )
             { 
             case 0:
-                pmove->PM_PlaySound( CHAN_BODY, "player/pl_wade1.wav", theVolumeScalar, ATTN_NORM, 0, PITCH_NORM );
+                PM_NSPlaySound( CHAN_BODY, "player/pl_wade1.wav", theVolumeScalar, ATTN_NORM, 0, PITCH_NORM );
                 break;
             case 1:
-                pmove->PM_PlaySound( CHAN_BODY, "player/pl_wade2.wav", theVolumeScalar, ATTN_NORM, 0, PITCH_NORM );
+                PM_NSPlaySound( CHAN_BODY, "player/pl_wade2.wav", theVolumeScalar, ATTN_NORM, 0, PITCH_NORM );
                 break;
             case 2:
-                pmove->PM_PlaySound( CHAN_BODY, "player/pl_wade3.wav", theVolumeScalar, ATTN_NORM, 0, PITCH_NORM );
+                PM_NSPlaySound( CHAN_BODY, "player/pl_wade3.wav", theVolumeScalar, ATTN_NORM, 0, PITCH_NORM );
                 break;
             case 3:
-                pmove->PM_PlaySound( CHAN_BODY, "player/pl_wade4.wav", theVolumeScalar, ATTN_NORM, 0, PITCH_NORM );
+                PM_NSPlaySound( CHAN_BODY, "player/pl_wade4.wav", theVolumeScalar, ATTN_NORM, 0, PITCH_NORM );
                 break;
             }
         }
@@ -5003,230 +5412,41 @@ void PM_Jump (void)
     
     // For wall jumping, remove bit above and replace with this (from coding forums)
     
-    
-    if(PM_CanFlap())
-    {
-        //          //pmove->punchangle[0] = -2;
-        //          //float theXComp = (fabs(pmove->velocity[0]) > fabs(pmove->forward[0]) ? pmove->velocity[0] : pmove->forward[0]);
-        //          //float theYComp = (fabs(pmove->velocity[1]) > fabs(pmove->forward[1]) ? pmove->velocity[1] : pmove->forward[1]);
-        //          float theXComp = pmove->forward[0]*(pmove->cmd.forwardmove/pmove->clientmaxspeed) + pmove->right[0]*(pmove->cmd.sidemove/pmove->clientmaxspeed);
-        //          float theYComp = pmove->forward[1]*(pmove->cmd.forwardmove/pmove->clientmaxspeed) + pmove->right[1]*(pmove->cmd.sidemove/pmove->clientmaxspeed);
-        //
-        //          pmove->velocity[0] += theXComp * 8;
-        //          pmove->velocity[1] += theYComp * 8;
-        //          pmove->velocity[2] += 35;
+	// Lerk flight movement
+	PM_FlapMove();
 
-        AvHMUDeductAlienEnergy(pmove->fuser3, kAlienEnergyFlap);
-        
-        // Added by mmcguire.
-        // Move the lerk in the direction has is facing.
-
-        vec3_t theFlapVelocity;
-        
-        float theThrust;
-        float theLift;
-        
-        if (pmove->cmd.forwardmove != 0)
-        {
-
-            if (pmove->cmd.forwardmove > 0)
-            {
-
-                theThrust = pmove->cmd.forwardmove * kWingThrustForwardScalar;
-                theLift = 200 * (pmove->forward[2] + 0.5) / 1.5;
-            
-                if (theLift < 0)
-                {
-                    theLift = 0;
-                }
-
-            }
-            else
-            {
-				// tankefugl: 0000522 reverse lerk flight
-                theThrust = pmove->cmd.forwardmove * kWingThrustForwardScalar; //kWingThrustBackwardScalar;
-                theLift = 200 * (pmove->forward[2] + 0.5) / 1.5;
-
-				if (theLift < 0)
-                {
-                    theLift = 0;
-                }
-                //theThrust = -pmove->cmd.forwardmove * kWingThrustBackwardScalar;
-                //theLift = 200;
-				// :tankefugl
-            }
-
-        }
-        else
-        {
-            theLift = 300;
-            theThrust = 0;
-        }
-
-        VectorScale(pmove->forward, theThrust, theFlapVelocity);
-        theFlapVelocity[2] += theLift;
-
-		int theSpeedUpgradeLevel = 0;
-        if(GetHasUpgrade(pmove->iuser4, MASK_UPGRADE_4))
-        {
-            theSpeedUpgradeLevel = 1;
-
-            if(GetHasUpgrade(pmove->iuser4, MASK_UPGRADE_12))
-            {
-                theSpeedUpgradeLevel = 2;
-            }
-            else if(GetHasUpgrade(pmove->iuser4, MASK_UPGRADE_13))
-            {
-                theSpeedUpgradeLevel = 3;
-            }
-        }
-		int theAdjustment=theSpeedUpgradeLevel * BALANCE_VAR(kAlienCelerityBonus);
-		float theAscendMax=BALANCE_VAR(kLerkBaseAscendSpeedMax) + theAdjustment;
-		static float maxVelocity=0;
-		maxVelocity=max(maxVelocity, pmove->velocity[2]); 
-		if ( pmove->velocity[2] > theAscendMax ) {
-			theFlapVelocity[2]=0;
-		}
-		// cap diving too
-		if ( -pmove->velocity[2] > theAscendMax*1.3 ) {
-			theFlapVelocity[2]=0;
-		}
-
-        vec3_t theNewVelocity;
-        VectorAdd(pmove->velocity, theFlapVelocity, theNewVelocity);
-
-        VectorCopy(theNewVelocity, pmove->velocity);
-        /*
-
-        // Old Lerk flight model.
-
-        vec3_t theWishVelocity;
-        PM_GetWishVelocity(theWishVelocity);
-        
-        float theWishXPercent = theWishVelocity[0]/pmove->clientmaxspeed; 
-        float theWishYPercent = theWishVelocity[1]/pmove->clientmaxspeed;
-        float theWishZPercent = max(0.0f, 1.0f - fabs(theWishXPercent) - fabs(theWishYPercent));
-        pmove->velocity[0] += theWishXPercent*kWingFlapLateralScalar;
-        pmove->velocity[1] += theWishYPercent*kWingFlapLateralScalar;
-        pmove->velocity[2] += theWishZPercent*pmove->clientmaxspeed;
-
-        */
-
-        if(pmove->runfuncs)
-        {
-//          #ifdef AVH_CLIENT
-//          int theLong = pmove->RandomLong(0, 20);
-//          pmove->Con_Printf("Flap %d\n", theLong);
-//          #endif
-            
-            // Pick a random sound to play
-            int theSoundIndex = pmove->RandomLong(0, 2);
-            char* theSoundToPlay = NULL;
-            switch(theSoundIndex)
-            {
-            case 0:
-                theSoundToPlay = kWingFlapSound1;
-                break;
-            case 1:
-                theSoundToPlay = kWingFlapSound2;
-                break;
-            case 2:
-                theSoundToPlay = kWingFlapSound3;
-                break;
-            }
-            
-            // If alien has silencio upgrade, mute footstep volume
-            int theSilenceUpgradeLevel = AvHGetAlienUpgradeLevel(pmove->iuser4, MASK_UPGRADE_6);
-            const float theBaseVolume = .5f;
-            float theVolumeScalar = theBaseVolume - (theSilenceUpgradeLevel/(float)3)*theBaseVolume;
-            theVolumeScalar = min(max(theVolumeScalar, 0.0f), 1.0f);
-            
-            pmove->PM_PlaySound(CHAN_BODY, theSoundToPlay, theVolumeScalar, ATTN_NORM, 0, PITCH_NORM);
-            
-            //pmove->PM_PlaySound(channel, , 1.0f, ATTN_NORM, flags, pitch);
-            //gEngfuncs.pEventAPI->EV_PlaySound(inArgs->entindex, thePlayer->origin, CHAN_AUTO, kEndCloakSound, 1, ATTN_NORM, 0, 94 + gEngfuncs.pfnRandomLong( 0, 0xf ));
-            
-            //PM_PlaybackEvent(gFlightEventID);
-        }
-        //      else if(PM_CanWalljump())
-//      {
-//          pmove->punchangle[0] = -2;
-//          pmove->velocity[2] += (pmove->forward[2] * 300);
-//          
-//          //pmove->velocity[2] = sqrt(2 * 800 * 45.0);
-//
-//          PM_PlaybackEvent(gWallJumpEventID);
-//      }
-
-        pmove->oldbuttons |= IN_JUMP; // don't jump again until released
-        return; // in air, so no; effect
-    }
-    else
-    {
-    
-        // Added by mmcguire.
-        // Lerk gliding.
-
-        if (pmove->iuser3 == AVH_USER3_ALIEN_PLAYER3 && pmove->onground == -1)
-        {
-                
-            // Compute the velocity not in the direction we're facing.
-
-            float theGlideAmount = PM_GetHorizontalSpeed() / 1000;
-            
-            if (theGlideAmount > 0.2)
-            {
-                theGlideAmount = 0.2;
-            }
-
-
-            float speed = Length(pmove->velocity);
-            float projectedSpeed = DotProduct(pmove->velocity, pmove->forward);
-
-			// tankefugl: 0000522 reverse lerk flight
-			if (projectedSpeed < 0)
-				speed *= -1;
-			// :tankefugl
-			vec3_t forwardVelocity;
-            VectorScale(pmove->forward, speed, forwardVelocity);
-
-            vec3_t glideVelocity;
-            VectorSubtract(pmove->velocity, forwardVelocity, glideVelocity);
-            VectorScale(glideVelocity, theGlideAmount, glideVelocity);
-
-            VectorSubtract(pmove->velocity, glideVelocity, pmove->velocity);
-            
-            return;
-
-        }
-
-    
-    }
-
-	// tankefugl: 0000972 walljump
-	if (canWallJump && (GetHasUpgrade(pmove->iuser4, MASK_WALLSTICKING) && (pmove->cmd.buttons & IN_JUMP) && !(pmove->oldbuttons & IN_JUMP) && (gSurfaceNormal[2] < 0.3)))
+	// : 0000972 walljump
+	if (canWallJump && (GetHasUpgrade(pmove->iuser4, MASK_WALLSTICKING) && (pmove->cmd.buttons & IN_JUMP) && !(pmove->oldbuttons & IN_JUMP) /*&& (gSurfaceNormal[2] < 0.7)*/))
 	{
 		vec3_t theDirectionVec;
 		//VectorCopy(pmove->velocity, theDirectionVec);
+		//VectorAdd(pmove->basevelocity, pmove->forward, theDirectionVec);
 		//if (Length(theDirectionVec) == 0.0f)
 			VectorCopy(pmove->forward, theDirectionVec);
 
 		VectorNormalize(theDirectionVec);
 
-		VectorScale(theDirectionVec, pmove->maxspeed + 50, pmove->velocity);
-		pmove->velocity[2] += 100;
-		
-		//vec3_t theJumpVect;
-		//VectorScale(gSurfaceNormal, 50, theJumpVect);
-		//VectorAdd(theJumpVect, pmove->velocity, pmove->velocity);
+		vec3_t novar;
+		if (!NS_CheckOffsetFromOrigin(theDirectionVec[0] * 5, theDirectionVec[1] * 5, theDirectionVec[2] * 5, novar))
+		{
+			VectorCopy(pmove->forward, theDirectionVec);
+			VectorNormalize(theDirectionVec);
 
-		PM_PlayStepSound( PM_MapTextureTypeStepType( pmove->chtexturetype ), 1.0 );
+			VectorScale(theDirectionVec, pmove->maxspeed + 50, pmove->velocity);
+			pmove->velocity[2] += 100;
 
-		pmove->waterjumptime = 100;
+			vec3_t theJumpVect;
+			VectorScale(gSurfaceNormal, 25, theJumpVect);
+			VectorAdd(theJumpVect, pmove->velocity, pmove->velocity);
+
+			PM_PlayStepSound( PM_MapTextureTypeStepType( pmove->chtexturetype ), 0.35 );
+
+			pmove->waterjumptime = 100;
+		}
 	}
-	// :tankefugl
+	// :
 
-    // No more effect
+	// No more effect
     if ( pmove->onground == -1 )
     {
         // Flag that we jumped.
@@ -5252,7 +5472,7 @@ void PM_Jump (void)
 
     if ( tfc )
     {
-        pmove->PM_PlaySound( CHAN_BODY, "player/plyrjmp8.wav", 0.5, ATTN_NORM, 0, PITCH_NORM );
+        PM_NSPlaySound( CHAN_BODY, "player/plyrjmp8.wav", 0.5, ATTN_NORM, 0, PITCH_NORM );
     }
     else
     {
@@ -5435,10 +5655,10 @@ void PM_CheckFalling( void )
                     //switch ( RandomLong(0,1) )
                     //{
                     //case 0:
-                    //pmove->PM_PlaySound( CHAN_VOICE, "player/pl_fallpain2.wav", 1, ATTN_NORM, 0, PITCH_NORM );
+                    //PM_NSPlaySound( CHAN_VOICE, "player/pl_fallpain2.wav", 1, ATTN_NORM, 0, PITCH_NORM );
                     //break;
                     //case 1:
-                    pmove->PM_PlaySound( CHAN_VOICE, theFallPainSound, theFallPainVolume, ATTN_NORM, 0, PITCH_NORM );
+                    PM_NSPlaySound( CHAN_VOICE, theFallPainSound, theFallPainVolume, ATTN_NORM, 0, PITCH_NORM );
                     //  break;
                     //}
                     fvol = 1.0;
@@ -5450,7 +5670,7 @@ void PM_CheckFalling( void )
                     
                     if ( tfc )
                     {
-                        pmove->PM_PlaySound( CHAN_VOICE, theFallPainSound, theFallPainVolume, ATTN_NORM, 0, PITCH_NORM );
+                        PM_NSPlaySound( CHAN_VOICE, theFallPainSound, theFallPainVolume, ATTN_NORM, 0, PITCH_NORM );
                     }
                     
                     fvol = 0.85;
@@ -5506,16 +5726,16 @@ void PM_PlayWaterSounds( void )
         switch ( pmove->RandomLong(0,3) )
         {
         case 0:
-            pmove->PM_PlaySound( CHAN_BODY, "player/pl_wade1.wav", theVolume, ATTN_NORM, 0, PITCH_NORM );
+            PM_NSPlaySound( CHAN_BODY, "player/pl_wade1.wav", theVolume, ATTN_NORM, 0, PITCH_NORM );
             break;
         case 1:
-            pmove->PM_PlaySound( CHAN_BODY, "player/pl_wade2.wav", theVolume, ATTN_NORM, 0, PITCH_NORM );
+            PM_NSPlaySound( CHAN_BODY, "player/pl_wade2.wav", theVolume, ATTN_NORM, 0, PITCH_NORM );
             break;
         case 2:
-            pmove->PM_PlaySound( CHAN_BODY, "player/pl_wade3.wav", theVolume, ATTN_NORM, 0, PITCH_NORM );
+            PM_NSPlaySound( CHAN_BODY, "player/pl_wade3.wav", theVolume, ATTN_NORM, 0, PITCH_NORM );
             break;
         case 3:
-            pmove->PM_PlaySound( CHAN_BODY, "player/pl_wade4.wav", theVolume, ATTN_NORM, 0, PITCH_NORM );
+            PM_NSPlaySound( CHAN_BODY, "player/pl_wade4.wav", theVolume, ATTN_NORM, 0, PITCH_NORM );
             break;
         }
     }
@@ -6101,11 +6321,12 @@ bool PM_TopDown()
 void PM_Jetpack()
 {
     bool theHasJetpackUpgrade = GetHasUpgrade(pmove->iuser4, MASK_UPGRADE_7) && (pmove->iuser3 == AVH_USER3_MARINE_PLAYER);
-    
+	// : 243 Don't allow the player to use jetpack if being devoured
+	bool theIsDevoured = GetHasUpgrade(pmove->iuser4, MASK_DIGESTING);
     // Turn off jetpack by default
     gIsJetpacking[pmove->player_index] = false;
     
-    if(!pmove->dead && theHasJetpackUpgrade)
+    if(!pmove->dead && theHasJetpackUpgrade && !theIsDevoured)
     {
         bool theJumpHeldDown = (pmove->cmd.buttons & IN_JUMP);
         bool theHasEnoughEnergy = (pmove->fuser3 > (kJetpackMinimumEnergyToJetpack*kNormalizationNetworkFactor));
@@ -6292,14 +6513,20 @@ void PM_PlayerMove ( qboolean server )
     bool theIsFlyingAlien = (pmove->iuser3 == AVH_USER3_ALIEN_PLAYER3) && (pmove->onground == -1);
     bool theIsSkulk = (pmove->iuser3 == AVH_USER3_ALIEN_PLAYER1);
 
-    if ( !pmove->dead && !(pmove->flags & FL_ONTRAIN) && !gIsJetpacking[pmove->player_index] && !GetHasUpgrade(pmove->iuser4, MASK_WALLSTICKING) && !theIsFlyingAlien && !theIsSkulk)
-    {
-        pLadder = PM_Ladder();
-        if ( pLadder )
-        {
-            g_onladder[pmove->player_index] = 1;
-        }
-    }
+//	if ( PM_GetIsBlinking() ) {
+	if ( pmove->iuser3 == AVH_USER3_ALIEN_PLAYER4 && ( PM_GetIsBlinking() || pmove->velocity[2] > 175 || pmove->velocity[2] < -175 )) {
+		g_onladder[pmove->player_index] = 0;
+	}
+	else {
+		if ( !pmove->dead && !(pmove->flags & FL_ONTRAIN) && !gIsJetpacking[pmove->player_index] && !GetHasUpgrade(pmove->iuser4, MASK_WALLSTICKING) && !theIsFlyingAlien && !theIsSkulk)
+		{
+			pLadder = PM_Ladder();
+			if ( pLadder )
+			{
+				g_onladder[pmove->player_index] = 1;
+			}
+		}
+	}
 
     //pmove->Con_DPrintf("g_onladder: %d\n", g_onladder);
     
@@ -6388,9 +6615,9 @@ void PM_PlayerMove ( qboolean server )
         }
 
         // If we are leaping out of the water, just update the counters.
-		// tankefugl: 0000972 
+		// : 0000972 
 		if (pmove->waterjumptime && !(pmove->waterlevel == 0 && pmove->iuser3 == AVH_USER3_ALIEN_PLAYER1))
-		// :tankefugl
+		// :
 //        if ( pmove->waterjumptime )
         {
             PM_WaterJump();
@@ -6454,9 +6681,9 @@ void PM_PlayerMove ( qboolean server )
 
             // Fricion is handled before we add in any base velocity. That way, if we are on a conveyor, 
             //  we don't slow when standing still, relative to the conveyor.
-            if ((pmove->onground != -1) || GetHasUpgrade(pmove->iuser4, MASK_WALLSTICKING))
+            if ((pmove->onground != -1 && gIsJetpacking[pmove->player_index] == 0) || GetHasUpgrade(pmove->iuser4, MASK_WALLSTICKING))
             {
-                if(!GetHasUpgrade(pmove->iuser4, MASK_WALLSTICKING))
+				if(!GetHasUpgrade(pmove->iuser4, MASK_WALLSTICKING))
                     pmove->velocity[2] = 0.0;
                 PM_Friction();
             }
@@ -6465,7 +6692,7 @@ void PM_PlayerMove ( qboolean server )
             PM_CheckVelocity();
 
             // Are we on ground now
-            if ( (pmove->onground != -1) || GetHasUpgrade(pmove->iuser4, MASK_WALLSTICKING))
+             if ( (pmove->onground != -1 && gIsJetpacking[pmove->player_index] == 0) || GetHasUpgrade(pmove->iuser4, MASK_WALLSTICKING) )
             {
                 PM_WalkMove();
             }
@@ -6495,7 +6722,7 @@ void PM_PlayerMove ( qboolean server )
             }
 
             // If we are on ground, no downward velocity.
-            if((pmove->onground != -1) && !GetHasUpgrade(pmove->iuser4, MASK_WALLSTICKING))
+            if((pmove->onground != -1 && gIsJetpacking[pmove->player_index] == 0) && !GetHasUpgrade(pmove->iuser4, MASK_WALLSTICKING))
             {
                 pmove->velocity[2] = 0;
             }

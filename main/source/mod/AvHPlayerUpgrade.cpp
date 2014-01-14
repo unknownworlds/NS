@@ -120,16 +120,15 @@ float AvHPlayerUpgrade::GetFocusDamageUpgrade(int inUpgrade)
 float AvHPlayerUpgrade::GetArmorValue(int inNumHives)
 {
 	// Each point of armor is work 1/x points of health
-	float theArmorValueNonAlien = BALANCE_VAR(kArmorValueNonAlien);
-	float theArmorBonus = theArmorValueNonAlien;
-
-	if(inNumHives > 0)
+	float theArmorBonus = BALANCE_VAR(kArmorValueNonAlien);
+	if(inNumHives == 3)
 	{
-		float theArmorValueBase = 1.0f + (float)BALANCE_VAR(kArmorValueBase);
-		float theArmorValuePerHive = (float)BALANCE_VAR(kArmorValuePerHive);
-		inNumHives = min(inNumHives, kMaxHives);
+		//float theArmorValueBase = 1.0f + (float)BALANCE_VAR(kArmorValueBase);
+		//float theArmorValuePerHive = (float)BALANCE_VAR(kArmorValuePerHive);
+		//inNumHives = min(inNumHives, kMaxHives);
 
-		theArmorBonus = (theArmorValueBase + inNumHives*theArmorValuePerHive);
+		//theArmorBonus = (theArmorValueBase + inNumHives*theArmorValuePerHive);
+		theArmorBonus+=kArmorValuePerHive;
 	}
 
 	// Smaller is better
@@ -142,7 +141,7 @@ float AvHPlayerUpgrade::GetArmorAbsorption(AvHUser3 inUser3, int inUpgrade, int 
 {
 	// A value of .2 means the armor Takes 80% of the damage, so the value gets smaller as it improves
 	float theAbsorption = (float)BALANCE_VAR(kArmorAbsorptionBase);
-	inNumHives = min(inNumHives, kMaxHives);//voogru: prevent aliens taking negative damage if some mapper goon (or me :o) ) decides to put more than 3 hives on the map.
+	inNumHives = min(inNumHives, kMaxHives);//: prevent aliens taking negative damage if some mapper goon (or me :o) ) decides to put more than 3 hives on the map.
 
 	// Heavy armor is the shiznit
 	if(inUser3 == AVH_USER3_MARINE_PLAYER && GetHasUpgrade(inUpgrade, MASK_UPGRADE_13))
@@ -154,8 +153,8 @@ float AvHPlayerUpgrade::GetArmorAbsorption(AvHUser3 inUser3, int inUpgrade, int 
 		theAbsorption = 1.0f - theHeavyArmorAbsorbPercent;
 	}
 
-    // Increase absorption at higher hive-levels to make sure armor is always used before player dies
-    if(inNumHives)
+  // Increase absorption at higher hive-levels to make sure armor is always used before player dies
+    if(inNumHives==3)
     {
         switch(inUser3)
         {
@@ -165,7 +164,7 @@ float AvHPlayerUpgrade::GetArmorAbsorption(AvHUser3 inUser3, int inUpgrade, int 
         case AVH_USER3_ALIEN_PLAYER4:
         case AVH_USER3_ALIEN_PLAYER5:
         case AVH_USER3_ALIEN_EMBRYO:
-            theAbsorption -= (inNumHives - 1)*(float)BALANCE_VAR(kArmorAbsorptionPerExtraHive);
+            theAbsorption -= (float)BALANCE_VAR(kArmorAbsorptionPerExtraHive);
             break;
         }
     }
@@ -519,7 +518,7 @@ int AvHPlayerUpgrade::GetPlayerLevel(float inExperience)
     int theCombatBaseExperience = BALANCE_VAR(kCombatBaseExperience);
 	float theCombatLevelExperienceModifier = (float)BALANCE_VAR(kCombatLevelExperienceModifier);
 
-	while((inExperience > 0) && (theCombatLevelExperienceModifier > 0))
+	while((inExperience > 0) && (theCombatLevelExperienceModifier > 0.0f))
 	{
 		inExperience -= (1.0f + (thePlayerLevel - 1)*theCombatLevelExperienceModifier)*theCombatBaseExperience;
 

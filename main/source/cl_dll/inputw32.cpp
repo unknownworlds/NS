@@ -427,7 +427,7 @@ void IN_MouseMove ( float frametime, float ioRotationDeltas[3], float ioTranslat
 		}
 	}
 
-/*
+
 //#define TRACE_TEST
 #if defined( TRACE_TEST )
 	{
@@ -437,7 +437,7 @@ void IN_MouseMove ( float frametime, float ioRotationDeltas[3], float ioTranslat
 		V_Move( mx, my );
 	}
 #endif
-*/
+
 }
 
 /*

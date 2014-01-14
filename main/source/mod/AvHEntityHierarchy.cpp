@@ -68,6 +68,9 @@ AvHEntityHierarchy::AvHEntityHierarchy()
 
 void AvHEntityHierarchy::Clear()
 {
+	mNumMovement=0;
+	mNumSensory=0;
+	mNumDefence=0;
 	this->mEntityList.clear();
 }
 
@@ -93,6 +96,18 @@ bool AvHEntityHierarchy::operator==(const AvHEntityHierarchy& inHierarchy) const
 void AvHEntityHierarchy::GetEntityInfoList(MapEntityMap& outList) const
 {
     outList = mEntityList;
+}
+
+int AvHEntityHierarchy::GetNumSensory() const {
+	return this->mNumSensory;
+}
+
+int AvHEntityHierarchy::GetNumMovement() const {
+	return this->mNumMovement;
+}
+
+int AvHEntityHierarchy::GetNumDefense() const {
+	return this->mNumDefence;
 }
 
 ////////////////
@@ -130,31 +145,51 @@ int GetHotkeyGroupContainingPlayer(AvHPlayer* player)
 
 }
 
-
 void AvHEntityHierarchy::BuildFromTeam(const AvHTeam* inTeam, BaseEntityListType& inBaseEntityList)
 {
 
 	this->Clear();
+	int mc=0, sc=0, dc=0;
 
   	if (inTeam->GetTeamType() == AVH_CLASS_TYPE_MARINE ||
         inTeam->GetTeamType() == AVH_CLASS_TYPE_ALIEN)
 	{
-
+		
 		// Loop through all entities in the world
 		for(BaseEntityListType::iterator theIter = inBaseEntityList.begin(); theIter != inBaseEntityList.end(); theIter++)
-		{
-			
+		{			
             CBaseEntity* theBaseEntity = *theIter;
 
 			int  theEntityIndex = theBaseEntity->entindex();
 			bool theEntityIsVisible = (theBaseEntity->pev->team == (int)(inTeam->GetTeamNumber())) ||
                                        GetHasUpgrade(theBaseEntity->pev->iuser4, MASK_VIS_SIGHTED);
 			bool theEntityIsDetected = GetHasUpgrade(theBaseEntity->pev->iuser4, MASK_VIS_DETECTED);
-
+			bool theEntityIsUnderAttack = GetGameRules()->GetIsEntityUnderAttack(theEntityIndex);
+			if ( theEntityIsUnderAttack )
+			{
+				int a=0;
+			}
 			// Don't send ammo, health, weapons, or scans
 			bool theIsTransient = ((AvHUser3)(theBaseEntity->pev->iuser3) == AVH_USER3_MARINEITEM) || (theBaseEntity->pev->classname == MAKE_STRING(kwsScan));
 		
-            MapEntity mapEntity;
+
+			
+			if ( inTeam->GetTeamType() == AVH_CLASS_TYPE_ALIEN && theBaseEntity->pev->team == (int)(inTeam->GetTeamNumber()) ) {
+				AvHBuildable *theBuildable=dynamic_cast<AvHBuildable *>(theBaseEntity);
+				if ( theBuildable && theBuildable->GetHasBeenBuilt() ) {
+					if ( theBaseEntity->pev->iuser3 == AVH_USER3_MOVEMENT_CHAMBER ) {
+						mc++;
+					}
+					if ( theBaseEntity->pev->iuser3 == AVH_USER3_SENSORY_CHAMBER ) { 
+						sc++;
+					}
+					if ( theBaseEntity->pev->iuser3 == AVH_USER3_DEFENSE_CHAMBER ) {
+						dc++;
+					}
+				}
+			}
+			
+			MapEntity mapEntity;
 
             mapEntity.mX     = theBaseEntity->pev->origin.x;
             mapEntity.mY     = theBaseEntity->pev->origin.y;
@@ -167,6 +202,7 @@ void AvHEntityHierarchy::BuildFromTeam(const AvHTeam* inTeam, BaseEntityListType
             mapEntity.mAngle = theBaseEntity->pev->angles[1];
             mapEntity.mTeam  = (AvHTeamNumber)(theBaseEntity->pev->team);
             mapEntity.mSquadNumber = 0;
+			mapEntity.mUnderAttack = theEntityIsUnderAttack ? 1 : 0;
 
             bool sendEntity = false;
 
@@ -191,7 +227,6 @@ void AvHEntityHierarchy::BuildFromTeam(const AvHTeam* inTeam, BaseEntityListType
             }
             else if ((theEntityIsVisible || theEntityIsDetected) && !(theBaseEntity->pev->effects & EF_NODRAW) && !theIsTransient)
             {
-                
                 AvHPlayer* thePlayer = dynamic_cast<AvHPlayer*>(theBaseEntity);
                 
                 if (thePlayer)
@@ -241,20 +276,136 @@ void AvHEntityHierarchy::BuildFromTeam(const AvHTeam* inTeam, BaseEntityListType
                 mEntityList[theEntityIndex] = mapEntity;
 
             }
-        
+        }
+		if ( inTeam->GetTeamType() == AVH_CLASS_TYPE_ALIEN ) {
+			sc=min(3, sc);
+			dc=min(3,dc);
+			mc=min(3,mc);
+			if ( this->mNumSensory != sc || this->mNumDefence != dc || this->mNumMovement != mc ) {
+				this->mNumSensory=sc;
+				this->mNumDefence=dc;
+				this->mNumMovement=mc;
+			}
+		}
+    }
+}
+
+void AvHEntityHierarchy::BuildForSpec(BaseEntityListType& inBaseEntityList)
+{
+
+	this->Clear();
+
+	// Loop through all entities in the world
+	for(BaseEntityListType::iterator theIter = inBaseEntityList.begin(); theIter != inBaseEntityList.end(); theIter++)
+	{			
+        CBaseEntity* theBaseEntity = *theIter;
+
+		int  theEntityIndex = theBaseEntity->entindex();
+		bool theEntityIsVisible = false;
+		if ( theBaseEntity->pev->team == TEAM_ONE || theBaseEntity->pev->team == TEAM_TWO || theBaseEntity->pev->team == TEAM_THREE || theBaseEntity->pev->team == TEAM_FOUR )
+			theEntityIsVisible=true;
+		bool theEntityIsUnderAttack = GetGameRules()->GetIsEntityUnderAttack(theEntityIndex);
+		// Don't send ammo, health, weapons, or scans
+		bool theIsTransient = ((AvHUser3)(theBaseEntity->pev->iuser3) == AVH_USER3_MARINEITEM) || (theBaseEntity->pev->classname == MAKE_STRING(kwsScan));
+	
+		MapEntity mapEntity;
+
+        mapEntity.mX     = theBaseEntity->pev->origin.x;
+        mapEntity.mY     = theBaseEntity->pev->origin.y;
+        mapEntity.mUser3 = (AvHUser3)(theBaseEntity->pev->iuser3);
+
+        mapEntity.mAngle = theBaseEntity->pev->angles[1];
+        mapEntity.mTeam  = (AvHTeamNumber)(theBaseEntity->pev->team);
+        mapEntity.mSquadNumber = 0;
+		mapEntity.mUnderAttack = theEntityIsUnderAttack ? 1 : 0;
+
+        bool sendEntity = false;
+
+        if (mapEntity.mUser3 == AVH_USER3_HIVE)
+        {
+            if (!theEntityIsVisible)
+            {
+                mapEntity.mTeam = TEAM_IND;
+            }
+            sendEntity = true;
+        }
+        else if (mapEntity.mUser3 == AVH_USER3_WELD)
+        {
+			vec3_t theEntityOrigin = AvHSHUGetRealLocation(theBaseEntity->pev->origin, theBaseEntity->pev->mins, theBaseEntity->pev->maxs);
+            mapEntity.mX = theEntityOrigin.x;
+            mapEntity.mY = theEntityOrigin.y;
+            sendEntity = true;
+        }
+        else if (mapEntity.mUser3 == AVH_USER3_FUNC_RESOURCE)
+        {
+            sendEntity = true;
+        }
+        else if (theEntityIsVisible && !(theBaseEntity->pev->effects & EF_NODRAW) && !theIsTransient)
+        {
+            AvHPlayer* thePlayer = dynamic_cast<AvHPlayer*>(theBaseEntity);
+            
+            if (thePlayer)
+            {
+                ASSERT(theEntityIndex > 0);
+                ASSERT(theEntityIndex <= 32);
+                mapEntity.mSquadNumber = GetHotkeyGroupContainingPlayer(thePlayer) + 1;
+
+                if ((thePlayer->GetPlayMode() == PLAYMODE_PLAYING) && !thePlayer->GetIsSpectator())
+                {
+
+                    sendEntity = true;
+
+                    // If the player has the heavy armor upgrade switch the
+                    // user3 to something that will let us reconstruct that later.
+
+                    if (thePlayer->pev->iuser3 == AVH_USER3_MARINE_PLAYER && 
+                        GetHasUpgrade(thePlayer->pev->iuser4, MASK_UPGRADE_13))
+                    {
+                        mapEntity.mUser3 = AVH_USER3_HEAVY;
+                    }
+                    
+                }
+
+            }
+            else
+            {
+                if (mapEntity.mUser3 != AVH_USER3_HEAVY)
+                {
+                    sendEntity = true;
+                }
+            }
+            
+        }
+
+        if (sendEntity)
+        {
+	        //const AvHMapExtents& theMapExtents = GetGameRules()->GetMapExtents();
+//				commented this out here, commented out corresponding shift in AvHOverviewMap::Draw at line 771
+//				float theMinMapX = theMapExtents.GetMinMapX();
+//				float theMinMapY = theMapExtents.GetMinMapY();
+
+//				mapEntity.mX -= theMinMapX;
+//				mapEntity.mY -= theMinMapY; 
+			
+            mEntityList[theEntityIndex] = mapEntity;
+			// debug the entity hierarchy message size
+//			if ( mapEntity.mUser3 == AVH_USER3_COMMANDER_STATION ) {
+//				for (int  i=0; i<200; i++ ) {
+//					mEntityList[100+i] = mapEntity;
+//				}
+//			}
         }
     }
-
 }
 
 // Returns true when something was sent
-bool AvHEntityHierarchy::SendToNetworkStream(AvHEntityHierarchy& inClientHierarchy, entvars_t* inPlayer)
+bool AvHEntityHierarchy::SendToNetworkStream(AvHEntityHierarchy& inClientHierarchy, entvars_t* inPlayer, bool spectating)
 {
 	// Get iterators for both hierarchies
 
 	MapEntityMap::const_iterator clientIter = inClientHierarchy.mEntityList.begin();
 	MapEntityMap::const_iterator clientEnd = inClientHierarchy.mEntityList.end();
-	MapEntityMap::const_iterator serverIter = mEntityList.begin();
+	MapEntityMap::iterator serverIter = mEntityList.begin();
 	MapEntityMap::const_iterator serverEnd = mEntityList.end();
 
 	// Create maps for changes
@@ -262,42 +413,63 @@ bool AvHEntityHierarchy::SendToNetworkStream(AvHEntityHierarchy& inClientHierarc
 	EntityListType OldItems; //to be deleted
 	//TODO : replace OldItems with vector<int>
 
+	int entityCount=0;
+	// HACK
+	// If we update more than kMaxSpecEntity then we need to clean out the remaining ones so they get sent next time.
+	const int kMaxSpecEntity=100;
 	while (clientIter != clientEnd && serverIter != serverEnd)
 	{
-		if (serverIter->first < clientIter->first)
-		{
-			NewItems.insert( *serverIter );
+		if ( entityCount < kMaxSpecEntity ) {
+			if (serverIter->first < clientIter->first)
+			{
+				NewItems.insert( *serverIter );
+				entityCount++;
+				++serverIter;
+				continue;
+			}
+			if (serverIter->first > clientIter->first)
+			{
+				OldItems.push_back( clientIter->first );		
+				entityCount++;
+				++clientIter;
+				continue;
+			}
+			if (clientIter->second != serverIter->second ) 
+			{	
+				entityCount++;
+				NewItems.insert( *serverIter );			
+			}
 			++serverIter;
-			continue;
-		}
-		if (serverIter->first > clientIter->first)
-		{
-			OldItems.push_back( clientIter->first );		
 			++clientIter;
-			continue;
 		}
-		if (clientIter->second != serverIter->second)
-		{	
-			NewItems.insert( *serverIter );			
+		else {
+			mEntityList.erase(serverIter++);
 		}
-
-		++serverIter;
-		++clientIter;
 	}
 
 	while(serverIter != serverEnd)
 	{
-		NewItems.insert( *serverIter );
-        ++serverIter;
+		if ( entityCount < kMaxSpecEntity ) {
+			entityCount++;
+			NewItems.insert( *serverIter );
+	        ++serverIter;
+		}
+		else {
+			mEntityList.erase(serverIter++);
+		}
     }
 
 	while(clientIter != clientEnd)
 	{
-		OldItems.push_back( clientIter->first );		
+		if ( entityCount < kMaxSpecEntity ) {
+			entityCount++;
+			OldItems.push_back( clientIter->first );		
+		}
 		++clientIter;
 	}
 
-	NetMsg_UpdateEntityHierarchy( inPlayer, NewItems, OldItems );
+	ASSERT(entityCount < kMaxSpecEntity +1);
+	NetMsg_UpdateEntityHierarchy( inPlayer, NewItems, OldItems, spectating );
 	return (!NewItems.empty() || !OldItems.empty());
 }
 

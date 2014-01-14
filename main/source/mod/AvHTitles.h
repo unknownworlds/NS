@@ -81,6 +81,7 @@
 #define kMustGestateUp					"MustGestateUp"
 #define kMustGestateOnGround			"MustGestateOnGround"
 #define kNotWhileDigesting				"NotWhileDigesting"
+#define kSurfaceTooSteep				"SurfaceTooSteep"
 #define kNoReadyRoomWhileDigested		"NoReadyRoomWhileDigested"
 #define kNeedMoreRoomToGestate			"NeedMoreRoomToGestate"
 #define kNeedOneHiveToGestate			"NeedOneHiveToGestate"
@@ -94,6 +95,7 @@
 #define kUpgradeNotAvailable			"UpgradeNotAvailable"
 #define kTooManyStructuresInArea		"TooManyStructuresInArea"
 #define kTooManyStructuresOfThisTypeNearby	"TooManyStructuresOfThisTypeNearby"
+#define kTooManyStructuresOnServer		"TooManyStructuresOnServer"
 #define kTooManyWebs					"TooManyWebs"
 #define kTooManyWebsNearby				"TooManyWebsNearby"
 

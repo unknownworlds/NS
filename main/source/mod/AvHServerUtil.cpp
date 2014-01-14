@@ -189,7 +189,8 @@ char* AvHSUGetGameVersionString()
 
     string theGameVersionString;
     
-    theGameVersionString = "v"	+ MakeStringFromInt(BALANCE_VAR(kGameVersionMajor)) + "." + MakeStringFromInt(BALANCE_VAR(kGameVersionMinor))	+ "." + MakeStringFromInt(BALANCE_VAR(kGameVersionRevision));
+    theGameVersionString = "v"	+ MakeStringFromInt(BALANCE_VAR(kGameVersionMajor)) + "." + MakeStringFromInt(BALANCE_VAR(kGameVersionMinor)) + "." +
+		MakeStringFromInt(BALANCE_VAR(kGameVersionRevision));
     
     //memset(theGameVersion, 0, 1024);
     strcpy(theGameVersion, theGameVersionString.c_str());
@@ -289,12 +290,55 @@ void AvHSUKillPlayersTouchingPlayer(AvHPlayer* inPlayer, entvars_t* inInflictor)
 	FOR_ALL_ENTITIES(kAvHPlayerClassName, AvHPlayer*)
 	if((theEntity != inPlayer) && (theEntity->GetIsRelevant()))
 	{
-		// tankefugl: 0000892 -- fixed to allow spawnkilling of crouching players on IP
+		// : 0000892 -- fixed to allow spawnkilling of crouching players on IP
 		float theDistanceToPlayer = VectorDistance(inPlayer->pev->origin, theEntity->pev->origin);
 		float zDistance = inPlayer->pev->origin[2] - theEntity->pev->origin[2];
-		if(theDistanceToPlayer < 30 || (theDistanceToPlayer < 40 && zDistance > 0 && zDistance < 40))
+		float xyDistance = VectorDistance2D(inPlayer->pev->origin, theEntity->pev->origin);
+		if(theDistanceToPlayer < 30 || (xyDistance < 30 && zDistance > 0 && zDistance < 40))
 		{
 			theEntity->TakeDamage(inInflictor, theEntity->pev, 10000, DMG_GENERIC);
+		}
+	}
+	END_FOR_ALL_ENTITIES(kAvHPlayerClassName)
+}
+
+void AvHSUPushbackPlayersTouchingPlayer(AvHPlayer* inPlayer, entvars_t* inInflictor)
+{
+	FOR_ALL_ENTITIES(kAvHPlayerClassName, AvHPlayer*)
+	if((theEntity != inPlayer) && (theEntity->GetIsRelevant()))
+	{
+		// : 0000892 -- fixed to allow spawnkilling of crouching players on IP
+		float theDistanceToPlayer = VectorDistance(inPlayer->pev->origin, theEntity->pev->origin);
+		float zDistance = inPlayer->pev->origin[2] - theEntity->pev->origin[2];
+		float xyDistance = VectorDistance2D(inPlayer->pev->origin, theEntity->pev->origin);
+		if(theDistanceToPlayer < 30 || (xyDistance < 30 && zDistance > 0 && zDistance < 40))
+		{
+			vec3_t theDirection;
+			// If distance == 0, generate a random direction.
+			if (xyDistance < 0.1f)
+			{
+				theDirection[0] = RANDOM_FLOAT(-1, 1);
+				theDirection[1] = RANDOM_FLOAT(-1, 1);
+			}
+			else
+			{
+				VectorSubtract(inPlayer->pev->origin, theEntity->pev->origin, theDirection);
+			}
+			theDirection[2] = 0;
+			VectorNormalize(theDirection);
+
+			// Project the speed orthogonal to the direction to the spawning player
+			// proj n a = (n . a)/||n||^2 * n
+			float n_dot_a = DotProduct(theDirection, theEntity->pev->velocity);
+			vec3_t parallelVec;
+			VectorScale(theDirection, n_dot_a, parallelVec);
+			VectorSubtract(theEntity->pev->velocity, theDirection, theEntity->pev->velocity);
+
+			// Apply a pushback velocity away from the spawning player
+			VectorScale(theDirection, -200, theDirection);
+			theDirection[2] = 150;
+
+			VectorAdd(theEntity->pev->velocity, theDirection, theEntity->pev->velocity);
 		}
 	}
 	END_FOR_ALL_ENTITIES(kAvHPlayerClassName)
@@ -345,6 +389,51 @@ void AvHSUBuildingJustCreated(AvHMessageID inBuildID, CBaseEntity* theBuilding, 
 	}
 }
 
+// Gets the build count for the given message
+int AvHSUGetStructureCount(AvHMessageID inMessageID)
+{
+	int theNumBuildings = 0;
+	switch (inMessageID)
+	{
+	case ALIEN_BUILD_OFFENSE_CHAMBER:
+	case ALIEN_BUILD_DEFENSE_CHAMBER:
+	case ALIEN_BUILD_SENSORY_CHAMBER:
+	case ALIEN_BUILD_MOVEMENT_CHAMBER:
+	case BUILD_INFANTRYPORTAL:
+	case BUILD_TURRET_FACTORY:
+	case BUILD_TURRET:
+	case BUILD_SIEGE:
+	case BUILD_ARMORY:
+	case BUILD_ARMSLAB:
+	case BUILD_PROTOTYPE_LAB:
+	case BUILD_OBSERVATORY:
+	case BUILD_PHASEGATE:
+		FOR_ALL_BASEENTITIES()
+			switch(theBaseEntity->pev->iuser3)
+			{
+			case AVH_USER3_DEFENSE_CHAMBER:
+			case AVH_USER3_MOVEMENT_CHAMBER:
+			case AVH_USER3_OFFENSE_CHAMBER:
+			case AVH_USER3_SENSORY_CHAMBER:
+			case AVH_USER3_INFANTRYPORTAL:
+			case AVH_USER3_TURRET_FACTORY:
+			case AVH_USER3_ADVANCED_TURRET_FACTORY:
+			case AVH_USER3_SIEGETURRET:
+			case AVH_USER3_TURRET:
+			case AVH_USER3_ARMORY:
+			case AVH_USER3_ADVANCED_ARMORY:
+			case AVH_USER3_ARMSLAB:
+			case AVH_USER3_PROTOTYPE_LAB:
+			case AVH_USER3_OBSERVATORY:
+			case AVH_USER3_PHASEGATE:
+				theNumBuildings++;
+				break;
+			}
+		END_FOR_ALL_BASEENTITIES();
+	}
+	return theNumBuildings;
+}
+
 CBaseEntity* AvHSUBuildTechForPlayer(AvHMessageID inBuildID, const Vector& inLocation, AvHPlayer* inPlayer)
 {
 	CBaseEntity* theEntity = NULL;
@@ -372,20 +461,25 @@ CBaseEntity* AvHSUBuildTechForPlayer(AvHMessageID inBuildID, const Vector& inLoc
 
 				if(!theEntity->IsInWorld() && GetGameRules()->GetIsCombatMode())
 				{
-					//voogru: okay, if for WHATEVER reason this isnt touched by a player, set it to remove in 2.5 seconds.
+					//: okay, if for WHATEVER reason this isnt touched by a player, set it to remove in 2.5 seconds.
 					theEntity->SetThink(&CBaseEntity::SUB_Remove);
 					theEntity->pev->nextthink = gpGlobals->time + 2.5f;
 
-					//voogru: force them to touch it.
+					//: force them to touch it.
 					DispatchTouch(ENT(theEntity->pev), ENT(inPlayer->pev));
 				}
 
 				// Do special stuff for some buildings (special case scan so it doesn't "teleport in")
 				if(inBuildID != BUILD_SCAN)
 				{
-					//voogru: play effect at player origin in combat, cause the item is in the middle of nowhere.
+					//: play effect at player origin in combat, cause the item is in the middle of nowhere.
 					Vector vecOrigin = (theEntity->IsInWorld() && !GetGameRules()->GetIsCombatMode()) ? inLocation : inPlayer->pev->origin;
-					PLAYBACK_EVENT_FULL(0, inPlayer->edict(), gPhaseInEventID, 0, vecOrigin, (float *)&g_vecZero, 0.0, 0.0, 0, 0, 0, 0 );
+					if( GetGameRules()->GetIsCombatMode() ) {
+						PLAYBACK_EVENT_FULL(0, inPlayer->edict(), gPhaseInEventID, 0, vecOrigin, (float *)&g_vecZero, 0.0, 0.0, 0, 0, 0, 0 );
+					}
+					else {
+						PLAYBACK_EVENT_FULL(0, 0, gPhaseInEventID, 0, vecOrigin, (float *)&g_vecZero, 0.0, 0.0, 0, 0, 0, 0 );
+					}
 				}
 			}
 		}
@@ -581,7 +675,7 @@ void AvHSUResupplyFriendliesInRange(int inNumEntitiesToCreate, AvHPlayer* inPlay
 		// Give player entity
 		//AvHSUBuildTechForPlayer(inMessageID, thePlayer->pev->origin, inPlayer);
 		
-		// puzl: 1017 combat resupply amount
+		// : 1017 combat resupply amount
 		BOOL theHelpedPlayer = AvHHealth::GiveHealth(thePlayer, BALANCE_VAR(kPointsPerHealth));
 
 		if(!theHelpedPlayer)
@@ -608,6 +702,7 @@ bool AvHSUGetIsOftRepeatedAlert(AvHAlertType inAlertType)
     {
     case ALERT_UNDER_ATTACK:
     case ALERT_HIVE_DYING:
+	case ALERT_HIVE_DEFEND:
     case ALERT_PLAYER_ENGAGE:
     case ALERT_SENTRY_FIRING:
     case ALERT_SENTRY_DAMAGED:
@@ -633,6 +728,7 @@ bool AvHSUGetIsUrgentAlert(AvHAlertType inAlertType)
 	case ALERT_LOW_RESOURCES:
     case ALERT_UNDER_ATTACK:
     case ALERT_HIVE_DYING:
+    case ALERT_HIVE_DEFEND:
 
 	// These must always be played because they don't have any notification on the commander UI
 	case ALERT_RESEARCH_COMPLETE:
@@ -745,6 +841,70 @@ int AvHSUGetNumHumansInGame(void)
     }
 	
     return theCount;
+}
+void AvHSUFillScoreInfo(ScoreInfo &info, AvHPlayer *player) {
+	if ( player == NULL ) 
+		return;
+    int theAuthMask = player->GetAuthenticationMask();
+    int theTotalScore = player->GetScore() + player->pev->frags /*- this->m_iDeaths*/;
+    if(GetGameRules()->GetIsCombatMode())
+    {
+        int theCurrentLevel = AvHPlayerUpgrade::GetPlayerLevel(player->GetExperience());
+        theTotalScore += max((theCurrentLevel - 1), 0);
+    }
+
+
+	info.player_index = ENTINDEX(player->edict());
+	info.score = theTotalScore;
+	info.frags = player->pev->frags;
+	info.deaths = player->m_iDeaths;
+	info.player_class = player->GetEffectivePlayerClass();
+	info.auth = player->GetAuthenticationMask();
+	info.team = GetGameRules()->GetTeamIndex(player->TeamID());
+	info.health = (int)(player->pev->health);
+
+	if ( GetGameRules()->GetIsCombatMode()) {
+		info.extra=player->GetExperienceLevel();
+	}
+	else {
+		if ( player->GetIsAlien() ) {
+			info.extra=(int)player->GetResources();
+		}
+		else {
+			info.extra=0;
+			// go through all of the weapons and make a list of the ones to pack
+			for ( int i = 0 ; i < MAX_ITEM_TYPES ; i++ ) {
+				if ( player->m_rgpPlayerItems[i] ) {
+
+					CBasePlayerItem* theItem = player->m_rgpPlayerItems[i];
+					AvHBasePlayerWeapon *theWeapon=dynamic_cast<AvHBasePlayerWeapon *>(theItem);
+					while ( theItem )	{
+						ItemInfo ii;
+						theItem->GetItemInfo(&ii);
+						switch ( ii.iId )  {
+							case AVH_WEAPON_HMG:
+								info.extra |= WEAPON_HMG;
+								break;
+							case AVH_WEAPON_GRENADE_GUN:
+								info.extra |= WEAPON_GL;
+								break;
+							case AVH_WEAPON_SONIC:
+								info.extra |= WEAPON_SG;
+								break;
+							case AVH_WEAPON_MINE:
+								if ( theWeapon && theWeapon->GetIsCapableOfFiring() )
+									info.extra |= WEAPON_MINE;
+								break;
+							case AVH_WEAPON_WELDER:
+								info.extra |= WEAPON_WELDER;
+								break;
+						}
+						theItem = theItem->m_pNext;
+					}
+				}
+			}
+		}
+	}
 }
 
 AvHHive* AvHSUGetRandomActiveHive(AvHTeamNumber inTeam)
@@ -1074,7 +1234,7 @@ CBaseEntity* AvHSUGetEntityFromIndex(int inEntityIndex)
 
 CGrenade* AvHSUShootServerGrenade(entvars_t* inOwner, Vector inOrigin, Vector inVelocity, float inTime, bool inHandGrenade)
 {
-	CGrenade* theGrenade = CGrenade::ShootExplosiveTimed(inOwner, inOrigin, inVelocity, inTime);
+	CGrenade* theGrenade = CGrenade::ShootExplosiveTimed(inOwner, inOrigin, inVelocity, inTime, inHandGrenade ? NS_DMG_NORMAL : NS_DMG_BLAST );
     ASSERT(theGrenade);
     
 	theGrenade->pev->team = inOwner->team;
@@ -1230,7 +1390,7 @@ void AvHTraceLine(const Vector& vecStart, const Vector& vecEnd, IGNORE_MONSTERS 
 
             edict_t* theEdict = pList[i]->edict();
 
-			// tankefugl: 0000941 -- added check to remove testing of spectators
+			// : 0000941 -- added check to remove testing of spectators
 			if ((!(pList[i]->pev->iuser1 > 0 || pList[i]->pev->flags & FL_SPECTATOR)) && theEdict != pentIgnore)
 //            if (theEdict != pentIgnore)
             {
@@ -1268,12 +1428,12 @@ void AvHSUServerTraceBullets(const Vector& inStart, const Vector& inEnd, IGNORE_
     // UTIL_TraceLine(inStart, inEnd, inIgnoreMonsters, /*dont_ignore_glass,*/ inIgnoreEdict, &outTraceResult);
     
     // TEMP removed the skulk hitboxes since it's too risky for the LAN.
-	// joev:  0000573
+	// :  0000573
 	// this was commented out meaning that it was just stock tracelines, not using Max M's superb hitbox collision code.
 	// Now *all* hitboxes perform as expected and the crouched fade can be shot pretty much anywhere on the model
 	// (allowing for about a 5% visual disparity) 
     AvHTraceLine(inStart, inEnd, inIgnoreMonsters, /*dont_ignore_glass,*/ inIgnoreEdict, &outTraceResult);
-	// :joev
+	// :
 	CBaseEntity* theEntityHit = CBaseEntity::Instance(outTraceResult.pHit);
 	
 	// If we hit an entity that's hidden in the umbra, return that we didn't hit anything
@@ -1489,7 +1649,7 @@ void AvHSUExplosiveForce(const Vector& inOrigin, int inRadius, float inForceScal
 				
 				theForceVector.Normalize();
 
-				// tankefugl: 0000771
+				// : 0000771
 				if((!(thePlayer->pev->flags & FL_ONGROUND) || !thePlayer->pev->groundentity) || 
 					((thePlayer->pev->bInDuck) || (thePlayer->pev->flags & FL_DUCKING)))
 				{
@@ -1522,7 +1682,7 @@ void AvHSUExplosiveForce(const Vector& inOrigin, int inRadius, float inForceScal
 
 				// assign new speed
 				thePlayer->pev->velocity = thePostVelocity;
-				// tankefugl
+				// 
 			}
 		}
 	}
@@ -1694,7 +1854,33 @@ bool AvHCheckLineOfSight(const Vector& vecStart, const Vector& vecEnd, edict_t* 
     }
     else
     {
-        return tr.flFraction == 1;
+		return tr.flFraction == 1 && !tr.fAllSolid;
     }
 
 }
+
+char	*ns_cvar_string(const cvar_t *cvar)
+{
+  if (!cvar || !cvar->string)
+  {
+    return 0;
+  }
+  return cvar->string;
+}
+int		ns_cvar_int(const cvar_t *cvar)
+{
+  if (!cvar || !cvar->string)
+  {
+    return 0;
+  }
+  return atoi(cvar->string);
+}
+float	ns_cvar_float(const cvar_t *cvar)
+{
+  if (!cvar || !cvar->string)
+  {
+    return 0;
+  }
+  return atoi(cvar->string);
+}
+

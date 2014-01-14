@@ -25,6 +25,7 @@
 #include "cbase.h"
 #include "doors.h"
 #include "mod/AvHSpecials.h"
+#include "mod/AvHServerVariables.h"
 
 extern DLL_GLOBAL Vector		g_vecAttackDir;
 
@@ -255,7 +256,7 @@ LINK_ENTITY_TO_CLASS( func_monsterclip, CFuncMonsterClip );
 void CFuncMonsterClip::Spawn( void )
 {
 	CFuncWall::Spawn();
-	if ( CVAR_GET_FLOAT("showtriggers") == 0 )
+	if ( ns_cvar_float(showtriggers) == 0 )
 		pev->effects = EF_NODRAW;
 	pev->flags |= FL_MONSTERCLIP;
 }

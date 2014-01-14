@@ -674,10 +674,10 @@ private:
 #define GIB_NORMAL			0// gib if entity was overkilled
 #define GIB_NEVER			1// never gib, no matter how much death damage is done ( freezing, etc )
 #define GIB_ALWAYS			2// always gib ( Houndeye Shock, Barnacle Bite )
-// puzl: 980
+// : 980
 // Use gib paramater to control death of recycled buildings
 #define GIB_RECYCLED		3// always gib ( Houndeye Shock, Barnacle Bite )
-// :puzl
+// :
 
 class CBaseMonster;
 class CCineMonster;

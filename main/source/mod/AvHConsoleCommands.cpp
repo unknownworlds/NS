@@ -239,11 +239,11 @@ void ReportPlayer(CBasePlayer* inPlayer, const char* inCommand)
 BOOL AvHGamerules::ClientCommand( CBasePlayer *pPlayer, const char *pcmd )
 {
 //adding Nexus TunnelToClient functionality up here...
-	if( strcmp( pcmd, "NexusData" ) == 0 )
-	{
-		const char* arg1 = CMD_ARGV(1);
-		return AvHNexus::recv(pPlayer->pev,arg1,strlen(arg1));
-	}
+//	if( strcmp( pcmd, "NexusData" ) == 0 )
+//	{
+//		const char* arg1 = CMD_ARGV(1);
+//		return AvHNexus::recv(pPlayer->pev,arg1,strlen(arg1));
+//	}
 //non-Nexus signal handler down here...
 
 	AvHPlayer*	theAvHPlayer = dynamic_cast<AvHPlayer*>(pPlayer);
@@ -271,7 +271,7 @@ BOOL AvHGamerules::ClientCommand( CBasePlayer *pPlayer, const char *pcmd )
 		theIsPlaytester = theAvHPlayer->GetIsMember(PLAYERAUTH_PLAYTESTER);
 		theIsPlayerHelper = theIsDeveloper || theIsGuide || theIsPlaytester;
 
-		#ifdef AVH_PLAYTEST_BUILD
+		#ifdef DEBUG
 		theIsPlaytest = theIsPlaytester || theIsDeveloper;
 		#endif
 	}
@@ -329,6 +329,21 @@ BOOL AvHGamerules::ClientCommand( CBasePlayer *pPlayer, const char *pcmd )
 			theSuccess = true;
 		}
 	}
+	else if ( FStrEq( pcmd, kcMenuReadyRoom ) )
+	{
+		if(theAvHPlayer)
+		{
+			if(!(theAvHPlayer->pev->flags & FL_FAKECLIENT))
+			{
+				if(!theAvHPlayer->GetIsBeingDigested())
+				{
+					theAvHPlayer->SetPlayMode(PLAYMODE_READYROOM, true);
+				}
+				theSuccess = true;
+			}
+		}
+		theSuccess = true;
+	}
 	else if ( FStrEq( pcmd, kcReadyRoom ) )
 	{
 		if(theAvHPlayer)
@@ -337,7 +352,7 @@ BOOL AvHGamerules::ClientCommand( CBasePlayer *pPlayer, const char *pcmd )
 			{
 				if(!theAvHPlayer->GetIsBeingDigested())
 				{
-					// puzl: 984
+					// : 984
 					// Add a throttle on the readyroom key
 					const static int kReadyRoomThrottleTimeout=2.0f;
 					if ( (theAvHPlayer->GetTimeLastF4() == -1.0f) || 
@@ -386,7 +401,7 @@ BOOL AvHGamerules::ClientCommand( CBasePlayer *pPlayer, const char *pcmd )
 				theAvHPlayer->SetPlayMode(PLAYMODE_READYROOM, true);
 				this->AttemptToJoinTeam(theAvHPlayer, theOtherTeamNumber, false);
 
-				// tankefugl: 0001010 - Boost the player 32 units up to avoid sticking in the ground
+				// : 0001010 - Boost the player 32 units up to avoid sticking in the ground
 				theCurrentPosition[2] += 32.0f;
 
 				// Set our position again
@@ -451,7 +466,7 @@ BOOL AvHGamerules::ClientCommand( CBasePlayer *pPlayer, const char *pcmd )
 		}
 	}
 	#endif
-// puzl: 0001073
+// : 0001073
 	#ifdef USE_OLDAUTH
 	else if(FStrEq(pcmd, "forceuplink"))
 	{
@@ -529,7 +544,7 @@ BOOL AvHGamerules::ClientCommand( CBasePlayer *pPlayer, const char *pcmd )
 	{
 		if(theAvHPlayer && this->GetCheatsEnabled())
 		{
-			int theNumPlayers = GetGameRules()->GetNumberOfPlayers();
+			int theNumPlayers = GetGameRules()->GetNumberOfPlayers(true);
 			char theMessage[128];
 			sprintf(theMessage, "Num players: %d\n", theNumPlayers);
 			UTIL_SayText(theMessage, theAvHPlayer);
@@ -1424,7 +1439,7 @@ BOOL AvHGamerules::ClientCommand( CBasePlayer *pPlayer, const char *pcmd )
 			{
 				AvHNexus::handleUnauthorizedJoinTeamAttempt(theAvHPlayer->edict(),TEAM_SPECT);
 			}
-// puzl: 0001073
+// : 0001073
 #ifdef USE_OLDAUTH			 
 			else if(allow_spectators.value && GetGameRules()->PerformHardAuthorization(theAvHPlayer))
 #else
@@ -1564,7 +1579,7 @@ BOOL AvHGamerules::ClientCommand( CBasePlayer *pPlayer, const char *pcmd )
 			theSuccess = true;
 		}
 	}
-// puzl: 0001073
+// : 0001073
 #ifdef USE_OLDAUTH
     #ifndef AVH_SECURE_PRERELEASE_BUILD
 	else if(FStrEq(pcmd, kcAuth))

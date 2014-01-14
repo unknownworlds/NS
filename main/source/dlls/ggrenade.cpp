@@ -30,6 +30,7 @@
 #include "mod/AvHServerVariables.h"
 #include "mod/AvHMarineWeaponConstants.h"
 #include "mod/AvHGamerules.h"
+#include "mod/AvHServerVariables.h"
 #include "util/MathUtil.h"
 #include "common/vec_op.h"
 
@@ -44,12 +45,16 @@ LINK_ENTITY_TO_CLASS( grenade, CGrenade );
 //
 // Grenade Explode
 //
-void CGrenade::Explode( Vector vecSrc, Vector vecAim )
+void CGrenade::SetDamageType(int inDamageType) {
+	this->m_damageType=inDamageType;
+}
+
+void CGrenade::Explode( Vector vecSrc, Vector vecAim)
 {
 	TraceResult tr;
 	UTIL_TraceLine ( pev->origin, pev->origin + Vector ( 0, 0, -32 ),  ignore_monsters, ENT(pev), & tr);
 
-	Explode( &tr, NS_DMG_BLAST);
+	Explode( &tr,  this->m_damageType);
 }
 
 // UNDONE: temporary scorching for PreAlpha - find a less sleazy permenant solution.
@@ -207,15 +212,17 @@ void CGrenade::Detonate( void )
 	TraceResult tr;
 	Vector		vecSpot;// trace starts here!
 
-	if(CVAR_GET_FLOAT(kvBulletCam))
+#ifdef DEBUG
+	if(ns_cvar_float(&avh_bulletcam))
 	{
 		SET_VIEW(this->pev->owner, this->pev->owner);
 	}
+#endif
 
 	vecSpot = pev->origin + Vector ( 0 , 0 , 8 );
 	UTIL_TraceLine ( vecSpot, vecSpot + Vector ( 0, 0, -40 ),  ignore_monsters, ENT(pev), & tr);
 
-	Explode( &tr, NS_DMG_BLAST);
+	Explode( &tr, this->m_damageType);
 }
 
 //
@@ -252,7 +259,7 @@ void CGrenade::ExplodeTouch( CBaseEntity *pOther )
 	vecSpot = pev->origin - pev->velocity.Normalize() * 32;
 	UTIL_TraceLine( vecSpot, vecSpot + pev->velocity.Normalize() * 64, ignore_monsters, ENT(pev), &tr );
 
-	Explode( &tr, NS_DMG_BLAST);
+	Explode( &tr, this->m_damageType);
 }
 
 
@@ -315,7 +322,7 @@ void CGrenade::BounceTouch( CBaseEntity *pOther )
 		{
 			TraceResult tr = UTIL_GetGlobalTrace( );
 			ClearMultiDamage( );
-			pOther->TraceAttack(pevOwner, 1, gpGlobals->v_forward, &tr, NS_DMG_BLAST); 
+			pOther->TraceAttack(pevOwner, 1, gpGlobals->v_forward, &tr, this->m_damageType); 
 			ApplyMultiDamage( pev, pevOwner);
 		}
 		m_flNextAttack = gpGlobals->time + 1.0; // debounce
@@ -452,6 +459,7 @@ void CGrenade:: Spawn( void )
 	UTIL_SetSize(pev, Vector( 0, 0, 0), Vector(0, 0, 0));
 
 	m_fRegisteredSound = FALSE;
+	m_damageType = NS_DMG_BLAST;
 }
 
 
@@ -481,9 +489,10 @@ CGrenade *CGrenade::ShootContact( entvars_t *pevOwner, Vector vecStart, Vector v
 	return pGrenade;
 }
 
-CGrenade* CGrenade::ShootExplosiveTimed( entvars_t *pevOwner, Vector vecStart, Vector vecVelocity, float time )
+CGrenade* CGrenade::ShootExplosiveTimed( entvars_t *pevOwner, Vector vecStart, Vector vecVelocity, float time, int inDamageType)
 {
 	CGrenade *pGrenade = CGrenade::ShootTimed(pevOwner, vecStart, vecVelocity, time);
+	pGrenade->SetDamageType(inDamageType);
 	pGrenade->SetTouch(&CGrenade::ExplosiveBounceTouch);
 	return pGrenade;
 }
@@ -500,10 +509,12 @@ CGrenade * CGrenade:: ShootTimed( entvars_t *pevOwner, Vector vecStart, Vector v
 	
 	pGrenade->SetTouch( &CGrenade::BounceTouch );	// Bounce if touched
 
-	if(CVAR_GET_FLOAT(kvBulletCam))
+#ifdef DEBUG
+	if(ns_cvar_float(&avh_bulletcam))
 	{
 		SET_VIEW(ENT(pevOwner), ENT(pGrenade->pev));
 	}
+#endif
 	
 	// Take one second off of the desired detonation time and set the think to PreDetonate. PreDetonate
 	// will insert a DANGER sound into the world sound list and delay detonation for one second so that 

@@ -152,9 +152,14 @@ public:
 					
 	virtual int		TakeDamage(entvars_t *pevInflictor, entvars_t *pevAttacker, float flDamage, int bitsDamageType);
 
-    virtual void	TriggerDeathAudioVisuals();
+    virtual void	TriggerDeathAudioVisuals(bool isRecycled=false);
 		
 	virtual void	Spawn();
+
+	virtual void	SetEmergencyUse();
+	virtual bool	GetEmergencyUse() const;
+
+	void EXPORT		TeleportUse(CBaseEntity* inActivator, CBaseEntity* inCaller, USE_TYPE inUseType, float inValue);
 
 	//virtual void	UpdateReinforcements();
 
@@ -179,6 +184,10 @@ private:
 	float			mTimeLastWoundSound;
 	float			mTimeOfNextUmbra;
 	float			mEnergy;
+	float			mLastTimeScannedHives;
+	float			mTimeEmergencyUseEnabled;
+	int				mTeleportHiveIndex;
+
 };
 
 #endif

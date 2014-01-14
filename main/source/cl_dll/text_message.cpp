@@ -162,7 +162,7 @@ int CHudTextMessage::MsgFunc_TextMsg( const char *pszName, int iSize, void *pbuf
 	int destination;
 	StringList message;
 	NetMsg_TextMsg( pbuf, iSize, destination, message );
-
+ 
 	if ( gViewPort && gViewPort->AllowedToPrintText() == FALSE )
 		return 1;
 
@@ -176,6 +176,24 @@ int CHudTextMessage::MsgFunc_TextMsg( const char *pszName, int iSize, void *pbuf
 		psz[0] = 1;
 		origin = psz + 1;
 	}
+
+	// Ensure that message[0] does not contain exessive %'s, max 4x%s, all other %'s removed.
+	size_t lastpos = 0; size_t pos; int count = 0;
+	while(true)
+	{
+		pos = message[0].find("%", lastpos);
+
+		if (pos == string::npos)
+			break;
+
+		if ((message[0].substr(pos + 1, 1) == "s") && (count < 4))
+			count++;
+		else
+			message[0].replace(pos, 1, " ");
+
+		lastpos = pos + 1;
+	}
+
 	sprintf( origin, message[0].c_str(), message[1].c_str(), message[2].c_str(), message[3].c_str(), message[4].c_str() );
 	ConvertCRtoNL(psz);
 

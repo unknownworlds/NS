@@ -45,7 +45,9 @@ class AvHAlienAbilityWeapon : public AvHAlienWeapon
 {
 public:
 	virtual AvHMessageID		GetAbilityImpulse() const = 0;
+	virtual void				PlaybackLeapEvent(void) { this->PlaybackEvent(this->mLeapEvent, this->GetShootAnimation());};
 	int							mAbilityEvent;
+	int							mLeapEvent;
 };
 
 class AvHLeap : public AvHAlienAbilityWeapon 
@@ -82,6 +84,10 @@ public:
 
 	virtual bool	UsesAmmo(void) const;
 	virtual BOOL	GetTakesEnergy() { return FALSE; }
+
+	void			SecondaryAttack();
+
+	virtual float	GetRateOfFire(void) const;
 
 protected: 
     virtual void    FireProjectiles(void);
@@ -129,6 +135,8 @@ public:
 	
 	virtual bool	UsesAmmo(void) const;
 	virtual BOOL	GetTakesEnergy() { return FALSE; }
+
+	void			SecondaryAttack();
 protected: 
     virtual void    FireProjectiles(void);
 	
@@ -174,6 +182,8 @@ public:
 	virtual bool	UsesAmmo(void) const;
     	
     virtual float	GetRateOfFire() const;
+
+	void			SecondaryAttack();
 	
 protected: 
     virtual void    FireProjectiles(void);

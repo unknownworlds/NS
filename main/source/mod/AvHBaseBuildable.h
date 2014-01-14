@@ -163,7 +163,7 @@ public:
 				
 	virtual void	Precache(void);
 
-	virtual bool	Regenerate(float inRegenerationAmount, bool inPlaySound = true);
+	virtual bool	Regenerate(float inRegenerationAmount, bool inPlaySound = true, bool dcHealing = false);
 	
 	virtual void	ResetEntity();
 
@@ -183,6 +183,7 @@ public:
 
 	virtual void	UpdateOnRecycle();
 
+	virtual Vector EyePosition( );
 protected:
 	virtual bool	GetHasBeenKilled() const;
 
@@ -253,8 +254,10 @@ private:
 
 	float			mTimeRecycleStarted;
 	float			mTimeRecycleDone;
-
+	float				mTimeOfLastDCRegeneration;
 	bool			mKilled;
+
+	bool			mGhost;
 };
 
 #endif

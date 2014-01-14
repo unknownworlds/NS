@@ -149,7 +149,7 @@ void AvHParasiteGun::FireProjectiles(void)
 	if(theEntityHit)
 	{
 		float theScalar = 1.0f;
-
+		
 		bool theCanDoDamageTo = GetGameRules()->CanEntityDoDamageTo(this->m_pPlayer, theEntityHit, &theScalar);
 		
 		theScalar *= AvHPlayerUpgrade::GetAlienRangedDamageUpgrade(this->m_pPlayer->pev->iuser4);
@@ -167,12 +167,12 @@ void AvHParasiteGun::FireProjectiles(void)
 				    // Increase score for guy who parasited
 				    //this->m_pPlayer->AddPoints(1, TRUE);
 
-				    // joev: bug 0000841 - Don't allow alien players/structures to actually be parasited.
+				    // : bug 0000841 - Don't allow alien players/structures to actually be parasited.
 					// They can take the damage, just not have the "upgrade".
 					if (theEntityHit->pev->team != this->m_pPlayer->pev->team) {
 						SetUpgradeMask(&theEntityHit->pev->iuser4, MASK_PARASITED);
 					}
-					// :joev
+					// :
                     thePlayEffect = true;
 			    }
 

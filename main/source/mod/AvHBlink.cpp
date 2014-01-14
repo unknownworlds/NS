@@ -13,6 +13,7 @@ extern playermove_t*	pmove;
 #include "cl_dll/hud.h"
 #include "mod/AvHHud.h"
 extern int g_runfuncs;
+void IN_Attack2Down();
 #endif
 
 #include "mod/AvHAlienAbilities.h"
@@ -102,6 +103,13 @@ AvHMessageID AvHBlinkGun::GetAbilityImpulse() const
 	return ALIEN_ABILITY_BLINK;
 }
 
+void AvHBlinkGun::SecondaryAttack()
+{
+#ifdef AVH_CLIENT
+	//this->FireProjectiles();
+#endif
+}
+
 void AvHBlinkGun::FireProjectiles(void)
 {
 #ifdef AVH_CLIENT
@@ -117,12 +125,12 @@ void AvHBlinkGun::FireProjectiles(void)
 		thePlayer->TriggerUncloak();
 	}
 #endif
-	if(this->mTimeOfNextBlinkEvent <= 0)
-	{
-		const float kEventDelay = 2.0f;
-		this->PlaybackEvent(this->mBlinkSuccessEvent, this->GetShootAnimation());
-		this->mTimeOfNextBlinkEvent = UTIL_WeaponTimeBase() + kEventDelay;
-	}
+//	if(this->mTimeOfNextBlinkEvent <= 0)
+//	{
+//		const float kEventDelay = 2.0f;
+//		this->PlaybackEvent(this->mBlinkSuccessEvent, this->GetShootAnimation());
+//		this->mTimeOfNextBlinkEvent = UTIL_WeaponTimeBase() + kEventDelay;
+//	}
 }
 
 bool AvHBlinkGun::GetMustPressTriggerForEachShot() const

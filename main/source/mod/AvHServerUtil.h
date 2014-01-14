@@ -136,9 +136,11 @@ bool AvHSUGetIsValidAuthID(const string& inAuthID);
 string AvHSUGetPlayerAuthIDString(edict_t* inPlayer);
 #endif
 
+void AvHSUPushbackPlayersTouchingPlayer(AvHPlayer* inPlayer, entvars_t* inInflictor);
 void AvHSUKillPlayersTouchingPlayer(AvHPlayer* inPlayer, entvars_t* inInflictor);
 void AvHSUKillBuildablesTouchingPlayer(AvHPlayer* inPlayer, entvars_t* inInflictor);
 void AvHSUBuildingJustCreated(AvHMessageID inBuildID, CBaseEntity* theBuilding, AvHPlayer* inPlayer);
+int AvHSUGetStructureCount(AvHMessageID inMessageID);
 
 CBaseEntity* AvHSUBuildTechForPlayer(AvHMessageID inBuildID, const Vector& inLocation, AvHPlayer* inPlayer);
 
@@ -169,6 +171,7 @@ bool AvHSUGetIsExternalClassName(const char* inClassName);
 bool AvHSUGetIsSubjectToVisibilityRules(CBaseEntity* inEntity);
 
 int AvHSUGetNumHumansInGame(void);
+void AvHSUFillScoreInfo(ScoreInfo &info, AvHPlayer *player);
 
 AvHHive* AvHSUGetRandomActiveHive(AvHTeamNumber inTeam);
 AvHHive* AvHSUGetRandomActivateableHive(AvHTeamNumber inTeam);

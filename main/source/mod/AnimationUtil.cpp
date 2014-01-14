@@ -540,7 +540,7 @@ float NS_StudioEstimateFrame( mstudioseqdesc_t *pseqdesc, const NS_AnimationData
 mstudioanim_t* NS_GetAnimation(studiohdr_t* inModelHeader, mstudioseqdesc_t* inSequence)
 {
 	mstudioseqgroup_t* theSequenceGroup = (mstudioseqgroup_t*)((byte *)inModelHeader + inModelHeader->seqgroupindex) + inSequence->seqgroup;
-	// joev: 0000573
+	// : 0000573
 	// Unless we actually check for null, we can get null references... 
 	if (theSequenceGroup) { 
 		return (mstudioanim_t*)((byte*)inModelHeader + theSequenceGroup->data + inSequence->animindex);
@@ -548,7 +548,7 @@ mstudioanim_t* NS_GetAnimation(studiohdr_t* inModelHeader, mstudioseqdesc_t* inS
 	else {
 		return NULL;
 	}
-	// :joev
+	// :
 }
 
 //-----------------------------------------------------------------------------
@@ -578,7 +578,7 @@ void NS_GetBoneMatrices(const NS_AnimationData& inAnimationData, float time, NS_
     mstudiobone_t* theBones	= (mstudiobone_t*)((byte*)theModelHeader + theModelHeader->boneindex);
     mstudiobbox_t* theHitBoxes = (mstudiobbox_t*)((byte*)theModelHeader + theModelHeader->hitboxindex);
     
-	// joev: 0000573
+	// : 0000573
 	// Unless we actually check for null, we can get null references... 
 	// Regardless if the model is borked, the server shouldn't crash.
 	// Also, why have NS_GetAnimation when it's not used? 
@@ -588,7 +588,7 @@ void NS_GetBoneMatrices(const NS_AnimationData& inAnimationData, float time, NS_
 	{
 		return;
 	}
-	// :joev
+	// :
 
     // Get the position and orientation of all of the bones in the skeleton.
     

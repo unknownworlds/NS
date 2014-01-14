@@ -27,7 +27,7 @@
 				InlineFunctionExpansion="2"
 				EnableIntrinsicFunctions="TRUE"
 				AdditionalIncludeDirectories="&quot;$(SolutionDir)&quot;;U:\include\stlport;U:\include\nexus;U:\include\lua;U:\include\particle;U:\include"
-				PreprocessorDefinitions="NDEBUG;WIN32;_WINDOWS;QUIVER;VOXEL;QUAKE2;VALVE_DLL;AVH_SERVER;AVH_PLAYTEST_BUILD;$(NOINHERIT)"
+				PreprocessorDefinitions="NDEBUG;WIN32;_WINDOWS;QUIVER;VOXEL;QUAKE2;VALVE_DLL;AVH_SERVER;AVH_SECURE_PRERELEASE_BUILD;USE_OLDAUTH;$(NOINHERIT)"
 				StringPooling="TRUE"
 				MinimalRebuild="TRUE"
 				RuntimeLibrary="0"
@@ -99,7 +99,7 @@
 				Optimization="0"
 				OptimizeForProcessor="1"
 				AdditionalIncludeDirectories="&quot;$(SolutionDir)&quot;;U:\include\stlport;U:\include\nexus;U:\include\lua;U:\include\particle;U:\include"
-				PreprocessorDefinitions="_DEBUG;DEBUG;WIN32;_WINDOWS;QUIVER;VOXEL;QUAKE2;VALVE_DLL;AVH_SERVER;$(NOINHERIT)"
+				PreprocessorDefinitions="_DEBUG;DEBUG;WIN32;_WINDOWS;QUIVER;VOXEL;QUAKE2;VALVE_DLL;AVH_SERVER;AVH_SECURE_PRERELEASE_BUILD;USE_OLDAUTH;$(NOINHERIT)"
 				RuntimeLibrary="1"
 				RuntimeTypeInfo="TRUE"
 				UsePrecompiledHeader="0"
@@ -2784,12 +2784,6 @@
 				RelativePath="..\mod\AvHNexusTunnelToClient.h">
 			</File>
 			<File
-				RelativePath="..\mod\AvHObjective.cpp">
-			</File>
-			<File
-				RelativePath="..\mod\AvHObjective.h">
-			</File>
-			<File
 				RelativePath="..\mod\AvHOrder.cpp">
 				<FileConfiguration
 					Name="Developer - release|Win32">
@@ -5053,40 +5047,6 @@
 			</File>
 			<File
 				RelativePath="..\textrep\TRTagValuePair.h">
-			</File>
-		</Filter>
-		<Filter
-			Name="scriptengine"
-			Filter="">
-			<File
-				RelativePath="..\scriptengine\AvHLUA.cpp">
-			</File>
-			<File
-				RelativePath="..\scriptengine\AvHLUA.h">
-			</File>
-			<File
-				RelativePath="..\scriptengine\AvHLUABase.cpp">
-			</File>
-			<File
-				RelativePath="..\scriptengine\AvHLUABase.h">
-			</File>
-			<File
-				RelativePath="..\scriptengine\AvHLUAServerEntity.cpp">
-			</File>
-			<File
-				RelativePath="..\scriptengine\AvHLUAServerEvents.cpp">
-			</File>
-			<File
-				RelativePath="..\scriptengine\AvHLUAServerTeam.cpp">
-			</File>
-			<File
-				RelativePath="..\scriptengine\AvHLUATime.cpp">
-			</File>
-			<File
-				RelativePath="..\scriptengine\AvHLUAUtil.cpp">
-			</File>
-			<File
-				RelativePath="..\scriptengine\AvHLUAUtil.h">
 			</File>
 		</Filter>
 	</Files>

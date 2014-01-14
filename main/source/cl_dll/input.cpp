@@ -61,9 +61,9 @@ extern "C"
 #include "engine/APIProxy.h"
 #include "Exports.h"
 
-// tankefugl: duck toggle
+// : duck toggle
 extern bool g_bDuckToggled;
-// :tankefugl
+// :
 
 extern int g_iAlive;
 
@@ -356,6 +356,8 @@ void KB_Shutdown( void )
 
 void KeyDown (kbutton_t *b);
 void KeyUp (kbutton_t *b);
+void KeyDownForced (kbutton_t *b);
+void KeyUpForced (kbutton_t *b);
 
 /*
 ============
@@ -391,13 +393,6 @@ void KeyDown (kbutton_t *b)
 				break;
 			}
 		}
-
-//		//If they used mwheeldown/mwheelup to activate repeating command, make sure they didnt use +attack or +jump to prevent exploits.
-//		if(k == K_MWHEELDOWN || k == K_MWHEELUP && theBlockScripts == 2)
-//		{
-//			if(strstr(pCmd, "+"))//I could also do pCmd[0] == '+', but that could possibly be bypassed.
-//				bFound = false;
-//		}
 		
 
 		if(!bFound 
@@ -425,6 +420,21 @@ void KeyDown (kbutton_t *b)
 		gEngfuncs.Con_DPrintf ("Three keys down for a button '%c' '%c' '%c'!\n", b->down[0], b->down[1], c);
 		return;
 	}
+	
+	if (b->state & 1)
+		return;		// still down
+	b->state |= 1 + 2;	// down + impulse down
+}
+
+/*
+============
+KeyDownForced
+============
+*/
+void KeyDownForced (kbutton_t *b)
+{
+	b->down[0] = 0;
+	b->down[1] = 0;
 	
 	if (b->state & 1)
 		return;		// still down
@@ -470,6 +480,16 @@ void KeyUp (kbutton_t *b)
 	b->state |= 4; 		// impulse up
 }
 
+/*
+============
+KeyUpForced
+============
+*/
+void KeyUpForced (kbutton_t *b)
+{
+	b->state &= ~1;		// now up
+	b->state |= 4; 		// impulse up
+}
 
 bool AvHContainsBlockedCommands(const char* inInput)
 {
@@ -535,7 +555,7 @@ int CL_DLLEXPORT HUD_Key_Event( int down, int keynum, const char *pszCurrentBind
     
 	if (theBlockScripts && AvHContainsBlockedCommands(pszCurrentBinding))
 	{
-		if(down)//voogru: only show when going down.
+		if(down)//: only show when going down.
 			gEngfuncs.pfnCenterPrint("Scripting is not allowed on this server.\n"); 
 		return 0;
 	}
@@ -760,8 +780,8 @@ void IN_SpeedDown(void) {KeyDown(&in_speed);}
 void IN_SpeedUp(void) {KeyUp(&in_speed);}
 void IN_StrafeDown(void) {KeyDown(&in_strafe);}
 void IN_StrafeUp(void) {KeyUp(&in_strafe);}
-void IN_Attack2Down(void) {KeyDown(&in_attack2);}
-void IN_Attack2Up(void) {KeyUp(&in_attack2);}
+void IN_Attack2Down(void) {KeyDownForced(&in_attack2);}
+void IN_Attack2Up(void) {KeyUpForced(&in_attack2);}
 void IN_UseDown (void)
 {
 	KeyDown(&in_use);
@@ -794,14 +814,14 @@ void IN_DuckDown(void)
 }
 
 void IN_DuckUp(void) {KeyUp(&in_duck);}
-// tankefugl: duck toggle
+// : duck toggle
 void IN_DuckToggle(void) 
 {
 	g_bDuckToggled = !g_bDuckToggled;
 }
-// :tankefugl
-void IN_ReloadDown(void) {KeyDown(&in_reload);}
-void IN_ReloadUp(void) {KeyUp(&in_reload);}
+// :
+void IN_ReloadDown(void) {KeyDownForced(&in_reload);}
+void IN_ReloadUp(void) {KeyUpForced(&in_reload);}
 void IN_Alt1Down(void) {KeyDown(&in_alt1);}
 void IN_Alt1Up(void) {KeyUp(&in_alt1);}
 void IN_GraphDown(void) {KeyDown(&in_graph);}
@@ -817,12 +837,33 @@ void IN_AttackUp(void)
 {
 	KeyUp( &in_attack );
 	in_cancel = 0;
+	IN_Attack2Up();
+}
+
+void IN_AttackDownForced(void)
+{
+	KeyDownForced( &in_attack );
+}
+
+void IN_AttackUpForced(void)
+{
+	KeyUpForced( &in_attack );
 }
 
 // Special handling
 void IN_Cancel(void)
 {
 	in_cancel = 1;
+}
+
+bool CheckInAttack(void)
+{
+	return (in_attack.state & 1 || in_attack2.state & 1);
+}
+
+bool CheckInAttack2(void)
+{
+	return (in_attack2.state & 1);
 }
 
 void IN_Impulse (void)
@@ -863,11 +904,11 @@ void IN_ScoreUp(void)
 
 void IN_MLookUp (void)
 {
-	KeyUp( &in_mlook );
+	/*KeyUp( &in_mlook );
 	if ( !( in_mlook.state & 1 ) && lookspring->value )
 	{
 		V_StartPitchDrift();
-	}
+	}*/
 }
 
 /*
@@ -1337,7 +1378,7 @@ int CL_ButtonBits( int bResetState )
 		bits |= IN_WALK;
 	}
 
-	// tankefugl: duck toggle
+	// : duck toggle
 	if ( g_bDuckToggled )
 	{
 		if (!(in_duck.state & 3))
@@ -1349,7 +1390,7 @@ int CL_ButtonBits( int bResetState )
 	{
 		bits |= IN_DUCK;
 	}
-	// :tankefugl
+	// :
 
 	if (in_jump.state & 3)
 	{
@@ -1466,6 +1507,7 @@ void CL_ResetButtonBits( int bits )
 		{
 			// totally clear state
 			in_attack.state &= ~7;
+			in_attack2.state &= ~7;
 		}
 	}
 }
@@ -1503,8 +1545,8 @@ void InitInput (void)
 	gEngfuncs.pfnAddCommand ("-speed", IN_SpeedUp);
 	gEngfuncs.pfnAddCommand ("+attack", IN_AttackDown);
 	gEngfuncs.pfnAddCommand ("-attack", IN_AttackUp);
-	gEngfuncs.pfnAddCommand ("+attack2", IN_Attack2Down);
-	gEngfuncs.pfnAddCommand ("-attack2", IN_Attack2Up);
+	//gEngfuncs.pfnAddCommand ("+movement", IN_Attack2Down);
+	//gEngfuncs.pfnAddCommand ("-movement", IN_Attack2Up);
 	gEngfuncs.pfnAddCommand ("+use", IN_UseDown);
 	gEngfuncs.pfnAddCommand ("-use", IN_UseUp);
 	gEngfuncs.pfnAddCommand ("+jump", IN_JumpDown);
@@ -1518,9 +1560,9 @@ void InitInput (void)
 	gEngfuncs.pfnAddCommand ("-jlook", IN_JLookUp);
 	gEngfuncs.pfnAddCommand ("+duck", IN_DuckDown);
 	gEngfuncs.pfnAddCommand ("-duck", IN_DuckUp);
-	// tankefugl: duck toggle
+	// : duck toggle
 	gEngfuncs.pfnAddCommand ("toggleduck", IN_DuckToggle);
-	// :tankefugl
+	// :
 	gEngfuncs.pfnAddCommand ("+reload", IN_ReloadDown);
 	gEngfuncs.pfnAddCommand ("-reload", IN_ReloadUp);
 	gEngfuncs.pfnAddCommand ("+alt1", IN_Alt1Down);

@@ -233,6 +233,8 @@ public:
 	void			SetSkin(int inSkin);
 	bool			GetCanCommand(string& outErrorMessage);
 	bool			GetCanReceiveResources() const;
+	bool			GetCanUseHive() const;
+	void			SetTimeOfLastHiveUse(float time);
 
 	void			SetPlayMode(AvHPlayMode inPlayMode, bool inForceSpawn = false);
 	bool			GetHasBeenSpectator(void) const;
@@ -332,7 +334,7 @@ public:
 	void			SetCurrentCommand(const struct usercmd_s* inCommand);
 	void			SetDebugCSP(weapon_data_t* inWeaponData);
 	void			SetPendingCommand(char* inCommand);
-	void			TriggerProgressBar(int inEntityID, int inParam);
+	void			TriggerProgressBar(int inEntityID, int inParam, int inPercent=0);
 	float			GetTimeOfLastTeleport() const;
 	void			SetTimeOfLastTeleport(float inTime);
 	bool			SwitchWeapon(const char* inString);
@@ -386,8 +388,8 @@ public:
     void            SetIsCatalysted(bool inState, float inTime = 0.0f);
 
 	bool			Energize(float inEnergyAmount);
-	bool			Heal(float inAmount, bool inPlaySound = true);
-	bool			Regenerate(float inRegenerationAmount, bool inPlaySound = true);
+	bool			Heal(float inAmount, bool inPlaySound = true, bool dcHealing = false);
+	bool			Regenerate(float inRegenerationAmount, bool inPlaySound = true, bool dcHealing = false);
 	bool			GetIsScreaming();
 	void			StartScreaming();
 
@@ -475,9 +477,11 @@ public:
 	void			SetUsedKilled(bool bKilled )	{ mUsedKilled = bKilled; }
 	void			ClearOrders() { mClientOrders.clear(); }
 
-	// tankefugl: 0000953 
+	// : 0000953 
 	bool			JoinTeamCooledDown(float inCoolDownTime);
-	// tankefugl
+	// 
+
+	bool			GetHasSeenATeam();
 private:
 	void				AcquireOverwatchTarget();
 	bool				AttemptToBuildAlienStructure(AvHMessageID inMessageID);
@@ -534,6 +538,7 @@ private:
 	void				InternalPreThink();
 	void				InternalProgressBarThink();
 	void				InternalSpeakingThink();
+	void				InternalMovementThink();
 
 	void EXPORT			PlayerTouch(CBaseEntity* inOther);
 	
@@ -559,6 +564,7 @@ private:
 
 	//void				UpdateArmor();
 	void				UpdateAlienUI();
+	void				UpdateMarineUI();
 	void				UpdateBlips();
 	void				UpdateDebugCSP();
 	void				UpdateEffectiveClassAndTeam();
@@ -616,12 +622,14 @@ private:
 	Vector				mOverwatchFacing;
 	bool				mOverwatchFiredThisThink;
 
-	// tankefugl: 0000953
+	// : 0000953
 	float				mTimeLastJoinTeam;
-	// tankefugl
+	// 
 
 	// alien upgrades
+	float				mTimeOfLastHiveUse;
 	float				mTimeOfLastRegeneration;
+	float				mTimeOfLastDCRegeneration;
 	float				mTimeOfLastPheromone;
 
 	float				mTimeOfLastUse;
@@ -645,6 +653,8 @@ private:
 	bool				mOrderAcknowledged;
 	float				mTimeOfLastEnemySighting;
 	bool				mEnemySighted;
+
+	float				mTimeOfLastMovementSound;
 
 	bool				mTriggerUncloak;
 
@@ -760,6 +770,7 @@ private:
 	int					mClientProgressBarEntityIndex;
 	int					mProgressBarEntityIndex;
 	int					mProgressBarParam;
+	int					mProgressBarCompleted;
 	float				mTimeProgressBarTriggered;
 
 	float				mTimeOfLastFogTrigger;
@@ -831,11 +842,16 @@ private:
     int                 mLastModelIndex;
     
     string              mNetworkID;
-	
+	int					mMarineHUDUpgrades;
+	int					mNumMovement;
+	int					mNumSensory;
+	int					mNumDefense;
+
     struct ServerVariable
     {
-        std::string mName;
-        std::string mLastValueSent;
+        const cvar_t*		mCvar;
+        int					mLastValueSent;
+		bool				mForceResend;
     };
 
     std::vector<ServerVariable> mServerVariableList;

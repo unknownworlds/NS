@@ -34,11 +34,6 @@
 #include "AvHEntityHierarchy.h"
 #include "../engine/shake.h"
 #include "../common/weaponinfo.h"
-extern "C" {
-#include <lua.h>
-#include <lualib.h>
-#include <lauxlib.h>
-}
 
 //FUNCTION PROTOTYPES
 #ifdef AVH_SERVER
@@ -70,7 +65,7 @@ extern "C" {
 	void NetMsg_StatusValue( entvars_t* const pev, const int location, const int state );
 	void NetMsg_TeamInfo( entvars_t* const pev, const int player_index, const string& team_id );
 	void NetMsg_TeamNames( entvars_t* const pev, const vector<string>& team_names );
-	void NetMsg_TeamScore( entvars_t* const pev, const string& team_name, const int score, const int deaths );
+	void NetMsg_TeamScore( entvars_t* const pev, const string& team_name, const int score, const int reset );
 	void NetMsg_TextMsg( entvars_t* const pev, const int destination, const vector<string>& message );
 	void NetMsg_Train( entvars_t* const pev, const int state );
 	void NetMsg_WeaponList( entvars_t* const pev, const WeaponList& weapon );
@@ -95,12 +90,15 @@ extern "C" {
 	void NetMsg_GameStatus_State( entvars_t* const pev, const int status_code, const int map_mode );
 	void NetMsg_GameStatus_UnspentLevels( entvars_t* const pev, const int status_code, const int map_mode, const int unspent_levels );
 	void NetMsg_ListPS( entvars_t* const pev, const string& system_name );
+	void NetMsg_HUDSetUpgrades( int upgradeMask );
+	void NetMsg_HUDSetUpgrades( entvars_t* const pev, int upgradeMask );
 	void NetMsg_PlayHUDNotification( entvars_t* const pev, const int flags, const int sound, const float location_x, const float location_y );
-	void NetMsg_ProgressBar( entvars_t* const pev, const int entity_number, const int progress );
-	void NetMsg_ServerVar( entvars_t* const pev, const string& name, const string& value );
+	void NetMsg_ProgressBar( entvars_t* const pev, const int entity_number, const int progress, int percent=0 );
+	void NetMsg_ServerVar( entvars_t* const pev, const string& name, const int& value );
 	void NetMsg_SetGammaRamp( entvars_t* const pev, const float gamma );
 	void NetMsg_SetOrder( entvars_t* const pev, const AvHOrder& order );
-	void NetMsg_SetParticleTemplate( entvars_t* const pev, const AvHParticleTemplate& particle_template );
+	void NetMsg_DelParts( entvars_t* const pev);
+	void NetMsg_SetParticleTemplate( entvars_t* const pev, const int index, const AvHParticleTemplate& particle_template );
 	void NetMsg_SetRequest( entvars_t* pev, const int request_type, const int request_count );
 	void NetMsg_SetSelect( entvars_t* const pev, Selection& selection );
 	void NetMsg_SetSoundNames( entvars_t* pev, const bool reset, const string& sound_name );
@@ -110,9 +108,9 @@ extern "C" {
 	void NetMsg_SetTopDown_TechSlots( entvars_t* const pev, const int tech_slots );
 	void NetMsg_SetupMap_Extents( entvars_t* const pev, const string& name, const float* const min_extents, const float* const max_extents, const bool draw_background );
 	void NetMsg_SetupMap_Location( entvars_t* const pev, const string& name, const float* const min_extents, const float* const max_extents );
-	void NetMsg_UpdateEntityHierarchy( entvars_t* const pev, const MapEntityMap& NewItems, const EntityListType& OldItems );
+	void NetMsg_UpdateEntityHierarchy( entvars_t* const pev, const MapEntityMap& NewItems, const EntityListType& OldItems, bool specMsg);
+	void NetMsg_DelEntityHierarchy( entvars_t* const pev);
 	void NetMsg_IssueOrder(entvars_t* const pev, const int ordertype, const int ordersource, const int ordertarget);
-	void NetMsg_LUAMessage(entvars_t* const pev, lua_State *L);
 
 	//BROADCAST MESSAGE TRANSMISSION
 	void NetMsg_DeathMsg( const int killer_index, const int victim_index, string& weapon_name );
@@ -120,9 +118,10 @@ extern "C" {
 	void NetMsg_GameStatus_Time( const int status_code, const int map_mode, const int game_time, const int timelimit, const int attacking_team_number, const bool is_reliable );
 	void NetMsg_SayText( const int entity_index, const string& text, const string& location );
 	void NetMsg_TeamInfo( const int player_index, const string& team_id );
-	void NetMsg_TeamScore( const string& team_name, const int score, const int deaths );
+	void NetMsg_TeamScore( const string& team_name, const int score, const int reset );
 	void NetMsg_TextMsg( const int destination, const vector<string>& message );
 	void NetMsg_ScoreInfo( const ScoreInfo& info );
+	void NetMsgSpec_ScoreInfo( const ScoreInfo& info );
 	void NetMsg_UpdateCountdown( const int countdown );
 
 	//SPECTATOR MESSAGE TRANSMISSION
@@ -166,7 +165,7 @@ extern "C" {
 	void NetMsg_StatusValue( void* const buffer, const int size, int& location, int& state );
 	void NetMsg_TeamInfo( void* const buffer, const int size, int& player_index, string& team_id );
 	void NetMsg_TeamNames( void* const buffer, const int size, vector<string>& team_names );
-	void NetMsg_TeamScore( void* const buffer, const int size, string& team_name, int& score, int& deaths );
+	void NetMsg_TeamScore( void* const buffer, const int size, string& team_name, int& score, int& reset );
 	void NetMsg_TextMsg( void* const buffer, const int size, int& destination, vector<string>& message );
 	//30
 	void NetMsg_Train( void* const buffer, const int size, int& state );
@@ -184,13 +183,15 @@ extern "C" {
 	void NetMsg_Fog( void* const buffer, const int size, bool& enabled, int& R, int& G, int& B, float& start, float& end );
 	void NetMsg_GameStatus( void* const buffer, const int size, int& status_code, AvHMapMode& map_mode, int& game_time, int& timelimit, int& misc_data );
 	void NetMsg_ListPS( void* const buffer, const int size, string& system_name );
+	void NetMsg_HUDSetUpgrades( void* const buffer, const int size, int& upgradeMask );
 	void NetMsg_PlayHUDNotification( void* const buffer, const int size, int& flags, int& sound, float& location_x, float& location_y );
-	void NetMsg_ProgressBar( void* const buffer, const int size, int& entity_number, int& progress );
+	void NetMsg_ProgressBar( void* const buffer, const int size, int& entity_number, int& progress, int &percent);
 	//45
-	void NetMsg_ServerVar( void* const buffer, const int size, string& name, string& value );
+	void NetMsg_ServerVar( void* const buffer, const int size, string& name, int& value );
 	void NetMsg_SetGammaRamp( void* const buffer, const int size, float& gamma );
 	void NetMsg_SetOrder( void* const buffer, const int size, AvHOrder& order );
-	void NetMsg_SetParticleTemplate( void* const buffer, const int size, AvHParticleTemplate& particle_template );
+	void NetMsg_SetParticleTemplate( void* const buffer, const int size, int &index, AvHParticleTemplate& particle_template );
+	void NetMsg_DelParts( void* const buffer, const int size);
 	void NetMsg_SetRequest( void* const buffer, const int size, int& request_type, int& request_count );
 	//50
 	void NetMsg_SetSelect( void* const buffer, const int size, Selection& selection );
@@ -202,9 +203,8 @@ extern "C" {
 	void NetMsg_SetupMap( void* const buffer, const int size, bool& is_location, string& name, float* min_extents, float* max_extents, bool& draw_background );
 	void NetMsg_UpdateCountdown( void* const buffer, const int size, int& countdown );
 	void NetMsg_UpdateEntityHierarchy( void* const buffer, const int size, MapEntityMap& NewItems, EntityListType& OldItems );
+	void NetMsg_DelEntityHierarchy( void* const buffer, const int size);
 	void NetMsg_IssueOrder( void* const buffer, const int size, int& ordertype, int& ordersource, int& ordertarget );
-	void NetMsg_LUAMessage( void* const buffer, const int size, lua_State *L, int &arguments);
-	// 60
 
 #endif //AVH_SERVER
 

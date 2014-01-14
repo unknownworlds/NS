@@ -138,6 +138,7 @@
 #include "mod/AvHServerVariables.h"
 #include "mod/AvHSpriteAPI.h"
 #include "mod/AvHParticleEditorHandler.h"
+#include "mod/AvHAlienAbilityConstants.h"
 #include <list>
 #include "common/entity_types.h"
 
@@ -250,7 +251,7 @@ void ProjectPointFromViewOrigin(int inDistanceToProject, int inScreenX, int inSc
 	VectorMA(GetViewOrigin(), inDistanceToProject, theRay, outResult);
 }
 
-void AvHHud::DrawTranslatedString(int inX, int inY, const char* inStringToTranslate, bool inCentered, bool inIgnoreUpgrades, bool inTrimExtraInfo)
+void AvHHud::DrawTranslatedString(int inX, int inY, const char* inStringToTranslate, bool inCentered, bool inIgnoreUpgrades, bool inTrimExtraInfo, float alpha)
 {
 	// Translate
 	string theTranslatedText;
@@ -273,6 +274,10 @@ void AvHHud::DrawTranslatedString(int inX, int inY, const char* inStringToTransl
 
 		char theCharBuffer[512];
 		sprintf(theCharBuffer, "%s", theTranslatedText.c_str());
+
+		theR *= alpha;
+		theB *= alpha;
+		theG *= alpha;
 
 		if(inCentered)
 		{
@@ -885,7 +890,7 @@ void AvHHud::DrawToolTips()
 }
 
 void AvHHud::DrawWorldSprite(int inSpriteHandle, int inRenderMode, vec3_t inWorldPosition, int inFrame, float inWorldSize, float inAlpha)
-// tankefugl: added inAlpha
+// : added inAlpha
 {
 	vec3_t theUpperLeft;
 	vec3_t theLowerRight;
@@ -1066,13 +1071,13 @@ void AvHHud::DrawOrderText(const AvHOrder& inOrder)
 	string theTranslatedLocation = theLocationOfOrder;
 	LocalizeString(theLocationOfOrder.c_str(), theTranslatedLocation);
 	
-	// tankefugl: 0000992	
+	// : 0000992	
 	string theFirstLine = theLocalizedTitle;
 	if(theRangeDisplayString != "")
 	{
 		theFirstLine += string(" : ") + theRangeDisplayString;
 	}
-	// :tankefugl
+	// :
 	
 	Vector theScreenPos;
 	if(AvHCUWorldToScreen((float*)theOrderLocation, (float*)&theScreenPos))
@@ -1101,17 +1106,17 @@ void AvHHud::DrawOrderText(const AvHOrder& inOrder)
 			this->DrawHudStringCentered(theBaseX, theBaseY + 2*theStringHeight, ScreenWidth(), theTranslatedLocation.c_str(), theR, theG, theB);
 		}
 	}
-	// tankefugl: 0000992
+	// : 0000992
 	if (this->mDisplayOrderType == 2)
 	{
 		// this->mDisplayOrderText1 = "The commander issued an order:";
 		this->mDisplayOrderText1 = theFirstLine.c_str();
 		this->mDisplayOrderText2 = theTranslatedLocation.c_str();
 	}
-	// :tankefugl	
+	// :	
 }
 
-// tankefugl:
+// :
 #define CENTER_TEXT_LENGTH	10
 #define CENTER_TEXT_FADEOUT	2
 void AvHHud::DrawCenterText()
@@ -1136,9 +1141,9 @@ void AvHHud::DrawCenterText()
 		this->mFont.DrawString(posX, posY, this->mCenterText.c_str(), theR, theG, theB);
 	}
 }
-// :tankefugl
+// :
 
-// tankefugl: 0000992
+// : 0000992
 void AvHHud::SetDisplayOrder(int inOrderType, int inOrderIndex, string inText1, string inText2, string inText3)
 {
 	this->mDisplayOrderTime = this->mTimeOfLastUpdate;
@@ -1227,9 +1232,9 @@ void AvHHud::DrawDisplayOrder()
 //		this->DrawHudString(mTextX1, mIconY1 + theStringHeight * 2, ScreenWidth(), this->mDisplayOrderText3.c_str(), r, g, b);
 	}
 }
-// :tankefugl
+// :
 
-// tankefugl: 0000971
+// : 0000971
 void AvHHud::GetOrderDirection(vec3_t inTarget, int inOrderType)
 {
 	if (this->mDisplayOrderType == inOrderType)
@@ -1326,7 +1331,7 @@ void AvHHud::DrawTeammateOrders()
 
 
 }
-// :tankefugl
+// :
 
 void AvHHud::DrawOrders()
 {
@@ -1353,7 +1358,7 @@ void AvHHud::DrawOrders()
 					cl_entity_s* theEntity = gEngfuncs.GetEntityByIndex(theTargetIndex);
 					if(theEntity)
 					{
-						//voogru: dont follow if they are cloaked, leave the waypoint active so they have a clue where they may be at, the wp should snap back to the baddy
+						//: dont follow if they are cloaked, leave the waypoint active so they have a clue where they may be at, the wp should snap back to the baddy
 						//once they are spotted again.
 
 						if(theEntity->curstate.rendermode != kRenderTransTexture && theEntity->curstate.renderamt > 128)
@@ -2398,15 +2403,19 @@ void AvHHud::DrawPendingRequests()
 }
 
 
-// tankefugl: 0000988 
+// : 0000988 
 void AvHHud::DrawBuildHealthEffectsForEntity(int inEntityIndex, float inAlpha)
-// :tankefugl
+// :
 {
+	if ( this->GetHUDPlayMode() == PLAYMODE_READYROOM )
+		return;
+
 	// Get entity
 	int theUser3 = 0;
 	int theUser4 = 0;
 	float theFuser1 = 0.0f;
 	int theEntityTeam = 0;
+	bool theIsOnOurTeam=false;
 	vec3_t theOrigin;
 	vec3_t theMins;
 	vec3_t theMaxs;
@@ -2414,14 +2423,17 @@ void AvHHud::DrawBuildHealthEffectsForEntity(int inEntityIndex, float inAlpha)
 	float theHealthPercentage = 0.0f;
 	double theDistanceToEntity = 0;
 	
+
 	cl_entity_s* theEntity = gEngfuncs.GetEntityByIndex(inEntityIndex);
+	bool theEntityIsPlayer = ((inEntityIndex > 0) && (inEntityIndex <= gEngfuncs.GetMaxClients()));
+	
 	if(theEntity)
 	{
 		theUser3 = theEntity->curstate.iuser3;
 		theUser4 = theEntity->curstate.iuser4;
 		theFuser1 = theEntity->curstate.fuser1;
 		theEntityTeam = theEntity->curstate.team;
-		
+		theIsOnOurTeam = (theEntityTeam == (int)this->GetHUDTeam());	
 		//theOrigin = theEntity->curstate.origin;
 		theOrigin = AvHSHUGetRealLocation(theEntity->origin, theEntity->curstate.mins, theEntity->curstate.maxs);
 		if(theEntity->player)
@@ -2435,8 +2447,24 @@ void AvHHud::DrawBuildHealthEffectsForEntity(int inEntityIndex, float inAlpha)
 		theMins = theEntity->curstate.mins;
 		theMaxs = theEntity->curstate.maxs;
 		theHealthPercentage = theEntity->curstate.fuser2/kNormalizationNetworkFactor;
-		
+		// : 991 transmit armour and health for marines
+		if ( GetIsMarine() && theEntityIsPlayer && theIsOnOurTeam ) {
+			int tmpPercent=theEntity->curstate.fuser2;
+			if ( GetInTopDownMode() ) {
+				theHealthPercentage = (float)(tmpPercent&0x7F)/100;
+			}
+			else {
+				theHealthPercentage = (float)(tmpPercent >> 7)/100;
+			}
+		}
+		// :
 		theContinue = true;
+
+		// 991: 
+		// Do not display health rings for enemy players unless we are commander
+		if ( !GetInTopDownMode()  && theEntityIsPlayer && !theIsOnOurTeam ) {
+			theContinue=false;
+		}
 	}
 
 	// Get local player
@@ -2444,8 +2472,6 @@ void AvHHud::DrawBuildHealthEffectsForEntity(int inEntityIndex, float inAlpha)
 	
 	bool theDrewBuildInProgress = false;
 	float theOversizeScalar = 1.0f;
-	bool theEntityIsPlayer = ((inEntityIndex > 0) && (inEntityIndex <= gEngfuncs.GetMaxClients()));
-    bool theIsOnOurTeam = (theEntityTeam == (int)this->GetHUDTeam());
 	
 	if(AvHSHUGetDrawRingsForUser3((AvHUser3)theUser3, theOversizeScalar))
 	{
@@ -2483,7 +2509,7 @@ void AvHHud::DrawBuildHealthEffectsForEntity(int inEntityIndex, float inAlpha)
 				int theSpriteToUse = this->GetIsAlien() ? this->mAlienHealthSprite : this->mMarineHealthSprite;
                 bool theDrawAsRecyling = (GetHasUpgrade(theUser4, MASK_RECYCLING) && theIsOnOurTeam);
 
-				if((theIsBuilding && (GetHasUpgrade(theUser4, MASK_BUILDABLE))) || theDrawAsRecyling)
+				if((theIsOnOurTeam && theIsBuilding && (GetHasUpgrade(theUser4, MASK_BUILDABLE))) || theDrawAsRecyling)
 				{
 					theSpriteToUse = this->GetIsAlien() ? this->mAlienBuildSprite : this->mMarineBuildSprite;
 					theDrawHealth = false;
@@ -2509,13 +2535,13 @@ void AvHHud::DrawBuildHealthEffectsForEntity(int inEntityIndex, float inAlpha)
 					if ((theHealthPercentage < 1.0f) || theDrawAsRecyling)
 					{
 						theCurrentFrame = theNormalizedPercentage * (theNumFrames - 1);
-						// tankefugl: 0000893
+						// : 0000893
 						// quick hack to eliminate 1 red bar shown for dead players
 						if (theEntity->player)
                             theCurrentFrame = min(max(0, theCurrentFrame), theNumFrames - 1);
 						else
 							theCurrentFrame = min(max(1, theCurrentFrame), theNumFrames - 1);
-						// :tankefugl
+						// :
 					}
 					else 
 					{
@@ -2561,32 +2587,33 @@ void AvHHud::DrawHUDNumber(int inX, int inY, int inFlags, int inNumber)
 
 void AvHHud::DrawSelectionAndBuildEffects()
 {
-// tankefugl: 0000988 
+// : 0000988 
 	list<int> theSelectedList;
-// :tankefugl
-
+// :
+	
 	// Draw build effects
 	for(SelectionListType::iterator theSelectIter = this->mSelectionEffects.begin(); theSelectIter != this->mSelectionEffects.end(); theSelectIter++)
 	{
 		// Draw selection effect around the entity
 		int theEntIndex = theSelectIter->mEntIndex;
 		this->DrawBuildHealthEffectsForEntity(theEntIndex);
-		// tankefugl: 0000988 
+		// : 0000988 
 		theSelectedList.push_back(theEntIndex);
-		// :tankefugl
+		// :
 	}
 	
 	bool theDrawBuildingEffect = false;
+
 	for(EntityListType::iterator theBuildingIter = this->mBuildingEffectsEntityList.begin(); theBuildingIter != this->mBuildingEffectsEntityList.end(); theBuildingIter++)
 	{
 		int theEntIndex = *theBuildingIter;
 		this->DrawBuildHealthEffectsForEntity(theEntIndex);
-		// tankefugl: 0000988 
+		// : 0000988 
 		theSelectedList.push_back(theEntIndex);
-		// :tankefugl
+		// :
 	}
 
-	// tankefugl: 0000988 & 0000991
+	// : 0000988 & 0000991
 	bool maintanceWeaponSelected = (this->mCurrentWeaponID == 18 || this->mCurrentWeaponID == 27);
 	bool isCommander = this->GetInTopDownMode();
 	if (isCommander || maintanceWeaponSelected) {		
@@ -2595,11 +2622,12 @@ void AvHHud::DrawSelectionAndBuildEffects()
 		gEngfuncs.pEventAPI->EV_SetSolidPlayers(-1);
 
 		int localPlayerIndex = gEngfuncs.GetLocalPlayer()->index;
-		int currentteam = gEngfuncs.GetLocalPlayer()->curstate.team;
+		int currentteam = this->GetHUDTeam();
 		int maxclients = gEngfuncs.GetMaxClients();
 
-		physent_t* theEntity = NULL;
+		
 		int theNumEnts = pmove->numphysent;
+		physent_t* theEntity = NULL;
 		for (int i = 0; i < theNumEnts; i++)
 		{
 			theEntity = gEngfuncs.pEventAPI->EV_GetPhysent(i);
@@ -2613,7 +2641,6 @@ void AvHHud::DrawSelectionAndBuildEffects()
 					{
 						bool theIsPlayer = ((theEntityIndex >= 1) && (theEntityIndex <= maxclients));
 						bool theSameTeam = (theEntity->team == currentteam );
-						
 						if (isCommander && (theIsPlayer || theSameTeam))
 						{
 							this->DrawBuildHealthEffectsForEntity(theEntityIndex, 0.2);
@@ -2631,13 +2658,12 @@ void AvHHud::DrawSelectionAndBuildEffects()
 		}
 		gEngfuncs.pEventAPI->EV_PopPMStates();
 	}
-	// :tankefugl
+	// :
 }
 
 
 void AvHHud::Render()
 {
-
     if (!IEngineStudio.IsHardware())
     {
 
@@ -2703,6 +2729,7 @@ void AvHHud::Render()
             DrawWarpedOverlaySprite(mDigestingSprite, 4, 3, .02, .02, .3, .15);
         }        
 
+		RenderProgressBar(kProgressBarSprite);
 	}
     else
     {
@@ -2741,6 +2768,8 @@ void AvHHud::Render()
             {
                 RenderAlienUI();
             }
+
+			RenderProgressBar(kProgressBarSprite);
         }
 
     }
@@ -2752,42 +2781,58 @@ void AvHHud::Render()
 
 void AvHHud::RenderCommonUI()
 {
+	static bool speedMeasured=false;
     if (!mSteamUIActive)
     {
         
-        if (gHUD.GetServerVariableFloat("sv_cheats") != 0 && CVAR_GET_FLOAT("cl_showspeed") != 0)
-        {
+		if (gHUD.GetServerVariableFloat("sv_cheats") != 0 ) {
+			static int maxSpeed=0, maxGroundSpeed=0, maxClimb=0, maxDive=0;
+			if ( CVAR_GET_FLOAT("cl_showspeed") != 0) {
 
-            // Draw the speedometer.
+				// Draw the speedometer.
+				int theR, theG, theB;
+				this->GetPrimaryHudColor(theR, theG, theB, true, false);
 
-            int theR, theG, theB;
-            this->GetPrimaryHudColor(theR, theG, theB, true, false);
+				extern playermove_s* pmove;
+	        
+				char buffer[1024];
 
-            extern playermove_s* pmove;
-        
-            char buffer[1024];
+				maxClimb=max(maxClimb, (int)pmove->velocity[2]);
+				maxDive=min(maxDive, (int)pmove->velocity[2]);
 
-            sprintf(buffer, "Speed = %d", (int)Length(pmove->velocity));
-            mFont.DrawString(10, 10, buffer, theR, theG, theB);
+				int speed=(int)Length(pmove->velocity);
 
-            float theGroundSpeed = sqrtf(pmove->velocity[0] * pmove->velocity[0] + pmove->velocity[1] * pmove->velocity[1]);
+				maxSpeed=max(speed, maxSpeed);
+				sprintf(buffer, "Speed = %d (%d) %d/%d", speed, maxSpeed, maxClimb, maxDive);
+				mFont.DrawString(10, 10, buffer, theR, theG, theB);
 
-            sprintf(buffer, "Ground speed = %d", (int)theGroundSpeed);
-            mFont.DrawString(10, 12 + mFont.GetStringHeight(), buffer, theR, theG, theB);
-            
-
-        }
+				float theGroundSpeed = sqrtf(pmove->velocity[0] * pmove->velocity[0] + pmove->velocity[1] * pmove->velocity[1]);
+				maxGroundSpeed=max(theGroundSpeed, maxGroundSpeed);
+				sprintf(buffer, "Ground speed = %d (%d)", (int)theGroundSpeed, maxGroundSpeed);
+				mFont.DrawString(10, 12 + mFont.GetStringHeight(), buffer, theR, theG, theB);
+				speedMeasured = true;
+			}
+			else if ( speedMeasured == true ) {
+				char msg[256];
+				sprintf(msg, "Current Speed(%d)\tCurrent Ground Speed(%d) Max Speed(%d)\t Max Ground Speed (%d)\tMax Climb (%d)\tMax Dive(%d)\n", 
+					(int)Length(pmove->velocity), (int)sqrtf(pmove->velocity[0] * pmove->velocity[0] + pmove->velocity[1] * pmove->velocity[1]),
+					maxSpeed, maxGroundSpeed, maxClimb, maxDive);
+				ConsolePrint(msg);
+				maxSpeed=0, maxGroundSpeed=0, maxClimb=0, maxDive=0;
+				speedMeasured = false;
+			}
+         }
 
         DrawInfoLocationText();
         DrawHUDStructureNotification();
 
         this->DrawOrders();
         this->DrawHelpIcons();
-		// tankefugl: 0000971
+		// : 0000971
 		this->DrawTeammateOrders();
-		// tankefugl: 0000992
+		// : 0000992
 		this->DrawDisplayOrder();
-		// :tankefugl
+		// :
 
         if (this->GetIsCombatMode())
         {
@@ -2997,10 +3042,9 @@ void AvHHud::RenderCommonUI()
 	    }
     
     }
-
-	// Draw the combat HUD.
 	
-    if (this->GetIsCombatMode())
+	// Draw the combat HUD.
+	if (this->GetIsCombatMode())
 	{
 		// Now draw our current experience level, so people know how close they are to the next level
 		// Load alien resource and energy sprites
@@ -3052,12 +3096,55 @@ void AvHHud::RenderCommonUI()
 
 }
 
+void AvHHud::RenderProgressBar(char *spriteName)
+{
+	// Draw the progress bars
+	const float progressBarStayTime = 0.2f;
+	if (this->mProgressBarLastDrawn + progressBarStayTime > this->GetTimeOfLastUpdate())
+	{
+		HSPRITE currentSprite=0;
+		if ( spriteName && ( strcmp(spriteName, kExperienceBarSprite) == 0 ) ) {
+			currentSprite=this->mExperienceBarSprite;
+		}
+		if ( spriteName && ( strcmp(spriteName, kProgressBarSprite) == 0 ) ) {
+			currentSprite=this->mProgressBarSprite;
+		}
+		if (currentSprite)
+		{
+			const float kNormalizedWidth = .1f;
+			const float kNormalizedYInset = .89f;
+			const float kNormalizedHeight = .025f;
+			
+			// Draw full background
+			const int kXStart = mViewport[0] + (.5f - kNormalizedWidth/2.0f)*(mViewport[2] - mViewport[0]);
+			const int kYStart = mViewport[1] + mViewport[3] - (1 - kNormalizedYInset)*ScreenHeight();
+			
+            AvHSpriteSetColor(1,1,1);
+            AvHSpriteSetRenderMode(kRenderTransAlpha);
+
+			AvHSpriteDraw(currentSprite, this->mProgressBarDrawframe + 1, kXStart, kYStart, kXStart + kNormalizedWidth*ScreenWidth(), kYStart + kNormalizedHeight*ScreenHeight(), 0, 0, 1, 1);
+			
+			// Draw overlay showing progress
+			float theProgress = this->mProgressBarStatus;
+			if((theProgress >= 0.0f) && (theProgress <= 1.0f))
+            {
+    			AvHSpriteDraw(currentSprite, this->mProgressBarDrawframe, kXStart, kYStart, kXStart + theProgress*kNormalizedWidth*ScreenWidth(), kYStart + kNormalizedHeight*ScreenHeight(), 0, 0, theProgress, 1.0f);
+            }
+		}
+	}
+}
+
 void AvHHud::RenderMiniMap(int inX, int inY, int inWidth, int inHeight)
 {
     
     AvHOverviewMap& theOverviewMap = gHUD.GetOverviewMap();
 
-    AvHOverviewMap::DrawInfo theDrawInfo;
+	float hudMinimap=CVAR_GET_FLOAT(kvHudMapZoom);
+	hudMinimap=min(3, max(1, hudMinimap));
+
+	float zoomScale=(3.0f-hudMinimap);
+
+	AvHOverviewMap::DrawInfo theDrawInfo;
     
     theDrawInfo.mX          = inX;
     theDrawInfo.mY          = inY;
@@ -3065,9 +3152,12 @@ void AvHHud::RenderMiniMap(int inX, int inY, int inWidth, int inHeight)
     theDrawInfo.mHeight     = inHeight;
     theDrawInfo.mFullScreen = false;
 
-    float worldViewWidth = 800.0f;
-    
-    float aspectRatio = (float)(theDrawInfo.mHeight) / theDrawInfo.mWidth;
+    float worldViewWidth = 800 + 400.0f*zoomScale;
+
+	theDrawInfo.mZoomScale  = 1-(0.25f * zoomScale );
+
+	
+	float aspectRatio = (float)(theDrawInfo.mHeight) / theDrawInfo.mWidth;
 
     float thePlayerX;
     float thePlayerY;
@@ -3100,18 +3190,27 @@ void AvHHud::RenderMarineUI()
 
         AvHSpriteSetRenderMode(kRenderTransAdd);
         AvHSpriteSetColor(1,1,1);
-        AvHSpriteDrawTiles(mMarineTopSprite, 3, 1, mViewport[2] - theWidth + mViewport[0],
-            mViewport[1], mViewport[2] + mViewport[0], mViewport[1] + theHeight, 0, 0, 1, 1);
+		int hudMinimap=CVAR_GET_FLOAT(kvHudMapZoom);
+		for ( int i=0; i<3; i++ ) {
+			float width=theWidth/3.0f;
+			int frame=i;
+			if ( hudMinimap == 0 && i == 2 ) frame=i+1;
+			
+			AvHSpriteDraw(mMarineTopSprite, frame, mViewport[2] - width*(3-i) + mViewport[0],
+				mViewport[1], mViewport[2] - width*(2-i) + mViewport[0], mViewport[1] + theHeight, 0, 0, 1, 1);
+
+		}
+
 
         // Draw the minimap.
+		if ( hudMinimap > 0 ) {
+			int theMiniMapX = mViewport[2] - 0.21f * ScreenWidth() + mViewport[0];
+			int theMiniMapY = mViewport[1] + 0.013 * ScreenHeight();
+			int theMiniMapWidth =  0.200 * ScreenWidth();
+			int theMiniMapHeight = 0.202 * ScreenHeight();
 
-        int theMiniMapX = mViewport[2] - 0.21f * ScreenWidth() + mViewport[0];
-        int theMiniMapY = mViewport[1] + 0.013 * ScreenHeight();
-        int theMiniMapWidth =  0.200 * ScreenWidth();
-        int theMiniMapHeight = 0.202 * ScreenHeight();
-
-        RenderMiniMap(theMiniMapX, theMiniMapY, theMiniMapWidth, theMiniMapHeight);
-
+			RenderMiniMap(theMiniMapX, theMiniMapY, theMiniMapWidth, theMiniMapHeight);
+		}
         // Draw the resource label.
 		
         theHeight = ScreenHeight() * 0.038;
@@ -3294,12 +3393,42 @@ void AvHHud::RenderMarineUI()
             
 			AvHSpriteSetRenderMode(kRenderTransAdd);
 			AvHSpriteEnableClippingRect(false);
-			AvHSpriteSetColor(1, 1, 1, this->GetGammaSlope());
+			AvHSpriteSetColor(1, 1, 1);
             AvHSpriteDraw(mMarineUpgradesSprite, 0, x1, y1, x2, y2, theStartU, theStartV, theEndU, theEndV);
         
         }
 	}
+	
+	bool frames[3] = { false, false, false};
+	if ( this->mHasGrenades ) frames[0]=true;
+	if ( this->mHasMines ) frames[1]=true;
+	if ( this->mHasWelder ) frames[2]=true;
+   
+    for(int i = 0; i < 3; i++)
+	{
+		int theFrame=i+9;
+		if ( frames[i] == true ) {
+			const int kIconWidth = .05*ScreenWidth();
+			const int kIconHeight = .05*ScreenHeight();
+			const int kBaseX = ScreenWidth() - .05*ScreenWidth();
+			const int kBaseY = .75*ScreenHeight();
 
+			float theStartU = (theFrame % 4)*.25f;
+			float theStartV = (theFrame / 4)*.333f;
+			float theEndU = theStartU + .25f;
+			float theEndV = theStartV + .333f;
+
+			float x1 = kBaseX;
+			float y1 = kBaseY - (i+1)*kIconHeight;
+			float x2 = x1 + kIconWidth;
+			float y2 = y1 + kIconHeight;
+	            
+			AvHSpriteSetRenderMode(kRenderTransAdd);
+			AvHSpriteEnableClippingRect(false);
+			AvHSpriteSetColor(1, 1, 1);
+			AvHSpriteDraw(mMarineUpgradesSprite, theFrame, x1, y1, x2, y2, theStartU, theStartV, theEndU, theEndV);
+		}
+	}
 }
 
 void AvHHud::RenderCommanderUI()
@@ -3541,7 +3670,7 @@ void AvHHud::RenderStructureRanges()
             float theMaxRadius2 = max(max(theMinSize.x, theMaxSize.x), max(theMinSize.y, theMaxSize.y));
 
             int theSprite = this->mBuildCircleSprite;
-			// joev: 0000291 
+			// : 0000291 
 			// It's possible to place "on" marines if you're offset a little from center. This code and 
 			// associated changes above and in AvHSharedUtil.cpp is to enforce a build distance around marines,
 			// in the same way as structures, to prevent this exploit.
@@ -3553,7 +3682,7 @@ void AvHHud::RenderStructureRanges()
 			{
 				theMinMarineBuildDistance = BALANCE_VAR(kMinMarineBuildDistance);
 			}
-			// :joev
+			// :
 			RenderStructureRange(thePosition, theMinMarineBuildDistance + theMaxRadius2, theSprite, kRenderTransAdd, 0, 1, 0, 0, 0.3f);
 
 		}
@@ -3627,13 +3756,13 @@ void AvHHud::RenderAlienUI()
 	    const float kTextInset = kResourceEnergyBarWidth*.5f;
 	    const int kNumericYOffset = 1.5*this->GetHudStringHeight();
 
-	    // tankefugl: 0000989
+	    // : 0000989
 		// moved resource label a bit down
         //int theResourceLabelX = mViewport[0] + kTextInset*ScreenWidth();
 		//int theResourceLabelY = theY -  + .05f * ScreenHeight();
         int theResourceLabelX = 10;
 		int theResourceLabelY = .68f * ScreenHeight();
-		// :tankefugl
+		// :
 	    
 		if(this->mMapMode == MAP_MODE_NS)
 		{
@@ -3667,6 +3796,35 @@ void AvHHud::RenderAlienUI()
         AvHSpriteDraw(mAlienUIEnergySprite, 0, theX, theY, theX + theWidth, theY + theHeight * theFactor, 0, 0, 1, theFactor);    
         AvHSpriteDraw(mAlienUIEnergySprite, 1, theX, theY + theHeight * theFactor, theX + theWidth, theY + theHeight, 0, theFactor, 1, 1);
 
+    }
+
+	if (mAlienUICloakSprite )
+    {
+		cl_entity_s* theLocalPlayer = GetVisiblePlayer();
+		if(theLocalPlayer ) {
+				theX = mViewport[2] - theWidth + mViewport[0];
+			
+				int amount=0;
+				int range=255-kAlienSelfCloakingBaseOpacity;
+				if ( theLocalPlayer->curstate.renderamt > 0 ) {
+					amount=theLocalPlayer->curstate.renderamt-kAlienSelfCloakingBaseOpacity;
+					amount=max(0, min(range, amount));
+				}
+				float theFactor = 1; 
+				if ( theLocalPlayer->curstate.rendermode == kRenderTransTexture )
+					theFactor=(float)amount/(float)range;
+					
+
+				AvHSpriteSetColor(1,1,1);
+				AvHSpriteSetRenderMode(kRenderTransTexture);
+
+				AvHSpriteDraw(mAlienUICloakSprite, 0, theX, theY, theX + theWidth, theY + theHeight * theFactor, 0, 0, 1, theFactor);    
+				AvHSpriteDraw(mAlienUICloakSprite, 1, theX, theY + theHeight * theFactor, theX + theWidth, theY + theHeight, 0, theFactor, 1, 1);
+//			}
+//			else {
+//				int a=0;
+//			}
+		}
     }
 
 	// Draw hive indicators.
@@ -3785,7 +3943,7 @@ void AvHHud::RenderAlienUI()
 	const int kVerticalUpgradeSpacing = kNormalizedSpacing*kAspectRatio*ScreenHeight();
 	int theUpgradeVar = this->GetHUDUpgrades();
 	const int kUpgradeFrame = 0;
-	const float kUpgradeSize = 0.05;
+	const float kUpgradeSize = 0.04;
 	int theUpgradeWidth = kUpgradeSize*ScreenWidth();
 	int theUpgradeHeight = kUpgradeSize*kAspectRatio*ScreenHeight();
 	
@@ -3819,7 +3977,7 @@ void AvHHud::RenderAlienUI()
 			theNumDrawnInCategory[theCategory]++;
 
 			int theLevelOfUpgrade = AvHGetAlienUpgradeLevel(theUpgradeVar, theUpgradeMask);
-			for(int theLevel = 0; theLevel < theLevelOfUpgrade; theLevel++)
+			for(int theLevel = theLevelOfUpgrade; theLevel > 0; theLevel--)
 			{
 				// Draw them slightly overlapping
 				const float kOffset = .01f;
@@ -3844,14 +4002,29 @@ void AvHHud::RenderAlienUI()
 						int theSecondOfLastUpdate = (int)this->mTimeOfLastUpdate;
 						if(theSecondOfLastUpdate % 2)
 						{
-							int theFrame = theCategory-1;
-						
-							float x1 = theX;
-							float y1 = theY;
-							float x2 = x1 + theUpgradeWidth;
-							float y2 = y1 + theUpgradeHeight;
+							int numSprites=1;
+							switch ( theCategory ) {
+								case ALIEN_UPGRADE_CATEGORY_DEFENSE:
+									numSprites=this->mNumDefense;
+									break;
+								case ALIEN_UPGRADE_CATEGORY_SENSORY:
+									numSprites=this->mNumSensory;
+									break;
+								case ALIEN_UPGRADE_CATEGORY_MOVEMENT:
+									numSprites=this->mNumMovement;
+									break;
+							}
+							for ( int j = numSprites; j > 0; j-- ) {
+								const float kOffset = .01f;
+								int theFrame = theCategory-1;
+							
+								float x1 = theX - j*(kOffset*ScreenWidth());
+								float y1 = theY - j*(kOffset*ScreenHeight());
+								float x2 = x1 + theUpgradeWidth;
+								float y2 = y1 + theUpgradeHeight;
 
-							AvHSpriteDraw(mAlienUIUpgradeCategories, theFrame, x1, y1, x2, y2, 0, 0, 1, 1);
+								AvHSpriteDraw(mAlienUIUpgradeCategories, theFrame, x1, y1, x2, y2, 0, 0, 1, 1);
+							}
                     	}
 						break;
 					}
@@ -3941,17 +4114,26 @@ void AvHHud::RenderAlienUI()
 
 				if(AvHCUWorldToScreen(theMessageWorldPos, (float*)&theScreenPos))
 				{
-					if((theBlipName != "") && (theBlipStatusText != "") && (theLocationName != ""))
+					if((theBlipName != "") && (theBlipStatusText != "") && (theLocationName != "") && (CVAR_GET_FLOAT(kvLabelHivesight) == 1))
 					{
+						// Find alpha for the blip-text based on position on the screen
+						float screenWidth = ScreenWidth();
+						float screenHeight = ScreenHeight();
+						float xdiff = fabs(theScreenPos[0] - screenWidth/2);
+						float ydiff = fabs(theScreenPos[1] - screenHeight/2);
+						float quadrance = xdiff * xdiff + ydiff * ydiff;
+						float alpha = max(0.0f, 0.9f - quadrance / (screenHeight * screenHeight));
+						alpha *= alpha * alpha * alpha;
+
 						// "MonsieurEvil is under attack"
 						// "Resource tower is under attack"
 						char theFirstLine[512];
 						sprintf(theFirstLine, "%s %s\n", theBlipName.c_str(), theBlipStatusText.c_str());
-						this->DrawTranslatedString(theScreenPos[0], theScreenPos[1], theFirstLine, true, true);
+						this->DrawTranslatedString(theScreenPos[0], theScreenPos[1], theFirstLine, true, true, false, alpha);
 						
 						char theLocationNameCStr[512];
 						strcpy(theLocationNameCStr, theLocationName.c_str());
-						this->DrawTranslatedString(theScreenPos[0], theScreenPos[1] + .022f*ScreenHeight(), theLocationNameCStr, true, true, true);
+						this->DrawTranslatedString(theScreenPos[0], theScreenPos[1] + .022f*ScreenHeight(), theLocationNameCStr, true, true, true, alpha);
 					}
 				}
 			
@@ -4159,6 +4341,11 @@ void AvHHud::RenderNoZBuffering()
 
 }
 
+void AvHHud::InitHUDData( void )
+{
+	this->ResetGame(true);
+}
+
 void AvHHud::VidInit(void)
 {
 	UIHud::VidInit();
@@ -4199,6 +4386,8 @@ void AvHHud::VidInit(void)
 	// Load alien energy sprite
 	theSpriteName = UINameToSprite(kAlienEnergySprite, theScreenWidth);
 	this->mAlienUIEnergySprite = Safe_SPR_Load(theSpriteName.c_str());
+	theSpriteName = UINameToSprite(kAlienCloakSprite, theScreenWidth);
+	this->mAlienUICloakSprite = Safe_SPR_Load(theSpriteName.c_str());
 
 	// Load background for topdown mode
 	this->mBackgroundSprite = Safe_SPR_Load(kTopDownBGSprite);
@@ -4232,7 +4421,6 @@ void AvHHud::VidInit(void)
 	this->mAlienCursor = Safe_SPR_Load(kAlienCursorSprite);
 	this->mMarineOrderIndicator = Safe_SPR_Load(kMarineOrderSprite);
 	this->mMarineUpgradesSprite = Safe_SPR_Load(kMarineUpgradesSprite);
-	
 	//this->mMappingTechSprite = Safe_SPR_Load("sprites/ns.spr");
 
 	this->mAlienBuildSprite = Safe_SPR_Load(kAlienBuildSprite);
@@ -4250,9 +4438,12 @@ void AvHHud::VidInit(void)
 	string theIconName = string(kHelpIconPrefix) + ".spr";
 	this->mHelpSprite = Safe_SPR_Load(theIconName.c_str());
 
-	// tankefugl: 0000971
+	// : 0000971
 	this->mTeammateOrderSprite = Safe_SPR_Load(kTeammateOrderSprite);
-	// :tankefugl
+	// :
+
+	this->mExperienceBarSprite = Safe_SPR_Load(kExperienceBarSprite);
+	this->mProgressBarSprite = Safe_SPR_Load(kProgressBarSprite);
 
 	this->mEnemyBlips.VidInit();
 	this->mFriendlyBlips.VidInit();

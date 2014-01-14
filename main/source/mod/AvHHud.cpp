@@ -190,11 +190,6 @@
 #include <sstream>
 #include "mod/AvHNetworkMessages.h"
 
-// SCRIPTENGINE:
-#include "scriptengine/AvHLUA.h"
-#include "scriptengine/AvHLUAUtil.h"
-// :SCRIPTENGINE
-
 //#include "cl_dll/studio_util.h"
 //#include "cl_dll/r_studioint.h"
 
@@ -254,18 +249,8 @@ float kOverwatchFlashInterval = 2.5f;
 const float kReticleInfoMaxAlpha = 50;
 int gVisibleMouse = 0;
 
-//voogru: cvar pointers, these should always remain valid once they are set.
+//: cvar pointers, these should always remain valid once they are set.
 
-cvar_t *gl_monolights = NULL;
-cvar_t *gl_overbright = NULL;
-cvar_t *gl_clear = NULL;
-cvar_t *hud_draw = NULL;
-cvar_t *r_drawviewmodel = NULL;
-extern cvar_t *cl_movespeedkey;
-cvar_t *gl_d3dflip = NULL;
-cvar_t *s_show = NULL;
-cvar_t *lightgamma = NULL;
-cvar_t *r_detailtextures = NULL;
 
 const AvHMapExtents& GetMapExtents()
 {
@@ -598,6 +583,8 @@ void AvHHud::Cancel(void)
 
 void AvHHud::ClearData()
 {
+	gParticleTemplateList.Clear();
+
 	this->mResources = 0;
 	
 	this->mHierarchy = NULL;
@@ -652,12 +639,22 @@ void AvHHud::ClearData()
 
 	this->mAmbientSounds.clear();
 
-	// tankefugl: 0000971 
+	// : 0000971 
 	this->mTeammateOrder.clear();
 	this->mDisplayOrderIndex = 0;
 	this->mDisplayOrderTime = 0;
 	this->mDisplayOrderType = 0;
-	// :tankefugl
+	// :
+
+	this->mProgressBarDrawframe = PROGRESS_BAR_DEFAULT;
+	this->mProgressBarLastDrawn = -10.0f;
+
+	this->mHasWelder=false;
+	this->mHasMines=false;
+	this->mHasGrenades=false;
+	this->mNumSensory=0;
+	this->mNumMovement=0;
+	this->mNumDefense=0;
 }
 
 
@@ -688,10 +685,10 @@ typedef struct alias_t {
 
 void TestAlias()
 {
-	alias_s* alias = *(alias_s**)0x2D5929C;
+	cmdalias_t* alias = gEngfuncs.pfnGetAliases();// *(alias_s**)0x02d29b7c;
 	while(alias)
 	{
-		gEngfuncs.Con_Printf("name: %s\n%x - %x\n", alias->name, alias->name, gEngfuncs);
+		gEngfuncs.Con_Printf("%s=%s\n%x - %x\n", alias->name, alias->value, alias, gEngfuncs);
 		alias = alias->next;
 	}
 }
@@ -712,17 +709,17 @@ void AvHHud::AddCommands()
 	gEngfuncs.pfnAddCommand ("-mousepopupmenu", AvHPieMenuHandler::ClosePieMenu);
 	
 	// Add scrolling commands
-    gEngfuncs.pfnAddCommand ("+scrollup", AvHScrollHandler::ScrollUp);
-    gEngfuncs.pfnAddCommand ("-scrollup", AvHScrollHandler::StopScroll);
+    gEngfuncs.pfnAddCommand ("+scrollup", AvHScrollHandler::KeyScrollUp);
+    gEngfuncs.pfnAddCommand ("-scrollup", AvHScrollHandler::KeyScrollUpStop);
 	
-    gEngfuncs.pfnAddCommand ("+scrolldown", AvHScrollHandler::ScrollDown);
-    gEngfuncs.pfnAddCommand ("-scrolldown", AvHScrollHandler::StopScroll);
+    gEngfuncs.pfnAddCommand ("+scrolldown", AvHScrollHandler::KeyScrollDown);
+    gEngfuncs.pfnAddCommand ("-scrolldown", AvHScrollHandler::KeyScrollDownStop);
 	
-    gEngfuncs.pfnAddCommand ("+scrollleft", AvHScrollHandler::ScrollLeft);
-    gEngfuncs.pfnAddCommand ("-scrollleft", AvHScrollHandler::StopScroll);
+    gEngfuncs.pfnAddCommand ("+scrollleft", AvHScrollHandler::KeyScrollLeft);
+    gEngfuncs.pfnAddCommand ("-scrollleft", AvHScrollHandler::KeyScrollLeftStop);
 	
-    gEngfuncs.pfnAddCommand ("+scrollright", AvHScrollHandler::ScrollRight);
-    gEngfuncs.pfnAddCommand ("-scrollright", AvHScrollHandler::StopScroll);
+    gEngfuncs.pfnAddCommand ("+scrollright", AvHScrollHandler::KeyScrollRight);
+    gEngfuncs.pfnAddCommand ("-scrollright", AvHScrollHandler::KeyScrollRightStop);
 
     gEngfuncs.pfnAddCommand ("toggleeditps", AvHParticleEditorHandler::ToggleEdit);
 
@@ -731,7 +728,10 @@ void AvHHud::AddCommands()
 	gEngfuncs.pfnAddCommand ("+showmap", AvHHud::ShowMap);
 	gEngfuncs.pfnAddCommand ("-showmap", AvHHud::HideMap);
 
-    gEngfuncs.pfnAddCommand ("playstream", AvHHud::PlayStream);
+	gEngfuncs.pfnAddCommand ("+commandmenu", AvHHud::ShowCommandMenu);
+	gEngfuncs.pfnAddCommand ("-commandmenu", AvHHud::HideCommandMenu);
+
+	gEngfuncs.pfnAddCommand ("playstream", AvHHud::PlayStream);
     gEngfuncs.pfnAddCommand ("stopstream", AvHHud::StopStream);
 
 	#ifdef DEBUG
@@ -1822,7 +1822,7 @@ bool AvHHud::SetGamma(float inSlope)
 			theGammaToTry -= kGammaIncrement;
 
 			sGameGammaTable.ProcessSlope(theGammaToTry);
-			// tankefugl: fakes a successful gamma ramp change if cl_gammaramp is set to 0
+			// : fakes a successful gamma ramp change if cl_gammaramp is set to 0
 			if((CVAR_GET_FLOAT(kvGammaRamp) == 0) || sGameGammaTable.InitializeToVideoState())
 			{
 				// Tell UI components so they can change shading to look the same
@@ -2035,7 +2035,7 @@ void AvHHud::ModifyAmbientSoundEntryIfChanged(bool inSoundOn, int inSoundIndex, 
 	}
 }
 
-// tankefugl:
+// :
 void AvHHud::SetCenterText(const char* inText)
 {
 	LocalizeString(inText, this->mCenterText);
@@ -2048,7 +2048,7 @@ void AvHHud::ClearCenterText()
 	this->mCenterTextTime = -1;
 }
 
-// :tankefugl
+// :
 
 // Look at incoming order.  If we are one of the receivers, play a HUD sound
 // indicating our new order
@@ -2064,7 +2064,7 @@ void AvHHud::OrderNotification(const AvHOrder& inOrder)
 			AvHOrderType theOrderType = inOrder.GetOrderType();
 			AvHHUDSound theSound = HUD_SOUND_INVALID;
 
-			// tankefugl: 0000992
+			// : 0000992
 			// popup indicator for order
 			bool thePopup = false;
 
@@ -2109,12 +2109,12 @@ void AvHHud::OrderNotification(const AvHOrder& inOrder)
 
 			this->PlayHUDSound(theSound);
 
-			// tankefugl: 0000992 | 0001052 
+			// : 0000992 | 0001052 
 			if (thePopup && (this->GetInTopDownMode() == false) && (inOrder.GetOrderActive()))
 			{
 				this->SetDisplayOrder(2, this->GetFrameForOrderType(theOrderType), "", "", "");
 			}
-			// :tankefugl
+			// :
 		}
 	//}
 }
@@ -2334,7 +2334,7 @@ int AvHHud::MiniMap(const char* pszName, int iSize, void* pbuf)
 	return 1;
 }
 
-// tankefugl: 0000971 
+// : 0000971 
 BIND_MESSAGE(IssueOrder);
 int AvHHud::IssueOrder(const char* pszName, int iSize, void* pbuf)
 {
@@ -2382,14 +2382,14 @@ int AvHHud::IssueOrder(const char* pszName, int iSize, void* pbuf)
 
 	return 1;
 }
-// :tankefugl
+// :
 
 BIND_MESSAGE(ServerVar);
 int AvHHud::ServerVar(const char* pszName, int iSize, void* pbuf)
 {
-	string name, value;
+	string name;
+	int value;
 	NetMsg_ServerVar( pbuf, iSize, name, value );
-    
     mServerVariableMap[name] = value;
 	return 1;
 }
@@ -2397,7 +2397,7 @@ int AvHHud::ServerVar(const char* pszName, int iSize, void* pbuf)
 BIND_MESSAGE(Progress);
 int AvHHud::Progress(const char* pszName, int iSize, void* pbuf)
 {
-	NetMsg_ProgressBar( pbuf, iSize, this->mProgressBarEntityIndex, this->mProgressBarParam );
+	NetMsg_ProgressBar( pbuf, iSize, this->mProgressBarEntityIndex, this->mProgressBarParam, this->mProgressBarCompleted );
 	return 1;
 }
 
@@ -2421,16 +2421,17 @@ void AvHHud::ResetGame(bool inMapChanged)
 	//this->mArmorLevel = ARMOR_BASE;
 	
 	// Clear out all particle systems and templates
-	if(inMapChanged)
+	if(inMapChanged  || gEngfuncs.IsSpectateOnly() )
 	{
 		gParticleTemplateList.Clear();
 		this->mTimeOfLastUpdate = 0.0f;
 		this->mInfoLocationList.clear();
+		this->mMapName="";
 	}
 
-	// puzl: 1066 reset overview map on game restart
+	// : 1066 reset overview map on game restart
 	gHUD.GetOverviewMap().Clear();
-
+	
 	AvHParticleSystemManager::Instance()->Reset();
 
 	this->mTechSlotManager.Clear();
@@ -2454,6 +2455,8 @@ void AvHHud::ResetGame(bool inMapChanged)
 	
 	// Selection and commander variables
 	this->mNumLocalSelectEvents = 0;
+	// Removed to allow map to be shown before gamestart. 
+	// The map-mode will be re-set by the Gamestate messages anyway.
 	this->mMapMode = MAP_MODE_UNDEFINED;
 	this->mInTopDownMode = false;
 	this->mLeftMouseStarted = false;
@@ -2477,6 +2480,7 @@ void AvHHud::ResetGame(bool inMapChanged)
 	this->mCurrentCursorFrame = 0;
 	this->mProgressBarEntityIndex = -1;
 	this->mProgressBarParam = -1;
+	this->mProgressBarCompleted = -1;
 
 	this->mEnemyBlips.Clear();
 	this->mFriendlyBlips.Clear();
@@ -2559,7 +2563,7 @@ void AvHHud::ResetGame(bool inMapChanged)
 
 	memset(this->mMenuImpulses, MESSAGE_NULL, sizeof(AvHMessageID)*kNumUpgradeLines);
 
-	// tankefugl: 0000992 & 0000971
+	// : 0000992 & 0000971
 	this->mTeammateOrder.clear();
 	this->mCurrentOrderTarget = 0;
 	this->mCurrentOrderType = 0;
@@ -2574,33 +2578,20 @@ void AvHHud::ResetGame(bool inMapChanged)
 
 	this->mCenterText.clear();
 	this->mCenterTextTime = -1;
-	// :tankefugl
+	// :
 
-	// SCRIPTENGINE:
-	if (inMapChanged)
-	{
-		gLUA->Init();
-		gLUA->LoadLUAForMap(this->GetMapName().c_str());
+	this->mProgressBarLastDrawn = -10.0f;
+
+	this->mHasGrenades=false;
+	this->mHasMines=false;
+	this->mHasWelder=false;
+	this->mNumSensory=0;
+	this->mNumMovement=0;
+	this->mNumDefense=0;
+	if ( this->mCrosshairShowCount != 1 ) {
+		this->mCrosshairShowCount = 1;
 	}
-	// :SCRIPTENGINE
 }
-
-// SCRIPTENGINE:
-BIND_MESSAGE(LUAmsg);
-int	AvHHud::LUAmsg(const char* pszName, int iSize, void* pbuf)
-{
-	int arguments;
-	lua_State *L = lua_newthread(gLUA->mGlobalContext);
-
-	NetMsg_LUAMessage(pbuf, iSize, L, arguments);
-
-	if (lua_resume(L, arguments))
-	{
-		AvHLUA_OnError(lua_tostring(L, -1));
-	}	
-	return 1;
-}
-// :SCRIPTENGINE
 
 BIND_MESSAGE(SetGmma);
 int	AvHHud::SetGmma(const char* pszName, int iSize, void* pbuf)
@@ -2652,12 +2643,22 @@ int	AvHHud::ClScript(const char *pszName, int iSize, void *pbuf)
 	return 1;
 }
 
+BIND_MESSAGE(DelParts);
+int AvHHud::DelParts(const char *pszName, int iSize, void *pbuf)
+{
+	NetMsg_DelParts( pbuf, iSize );
+	gParticleTemplateList.Clear();
+	
+    return 1;
+}
+
 BIND_MESSAGE(Particles);
 int AvHHud::Particles(const char *pszName, int iSize, void *pbuf)
 {
+	int index=-1;
 	AvHParticleTemplate particle_template;
-	NetMsg_SetParticleTemplate( pbuf, iSize, particle_template );
-	gParticleTemplateList.Insert( particle_template );
+	NetMsg_SetParticleTemplate( pbuf, iSize, index, particle_template );
+	gParticleTemplateList.Insert( particle_template, index );
 	
     return 1;
 }
@@ -2779,8 +2780,9 @@ int	AvHHud::SetupMap(const char* pszName, int iSize, void* pbuf)
 		this->mMapExtents.SetMinMapY( min_extents[1] );
 		this->mMapExtents.SetMinViewHeight( min_extents[2] );
 		this->mMapExtents.SetDrawMapBG( draw_background );
+		if ( gEngfuncs.IsSpectateOnly() )
+			this->mOverviewMap.SetMapExtents(this->GetMapName(), this->mMapExtents);
 	}
-	
 	return 1;
 }
 
@@ -2818,7 +2820,7 @@ int	AvHHud::SetTopDown(const char* pszName, int iSize, void* pbuf)
 		{
 			// Switch to top down mode!
 			this->mInTopDownMode = true;
-			this->ToggleMouse();
+			this->ShowMouse();
 		}
 		
 		if(is_top_down)
@@ -2833,6 +2835,12 @@ int	AvHHud::SetTopDown(const char* pszName, int iSize, void* pbuf)
 	return 1;
 }
 
+BIND_MESSAGE(DelEntHier);
+int AvHHud::DelEntHier(const char *pszName, int iSize, void *pbuf) {
+	NetMsg_DelEntityHierarchy(pbuf, iSize);
+	this->mEntityHierarchy.Clear();
+	return 0;
+}
 
 BIND_MESSAGE(EntHier);
 int AvHHud::EntHier(const char *pszName, int iSize, void *pbuf)
@@ -2886,6 +2894,30 @@ int	AvHHud::Fog(const char* pszName, int iSize, void* pbuf)
 
 	return 1;
 }
+
+
+BIND_MESSAGE(SetUpgrades);
+int	AvHHud::SetUpgrades(const char* pszName, int iSize, void* pbuf)
+{
+	int mask;
+	NetMsg_HUDSetUpgrades( pbuf, iSize, mask );
+	// Aliens
+	if ( mask & 0x80 ) {
+		this->mNumMovement=mask & 0x3;
+		mask >>=2;
+		this->mNumDefense=mask & 0x3;
+		mask >>=2;
+		this->mNumSensory=mask & 0x3;
+	}
+	// Marines
+	else {
+		this->mHasWelder=mask & 0x1;
+		this->mHasMines=mask & 0x2;
+		this->mHasGrenades=mask & 0x4;
+	}
+	return 1;
+}
+
 
 BIND_MESSAGE(ListPS);
 int	AvHHud::ListPS(const char* pszName, int iSize, void* pbuf)
@@ -3011,9 +3043,9 @@ void AvHHud::PlayHUDSound(AvHHUDSound inSound)
     // Some sounds are forced, but don't allow them to be spammed or cut themselves off
     bool theForceSound = AvHSHUGetForceHUDSound(inSound) && (inSound != this->mLastHUDSoundPlayed);
 
-	// tankefugl: 0000407
+	// : 0000407
 	bool theAutoHelpEnabled = gEngfuncs.pfnGetCvarFloat(kvAutoHelp);
-	// :tankefugl
+	// :
 
 	if((this->mTimeOfNextHudSound == -1) || (this->mTimeOfCurrentUpdate >= this->mTimeOfNextHudSound) || theForceSound)
 	{
@@ -3212,17 +3244,17 @@ void AvHHud::PlayHUDSound(AvHHUDSound inSound)
 			break;
 
 		case HUD_SOUND_MARINE_GIVEORDERS:
-			// tankefugl: 0000407
+			// : 0000407
 			if (theAutoHelpEnabled) 
 			{
 				theSoundPtr = kMarineGiveOrders;
 				theSoundLength = 2.2f;
 			}
-			// :tankefugl
+			// :
 			break;
 
 		case HUD_SOUND_MARINE_NEEDPORTAL:
-			// tankefugl: 0000407
+			// : 0000407
 			if (theAutoHelpEnabled) 
 			{
 				if(rand() % 2)
@@ -3231,21 +3263,21 @@ void AvHHud::PlayHUDSound(AvHHUDSound inSound)
 					theSoundPtr = kMarineNeedPortal2;
 				theSoundLength = 1.8f;
 			}
-			// :tankefugl
+			// :
 			break;
 
 		case HUD_SOUND_MARINE_GOTOALERT:
-			// tankefugl: 0000407
+			// : 0000407
 			if (theAutoHelpEnabled) 
 			{
 				theSoundPtr = kMarineGotoAlert;
 				theSoundLength = 2.2f;
 			}
-			// :tankefugl
+			// :
 			break;
 
 		case HUD_SOUND_MARINE_COMMANDERIDLE:
-			// tankefugl: 0000407
+			// : 0000407
 			if (theAutoHelpEnabled) 
 			{
 				if(rand() % 2)
@@ -3254,7 +3286,7 @@ void AvHHud::PlayHUDSound(AvHHUDSound inSound)
 					theSoundPtr = kMarineCommanderIdle2;
 				theSoundLength = 1.5f;
 			}
-			// :tankefugl
+			// :
 			break;
 
 		case HUD_SOUND_MARINE_ARMORYUPGRADING:
@@ -3470,18 +3502,23 @@ void AvHHud::PlayHUDSound(AvHHUDSound inSound)
 			theSoundLength = -1.0f;
 			theVolume = .6f;
 			break;
-		// joev: bug 0000767
+		// : bug 0000767
 		case HUD_SOUND_PLAYERJOIN:
 			theSoundPtr = kPlayerJoinedSound;
 			theSoundLength = 3.0f;
 			theVolume = 1.1;
 			break;
-		// :joev
+		// :
 		}
 		
 		if(theSoundPtr)
 		{
-			gEngfuncs.pfnPlaySoundByName(theSoundPtr, theVolume);
+			//gEngfuncs.pfnPlaySoundByNameAtLocation( sound, volume, (float *)&g_finalstate->playerstate.origin );
+			cl_entity_s* thePlayer = this->GetVisiblePlayer();
+			if ( thePlayer ) 
+				gEngfuncs.pfnPlaySoundByNameAtLocation(theSoundPtr, theVolume, thePlayer->origin);
+			else
+				gEngfuncs.pfnPlaySoundByName(theSoundPtr, theVolume);
 			if(theSoundLength >= 0.0f)
 			{
 				this->mTimeOfNextHudSound = this->mTimeOfCurrentUpdate + theSoundLength;
@@ -3566,15 +3603,17 @@ bool AvHHud::GetMouseTwoDown() const
 
 void AvHHud::HideProgressStatus()
 {
-	if(this->mGenericProgressBar)
-	{
-		this->mGenericProgressBar->setVisible(false);
-	}
+	this->mProgressBarLastDrawn = -1.0f;
 
-	if(this->mAlienProgressBar)
-	{
-		this->mAlienProgressBar->setVisible(false);
-	}
+//	if(this->mGenericProgressBar)
+//	{
+//		this->mGenericProgressBar->setVisible(false);
+//	}
+//
+//	if(this->mAlienProgressBar)
+//	{
+//		this->mAlienProgressBar->setVisible(false);
+//	}
 }
 
 void AvHHud::HideResearchProgressStatus()
@@ -3590,7 +3629,9 @@ void AvHHud::Init(void)
 {
     UIHud::Init();
 
+	HOOK_MESSAGE(DelEntHier);
     HOOK_MESSAGE(EntHier);
+	HOOK_MESSAGE(DelParts);
 	HOOK_MESSAGE(Particles);
 	HOOK_MESSAGE(SoundNames);
 	HOOK_MESSAGE(PlayHUDNot);
@@ -3613,10 +3654,11 @@ void AvHHud::Init(void)
 	HOOK_MESSAGE(ClScript);
 	HOOK_MESSAGE(AlienInfo);
 	HOOK_MESSAGE(DebugCSP);
+	HOOK_MESSAGE(SetUpgrades);
 	HOOK_MESSAGE(TechSlots);
-	// tankefugl: 0000971 
+	// : 0000971 
 	HOOK_MESSAGE(IssueOrder);
-	// :tankefugl
+	// :
 
     HOOK_MESSAGE(ServerVar);
 	
@@ -3656,9 +3698,18 @@ void AvHHud::Init(void)
 
 	this->mProgressBarEntityIndex = -1;
 	this->mProgressBarParam = -1;
+	this->mProgressBarCompleted = -1;
 	this->mSelectedNodeResourceCost = -1;
 	this->mCurrentUseableEnergyLevel = 0;
 	this->mVisualEnergyLevel = 0.0f;
+
+	this->mNumSensory=0;
+	this->mNumMovement=0;
+	this->mNumDefense=0;
+
+	this->mHasGrenades=false;
+	this->mHasWelder=false;
+	this->mHasMines=false;
 
 	this->mFogActive = false;
 	this->mFogColor.x = this->mFogColor.y = this->mFogColor.z = 0;
@@ -3696,16 +3747,6 @@ void AvHHud::Init(void)
 
 	// Initialize viewport
 	this->mViewport[0] = this->mViewport[1] = this->mViewport[2] = this->mViewport[3] = 0;
-
-	gl_monolights = gEngfuncs.pfnGetCvarPointer("gl_monolights");
-	gl_overbright = gEngfuncs.pfnGetCvarPointer("gl_overbright");
-	gl_clear = gEngfuncs.pfnGetCvarPointer("gl_clear");
-	hud_draw = gEngfuncs.pfnGetCvarPointer("hud_draw");
-	r_drawviewmodel = gEngfuncs.pfnGetCvarPointer("r_drawviewmodel");
-	gl_d3dflip = gEngfuncs.pfnGetCvarPointer("gl_d3dflip");
-	s_show = gEngfuncs.pfnGetCvarPointer("s_show");
-	lightgamma = gEngfuncs.pfnGetCvarPointer("lightgamma");
-	r_detailtextures = gEngfuncs.pfnGetCvarPointer("r_detailtextures");
 }
 
 // This gives the HUD a chance to draw after the VGUI.  A component must allow itself to be hooked by calling this function
@@ -4423,32 +4464,37 @@ void AvHHud::SetAlienAbility(AvHMessageID inAlienAbility)
 	this->mAlienAbility = inAlienAbility;
 }
 
-void AvHHud::SetProgressStatus(float inPercentage)
+void AvHHud::SetProgressStatus(float inPercentage, int inProgressbarType)
 {
-	if(this->mGenericProgressBar)
-	{
-		this->mGenericProgressBar->setVisible(false);
-	}
+	this->mProgressBarStatus = inPercentage;
+	this->mProgressBarLastDrawn = this->GetTimeOfLastUpdate();
+	this->mProgressBarDrawframe = inProgressbarType;
 
-	if(this->mAlienProgressBar)
-	{
-		this->mAlienProgressBar->setVisible(false);
-	}
+//	if(this->mGenericProgressBar)
+//	{
+//		this->mGenericProgressBar->setVisible(false);
+//	}
+//
+//	if(this->mAlienProgressBar)
+//	{
+//		this->mAlienProgressBar->setVisible(false);
+//	}
+//
+//	ProgressBar* theProgressBar = this->mGenericProgressBar;
+//	if(this->GetIsAlien())
+//	{
+//		theProgressBar = this->mAlienProgressBar;
+//	}
+//
+//	if(theProgressBar)
+//	{
+//		theProgressBar->setVisible(true);
+//		
+//		int theNumSegments = theProgressBar->getSegmentCount();
+//		int theSegment = inPercentage*theNumSegments;
+//		theProgressBar->setProgress(theSegment);
+//	}
 
-	ProgressBar* theProgressBar = this->mGenericProgressBar;
-	if(this->GetIsAlien())
-	{
-		theProgressBar = this->mAlienProgressBar;
-	}
-
-	if(theProgressBar)
-	{
-		theProgressBar->setVisible(true);
-		
-		int theNumSegments = theProgressBar->getSegmentCount();
-		int theSegment = inPercentage*theNumSegments;
-		theProgressBar->setProgress(theSegment);
-	}
 }
 
 void AvHHud::SetReinforcements(int inReinforcements)
@@ -4641,7 +4687,7 @@ void AvHHud::UpdateCommonUI()
 
 	if(this->GetManager().GetVGUIComponentNamed(this->mPieMenuControl, thePieMenu))
 	{
-		// tankefugl: Added check to ensure that it is only updated when a menu is visible
+		// : Added check to ensure that it is only updated when a menu is visible
 		if (thePieMenu->getChildCount() > 0)
 		{
 			vgui::Panel *rootMenu = thePieMenu->getChild(0);
@@ -4670,23 +4716,115 @@ void AvHHud::UpdateCommonUI()
 	}
 }
 
-#define FORCE_CVAR(a,b) if(a)a->value = b;
+void RemoveAlias(char *name)
+{
+	cmdalias_t* alias = gEngfuncs.pfnGetAliases();// *(alias_s**)0x02d29b7c;
+	while(alias)
+	{
+		if ( name && (strlen(name) > 1) && alias->name && (strcmp(alias->name, name) == 0) ) {
+			strcat(alias->name, " ");
+			break;
+		}
+		alias = alias->next;
+	}
+}
+
+void ForceCvar(char *name, cvar_t *cvar, float value)
+{
+	cmdalias_t* alias = gEngfuncs.pfnGetAliases();// *(alias_s**)0x02d29b7c;
+	while(alias)
+	{
+		if ( name && (strlen(name) > 1) && alias->name && (strcmp(alias->name, name) == 0) ) {
+			strcat(alias->name, " ");
+			break;
+		}
+		alias = alias->next;
+	}
+	if ( (cvar) && (cvar)->value != (value) ) (gEngfuncs.Cvar_SetValue)( (name) , (value) );
+}
+
+cvar_t *gl_monolights = NULL;
+cvar_t *gl_overbright = NULL;
+cvar_t *gl_clear = NULL;
+cvar_t *cl_rate = NULL;
+cvar_t *hud_draw = NULL;
+cvar_t *r_drawviewmodel = NULL;
+extern cvar_t *cl_movespeedkey;
+cvar_t *gl_d3dflip = NULL;
+cvar_t *s_show = NULL;
+cvar_t *lightgamma = NULL;
+cvar_t *texgamma = NULL;
+cvar_t *r_detailtextures = NULL;
+cvar_t *gl_max_size = NULL;
+
+void AvHHud::InitExploitPrevention() {
+	gl_monolights = gEngfuncs.pfnGetCvarPointer("gl_monolights");
+	cl_rate = gEngfuncs.pfnGetCvarPointer("cl_rate");
+	gl_overbright = gEngfuncs.pfnGetCvarPointer("gl_overbright");
+	gl_clear = gEngfuncs.pfnGetCvarPointer("gl_clear");
+	hud_draw = gEngfuncs.pfnGetCvarPointer("hud_draw");
+	r_drawviewmodel = gEngfuncs.pfnGetCvarPointer("r_drawviewmodel");
+	gl_d3dflip = gEngfuncs.pfnGetCvarPointer("gl_d3dflip");
+	s_show = gEngfuncs.pfnGetCvarPointer("s_show");
+	lightgamma = gEngfuncs.pfnGetCvarPointer("lightgamma");
+	texgamma = gEngfuncs.pfnGetCvarPointer("texgamma");
+	r_detailtextures = gEngfuncs.pfnGetCvarPointer("r_detailtextures");
+	gl_max_size = gEngfuncs.pfnGetCvarPointer("gl_max_size");
+
+	ForceCvar("gl_monolights", gl_monolights, 0.0f);
+	ForceCvar("gl_overbright", gl_overbright, 0.0f);
+	ForceCvar("gl_clear", gl_clear, 0.0f);
+	ForceCvar("hud_draw", hud_draw, 1.0f);
+	ForceCvar("r_drawviewmodel", r_drawviewmodel, 1.0f);
+	ForceCvar("gl_d3dflip", gl_d3dflip, 1.0f);
+	ForceCvar("s_show", s_show, 0.0f);
+	ForceCvar("r_detailtextures", r_detailtextures, 0.0f);
+	ForceCvar("gl_max_size", gl_max_size, 256.0f);
+
+	RemoveAlias("lightgamma");
+	if(lightgamma && lightgamma->value < 2.0) {
+		ForceCvar("lightgamma", lightgamma, 2.0f);
+	}
+	if(lightgamma && lightgamma->value > 5.0) {
+		ForceCvar("lightgamma", lightgamma, 5.0f);
+	}
+	RemoveAlias("texgamma");
+	if(texgamma && texgamma->value < 1.0) {
+		ForceCvar("texgamma", texgamma, 1.0f);
+	}
+	if(texgamma && texgamma->value > 5.0) {
+		ForceCvar("texgamma", texgamma, 5.0f);
+	}
+}
+
 
 void AvHHud::UpdateExploitPrevention()
 {
 	//Note: Sometimes some clients will not have these cvars, so be sure to check that they are not null.
-	FORCE_CVAR(gl_monolights, 0.0f);
-	FORCE_CVAR(gl_overbright, 0.0f);
-	FORCE_CVAR(gl_clear, 0.0f);
-	FORCE_CVAR(hud_draw, 1.0f);
-	FORCE_CVAR(r_drawviewmodel, 1.0f);
-	FORCE_CVAR(cl_movespeedkey, AvHMUGetWalkSpeedFactor(this->GetHUDUser3()));
-	FORCE_CVAR(gl_d3dflip, 1.0f);
-	FORCE_CVAR(s_show, 0.0f);
-	FORCE_CVAR(r_detailtextures, 0.0f);
+	ForceCvar("gl_monolights", gl_monolights, 0.0f);
+	ForceCvar("gl_overbright", gl_overbright, 0.0f);
+	ForceCvar("gl_clear", gl_clear, 0.0f);
+	ForceCvar("hud_draw", hud_draw, 1.0f);
+	ForceCvar("r_drawviewmodel", r_drawviewmodel, 1.0f);
+	float movespeedkey=AvHMUGetWalkSpeedFactor(this->GetHUDUser3());
+	ForceCvar("cl_movespeedkey", cl_movespeedkey, movespeedkey);
+	ForceCvar("gl_d3dflip", gl_d3dflip, 1.0f);
+	ForceCvar("s_show", s_show, 0.0f);
+	ForceCvar("r_detailtextures", r_detailtextures, 0.0f);
+	ForceCvar("gl_max_size", gl_max_size, 256.0f);
 
-	if(lightgamma && lightgamma->value < 2.0)
-		lightgamma->value = 2.0f;
+	if(lightgamma && lightgamma->value < 2.0) {
+		ForceCvar("lightgamma", lightgamma, 2.0f);
+	}
+	if(lightgamma && lightgamma->value > 5.0) {
+		ForceCvar("lightgamma", lightgamma, 5.0f);
+	}
+	if(texgamma && texgamma->value < 1.0) {
+		ForceCvar("texgamma", texgamma, 1.0f);
+	}
+	if(texgamma && texgamma->value > 5.0) {
+		ForceCvar("texgamma", texgamma, 5.0f);
+	}
 }
 
 void AvHHud::UpdateAlienUI(float inCurrentTime)
@@ -4758,6 +4896,7 @@ bool AvHHud::GetCommanderLabelText(std::string& outCommanderName) const
 	{
 
         std::stringstream theStream;
+		char buff[512+sizeof(hud_player_info_t)];
 
 		string theCommanderText;
         LocalizeString(kCommander, theCommanderText);
@@ -4765,13 +4904,15 @@ bool AvHHud::GetCommanderLabelText(std::string& outCommanderName) const
         theStream << theCommanderText;
         theStream << ": ";
         
-		hud_player_info_t thePlayerInfo;
-		gEngfuncs.pfnGetPlayerInfo(theCommander, &thePlayerInfo);
+		hud_player_info_t *thePlayerInfo=(hud_player_info_t *)&buff[0];
+		memset(thePlayerInfo, 0, 512+sizeof(hud_player_info_t));
+		memset(thePlayerInfo->padding, 0xe, sizeof(thePlayerInfo->padding));
+		gEngfuncs.pfnGetPlayerInfo(theCommander, thePlayerInfo);
 
-		if(thePlayerInfo.name)
+		if(thePlayerInfo->name)
 		{
 			const int kMaxCommNameLen = 8;
-			theStream << string(thePlayerInfo.name).substr(0, kMaxCommNameLen);
+			theStream << string(thePlayerInfo->name).substr(0, kMaxCommNameLen);
 		}
 
         outCommanderName = theStream.str();
@@ -4909,11 +5050,6 @@ bool AvHHud::GetIsCombatMode() const
 bool AvHHud::GetIsNSMode() const
 {
     return (this->mMapMode == MAP_MODE_NS);
-}
-
-bool AvHHud::GetIsScriptedMode() const
-{
-    return (this->mMapMode == MAP_MODE_NSC);
 }
 
 bool AvHHud::GetIsMouseInRegion(int inX, int inY, int inWidth, int inHeight)
@@ -5693,7 +5829,7 @@ float AvHHud::GetTimeOfLastUpdate() const
 
 void AvHHud::UpdateProgressBar()
 {
-	this->HideProgressStatus();
+	// this->HideProgressStatus();
 	
 	float thePercentage;
 	if(gMiniMap.GetIsProcessing(&thePercentage))
@@ -5718,34 +5854,40 @@ void AvHHud::UpdateProgressBar()
 		if(theProgressEntity)
 		{
 			ASSERT(this->mProgressBarParam >= 1);
-			ASSERT(this->mProgressBarParam <= 4);
+			ASSERT(this->mProgressBarParam <= 5);
 
 			float theProgress = 0.0f;
-			switch(this->mProgressBarParam)
-			{
-			case 1:
-				theProgress = theProgressEntity->curstate.fuser1;
-				break;
-			case 2:
-				theProgress = theProgressEntity->curstate.fuser2;
-				break;
-			case 3:
-				theProgress = theProgressEntity->curstate.fuser3;
-				break;
-			case 4: // NOTE: check delta.lst for fuser4, it isn't propagated currently
-				theProgress = theProgressEntity->curstate.fuser4;
-				break;
+			if ( this->mProgressBarParam == 5 ) {
+				thePercentage=(float)(this->mProgressBarCompleted)/100.0f;
 			}
+			else {
+				switch(this->mProgressBarParam)
+				{
+				case 1:
+					theProgress = theProgressEntity->curstate.fuser1;
+					break;
+				case 2:
+					theProgress = theProgressEntity->curstate.fuser2;
+					break;
+				case 3:
+					theProgress = theProgressEntity->curstate.fuser3;
+					break;
+				case 4: // NOTE: check delta.lst for fuser4, it isn't propagated currently
+					theProgress = theProgressEntity->curstate.fuser4;
+					break;
+				}
 
-			if((this->GetHUDUser3() == AVH_USER3_ALIEN_EMBRYO) || this->GetIsDigesting())
-			{
-				theProgress = pmove->fuser3;
+				if((this->GetHUDUser3() == AVH_USER3_ALIEN_EMBRYO) || this->GetIsDigesting() )
+				{
+						theProgress = pmove->fuser3;
+				}
+				
+				thePercentage = theProgress/kNormalizationNetworkFactor;
 			}
-			
-			thePercentage = theProgress/kNormalizationNetworkFactor;
+			int theType = (this->GetIsAlien())? PROGRESS_BAR_ALIEN: PROGRESS_BAR_MARINE;
 			if(thePercentage < 1.0f)
 			{
-				this->SetProgressStatus(thePercentage);
+				this->SetProgressStatus(thePercentage, theType);
 			}
 //			else
 //			{
@@ -5761,20 +5903,16 @@ void AvHHud::UpdateProgressBar()
 				if(theEntity)
 				{
 					this->HideProgressStatus();
-					this->HideResearchProgressStatus();
+					//this->HideResearchProgressStatus();
 
 					bool theIsBuilding, theIsResearching;
 					float thePercentage;
 					AvHSHUGetBuildResearchState(theEntity->curstate.iuser3, theEntity->curstate.iuser4, theEntity->curstate.fuser1, theIsBuilding, theIsResearching, thePercentage);
 					
-					if(theIsBuilding && (thePercentage > 0.0f) && (thePercentage < 1.0f))
+					if(theIsResearching && (thePercentage > 0) && (thePercentage < 1.0f))
 					{
-						// Turned off progress bar now that we have circular build icons
-						//this->SetGenericProgressStatus(thePercentage);
-					}
-					else if(theIsResearching && (thePercentage > 0) && (thePercentage < 1.0f))
-					{
-						this->SetResearchProgressStatus(thePercentage);
+						this->SetProgressStatus(thePercentage, PROGRESS_BAR_DEFAULT);
+						//this->SetResearchProgressStatus(thePercentage);
 					}
 				}
 			}
@@ -6379,12 +6517,12 @@ void AvHHud::UpdateViewModelEffects()
 					theRenderMode = kAlienCloakViewModelRenderMode;
 					theRenderAmount = 10;
 				}
-				else if( theRenderAmount > kAlienSelfCloakingBaseOpacity && theRenderAmount < 186)
+				else if( theRenderAmount > kAlienSelfCloakingBaseOpacity && theRenderAmount < kAlienSelfCloakingMinOpacity)
 				{
 					theRenderMode = kAlienCloakViewModelRenderMode;
 					theRenderAmount = 40;
 				}
-				else if ( theRenderAmount == 186 )  {
+				else if ( theRenderAmount == kAlienSelfCloakingMinOpacity )  {
 					theRenderMode = kAlienCloakViewModelRenderMode;
 					theRenderAmount = 50;
 				}
@@ -6709,7 +6847,11 @@ void AvHHud::UpdateEnableState(PieMenu* inMenu)
 
 void AvHHud::ShowMap()
 {
-    if (!sShowMap && gHUD.GetIsNSMode())
+	bool isNsMode=false;
+	if ( strnicmp(gHUD.GetMapName().c_str(), "ns_", 3) == 0 )
+		isNsMode=true;
+	
+    if ( (!sShowMap || gEngfuncs.IsSpectateOnly()) && isNsMode )
     {	
         sShowMap = true;
         gHUD.HideCrosshair();
@@ -6725,6 +6867,16 @@ void AvHHud::HideMap()
 	    gHUD.GetManager().HideComponent(kShowMapHierarchy);
 	    gHUD.ShowCrosshair();
     }
+}
+
+void AvHHud::ShowCommandMenu()
+{
+	gViewPort->ShowCommandMenu(gViewPort->m_StandardMenu);
+}
+
+void AvHHud::HideCommandMenu()
+{
+		gViewPort->HideCommandMenu();
 }
 
 void AvHHud::GetSpriteForUser3(AvHUser3 inUser3, int& outSprite, int& outFrame, int& outRenderMode)
@@ -6990,7 +7142,7 @@ float AvHHud::GetServerVariableFloat(const char* inName) const
     }
     else
     {
-        return atof( iterator->second.c_str() );
+        return iterator->second;
     }
 
 }

@@ -155,6 +155,8 @@ int CL_DLLEXPORT Initialize( cl_enginefunc_t *pEnginefuncs, int iVersion )
 	memcpy(&gEngfuncs, pEnginefuncs, sizeof(cl_enginefunc_t));
 
 	EV_HookEvents();
+	gHUD.InitExploitPrevention();
+
 	// get tracker interface, if any
 	char szDir[512];
 	if (!gEngfuncs.COM_ExpandFilename("Bin/TrackerUI.dll", szDir, sizeof(szDir)))
@@ -190,6 +192,7 @@ so the HUD can reinitialize itself.
 
 int CL_DLLEXPORT HUD_VidInit( void )
 {
+	gHUD.InitExploitPrevention();
 	RecClHudVidInit();
 	gHUD.VidInit();
 

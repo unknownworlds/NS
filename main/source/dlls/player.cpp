@@ -92,6 +92,7 @@
 #include "game.h"
 #include "common/hltv.h"
 #include "mod/AvHNetworkMessages.h"
+#include "util/MathUtil.h"
 
 // #define DUCKFIX
 
@@ -951,11 +952,11 @@ void CBasePlayer::Suicide(void)
 
 	ASSERT(thePlayer);
 
-	if(thePlayer && thePlayer->GetUsedKilled())//voogru: prevent exploitation of "kill" command.
+	if(thePlayer && thePlayer->GetUsedKilled())//: prevent exploitation of "kill" command.
 		return;
 
 	// have the player kill themself
-	float theKillDelay = CVAR_GET_FLOAT(kvKillDelay);
+	float theKillDelay = ns_cvar_float(&avh_killdelay);
 
 	#ifdef DEBUG
 	#ifndef	AVH_EXTERNAL_BUILD
@@ -993,7 +994,7 @@ void CBasePlayer::SetAnimation( PLAYER_ANIM playerAnim )
 	float speed;
 	char szAnim[64];
 	bool theFoundAnim = true;
-	int theDebugAnimations = 0; // BALANCE_VAR(kDebugAnimations);
+	int theDebugAnimations = BALANCE_VAR(kDebugAnimations);
 	bool reloadAnim = false;
 
 	// Make sure the model is set, as gestating models aren't set before the animation starts playing
@@ -1731,7 +1732,7 @@ void CBasePlayer::PlayerUse ( void )
 	if ( ! ((pev->button | m_afButtonPressed | m_afButtonReleased) & IN_USE) )
 		return;
 
-	//voogru: Dont do this on commanders to prevent phantom use sounds.
+	//: Dont do this on commanders to prevent phantom use sounds.
 	if(theAvHPlayer->GetIsInTopDownMode())
 		return;
 
@@ -1777,7 +1778,8 @@ void CBasePlayer::PlayerUse ( void )
 	float flDot;
 
 	UTIL_MakeVectors ( pev->v_angle );// so we know which way we are facing
-	
+
+
 	while ((pObject = UTIL_FindEntityInSphere( pObject, pev->origin, PLAYER_SEARCH_RADIUS )) != NULL)
 	{
 
@@ -1802,7 +1804,31 @@ void CBasePlayer::PlayerUse ( void )
 //			ALERT( at_console, "%s : %f\n", STRING( pObject->pev->classname ), flDot );
 		}
 	}
+
 	pObject = pClosest;
+
+	// Add los test for aliens looking at hives.
+	if ( pObject == NULL && AvHGetIsAlien(this->pev->iuser3) ) {
+		Vector vecAiming = gpGlobals->v_forward;
+		Vector vecSrc = this->GetGunPosition( ) + vecAiming;
+		Vector vecEnd = vecSrc + vecAiming*800;
+
+		TraceResult theTraceResult;
+		UTIL_TraceLine(vecSrc, vecEnd, dont_ignore_monsters, this->edict(), &theTraceResult);
+
+		edict_t* theEntityHit = theTraceResult.pHit;
+		AvHHive *theHive = dynamic_cast<AvHHive *>(CBaseEntity::Instance(theEntityHit));
+		if ( theHive) {
+
+			float the2DDistance = VectorDistance2D(this->pev->origin, theHive->pev->origin);
+			
+			// Enabled state is true
+			if(the2DDistance <= 150.0 && (this->pev->origin < theHive->pev->origin) )
+			{
+				pObject=theHive;
+			}
+		}
+	}
 
 	// Found an object
 	if (pObject )
@@ -2269,8 +2295,10 @@ void CBasePlayer::PreThink(void)
 
 
 	// If trying to duck, already ducked, or in the process of ducking
-	if ((pev->button & IN_DUCK) || FBitSet(pev->flags,FL_DUCKING) || (m_afPhysicsFlags & PFLAG_DUCKING) )
-		Duck();
+	if ((pev->button & IN_DUCK) || FBitSet(pev->flags,FL_DUCKING) || (m_afPhysicsFlags & PFLAG_DUCKING) ) {
+		if ( AvHMUGetCanDuck(this->pev->iuser3) ) 
+			Duck();
+	}
 
 	if ( !FBitSet ( pev->flags, FL_ONGROUND ) )
 	{
@@ -2908,7 +2936,7 @@ void CBasePlayer::PostThink()
 				// EMIT_SOUND(ENT(pev), CHAN_BODY, "player/pl_wade1.wav", 1, ATTN_NORM);
 		}
 		// skulks, lerks, fades and jetpackers don't take falling damage
-		else if ((m_flFallVelocity > PLAYER_MAX_SAFE_FALL_SPEED) && (this->pev->iuser3 != AVH_USER3_ALIEN_PLAYER1) && (this->pev->iuser3 != AVH_USER3_ALIEN_PLAYER3) && (this->pev->iuser3 != AVH_USER3_ALIEN_PLAYER4) && (!GetHasUpgrade(this->pev->iuser4, MASK_UPGRADE_7) || !(this->pev->iuser3 == AVH_USER3_MARINE_PLAYER)) )
+		else if ((m_flFallVelocity > PLAYER_MAX_SAFE_FALL_SPEED) && (this->pev->iuser3 != AVH_USER3_ALIEN_PLAYER1) && (this->pev->iuser3 != AVH_USER3_ALIEN_PLAYER3) && (this->pev->iuser3 != AVH_USER3_ALIEN_PLAYER4) && (this->pev->iuser3 != AVH_USER3_ALIEN_EMBRYO) && (!GetHasUpgrade(this->pev->iuser4, MASK_UPGRADE_7) || !(this->pev->iuser3 == AVH_USER3_MARINE_PLAYER)) )
 		{// after this point, we start doing damage
 			
 			float flFallDamage = g_pGameRules->FlPlayerFallDamage( this );
@@ -2916,6 +2944,8 @@ void CBasePlayer::PostThink()
 			if ( flFallDamage > pev->health )
 			{//splat
 				// note: play on item channel because we play footstep landing on body channel
+				// : 243 don't play gib sound if being digested
+				if ( AvHGetIsAlien(this->pev->iuser3) || !GetHasUpgrade(this->pev->iuser4, MASK_DIGESTING) ) 
 				EMIT_SOUND(ENT(pev), CHAN_ITEM, "common/bodysplat.wav", 1, ATTN_NORM);
 			}
 
@@ -3836,7 +3866,12 @@ int CBasePlayer::AddPlayerItem( CBasePlayerItem *pItem )
 	CBasePlayerItem *pInsert;
 	
 	pInsert = m_rgpPlayerItems[pItem->iItemSlot()];
+	ItemInfo ii;
+	pItem->GetItemInfo(&ii);
 
+	if ( pItem->iItemSlot() == 1 || ii.iId == AVH_WEAPON_MINE || ii.iId == AVH_WEAPON_WELDER) {
+		this->EffectivePlayerClassChanged();
+	}
 	while (pInsert)
 	{
 		if (FClassnameIs( pInsert->pev, STRING( pItem->pev->classname) ))
@@ -4165,7 +4200,7 @@ void CBasePlayer :: UpdateClientData( void )
 		gDisplayTitle = 0;
 	}
 
-	if ((int)pev->health != m_iClientHealth) //voogru: this cast to int is important, otherwise we spam the message, this is just a quick and easy fix. 
+	if ((int)pev->health != m_iClientHealth) //: this cast to int is important, otherwise we spam the message, this is just a quick and easy fix. 
 	{
 		NetMsg_Health( pev, max( pev->health, 0.0f ) );
 		m_iClientHealth = (int)pev->health;
@@ -4239,9 +4274,9 @@ void CBasePlayer :: UpdateClientData( void )
 		// Send ALL the weapon info now
 		this->SendWeaponUpdate();
 
-		// tankefugl: HACK force an full curweapon update after each bunch of weaponlists sent
+		// : HACK force an full curweapon update after each bunch of weaponlists sent
 		forceCurWeaponUpdate = true;
-		// :tankefugl
+		// :
 	}
 
 

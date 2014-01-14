@@ -229,6 +229,12 @@ string BuildAbridgedString(const string& inString, int inMaxLen)
 	return theAbridgedString;
 }
 
+static char *ignoreSounds[] = {
+	"vox/ssay82.wav",
+	"vox/ssay83.wav",
+	0
+};
+
 // Pass in relative path, do search on path including mod directory, return files relative to mod directory
 bool BuildFileList(const string& inBaseDirectoryName, const string& inDirectoryName, const string& inFileExtension, CStringList& outList)
 {
@@ -288,8 +294,27 @@ bool BuildFileList(const string& inBaseDirectoryName, const string& inDirectoryN
 			std::replace(theFullFileName.begin(), theFullFileName.end(), '\\', '/');
 
 			theCString = theFullFileName;
-			outList.push_back(theCString);
-			theSuccess = true;
+#ifdef AVH_SERVER
+			// <HACK> Ignore ssay82 and ssay83 till we can client patch this ..
+			int i=0;
+			bool found = false;
+			while ( ignoreSounds[i] != 0 ) {
+				if ( !strcmp(ignoreSounds[i], theCString))
+				{
+					found = true;
+				}
+				i++;
+			}
+			if (found == false)
+			{
+#endif
+				outList.push_back(theCString);
+				theSuccess = true;
+#ifdef AVH_SERVER
+			}
+			// </HACK>
+#endif
+
 	#ifdef WIN32
 		} 
 		while(FindNextFile(theFileHandle, &theFindData));

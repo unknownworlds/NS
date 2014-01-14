@@ -29,6 +29,7 @@ AvHParticleTemplateListServer::CreateTemplates(const TRDescriptionList& inDescri
 	bool theSuccess = false;
 
 	TRDescriptionList::const_iterator	theIterator;
+	int theIndex=this->mTemplateList.size();
 	for(theIterator = inDescriptions.begin(); theIterator != inDescriptions.end(); theIterator++)
 	{
 		if(theIterator->GetType() == kpscSystemName)
@@ -179,7 +180,7 @@ AvHParticleTemplateListServer::CreateTemplates(const TRDescriptionList& inDescri
 			//}
 			
 			// Add it on the end
-			this->mTemplateList.insert(this->mTemplateList.end(), theTemplate);
+			this->mTemplateList[theIndex++]=theTemplate;
 
 			theSuccess = true;
 		}
@@ -217,7 +218,7 @@ AvHParticleTemplateListServer::GetTemplateIndexWithName(const string& inName, ui
 
 	for(theIterator = this->mTemplateList.begin(); theIterator != this->mTemplateList.end(); theIterator++, theIndex++)
 	{
-		string theLowercaseTemplateName = LowercaseString(theIterator->GetName());
+		string theLowercaseTemplateName = LowercaseString(theIterator->second.GetName());
 
 		// Make case-insensitive?
 		if(theLowercaseInName == theLowercaseTemplateName)

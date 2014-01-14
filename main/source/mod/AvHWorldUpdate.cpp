@@ -95,7 +95,7 @@ bool AvHSUGetInViewOfEnemy(CBaseEntity* inEntity, int& outSightedStatus)
 				// Loop through observatories, uncloaking and detecting all enemy players in range
 				for(AvHObservatoryListType::iterator theObservatoryIter = gObservatoryList.begin(); theObservatoryIter != gObservatoryList.end(); theObservatoryIter++)
 				{
-					if((*theObservatoryIter)->pev->team != inEntity->pev->team && !(*theObservatoryIter)->GetIsRecycling() )
+					if((*theObservatoryIter)->pev->team != inEntity->pev->team && ( inEntity->pev->team != TEAM_IND ) && !(*theObservatoryIter)->GetIsRecycling() )
 					{
 						// Check that entity is in range of scan (only check XY distance, for commander's purposes)
 						float theDistance = VectorDistance2D((*theObservatoryIter)->pev->origin, inEntity->pev->origin);
@@ -156,7 +156,7 @@ bool AvHSUGetInViewOfEnemy(CBaseEntity* inEntity, int& outSightedStatus)
 						float theVelocity = inEntity->pev->velocity.Length();
 						
 						//ELVEN - WE HAVE TO CHECK FOR EXISTANT OBSERVATORIES BEFORE WE CAN FLAG THIS.
-						//voogru: Fixed combat mode problems & slight perfoamance issue (no need to loop thru every obs).
+						//: Fixed combat mode problems & slight perfoamance issue (no need to loop thru every obs).
 						bool obsExists = false;
 
 						if(!GetGameRules()->GetIsCombatMode())
@@ -336,10 +336,10 @@ void UpdateWorldEntity(CBaseEntity* inBaseEntity)
 		if(AvHSUGetInViewOfEnemy(inBaseEntity, theSightedStatus))
 		{
 			inBaseEntity->pev->iuser4 |= theSightedStatus;
-			if(inBaseEntity->pev->classname == MAKE_STRING(kesParticlesCustom))
-			{
-				int a = 0;
-			}
+//			if(inBaseEntity->pev->classname == MAKE_STRING(kesParticlesCustom))
+//			{
+//				int a = 0;
+//			}
 		}
 	}
 	
@@ -474,6 +474,7 @@ void AvHGamerules::UpdateWorldEntities()
     PROFILE_START()
 	this->mTeamAEntityHierarchy.BuildFromTeam(&this->mTeamA, gBaseEntityList);
 	this->mTeamBEntityHierarchy.BuildFromTeam(&this->mTeamB, gBaseEntityList);
+	this->mSpecEntityHierarchy.BuildForSpec(gBaseEntityList);
     PROFILE_END(kUpdateWorldEntitiesBuildEntityHierarchies)
 
 	// Update blips

@@ -707,10 +707,10 @@ TeamFortressViewport::TeamFortressViewport(int x,int y,int wide,int tall) : Pane
 
 	CreateServerBrowser();
 
-	// tankefugl: 0000989:
+	// : 0000989:
 	// m_chatPanel = new ChatPanel(10, (ScreenHeight() * 0.75 - 30) / 2, ScreenWidth() - 20, 30);
 	m_chatPanel = new ChatPanel(10, ScreenHeight() * 0.57f - 30, ScreenWidth() - 20, 30);
-	// :tankefugl
+	// :
     m_chatPanel->setParent(this);
     m_chatPanel->setVisible(false);
 
@@ -1611,6 +1611,11 @@ void TeamFortressViewport::UpdateSpectatorPanel()
 		if ( player && name )
 		{
 			strcpy( bottomText, name );
+			if ( gEngfuncs.IsSpectateOnly() ) {
+				char tmp[32];
+				sprintf(tmp, " (%d)", g_PlayerExtraInfo[player].health);
+				strcat( bottomText, tmp);
+			}
 		}
 /*
 		// in first person mode colorize player names
@@ -2557,10 +2562,12 @@ int TeamFortressViewport::MsgFunc_ScoreInfo( const char *pszName, int iSize, voi
         // Update other info
         g_PlayerExtraInfo[info.player_index].frags = info.frags;
 		g_PlayerExtraInfo[info.player_index].deaths = info.deaths;
+		g_PlayerExtraInfo[info.player_index].extra = info.extra;
 		g_PlayerExtraInfo[info.player_index].playerclass = info.player_class;
-		// puzl: 0001073
+		// : 0001073
 		g_PlayerExtraInfo[info.player_index].auth = info.auth;
 		g_PlayerExtraInfo[info.player_index].teamnumber = max( info.team, 0 );
+		g_PlayerExtraInfo[info.player_index].health = info.health;
 
 		// Icon is now handled through the ProfileInfo update
 
@@ -2579,8 +2586,8 @@ int TeamFortressViewport::MsgFunc_ScoreInfo( const char *pszName, int iSize, voi
 int TeamFortressViewport::MsgFunc_TeamScore( const char *pszName, int iSize, void *pbuf )
 {
 	string team_name;
-	int score, deaths;
-	NetMsg_TeamScore( pbuf, iSize, team_name, score, deaths );
+	int score, reset;
+	NetMsg_TeamScore( pbuf, iSize, team_name, score, reset);
 
 	// find the team matching the name
 	for ( int i = 1; i <= m_pScoreBoard->m_iNumTeams; i++ )
@@ -2593,9 +2600,12 @@ int TeamFortressViewport::MsgFunc_TeamScore( const char *pszName, int iSize, voi
 		return 1;
 
 	// use this new score data instead of combined player scores
-	g_TeamInfo[i].scores_overriden = TRUE;
-	g_TeamInfo[i].frags = score;
-	g_TeamInfo[i].deaths = deaths;
+	if ( reset )
+		g_TeamInfo[i]. scores_overriden = FALSE;
+	else
+		g_TeamInfo[i]. scores_overriden = TRUE;
+
+	g_TeamInfo[i].score = score;
 
 	return 1;
 }

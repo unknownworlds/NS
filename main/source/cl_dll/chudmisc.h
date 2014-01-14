@@ -113,6 +113,7 @@ private:
 	WEAPON *m_pWeapon;
 	int	m_HUD_bucket0;
 	int m_HUD_selection;
+	int m_customCrosshair;
 	
 };
 
@@ -220,7 +221,7 @@ protected:
 };
 
 class ScoreboardIcon;
-// puzl: 0001073
+// : 0001073
 #define CUSTOM_ICON_LENGTH 32
 
 struct extra_player_info_t
@@ -228,14 +229,15 @@ struct extra_player_info_t
 	short score;
     short lastScore;
     float timeOfLastScoreChange;
-
     short frags;
 	short deaths;
 	short playerclass;
+	short extra;
 	short auth;
 	short teamnumber;
 	char teamname[MAX_TEAM_NAME];
 	char customicon[CUSTOM_ICON_LENGTH + 3]; //last 3 characters is the color.
+	short health;
 	ScoreboardIcon* icon;
 };
 
@@ -357,7 +359,7 @@ public:
 	void Reset( void );
 	int MsgFunc_Flashlight(const char *pszName,  int iSize, void *pbuf );
 	int MsgFunc_FlashBat(const char *pszName,  int iSize, void *pbuf );
-	
+
 private:
 	HSPRITE m_hSprite1;
 	HSPRITE m_hSprite2;

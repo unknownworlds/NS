@@ -197,7 +197,7 @@ float kFTeamColors[iNumberOfTeamColors][3] =
 
 // Tried 100, 110, still jitters.  Shrink tower down a bit?
 #define		kAlienResourceMinSize	Vector(-16.0, -16.0, 0.0)
-#define		kAlienResourceMaxSize	Vector(16.0, 16.0, 80.7443)
+#define		kAlienResourceMaxSize	Vector(16.0, 16.0, 100.0) // was Vector(16.0, 16.0, 80.7443)
 
 //physent_t* AvHSUGetEntity(int inPhysIndex)
 //{
@@ -728,7 +728,7 @@ bool AvHSHUGetBuildRegions(AvHMessageID inMessageID, EntityListType& outEntities
 }
 
 
-// tankefugl: 0000291 -- allows listed structures to be dropped on resource towers
+// : 0000291 -- allows listed structures to be dropped on resource towers
 bool AvHSHUGetIsDroppableOnRTs(AvHMessageID inMessageID)
 {
 	switch (inMessageID)
@@ -751,7 +751,7 @@ bool AvHSHUGetIsDroppableOnRTs(AvHMessageID inMessageID)
 			return false;
 	}
 }
-// :tankefugl
+// :
 
 bool AvHSHUGetIsMarineStructure(AvHMessageID inMessageID)
 {
@@ -851,7 +851,7 @@ void AvHSHUGetMinBuildRadiusViolations(AvHMessageID inMessageID, vec3_t& inLocat
 				theEntityIsSolid = (theEntity->solid == SOLID_BBOX);
 				
 #endif	
-			// joev: 0000291
+			// : 0000291
 			// It's possible to place "on" marines if you're offset a little from center. This code and
 			// associated changes below and in AvHHudRender.cpp is to enforce a build distance around players
 			// in the same way as buildings to prevent this exploit.
@@ -876,7 +876,7 @@ void AvHSHUGetMinBuildRadiusViolations(AvHMessageID inMessageID, vec3_t& inLocat
                     theXYTheLocation.z = 0;
 
                     float theDistance = VectorDistance((float*)&theXYInLocation, (float*)&theXYTheLocation);
-					// joev: 0000291
+					// : 0000291
 					// It's possible to place "on" marines if you're offset a little from center. This code and
 					// associated changes above and in AvHHudRender.cpp is to enforce a build distance around players
 					// in the same way as buildings to prevent this exploit.
@@ -888,7 +888,7 @@ void AvHSHUGetMinBuildRadiusViolations(AvHMessageID inMessageID, vec3_t& inLocat
 					{
 						theMinMarineBuildDistance = BALANCE_VAR(kMinMarineBuildDistance);
 					}
-					// :joev
+					// :
                     if (theDistance < theMinMarineBuildDistance + theMaxRadius1 + theMaxRadius2)
                     {
                         outViolations.push_back(*theIter);
@@ -1000,11 +1000,11 @@ bool AvHSHUGetAreSpecialBuildingRequirementsMet(AvHMessageID inMessageID, vec3_t
 
 	// Anti-llama/newbie tactic: don't allow non-resource buildings to be placed such that they block access to nozzles
 	// Make sure generic building isn't being placed on top of resource nozzles
-	// tankefugl: 0000291
+	// : 0000291
 	// allow equipment, rts and hives to be dropped around nodes
 	if(AvHSHUGetIsDroppableOnRTs(inMessageID) == false)
 	{
-	// :tankefugl
+	// :
 		// If building is too close to an empty nozzle, don't allow it
 		float theResourceBuildingRadius, theTotalMinRadius;
 		vec3_t theMinSize, theMaxSize, theMinRadius, theFlattenedInLocation, theLocation;
@@ -1657,6 +1657,12 @@ bool AvHSHUGetSizeForTech(AvHMessageID inMessageID, Vector& outMinSize, Vector& 
 		theSuccess = true;
 		break;
 
+	case BUILD_ARMSLAB:
+		outMinSize = Vector(-16, -16, 0);
+		outMaxSize = Vector(16.0, 16.0, 72.0 /*66.9486*/);
+		theSuccess = true;
+		break;
+
 	case BUILD_TURRET:
 		outMinSize = Vector(-16, -16, 0);
 		outMaxSize = Vector(16.0, 16.0, 42.0);
@@ -1674,26 +1680,26 @@ bool AvHSHUGetSizeForTech(AvHMessageID inMessageID, Vector& outMinSize, Vector& 
 
 	case BUILD_COMMANDSTATION:
 		outMinSize = Vector(-16, -16, 0);
-		outMaxSize = Vector(16.0, 16.0, 70.34);
+		outMaxSize = Vector(16.0, 16.0, 73.0 /*70.34*/);
 		theSuccess = true;
 		break;
 
 	case BUILD_TURRET_FACTORY:
 		outMinSize = Vector(-16, -16, 0);
 		//outMaxSize = Vector(16.0, 16.0, 55.68);
-		outMaxSize = Vector(16.0, 16.0, 62.1931);
+		outMaxSize = Vector(16.0, 16.0, 73.0 /*62.1931*/);
 		theSuccess = true;
 		break;
 
 	case BUILD_ARMORY:
 		outMinSize = Vector(-16, -16, 0);
-		outMaxSize = Vector(16.0, 16.0, 62.1931);
+		outMaxSize = Vector(16.0, 16.0, 73.0 /*62.1931*/);
 		theSuccess = true;
 		break;
 
 	case BUILD_PROTOTYPE_LAB:
 		outMinSize = Vector(-16, -16, 0);
-		outMaxSize = Vector(16.0, 16.0, 67.7443);
+		outMaxSize = Vector(16.0, 16.0, 73.0 /*67.7443*/);
 		theSuccess = true;
 		break;
 
@@ -1705,7 +1711,7 @@ bool AvHSHUGetSizeForTech(AvHMessageID inMessageID, Vector& outMinSize, Vector& 
 
 	case BUILD_SIEGE:
 		outMinSize = Vector(-16, -16, 0);
-		outMaxSize = Vector(16.0, 16.0, 62.1931/*50.6678*/);
+		outMaxSize = Vector(16.0, 16.0, 73.0 /*62.1931*/ /*50.6678*/);
 		theSuccess = true;
 		break;
 
@@ -2789,19 +2795,19 @@ bool AvHSHUTraceAndGetIsSiteValidForBuild(AvHMessageID inMessageID, const Vector
 	int theUser3;
 	bool theTraceSuccess = AvHSHUTraceTangible(inPointOfView, inNormRay, &theUser3, outLocation);
 
-	// tankefugl: 0000291
+	// : 0000291
 	// ignore trace for scans (removed due to cost being paid when drop failed)
 	//if (inMessageID == BUILD_SCAN)
 	//{
 	//	theSuccess = true;
 	//}
     //else
-	// :tankefugl
+	// :
 	if(theTraceSuccess)
 	{
-		// tankefugl: 0000291
+		// : 0000291
 		if((inMessageID == BUILD_SCAN) || (AvHSHUGetIsSiteValidForBuild(inMessageID, outLocation)))
-		// :tankefugl
+		// :
 		{
 			theSuccess = true;
 		}
@@ -3890,6 +3896,7 @@ bool AvHSHUGetForceHUDSound(AvHHUDSound inHUDSound)
     case HUD_SOUND_ALIEN_HIVE_COMPLETE:
     case HUD_SOUND_ALIEN_HIVE_DYING:
     case HUD_SOUND_ALIEN_HIVE_ATTACK:
+	case HUD_SOUND_ALIEN_ENEMY_APPROACHES:
     case HUD_SOUND_MARINE_CCUNDERATTACK:
     case HUD_SOUND_SQUAD1:
     case HUD_SOUND_SQUAD2:

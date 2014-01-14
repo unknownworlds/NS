@@ -522,8 +522,10 @@ public:
 	void EXPORT		StrandExpire();
 	
 	virtual int		TakeDamage( entvars_t *pevInflictor, entvars_t *pevAttacker, float flDamage, int bitsDamageType );
+	void EXPORT		StrandThink();
 
 private:
+	bool 		mSolid;
 };
 
 class AvHFuncResource : public CBaseAnimating

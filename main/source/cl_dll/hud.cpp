@@ -34,9 +34,9 @@
 #include "mod/AvHNetworkMessages.h"
 #include "ui/ChatPanel.h"
 #include "mod/AvHClientVariables.h"
-// tankefugl: duck toggle
+// : duck toggle
 bool g_bDuckToggled;
-// :tankefugl
+// :
 
 class CHLVoiceStatusHelper : public IVoiceStatusHelper
 {
@@ -167,6 +167,8 @@ int __MsgFunc_TeamInfo(const char *pszName, int iSize, void *pbuf)
 
 void __CmdFunc_SpecialDummy(void) {}
 
+void __CmdFunc_ClRateDummy(void) { }
+
 // This is called every time the DLL is loaded
 void CHud :: Init( void )
 {
@@ -178,6 +180,7 @@ void CHud :: Init( void )
 	HOOK_COMMAND( "special", SpecialDummy);
 	HOOK_COMMAND( "_special", SpecialDummy);							//prevent abuse
 
+	HOOK_COMMAND( "cl_rate", ClRateDummy);
 
 	HOOK_MESSAGE( TeamNames );
 	HOOK_MESSAGE( MOTD );
@@ -196,9 +199,9 @@ void CHud :: Init( void )
 	m_iLogo = 0;
 	m_iFOV = 0;
 
-	// tankefugl: duck toggle
+	// : duck toggle
 	g_bDuckToggled = false;
-	// :tankefugl
+	// :
 
 	CVAR_CREATE( "zoom_sensitivity_ratio", "1.2", 0 );
 	default_fov = CVAR_CREATE( "default_fov", "90", 0 );
@@ -207,8 +210,14 @@ void CHud :: Init( void )
 	cl_lw = gEngfuncs.pfnGetCvarPointer( "cl_lw" );
 
     CVAR_CREATE( "cl_showspeed", "0", 0);
-	CVAR_CREATE( kvLabelMaps, "0", FCVAR_ARCHIVE);
-	CVAR_CREATE( kvGammaRamp, "0", FCVAR_ARCHIVE);
+	CVAR_CREATE( kvLabelMaps, "1", FCVAR_ARCHIVE);
+	CVAR_CREATE( kvGammaRamp, "1", FCVAR_ARCHIVE);
+	CVAR_CREATE( kvCustomCrosshair, "1", FCVAR_ARCHIVE);
+	CVAR_CREATE( kvHudMapZoom, "3", FCVAR_ARCHIVE);
+	CVAR_CREATE( kvLabelHivesight, "1", FCVAR_ARCHIVE);
+	CVAR_CREATE( "cl_iconr", "0", FCVAR_ARCHIVE);
+	CVAR_CREATE( "cl_icong", "149", FCVAR_ARCHIVE);
+	CVAR_CREATE( "cl_iconb", "221", FCVAR_ARCHIVE);
 
 	m_pSpriteList = NULL;
 

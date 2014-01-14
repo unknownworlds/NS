@@ -6,9 +6,9 @@
 class AvHParticleTemplateListClient : public AvHParticleTemplateList
 {
 public:
-	int						InitializeDemoPlayback(int inSize, unsigned char* inBuffer);
+	int						InitializeDemoPlayback(int inSize, unsigned char* inBuffer, int index);
 	void					InitializeDemoRecording() const;
-	void					Insert(const AvHParticleTemplate& inTemplate);
+	void					Insert(const AvHParticleTemplate& inTemplate, int index);
 
 private:
 

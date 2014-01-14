@@ -75,6 +75,7 @@
 #include "..\game_shared\vgui_loadtga.h"
 #include "mod/AvHConstants.h"
 #include "mod/AvHTitles.h"
+#include "mod/AvHBasePlayerWeaponConstants.h"
 #include "vgui_SpectatorPanel.h"
 #include "cl_dll/demo.h"
 #include "mod/AvHServerVariables.h"
@@ -142,16 +143,19 @@ public:
 
 SBColumnInfo g_ColumnInfo[NUM_COLUMNS] =
 {
-	{NULL,			24,			Label::a_east},		// tracker column
-    {NULL,			24,			Label::a_east},		// status icons
-	{NULL,			150,		Label::a_east},		// name
-	{NULL,			56,			Label::a_east},		// class
-	{"#SCORE",		40,			Label::a_east},     // score
-    {"#KILLS",      40,         Label::a_east},     // kills
-	{"#DEATHS",		40,			Label::a_east},     // deaths
-	{"#LATENCY",	40,			Label::a_east},     // ping
-	{"#VOICE",		40,			Label::a_east},     
-	{NULL,			2,			Label::a_east},		// blank column to take up the slack
+	{NULL,			24,			Label::a_center},		// tracker column
+    {NULL,			24,			Label::a_center},		// status icons
+	{NULL,			110,		Label::a_center},		// name
+	{NULL,			56,			Label::a_center},		// class
+	{NULL,			40,			Label::a_center},     // resources
+	{NULL,			18,			Label::a_center},     // weld
+	{NULL,			18,			Label::a_center},     // weld
+	{"#SCORE",		35,			Label::a_center},     // score
+    {"#KILLS",      35,         Label::a_center},     // kills
+	{"#DEATHS",		35,			Label::a_center},     // deaths
+	{"#LATENCY",	35,			Label::a_center},     // ping
+	{"#VOICE",		40,			Label::a_center},     
+	{NULL,			2,			Label::a_center},		// blank column to take up the slack
 };
 
 
@@ -196,7 +200,7 @@ ScorePanel::ScorePanel(int x,int y,int wide,int tall) : Panel(x,y,wide,tall)
 	setBgColor(0, 0, 0, 96);
 	m_pCurrentHighlightLabel = NULL;
 	m_iHighlightRow = -1;
-	// puzl: 0001073
+	// : 0001073
 	m_pTrackerIcon = NULL;
 	m_pDevIcon = NULL;
 	m_pPTIcon = NULL;
@@ -206,6 +210,13 @@ ScorePanel::ScorePanel(int x,int y,int wide,int tall) : Panel(x,y,wide,tall)
 	m_pCheatingDeathIcon = NULL;
 	m_pVeteranIcon = NULL;
 	
+	m_pHMG = NULL;
+	m_pMine = NULL;
+	m_pWeld = NULL;
+	m_pGL = NULL;
+	m_pSG = NULL;
+
+
 	m_pTrackerIcon = vgui_LoadTGANoInvertAlpha("gfx/vgui/640_scoreboardtracker.tga");
 	m_pDevIcon = vgui_LoadTGANoInvertAlpha("gfx/vgui/640_scoreboarddev.tga");
 	m_pPTIcon = vgui_LoadTGANoInvertAlpha("gfx/vgui/640_scoreboardpt.tga");
@@ -215,6 +226,14 @@ ScorePanel::ScorePanel(int x,int y,int wide,int tall) : Panel(x,y,wide,tall)
 	m_pCheatingDeathIcon = vgui_LoadTGANoInvertAlpha("gfx/vgui/640_scoreboardcd.tga");
 	m_pVeteranIcon = vgui_LoadTGANoInvertAlpha("gfx/vgui/640_scoreboardveteran.tga");
 
+	
+
+	m_pHMG = vgui_LoadTGANoInvertAlpha("gfx/vgui/640_scoreboardhmg.tga");
+	m_pMine = vgui_LoadTGANoInvertAlpha("gfx/vgui/640_scoreboardmine.tga");
+	m_pWeld = vgui_LoadTGANoInvertAlpha("gfx/vgui/640_scoreboardwelder.tga");
+	m_pGL = vgui_LoadTGANoInvertAlpha("gfx/vgui/640_scoreboardgl.tga");
+	m_pSG = vgui_LoadTGANoInvertAlpha("gfx/vgui/640_scoreboardsg.tga");
+
 	m_iIconFrame = 0;
 	m_iLastFrameIncrementTime = gHUD.GetTimeOfLastUpdate();
 	
@@ -223,7 +242,7 @@ ScorePanel::ScorePanel(int x,int y,int wide,int tall) : Panel(x,y,wide,tall)
 	m_TitleLabel.setText("");
 	m_TitleLabel.setBgColor( 0, 0, 0, 255 );
 	m_TitleLabel.setFgColor( Scheme::sc_primary1 );
-	m_TitleLabel.setContentAlignment( vgui::Label::a_west );
+	m_TitleLabel.setContentAlignment( vgui::Label::a_center );
 
 	LineBorder *border = new LineBorder(Color(60, 60, 60, 128));
 	setBorder(border);
@@ -365,7 +384,7 @@ void ScorePanel::Initialize( void )
 	m_fLastKillTime = 0;
 	m_iPlayerNum = 0;
 	m_iNumTeams = 0;
-	// puzl: 0001073
+	// : 0001073
 //	for( int counter = 0; counter < MAX_PLAYERS+1; counter++ )
 //	{
 //		delete g_PlayerExtraInfo[counter].icon;
@@ -385,28 +404,33 @@ bool HACK_GetPlayerUniqueID( int iPlayer, char playerID[16] )
 void ScorePanel::Update()
 {
 	// Set the title
-	string theTitleName;
+	char title[128];
 
+	char theServerName[MAX_SERVERNAME_LENGTH+1];
 	if (gViewPort->m_szServerName)
 	{
+		memset(theServerName, 0, MAX_SERVERNAME_LENGTH+1);
 		int iServerNameLength = max((int)strlen(gViewPort->m_szServerName),MAX_SERVERNAME_LENGTH);
-		theTitleName += string(gViewPort->m_szServerName,iServerNameLength);
+		strncat(theServerName, gViewPort->m_szServerName, iServerNameLength);
+	}
+	theServerName[MAX_SERVERNAME_LENGTH]=0;
+	char theMapName[MAX_MAPNAME_LENGTH+1];
+	sprintf(theMapName, "%s", gHUD.GetMapName().c_str());
+
+	int theTimeElapsed = gHUD.GetGameTime();
+	char elapsedString[64];
+	if ( theTimeElapsed > 0 ) {
+		int theMinutesElapsed = theTimeElapsed/60;
+		int theSecondsElapsed = theTimeElapsed%60;
+		sprintf(elapsedString, "Game time: %d:%02d", theMinutesElapsed, theSecondsElapsed);
+	}
+	else {
+		sprintf(elapsedString, "");
 	}
 
-	string theMapName = gHUD.GetMapName();
-	if(theMapName != "")
-	{
-		if(theTitleName != "")
-		{
-			theTitleName += " ";
-		}
+	sprintf(title, "%32s    Map: %s        %s", theServerName, theMapName, elapsedString);
 
-		theTitleName += "(";
-		theTitleName += theMapName;
-		theTitleName += ")";
-	}
-
-	m_TitleLabel.setText(theTitleName.c_str());
+	m_TitleLabel.setText(title);
 
     int theColorIndex = 0;
     
@@ -462,8 +486,8 @@ void ScorePanel::SortTeams()
 	for ( int i = 1; i <= m_iNumTeams; i++ )
 	{
 		if ( !g_TeamInfo[i].scores_overriden )
-			g_TeamInfo[i].score = g_TeamInfo[i].frags = g_TeamInfo[i].deaths = 0;
-		g_TeamInfo[i].ping = g_TeamInfo[i].packetloss = 0;
+			g_TeamInfo[i].score =0;
+		g_TeamInfo[i].frags = g_TeamInfo[i].deaths = g_TeamInfo[i].ping = g_TeamInfo[i].packetloss = 0;
 	}
 
 	// recalc the team scores, then draw them
@@ -487,10 +511,10 @@ void ScorePanel::SortTeams()
 		if ( !g_TeamInfo[j].scores_overriden )
 		{
             g_TeamInfo[j].score += g_PlayerExtraInfo[i].score;
-			g_TeamInfo[j].frags += g_PlayerExtraInfo[i].frags;
-			g_TeamInfo[j].deaths += g_PlayerExtraInfo[i].deaths;
 		}
 
+		g_TeamInfo[j].deaths += g_PlayerExtraInfo[i].deaths;
+		g_TeamInfo[j].frags += g_PlayerExtraInfo[i].frags;
 		g_TeamInfo[j].ping += g_PlayerInfoList[i].ping;
 		g_TeamInfo[j].packetloss += g_PlayerInfoList[i].packetloss;
 
@@ -514,11 +538,20 @@ void ScorePanel::SortTeams()
 			g_TeamInfo[i].packetloss /= g_TeamInfo[i].players;  // use the average ping of all the players in the team as the teams ping
 		}
 	}
-	
-	SortActivePlayers(kMarine1Team);
-	SortActivePlayers(kAlien1Team);
-	SortActivePlayers(kMarine2Team);
-	SortActivePlayers(kAlien2Team);
+	vector<string> teams;
+	if ( gHUD.GetHUDTeam() == TEAM_TWO || gHUD.GetHUDTeam() == TEAM_FOUR ) {
+		SortActivePlayers(kAlien1Team);
+		SortActivePlayers(kMarine1Team);
+		SortActivePlayers(kAlien2Team);
+		SortActivePlayers(kMarine2Team);
+	}
+	else {
+		SortActivePlayers(kMarine1Team);
+		SortActivePlayers(kAlien1Team);
+		SortActivePlayers(kMarine2Team);
+		SortActivePlayers(kAlien2Team);
+	}
+
 	SortActivePlayers(kSpectatorTeam);
 	SortActivePlayers(kUndefinedTeam);
 }
@@ -699,6 +732,8 @@ int ScorePanel::GetIconFrame(void)
 
 void ScorePanel::FillGrid()
 {
+	bool isNsMode=( strnicmp(gHUD.GetMapName().c_str(), "ns_", 3) == 0 );
+
 	CSchemeManager *pSchemes = gViewPort->GetSchemeManager();
 	SchemeHandle_t hScheme = pSchemes->getSchemeHandle("Scoreboard Text");
 	SchemeHandle_t hTitleScheme = pSchemes->getSchemeHandle("Scoreboard Title Text");
@@ -722,6 +757,21 @@ void ScorePanel::FillGrid()
 	}
 	
 	bool bNextRowIsGap = false;
+	m_HeaderLabels[COLUMN_EXTRA].setText("");
+	m_HeaderLabels[COLUMN_MINE].setText("");
+	m_HeaderLabels[COLUMN_WELD].setText("");
+	if ( isNsMode ) {
+		if ( gHUD.GetHUDTeam() == TEAM_ONE || gHUD.GetHUDTeam() == TEAM_THREE ) {
+			m_HeaderLabels[COLUMN_EXTRA].setText(CHudTextMessage::BufferedLocaliseTextString("#COLWEAP"));
+		}
+		else if ( gHUD.GetHUDTeam() == TEAM_TWO || gHUD.GetHUDTeam() == TEAM_FOUR ) { 
+			m_HeaderLabels[COLUMN_EXTRA].setText(CHudTextMessage::BufferedLocaliseTextString("#COLRES"));
+		}
+	}
+	else {
+		if ( gHUD.GetHUDTeam() != TEAM_IND && gHUD.GetHUDTeam() != TEAM_SPECT )
+			m_HeaderLabels[COLUMN_EXTRA].setText(CHudTextMessage::BufferedLocaliseTextString("#COLLEVEL"));
+	}
 	
 	for(int row=0; row < NUM_ROWS; row++)
 	{
@@ -750,7 +800,7 @@ void ScorePanel::FillGrid()
 		int thePlayerClass = theExtraPlayerInfo->playerclass;
 		short theTeamNumber = theExtraPlayerInfo->teamnumber;
 		string theCustomIcon = (string)theExtraPlayerInfo->customicon;
-// puzl: 0001073
+// : 0001073
 		short thePlayerAuthentication = theExtraPlayerInfo->auth;
 		bool thePlayerIsDead = false;
 		switch( thePlayerClass )
@@ -896,10 +946,13 @@ void ScorePanel::FillGrid()
 
             case COLUMN_SCORE:
             case COLUMN_KILLS:
-            case COLUMN_DEATHS:
+			case COLUMN_EXTRA:
+			case COLUMN_MINE:
+			case COLUMN_WELD:
+			case COLUMN_DEATHS:
             case COLUMN_LATENCY:
             default:
-                pLabel->setContentAlignment( vgui::Label::a_east );
+                pLabel->setContentAlignment( vgui::Label::a_center );
                 break;
             }
 
@@ -947,10 +1000,15 @@ void ScorePanel::FillGrid()
 				case COLUMN_CLASS:
 					break;
                 case COLUMN_SCORE:
-                    // Don't show score for enemies unless spectating or in RR
-                    if ((m_iIsATeam[row] == TEAM_YES) && team_info && ((theLocalPlayerTeam == 0) || (theLocalPlayerTeam == team_info->teamnumber)))
+                    if ((m_iIsATeam[row] == TEAM_YES) && team_info && (theLocalPlayerTeam == team_info->teamnumber || (gHUD.GetPlayMode() == PLAYMODE_OBSERVER)))
                         sprintf(sz, "%d",  team_info->score);
                     break;
+				case COLUMN_MINE:
+					break;
+				case COLUMN_WELD:
+					break;
+				case COLUMN_EXTRA:
+					break;
 				case COLUMN_KILLS:
 					if ((m_iIsATeam[row] == TEAM_YES) && team_info) 
 						sprintf(sz, "%d",  team_info->frags );
@@ -1067,7 +1125,7 @@ void ScorePanel::FillGrid()
 					break;
 						
 				case COLUMN_RANK_ICON:
-// puzl: 0001073
+// : 0001073
 #ifdef USE_OLDAUTH
 					// Check if we have authority.  Right now these override the tracker icons.  Listed in increasing order of "importance".
 					if(thePlayerAuthentication & PLAYERAUTH_CHEATINGDEATH)
@@ -1184,7 +1242,7 @@ void ScorePanel::FillGrid()
 #endif
 					break;
                 case COLUMN_SCORE:
-                    if(!theIsForEnemy)
+                    if(!theIsForEnemy && theLocalPlayerTeam != TEAM_IND || (gHUD.GetPlayMode() == PLAYMODE_OBSERVER))
                     {
                         const float kDeltaDisplayTime = 3.0f;
                         float theTimeSinceChange = gHUD.GetTimeOfLastUpdate() - theExtraPlayerInfo->timeOfLastScoreChange;
@@ -1201,7 +1259,68 @@ void ScorePanel::FillGrid()
                         
                     }
                     break;
+				case COLUMN_WELD:
+					if ((theLocalPlayerTeam == theTeamNumber) || (gHUD.GetPlayMode() == PLAYMODE_OBSERVER))
+                    {
+						if ( isNsMode ) {
+							if ( theExtraPlayerInfo->teamnumber == TEAM_ONE || theExtraPlayerInfo->teamnumber == TEAM_THREE )  {
+								if ( theExtraPlayerInfo->extra & WEAPON_WELDER ) {
+									pLabel->setFgColorAsImageColor(false);
+									pLabel->setImage(m_pWeld);
+									m_pWeld->setColor(BuildColor(0, 149, 221, gHUD.GetGammaSlope()));
+								}
+							}
+						}
+					}
+					break;
 
+				case COLUMN_MINE:
+					if ((theLocalPlayerTeam == theTeamNumber) || (gHUD.GetPlayMode() == PLAYMODE_OBSERVER))
+                    {
+						if ( isNsMode ) {
+							if ( theExtraPlayerInfo->teamnumber == TEAM_ONE || theExtraPlayerInfo->teamnumber == TEAM_THREE )  {
+								if ( theExtraPlayerInfo->extra & WEAPON_MINE ) {
+									pLabel->setFgColorAsImageColor(false);
+									pLabel->setImage(m_pMine);
+									m_pMine->setColor(BuildColor(0, 149, 221, gHUD.GetGammaSlope()));
+								}
+							}
+						}
+					}
+					break;
+
+				case COLUMN_EXTRA:
+					if ((theLocalPlayerTeam == theTeamNumber) || (gHUD.GetPlayMode() == PLAYMODE_OBSERVER))
+                    {
+						if ( isNsMode ) {
+							if ( theExtraPlayerInfo->teamnumber == TEAM_ONE || theExtraPlayerInfo->teamnumber == TEAM_THREE )  {
+								int r=0,	g=149,	b=221;
+								if ( theExtraPlayerInfo->extra & WEAPON_HMG ) {
+									pLabel->setFgColorAsImageColor(false);
+									pLabel->setImage(m_pHMG);
+									m_pHMG->setColor(BuildColor(r, g, b, gHUD.GetGammaSlope()));
+								}
+								if ( theExtraPlayerInfo->extra & WEAPON_SG ) {
+									pLabel->setFgColorAsImageColor(false);
+									pLabel->setImage(m_pSG);
+									m_pSG->setColor(BuildColor(r, g, b, gHUD.GetGammaSlope()));
+								}
+								if ( theExtraPlayerInfo->extra & WEAPON_GL ) {
+									pLabel->setFgColorAsImageColor(false);
+									pLabel->setImage(m_pGL);
+									m_pGL->setColor(BuildColor(r, g, b, gHUD.GetGammaSlope()));
+								}
+							}
+							else if ( theExtraPlayerInfo->teamnumber == TEAM_TWO || theExtraPlayerInfo->teamnumber == TEAM_FOUR ) {
+								sprintf(sz, "%d", theExtraPlayerInfo->extra);
+							}
+						}
+						else if ( theExtraPlayerInfo->teamnumber == TEAM_ONE || theExtraPlayerInfo->teamnumber == TEAM_TWO ||
+								  theExtraPlayerInfo->teamnumber == TEAM_THREE || theExtraPlayerInfo->teamnumber == TEAM_FOUR ) {
+							sprintf(sz, "%d", theExtraPlayerInfo->extra);
+						}
+					}
+                    break;
 				case COLUMN_KILLS:
                     sprintf(sz, "%d", theExtraPlayerInfo->frags);
                     break;
@@ -1384,8 +1503,8 @@ void ScorePanel::MouseOverCell(int row, int col)
 		return;
 
 	// only act on audible players
-	if (!GetClientVoiceMgr()->IsPlayerAudible(m_iSortedRows[row]))
-		return;
+	//if (!GetClientVoiceMgr()->IsPlayerAudible(m_iSortedRows[row]))
+	//	return;
 
 	// setup the new highlight
 	m_pCurrentHighlightLabel = label;

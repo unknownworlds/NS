@@ -581,7 +581,7 @@ BOOL AvHHealth::GiveHealth(CBaseEntity* inOther, float points)
 {
 	BOOL theSuccess = FALSE;
 
-// puzl: 1017
+// : 1017
 // Amount of health to give is now a paramater to allow us to vary the resupply amount for the armoury
 
 //	float thePointsPerHealth = BALANCE_VAR(kPointsPerHealth)
@@ -597,7 +597,7 @@ BOOL AvHHealth::GiveHealth(CBaseEntity* inOther, float points)
 			
 			thePlayer->pev->health += thePointsGiven;
 			
-			if(CVAR_GET_FLOAT(kvDrawDamage))
+			if(ns_cvar_float(&avh_drawdamage))
 			{
 				thePlayer->PlaybackNumericalEvent(kNumericalInfoHealthEvent, thePointsGiven);
 			}
@@ -617,7 +617,7 @@ BOOL AvHHealth::GiveHealth(CBaseEntity* inOther, float points)
 
 void AvHHealth::Touch(CBaseEntity* inOther)
 {
-	// puzl: 1017 medpack health amount
+	// : 1017 medpack health amount
 	if(AvHHealth::GiveHealth(inOther, BALANCE_VAR(kPointsPerHealth)))
 	{
 		UTIL_Remove(this);
@@ -720,7 +720,7 @@ void AvHHeavyArmor::Touch(CBaseEntity* inOther)
 		if(thePlayer->GetIsMarine())
 		{
 			// Check to make sure they don't have heavy armor or jetpack already
-			if((!thePlayer->GetHasJetpack() || GetGameRules()->GetIsCombatMode()) && !thePlayer->GetHasHeavyArmor())//voogru: ignore in combat mode since were trying to touch it.
+			if((!thePlayer->GetHasJetpack() || GetGameRules()->GetIsCombatMode()) && !thePlayer->GetHasHeavyArmor())//: ignore in combat mode since were trying to touch it.
 			{
 				// Needed because view model changes
 				if(thePlayer->HolsterWeaponToUse())
@@ -773,7 +773,7 @@ void AvHJetpack::Touch(CBaseEntity* inOther)
 		if(thePlayer->GetIsMarine())
 		{
 			// Check to make sure they don't have heavy armor or jetpack already
-			if((!thePlayer->GetHasHeavyArmor() || GetGameRules()->GetIsCombatMode()) && !thePlayer->GetHasJetpack())//voogru: ignore in combat mode since were trying to touch it.
+			if((!thePlayer->GetHasHeavyArmor() || GetGameRules()->GetIsCombatMode()) && !thePlayer->GetHasJetpack())//: ignore in combat mode since were trying to touch it.
 			{
                 if(thePlayer->HolsterWeaponToUse())
                 {
@@ -1281,7 +1281,8 @@ void AvHPhaseGate::TeleportUse(CBaseEntity *pActivator, CBaseEntity *pCaller, US
 					this->SetTimeOfLastDeparture(gpGlobals->time);
 					AvHSUPlayPhaseInEffect(theFlags, this, thePlayer);
 
-					AvHSUKillPlayersTouchingPlayer(thePlayer, this->pev);
+					// AvHSUKillPlayersTouchingPlayer(thePlayer, this->pev);
+					AvHSUPushbackPlayersTouchingPlayer(thePlayer, this->pev);
                     KillBuildablesTouchingPlayer(thePlayer, this->pev);
 					
 					Vector theFadeColor;
@@ -1527,8 +1528,14 @@ void AvHMarineBaseBuildable::SetEnergy(float inEnergy)
 	this->mEnergy = max(min(inEnergy, kMarineStructureMaxEnergy), 0.0f);
 	
 	float theNormValue = this->mEnergy/kMarineStructureMaxEnergy;
+	bool theIsResearching=false;
 
-	if(this->pev && this->GetIsBuilt())
+	const AvHTeam* theTeam = GetGameRules()->GetTeam(AvHTeamNumber(this->GetTeamNumber()));
+
+	if ( theTeam ) {
+		theIsResearching=theTeam->GetResearchManager().GetIsResearching(this->entindex());
+	}
+	if(this->pev && this->GetIsBuilt() && (!theIsResearching))
 	{
 		AvHSHUSetEnergyState(this->pev->iuser3, this->pev->fuser1, theNormValue);
 	}
@@ -1813,7 +1820,8 @@ void AvHInfantryPortal::ResetReinforcingPlayer(bool inSuccess)
 
 	if(theTelefrag)
 	{
-		AvHSUKillPlayersTouchingPlayer(thePlayer, this->pev);
+		//AvHSUKillPlayersTouchingPlayer(thePlayer, this->pev);
+		AvHSUPushbackPlayersTouchingPlayer(thePlayer, this->pev);
 	}
 }
 
@@ -1847,17 +1855,17 @@ int AvHInfantryPortal::GetIdle2Animation() const
 	return 2;
 }	
 
-// tankefugl: 
-int AvHInfantryPortal::GetDeployAnimation() const
-{
-	return 0;
-}
+// : Uncomment for the new IP from Alpha
+//int AvHInfantryPortal::GetDeployAnimation() const
+//{
+//	return 0;
+//}
 
-int AvHInfantryPortal::GetSpawnAnimation() const
-{
-	return 1;
-}
-// :tankefugl
+//int AvHInfantryPortal::GetSpawnAnimation() const
+//{
+//	return 1;
+//}
+// :
 
 const int kCommandStationExitAnimation = 12;
 
@@ -2328,7 +2336,7 @@ void AvHArmory::ResupplyUse(CBaseEntity* inActivator, CBaseEntity* inCaller, USE
 	{
         if(thePlayer->GetCanBeResupplied())
         {
-			// puzl: 1017
+			// : 1017
 //            // Give health back occasionally
 //            bool theGiveHealthIfNeeded = (RANDOM_LONG(0, 3) == 0);
 //            

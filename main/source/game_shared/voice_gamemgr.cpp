@@ -12,7 +12,7 @@
 #include "dlls/util.h"
 #include "dlls/cbase.h"
 #include "dlls/player.h"
-
+#include "mod/AvHServerVariables.h"
 
 
 #define UPDATE_INTERVAL	0.3
@@ -217,7 +217,7 @@ void CVoiceGameMgr::UpdateMasks()
 {
 	m_UpdateInterval = 0;
 
-	bool bAllTalk = !!g_engfuncs.pfnCVarGetFloat( "sv_alltalk" );
+	bool bAllTalk = !!ns_cvar_float(&sv_alltalk);
 
 	for(int iClient=0; iClient < m_nMaxPlayers; iClient++)
 	{

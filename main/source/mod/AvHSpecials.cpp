@@ -640,6 +640,7 @@ void AvHRemoveUpgradeInCategory(AvHAlienUpgradeCategory inUpgradeCategory, int& 
 		}
 		else if(theNumUpgradesInCategory == 3)
 		{
+			SetUpgradeMask(&inUser4, MASK_UPGRADE_10);
 			SetUpgradeMask(&inUser4, MASK_UPGRADE_11, false);
 		}
 		break;
@@ -673,6 +674,7 @@ void AvHRemoveUpgradeInCategory(AvHAlienUpgradeCategory inUpgradeCategory, int& 
 		}
 		else if(theNumUpgradesInCategory == 3)
 		{
+			SetUpgradeMask(&inUser4, MASK_UPGRADE_12);
 			SetUpgradeMask(&inUser4, MASK_UPGRADE_13, false);
 		}
 		break;
@@ -689,6 +691,7 @@ void AvHRemoveUpgradeInCategory(AvHAlienUpgradeCategory inUpgradeCategory, int& 
 		}
 		else if(theNumUpgradesInCategory == 3)
 		{
+			SetUpgradeMask(&inUser4, MASK_UPGRADE_14);
 			SetUpgradeMask(&inUser4, MASK_UPGRADE_15, false);
 		}
 		break;

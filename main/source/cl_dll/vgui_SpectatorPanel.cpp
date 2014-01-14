@@ -89,15 +89,15 @@ void SpectatorPanel::StateChanged(CCheckButton2* pButton)
     
     gHUD.m_Spectator.SetMode(theMode);
 
-    if (m_autoDirectorButton != NULL)
+    if (m_autoDirectorButton != NULL && pButton == m_autoDirectorButton )
     {
         if (m_autoDirectorButton->IsChecked())
         {
-            gEngfuncs.Cvar_SetValue("spec_autodirector", 1);
+            gEngfuncs.Cvar_SetValue("spec_autodirector", 0);
         }
         else
         {
-            gEngfuncs.Cvar_SetValue("spec_autodirector", 0);
+            gEngfuncs.Cvar_SetValue("spec_autodirector", 1);
         }
     }
 

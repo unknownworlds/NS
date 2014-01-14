@@ -29,6 +29,7 @@
 #include	"mod/AvHServerUtil.h"
 #include	"common/hltv.h"
 #include	"mod/AvHNetworkMessages.h"
+#include	"mod/AvHServerVariables.h"
 
 extern DLL_GLOBAL CGameRules	*g_pGameRules;
 extern DLL_GLOBAL BOOL	g_fGameOver;
@@ -74,7 +75,7 @@ CHalfLifeMultiplay :: CHalfLifeMultiplay()
 {
 	//g_VoiceGameMgr.Init(&g_GameMgrHelper, gpGlobals->maxClients);
 
-	RefreshSkillData();
+	//RefreshSkillData();
 	m_flIntermissionEndTime = 0;
 	g_flIntermissionStartTime = 0;
 	
@@ -130,7 +131,7 @@ BOOL CHalfLifeMultiplay::ClientCommand( CBasePlayer *pPlayer, const char *pcmd )
 void CHalfLifeMultiplay::RefreshSkillData( void )
 {
 // load all default values
-	CGameRules::RefreshSkillData();
+	//CGameRules::RefreshSkillData();
 
 // override some values for multiplay.
 
@@ -201,7 +202,7 @@ void CHalfLifeMultiplay :: Think ( void )
 	if ( g_fGameOver )   // someone else quit the game already
 	{
 		// bounds check
-		int time = (int)CVAR_GET_FLOAT( "mp_chattime" );
+		int time = (int)ns_cvar_float( &mp_chattime );
 		if ( time < 10 )
 			CVAR_SET_STRING( "mp_chattime", "10" );
 		else if ( time > MAX_INTERMISSION_TIME )
@@ -1012,7 +1013,7 @@ void CHalfLifeMultiplay :: GoToIntermission( void )
 	MESSAGE_END();
 
 	// bounds check
-	int time = (int)CVAR_GET_FLOAT( "mp_chattime" );
+	int time = (int)ns_cvar_float( &mp_chattime );
 	if ( time < 10 )
 		CVAR_SET_STRING( "mp_chattime", "10" );
 	else if ( time > MAX_INTERMISSION_TIME )

@@ -69,6 +69,7 @@
 #include "mod/AvHServerUtil.h"
 #include "mod/AvHAlienWeaponConstants.h"
 #include "mod/AvHTurret.h"
+#include "mod/AvHServerVariables.h"
 //#include "mod/AvHMovementUtil.h"
 
 extern DLL_GLOBAL Vector		g_vecAttackDir;
@@ -351,7 +352,7 @@ void CBaseMonster :: GibMonster( void )
 	// only humans throw skulls !!!UNDONE - eventually monsters will have their own sets of gibs
 	if ( HasHumanGibs() )
 	{
-		if ( CVAR_GET_FLOAT("violence_hgibs") != 0 )	// Only the player will ever get here
+		if ( ns_cvar_float(violence_hgibs) != 0 )	// Only the player will ever get here
 		{
 			CGib::SpawnHeadGib( pev );
 			CGib::SpawnRandomGibs( pev, 4, 1 );	// throw some human gibs.
@@ -360,7 +361,7 @@ void CBaseMonster :: GibMonster( void )
 	}
 	else if ( HasAlienGibs() )
 	{
-		if ( CVAR_GET_FLOAT("violence_agibs") != 0 )	// Should never get here, but someone might call it directly
+		if ( ns_cvar_float(violence_hgibs) != 0 )	// Should never get here, but someone might call it directly
 		{
 			CGib::SpawnRandomGibs( pev, 4, 0 );	// Throw alien gibs
 		}
@@ -588,12 +589,12 @@ void CBaseMonster::CallGibMonster( void )
 
 	if ( HasHumanGibs() )
 	{
-		if ( CVAR_GET_FLOAT("violence_hgibs") == 0 )
+		if ( ns_cvar_float(violence_hgibs) == 0 )
 			fade = TRUE;
 	}
 	else if ( HasAlienGibs() )
 	{
-		if ( CVAR_GET_FLOAT("violence_agibs") == 0 )
+		if ( ns_cvar_float(violence_agibs) == 0 )
 			fade = TRUE;
 	}
 
@@ -1377,7 +1378,7 @@ BOOL CBaseEntity :: FVisible ( CBaseEntity *pEntity )
 	//	|| (pev->waterlevel == 3 && pEntity->pev->waterlevel == 0))
 	//	return FALSE;
 
-	vecLookerOrigin = pev->origin + pev->view_ofs;//look through the caller's 'eyes'
+	vecLookerOrigin = this->EyePosition();//look through the caller's 'eyes'
 	vecTargetOrigin = pEntity->EyePosition();
 
 	return AvHCheckLineOfSight(vecLookerOrigin, vecTargetOrigin, ENT(pev));
@@ -1534,9 +1535,9 @@ void CBaseEntity::FireBullets(ULONG cShots, Vector vecSrc, Vector vecDirShooting
 
 		if(theProtected && theEntityHit)
 		{	
-			// joev: experiment
+			// : experiment
 			EMIT_SOUND(theEntityHit->edict(), CHAN_AUTO, kUmbraBlockedSound, 1.0f, ATTN_NORM);
-			// :joev
+			// :
 		}
 		else
 		{
@@ -1702,15 +1703,37 @@ Vector CBaseEntity::FireBulletsPlayer ( ULONG cShots, Vector vecSrc, Vector vecD
 		//				x * vecSpread.x * vecRight +
 		//				y * vecSpread.y * vecUp;
 
-		// tankefugl: 0000973
+		Vector vecDir;
+		// : 0000973
 		// added inner cone for half of the shots
-		if (isShotgun && (iShot > (cShots/2)))
+		if (isShotgun)
 		{
 			vecSpread = kSGInnerSpread;
+			Vector vecMinSpread;
+
+			if ((iShot > (cShots/3)) && (iShot < (cShots*2/3)))
+			{
+				vecSpread = kSGMidSpread;
+				vecMinSpread = kSGInnerSpread;
+				vecDir = UTIL_GetRandomSpreadDirFrom(shared_rand, iShot, vecDirShooting, vecRight, vecUp, vecSpread, vecMinSpread);
+			}
+			else
+			if ((iShot > (cShots*2/3)))
+			{
+				vecMinSpread = kSGMidSpread;
+				vecDir = UTIL_GetRandomSpreadDirFrom(shared_rand, iShot, vecDirShooting, vecRight, vecUp, vecSpread, vecMinSpread);
+			}
+			else
+			{
+				vecSpread = kSGInnerSpread;
+				vecDir = UTIL_GetRandomSpreadDir(shared_rand, iShot, vecDirShooting, vecRight, vecUp, vecSpread);
+			}
 		}
-		// :tankefugl
-			
-		Vector vecDir = UTIL_GetRandomSpreadDir(shared_rand, iShot, vecDirShooting, vecRight, vecUp, vecSpread);
+		// :
+		else
+		{
+			vecDir = UTIL_GetRandomSpreadDir(shared_rand, iShot, vecDirShooting, vecRight, vecUp, vecSpread);
+		}
 		Vector vecEnd;
 
 		vecEnd = vecSrc + vecDir * flDistance;
@@ -1721,9 +1744,9 @@ Vector CBaseEntity::FireBulletsPlayer ( ULONG cShots, Vector vecSrc, Vector vecD
 
 		if(theProtected)
 		{
-			// joev: experiment
+			// : experiment
 			EMIT_SOUND(theEntityHit->edict(), CHAN_AUTO, kUmbraBlockedSound, 1.0f, ATTN_NORM);
-			// :joev
+			// :
 		}
 		else
 		{
@@ -1738,7 +1761,7 @@ Vector CBaseEntity::FireBulletsPlayer ( ULONG cShots, Vector vecSrc, Vector vecD
 
 					if(theAdjustedDamage)
 					{
-						// tankefugl: 0000973
+						// : 0000973
 						// removed shotgun fallof
 						//if ( isShotgun && !( theEntityHit->pev->iuser3 & AVH_USER3_BREAKABLE) ) 
 						//{
@@ -1750,7 +1773,7 @@ Vector CBaseEntity::FireBulletsPlayer ( ULONG cShots, Vector vecSrc, Vector vecD
 						//		theAdjustedDamage*=fallOff;
 						//	}
 						//}
-						// :tankefugl
+						// :
 						if ( theAdjustedDamage ) {
 							theEntityHit->TraceAttack(pevAttacker, theAdjustedDamage, vecDir, &tr, theDamageType | ((theAdjustedDamage > 16) ? DMG_ALWAYSGIB : DMG_NEVERGIB) );
 						}

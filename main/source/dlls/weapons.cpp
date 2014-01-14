@@ -126,6 +126,7 @@ MULTIDAMAGE gMultiDamage;
 
 #define TRACER_FREQ		4			// Tracers fire every fourth bullet
 
+extern bool gCanMove[];
 
 //=========================================================
 // MaxAmmoCarry - pass in a name and this function will tell
@@ -416,7 +417,7 @@ void W_Precache(void)
 
     PRECACHE_UNMODIFIED_MODEL(kMarineCommanderModel);
     PRECACHE_UNMODIFIED_MODEL(kAlienGestateModel);
-	// puzl: 1072
+	// : 1072
 	// Added some client side consistency checks.
 	PRECACHE_UNMODIFIED_MODEL("sprites/muzzleflash1.spr");
 	PRECACHE_UNMODIFIED_MODEL("sprites/muzzleflash2.spr"); 
@@ -933,7 +934,7 @@ BOOL CanAttack( float attack_time, float curtime, BOOL isPredicted )
 
 void CBasePlayerWeapon::ItemPostFrame( void )
 {
-	bool theAttackPressed = (m_pPlayer->pev->button & IN_ATTACK);
+	bool theAttackPressed = (m_pPlayer->pev->button & IN_ATTACK) && !(m_pPlayer->pev->button & IN_ATTACK2);
 
     bool theWeaponPrimes = (this->GetWeaponPrimeTime() > 0.0f);
     bool theWeaponIsPriming = this->GetIsWeaponPriming();
@@ -953,6 +954,7 @@ void CBasePlayerWeapon::ItemPostFrame( void )
 		m_fInReload = FALSE;
 	}
 
+/*	// +movement: Removed case for +attack2 since it's used for movement abilities
 	if ((m_pPlayer->pev->button & IN_ATTACK2) && CanAttack( m_flNextSecondaryAttack, gpGlobals->time, UseDecrement() ) )
 	{
         if (m_pPlayer->GetCanUseWeapon())
@@ -968,7 +970,9 @@ void CBasePlayerWeapon::ItemPostFrame( void )
 		    m_pPlayer->pev->button &= ~IN_ATTACK2;
         }
 	}
-    else if ( theAttackPressed && CanAttack( m_flNextPrimaryAttack, gpGlobals->time, UseDecrement() ) )
+    else 
+*/
+	if ( theAttackPressed && CanAttack( m_flNextPrimaryAttack, gpGlobals->time, UseDecrement() ) )
 	{
         if (m_pPlayer->GetCanUseWeapon())
         {
@@ -989,7 +993,8 @@ void CBasePlayerWeapon::ItemPostFrame( void )
 	        Reload();
         }
 	}
-	else if ( !(m_pPlayer->pev->button & (IN_ATTACK|IN_ATTACK2) ) )
+	// +movement: Removed case for +attack2
+	else if ( !(m_pPlayer->pev->button & (IN_ATTACK /* |IN_ATTACK2 */) ) )
 	{
         if (m_pPlayer->GetCanUseWeapon())
         {
@@ -1166,6 +1171,9 @@ int CBasePlayerWeapon::UpdateClientData( CBasePlayer *pPlayer )
 	{
 		bSend = TRUE;
 	}
+
+	if (m_iId == 22 || m_iId == 11 || m_iId == 21)
+		gCanMove[pPlayer->entindex() - 1] = m_iEnabled;
 
 	if ( bSend )
 	{

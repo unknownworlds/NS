@@ -162,11 +162,12 @@ void AvHOverviewControl::GetDrawInfo(AvHOverviewMap::DrawInfo& outDrawInfo)
     outDrawInfo.mY = 0;
     outDrawInfo.mWidth  = theWidth;
     outDrawInfo.mHeight = theHeight;
-
+	outDrawInfo.mZoomScale = 1.0f;
     AvHMapExtents theMapExtents;
     theOverviewMap.GetMapExtents(theMapExtents);
 
     outDrawInfo.mFullScreen = true;
+	outDrawInfo.mCommander = false;
 
 	float worldWidth  = theMapExtents.GetMaxMapX() - theMapExtents.GetMinMapX();
 	float worldHeight = theMapExtents.GetMaxMapY() - theMapExtents.GetMinMapY();

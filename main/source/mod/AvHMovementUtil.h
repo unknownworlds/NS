@@ -35,7 +35,7 @@ bool AvHMUGiveAlienEnergy(float& ioFuser, float inNormAmount);
 
 bool AvHMUGetEnergyCost(AvHWeaponID inWeaponID, float& outEnergyCost);
 float AvHMUGetWalkSpeedFactor(AvHUser3 inUser3);
-bool AvHMUHasEnoughAlienEnergy(float& ioFuser, float inNormAmount);
+bool AvHMUHasEnoughAlienEnergy(float& ioFuser, float inNormAmount, float latency = 0.0f);
 void AvHMUUpdateAlienEnergy(float inTimePassed, int inUser3, int inUser4, float& ioFuser);
 void AvHMUUpdateJetpackEnergy(bool inIsJetpacking, float theTimePassed, float& ioJetpackEnergy);
 

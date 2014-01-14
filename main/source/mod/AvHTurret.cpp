@@ -426,7 +426,7 @@ void AvHTurret::ActiveThink(void)
 	if(!FNullEnt(this->m_hEnemy))
 	{
 		// If enemy is in FOV
-		Vector theVecMid = this->pev->origin + this->pev->view_ofs;
+		Vector theVecMid = this->EyePosition();
 		//AvHSUPlayParticleEvent("JetpackEffect", this->edict(), theVecMid);
 
 		CBaseEntity* theEnemyEntity = this->m_hEnemy;

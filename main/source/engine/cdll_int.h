@@ -96,9 +96,17 @@ typedef struct hud_player_info_s
 	char *model;
 	short topcolor;
 	short bottomcolor;
-
+	char  padding[8];
 } hud_player_info_t;
 
+#define MAX_ALIAS_NAME 32
+typedef struct cmdalias_s
+{
+ struct cmdalias_s *next;
+ char name[MAX_ALIAS_NAME];
+ char *value;
+} cmdalias_t;
+ 
 
 // this is by no means complete,  or even accurate
 typedef struct cl_enginefuncs_s
@@ -251,6 +259,41 @@ typedef struct cl_enginefuncs_s
 	void						( *pfnGetMousePos )( struct tagPOINT *ppt );
 	void						( *pfnSetMousePos )( int x, int y );
 	void						( *pfnSetMouseEnable )( qboolean fEnable );
+ // missing functions from alfred reynolds.  Return type and parameters unknown
+ void (* GetFirstCvarPtr)(void);
+ void (* GetFirstCmdFunctionHandle)(void);
+ void (* GetNextCmdFunctionHandle)(void);
+ void (* GetCmdFunctionName)(void);
+ void (* hudGetClientOldTime)(void);
+ void (* hudGetServerGravityValue)(void);
+ void (* hudGetModelByIndex)(void);
+ void (* pfnSetFilterMode)(void);
+ void (* pfnSetFilterColor)(void);
+ void (* pfnSetFilterBrightness)(void);
+ void (* pfnSequenceGet)(void);
+ void (* pfnSPR_DrawGeneric)(void);
+ void (* pfnSequencePickSentence)(void);
+ void (* pfnDrawString)(void);
+ void (* pfnDrawStringReverse)(void);
+ void (* LocalPlayerInfo_ValueForKey)(void);
+ void (* pfnVGUI2DrawCharacter)(void);
+ void (* pfnVGUI2DrawCharacterAdd)(void);
+ void (* COM_GetApproxWavePlayLength)(void);
+ void (* pfnGetCareerUI)(void);
+ void (* Cvar_Set)(void);
+ void (* pfnIsCareerMatch)(void);
+ void (* pfnPlaySoundVoiceByName)(void);
+ void (* pfnPrimeMusicStream)(void);
+ void (* GetAbsoluteTime)(void);
+ void (* pfnProcessTutorMessageDecayBuffer)(void);
+ void (* pfnConstructTutorMessageDecayBuffer)(void);
+ void (* pfnResetTutorMessageDecayData)(void);
+ void (* pfnPlaySoundByNameAtPitch)(void);
+ void (* pfnFillRGBABlend)(void);
+ void (* pfnGetAppID)(void);
+// end: missing functions from alfred reynolds.  Return type and parameters unknown
+
+ cmdalias_t*    (*pfnGetAliases)  ( void );
 } cl_enginefunc_t;
 
 #ifndef IN_BUTTONS_H

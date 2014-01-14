@@ -53,6 +53,8 @@
 extern int g_runfuncs;
 #include "cl_dll/com_weapons.h"
 
+#include "common/net_api.h"
+
 #include "pm_shared/pm_defs.h"
 #include "pm_shared/pm_shared.h"
 #include "pm_shared/pm_movevars.h"
@@ -266,8 +268,19 @@ BOOL AvHAlienWeapon::IsUseable(void)
 	// Make sure we have enough energy for this attack
 	float theEnergyCost = this->GetEnergyForAttack();
 	float& theFuser = this->GetEnergyLevel();
-	
-	if(AvHMUHasEnoughAlienEnergy(theFuser, theEnergyCost) && this->GetEnabledState())
+	float theLatency = 0.0f;
+#ifdef AVH_CLIENT
+	// : 991 -- added latency-based prediction for the ammount of energy available to the alien
+	net_status_s current_status;
+	gEngfuncs.pNetAPI->Status(&current_status);
+	theLatency = max(0.0f, current_status.latency);
+
+	int theNumLevels = AvHGetAlienUpgradeLevel(this->m_pPlayer->pev->iuser4, MASK_UPGRADE_5);
+	if(theNumLevels > 0)
+		theLatency *= (1.0 + theNumLevels * BALANCE_VAR(kAdrenalineEnergyPercentPerLevel));
+#endif
+
+	if(AvHMUHasEnoughAlienEnergy(theFuser, theEnergyCost, theLatency) && this->GetEnabledState())
 	{
 		theIsUseable = TRUE;
 	}

@@ -28,6 +28,7 @@
 #include "trains.h"			// trigger_camera has train functionality
 #include "gamerules.h"
 #include "dlls/triggers.h"
+#include "mod/AvHServerVariables.h"
 
 #define	SF_TRIGGER_PUSH_START_OFF	2//spawnflag that makes trigger_push spawn turned OFF
 #define SF_TRIGGER_HURT_TARGETONCE	1// Only fire hurt target once
@@ -535,7 +536,7 @@ void CBaseTrigger::InitTrigger( )
 	pev->solid = SOLID_TRIGGER;
 	pev->movetype = MOVETYPE_NONE;
 	SET_MODEL(ENT(pev), STRING(pev->model));    // set size and link into world
-	if ( CVAR_GET_FLOAT("showtriggers") == 0 )
+	if ( ns_cvar_float(showtriggers) == 0 )
 		SetBits( pev->effects, EF_NODRAW );
 }
 
@@ -1738,7 +1739,7 @@ void CLadder :: Precache( void )
 	// Do all of this in here because we need to 'convert' old saved games
 	pev->solid = SOLID_NOT;
 	pev->skin = CONTENTS_LADDER;
-	if ( CVAR_GET_FLOAT("showtriggers") == 0 )
+	if ( ns_cvar_float(showtriggers) == 0 )
 	{
 		pev->rendermode = kRenderTransTexture;
 		pev->renderamt = 0;

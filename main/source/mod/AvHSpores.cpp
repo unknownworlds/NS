@@ -131,7 +131,7 @@ void AvHSporeProjectile::SporeCloudThink()
 			if(theEntity->pev->team != this->pev->team)
 			{
 				// Don't do damage to heavy armor
-				// puzl: 1019 
+				// : 1019 
 				// Spores can't damage commanders
 				if(!thePlayer->GetHasHeavyArmor() && !thePlayer->GetIsInTopDownMode() )
 				{

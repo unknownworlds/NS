@@ -87,7 +87,7 @@ private:
 };
 
 typedef vector<AvHOrder> OrderListType;
-// tankefugl: 0000971
+// : 0000971
 typedef enum {
 	TEAMMATE_MARINE_ORDER_WELD = 0,
 	TEAMMATE_MARINE_ORDER_FOLLOW,
@@ -104,7 +104,7 @@ typedef enum {
 } TeammateOrderEnum;
 typedef pair<int, float>	TeammateOrderType;
 typedef map<int, TeammateOrderType>		TeammateOrderListType;
-// :tankefugl
+// :
 
 void AvHChangeOrder(OrderListType& inList, const AvHOrder& inOrder);
 //void AvHRemovePlayerFromOrders(OrderListType& inList, int inPlayerIndex);

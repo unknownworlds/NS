@@ -38,7 +38,7 @@ public:
 	void Init( void );
 	void Reset( void );
 
-	void LoadWeaponSprites( WEAPON* wp );
+	void LoadWeaponSprites( WEAPON* wp, int custom );
 	void LoadAllWeaponSprites( void );
 
 	WEAPON*	GetWeapon( int iId );
@@ -62,6 +62,8 @@ public:
 
 	//CONSIDER: Should the selection functions be in the menu with the selection variables?
 	void	UserCmd_LastInv( void );
+	void	UserCmd_MovementOn( void );
+	void	UserCmd_MovementOff( void );
 	void	SetValidWeapon( void );
 	void	SetCurrentWeapon( WEAPON* wp );
 	void	SelectSlot( int iSlot, int fAdvance, int iDirection );

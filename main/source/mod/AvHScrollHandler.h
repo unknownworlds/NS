@@ -19,6 +19,14 @@ public:
 	bool			GetMouseTwoDown() const;
 	
 	static void		ClearScrollHeight();
+	static void		KeyScrollLeft();
+	static void		KeyScrollRight();
+	static void		KeyScrollUp();
+	static void		KeyScrollDown();
+	static void		KeyScrollLeftStop();
+	static void		KeyScrollRightStop();
+	static void		KeyScrollUpStop();
+	static void		KeyScrollDownStop();
 	static void		ScrollLeft();
 	static void		ScrollRight();
 	static void		ScrollUp();
@@ -40,6 +48,7 @@ public:
 	virtual void	keyFocusTicked(Panel* panel)  {}
 
 private:
+
 	static int sScrollX;
 	static int sScrollY;
 	static int sScrollZ;
@@ -51,6 +60,7 @@ private:
 	static int sLastMouseUpY;
 	static bool sMouseOneDown;
 	static bool sMouseTwoDown;
+	static int sKeyDown;
 };
 
 #endif

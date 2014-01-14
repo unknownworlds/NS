@@ -236,6 +236,7 @@
 #include "mod/AvHSelectionHelper.h"
 #include "mod/AvHPlayerUpgrade.h"
 #include "mod/AvHSharedUtil.h"
+#include "mod/AvHServerUtil.h"
 #include "mod/AvHDramaticPriority.h"
 #include "mod/AvHHulls.h"
 #include "mod/AvHMovementUtil.h"
@@ -470,16 +471,10 @@ bool AvHPlayer::AttemptToBuildAlienStructure(AvHMessageID inMessageID)
             char* theClassName = NULL;
             if(AvHSHUGetBuildTechClassName(inMessageID, theClassName))
             {
-                // Make sure we haven't exceeded the limit
-                int theNumBuildings = 0;
-                FOR_ALL_ENTITIES(theClassName, CBaseEntity*)
-                    if(theEntity->pev->team == this->pev->team)
-                    {
-                        theNumBuildings++;
-                    }
-                END_FOR_ALL_ENTITIES(theClassName);
-                    
-                // Now check to make sure the space is big enough to hold the building
+                // Make sure we haven't exceeded the structure limit
+                int theNumBuildings = AvHSUGetStructureCount(inMessageID);
+
+				// Now check to make sure the space is big enough to hold the building
                 UTIL_MakeVectors(this->pev->v_angle);
                 
                 const int kAimRange = 48;
@@ -495,36 +490,43 @@ bool AvHPlayer::AttemptToBuildAlienStructure(AvHMessageID inMessageID)
                 // Check if collision point is valid for building
                 if(AvHSHUGetIsSiteValidForBuild(inMessageID, &theLocation))
                 {
-                    // Make sure there aren't too many buildings in this area already
-                    int theNumBuildingsNearby = UTIL_CountEntitiesInSphere(theLocation, BALANCE_VAR(kBuildingVisibilityRadius), theClassName);
-                    if(theNumBuildingsNearby < BALANCE_VAR(kNumSameAlienStructuresAllowedInRadius) || FStrEq(theClassName, kwsAlienResourceTower))//voogru: allow the building of rt's regardless of how many may be close by (for maps that have a lot of nodes close to each other)
-                    {
-                        // Create the new building
-                        CBaseEntity* theEntity = CBaseEntity::Create(theClassName, theLocation, AvHSUGetRandomBuildingAngles());
-                        
-                        // Set building's team
-                        theEntity->pev->team = this->pev->team;
-                        
-                        AvHSUBuildingJustCreated(inMessageID, theEntity, this);
-                        
-                        // Set owner (this prevents collisions between the entity and it's owner though)
-                        //theEntity->pev->owner = ENT(this->pev);
+					if (theNumBuildings < GetGameRules()->GetStructureLimit())
+					{
+						// Make sure there aren't too many buildings in this area already
+						int theNumBuildingsNearby = UTIL_CountEntitiesInSphere(theLocation, BALANCE_VAR(kBuildingVisibilityRadius), theClassName);
+						if(theNumBuildingsNearby < BALANCE_VAR(kNumSameAlienStructuresAllowedInRadius) || FStrEq(theClassName, kwsAlienResourceTower))//: allow the building of rt's regardless of how many may be close by (for maps that have a lot of nodes close to each other)
+						{
+							// Create the new building
+							CBaseEntity* theEntity = CBaseEntity::Create(theClassName, theLocation, AvHSUGetRandomBuildingAngles());
+	                        
+							// Set building's team
+							theEntity->pev->team = this->pev->team;
+	                        
+							AvHSUBuildingJustCreated(inMessageID, theEntity, this);
+	                        
+							// Set owner (this prevents collisions between the entity and it's owner though)
+							//theEntity->pev->owner = ENT(this->pev);
 
-						//voogru: I've moved this here because whats the point of playing the sound if the building didnt get placed? (it was after " Vector theLocation = theTR.vecEndPos;")
-						// Play sound
-						char* theSoundEffect = kAlienBuildingSound1;
+							//: I've moved this here because whats the point of playing the sound if the building didnt get placed? (it was after " Vector theLocation = theTR.vecEndPos;")
+							// Play sound
+							char* theSoundEffect = kAlienBuildingSound1;
 
-						if(RANDOM_LONG(0, 1) == 1)
-							theSoundEffect = kAlienBuildingSound2;
+							if(RANDOM_LONG(0, 1) == 1)
+								theSoundEffect = kAlienBuildingSound2;
 
-						EMIT_SOUND(this->edict(), CHAN_AUTO, theSoundEffect, this->GetAlienAdjustedEventVolume(), ATTN_NORM);
-                        
-                        theSuccess = true;
-                    }
-                    else
-                    {
-                        this->SendMessage(kTooManyStructuresOfThisTypeNearby);
-                    }
+							EMIT_SOUND(this->edict(), CHAN_AUTO, theSoundEffect, this->GetAlienAdjustedEventVolume(), ATTN_NORM);
+	                        
+							theSuccess = true;
+						}
+						else
+						{
+							this->SendMessage(kTooManyStructuresOfThisTypeNearby);
+						}
+					}
+					else
+					{
+						this->SendMessage(kTooManyStructuresOnServer);
+					}
                 }
                 else
                 {
@@ -575,6 +577,10 @@ bool AvHPlayer::BuildTech(AvHMessageID inBuildID, const Vector& inPickRay)
         Vector theLocation;
         if(AvHSHUTraceAndGetIsSiteValidForBuild(inBuildID, this->GetVisualOrigin(), inPickRay, &theLocation))
         {
+			// : 1097 Commander created entities now created 4 units above the scan location and they drop to the floor.
+			if ( this->GetIsInTopDownMode() ) {
+				theLocation[2]+=4;
+			}
             // Decrement resources
             string theErrorMessage;
             int theCost = 0;
@@ -593,32 +599,42 @@ bool AvHPlayer::BuildTech(AvHMessageID inBuildID, const Vector& inPickRay)
                     }
                 }
 
-                if(theNumFriendlyEntitiesInArea < BALANCE_VAR(kMaxMarineEntitiesAllowedInRadius))
-                {
-                    // Build it!
-                    theSuccess = (AvHSUBuildTechForPlayer(inBuildID, theLocation, this) != NULL);
-                
-                    // Inform structure about build if possible
-                    if(theSuccess)
-                    {
-                        if(this->mSelected.size() > 0)
-                        {
-                            // Get selected structure and inform
-                            int theFirstEntitySelected = *this->mSelected.begin();
-                            AvHBaseBuildable* theBaseBuildable = dynamic_cast<AvHBaseBuildable*>(CBaseEntity::Instance(g_engfuncs.pfnPEntityOfEntIndex(theFirstEntitySelected)));
-                            if(theBaseBuildable)
-                            {
-                                theBaseBuildable->TechnologyBuilt(inBuildID);
-                            }
-                        }
+                // Make sure we haven't exceeded the structure limit
+                int theNumBuildings = AvHSUGetStructureCount(inBuildID);
 
-                        this->PayPurchaseCost(theCost);
-                    }
-                }
-                else
-                {
-                    this->SendMessage(kTooManyStructuresInArea);
-                }
+				if(theNumBuildings < GetGameRules()->GetStructureLimit())
+				{
+					if(theNumFriendlyEntitiesInArea < BALANCE_VAR(kMaxMarineEntitiesAllowedInRadius))
+					{
+						// Build it!
+						theSuccess = (AvHSUBuildTechForPlayer(inBuildID, theLocation, this) != NULL);
+	                
+						// Inform structure about build if possible
+						if(theSuccess)
+						{
+							if(this->mSelected.size() > 0)
+							{
+								// Get selected structure and inform
+								int theFirstEntitySelected = *this->mSelected.begin();
+								AvHBaseBuildable* theBaseBuildable = dynamic_cast<AvHBaseBuildable*>(CBaseEntity::Instance(g_engfuncs.pfnPEntityOfEntIndex(theFirstEntitySelected)));
+								if(theBaseBuildable)
+								{
+									theBaseBuildable->TechnologyBuilt(inBuildID);
+								}
+							}
+
+							this->PayPurchaseCost(theCost);
+						}
+					}
+					else
+					{
+						this->SendMessage(kTooManyStructuresInArea);
+					}
+				}
+				else
+				{
+					this->SendMessage(kTooManyStructuresOnServer);
+				}
             }
             else
             {
@@ -840,7 +856,7 @@ void AvHPlayer::ClearRoleAbilities()
     this->pev->iuser4 &= ~MASK_ALIEN_EMBRYO;
     this->pev->iuser4 &= ~MASK_ALIEN_MOVEMENT;
     this->mIsScreaming = false;
-    this->mAlienSightActive = false;
+    //this->mAlienSightActive = false;
     this->mDesiredRoomType = 0;
 }
 
@@ -966,6 +982,8 @@ bool AvHPlayer::DropItem(const char* inItemName)
 					if(theOriginalDroppedWeapon->GetItemInfo(&theItemInfo) != 0)
 					{
 						int iAmmoIndex = GetAmmoIndex ( (char *) theItemInfo.pszAmmo1 ); 
+						if ( theItemInfo.iSlot == 0 || theItemInfo.iId == AVH_WEAPON_MINE || theItemInfo.iId == AVH_WEAPON_WELDER )
+							this->EffectivePlayerClassChanged();
 
 						if ( iAmmoIndex != -1 && m_rgAmmo[ iAmmoIndex ] > 0)
 							this->DropAmmo((char *)theItemInfo.pszAmmo1, m_rgAmmo[ iAmmoIndex ], theItemInfo.iMaxAmmo1, theItemInfo.iId, theNewlyDroppedWeapon->pev->angles);
@@ -1107,11 +1125,11 @@ bool AvHPlayer::ExecuteAlienMorphMessage(AvHMessageID inMessageID, bool inInstan
             vec3_t theOrigin;
             GetNewOrigin((AvHUser3)theTargetIuser3, theCheckDucking, theOrigin); 
 			
-			// removed by puzl to fix gestating in vents.
+			// removed by  to fix gestating in vents.
 			//theOrigin.z += 5;
 
             bool theIsEnoughRoom = AvHSUGetIsEnoughRoomForHull(theOrigin, theTargetHull, this->edict());
-			//voogru: try again but higher
+			//: try again but higher
 			if(!theIsEnoughRoom)
 			{
 
@@ -1126,9 +1144,20 @@ bool AvHPlayer::ExecuteAlienMorphMessage(AvHMessageID inMessageID, bool inInstan
                 {
                     int a = 0;
                 }
-                
-                this->Evolve(inMessageID, inInstantaneous);
-                theMessageExecuted = true;
+				TraceResult tr;
+				Vector vecStart, vecEnd;
+				VectorCopy(this->pev->origin, vecStart);
+				VectorCopy(this->pev->origin, vecEnd);
+				vecEnd[2]-=100;
+				UTIL_TraceLine(vecStart, vecEnd, ignore_monsters, dont_ignore_glass, NULL, &tr);
+
+				if ( tr.flFraction == 1.0f || tr.vecPlaneNormal[2] > 0.7 ) {
+					this->Evolve(inMessageID, inInstantaneous);
+					theMessageExecuted = true;
+				}
+				else {
+	                this->SendMessage(kSurfaceTooSteep);
+				}
             }
             else
             {
@@ -1210,9 +1239,9 @@ bool AvHPlayer::ExecuteMessage(AvHMessageID inMessageID, bool inInstantaneous, b
 				this->PayPurchaseCost(theCost);
 		}
 
-		// tankefugl: 0000971
+		// : 0000971
 		int theIssuedOrderIcon = -1;
-		// :tankefugl
+		// :
 
 		if(theIsMarine 
 			&& !theIsInTopDownMode 
@@ -1256,7 +1285,7 @@ bool AvHPlayer::ExecuteMessage(AvHMessageID inMessageID, bool inInstantaneous, b
 					{
 						switch(inMessageID)
 						{
-						// tankefugl: 0000971
+						// : 0000971
 						// decides whether icon updates should be sent
 						case SAYING_1:
 							theIssuedOrderIcon = TEAMMATE_MARINE_ORDER_FOLLOW;
@@ -1269,7 +1298,7 @@ bool AvHPlayer::ExecuteMessage(AvHMessageID inMessageID, bool inInstantaneous, b
 						case SAYING_8:
 							theIssuedOrderIcon = TEAMMATE_MARINE_ORDER_WELD;
 							break;
-						// :tankefugl
+						// :
 
 						case SAYING_5:
 							theAlertType = ALERT_SOLDIER_NEEDS_AMMO;
@@ -1320,17 +1349,17 @@ bool AvHPlayer::ExecuteMessage(AvHMessageID inMessageID, bool inInstantaneous, b
 			case ALIEN_ABILITY_LEAP:
 				this->StartLeap();
 				break;
-			case 100:
+			case IMPULSE_FLASHLIGHT:
 				// Eat flashlight event.  Add special mode for alien view here?
 				if(!this->mAlienSightActive)
-					PLAYBACK_EVENT_FULL(FEV_HOSTONLY, this->edict(), gAlienSightOnEventID, 0, this->pev->origin, (float *)&g_vecZero, this->GetAlienAdjustedEventVolume(), 0.0, 0, 0, 0, 0 );
+					PLAYBACK_EVENT_FULL(FEV_HOSTONLY, this->edict(), gAlienSightOnEventID, 0, this->pev->origin, (float *)&g_vecZero, 1.0f, 0.0, 0, 0, 0, 0 );
 				else
-					PLAYBACK_EVENT_FULL(FEV_HOSTONLY, this->edict(), gAlienSightOffEventID, 0, this->pev->origin, (float *)&g_vecZero, this->GetAlienAdjustedEventVolume(), 0.0, 0, 0, 0, 0 );
+					PLAYBACK_EVENT_FULL(FEV_HOSTONLY, this->edict(), gAlienSightOffEventID, 0, this->pev->origin, (float *)&g_vecZero, 1.0f, 0.0, 0, 0, 0, 0 );
 				this->mAlienSightActive = !this->mAlienSightActive;
 				theMessageExecuted = true;
 				break;
 			}
-			// tankefugl: 0000971
+			// : 0000971
 			// decides whether icon updates should be sent
 			switch (inMessageID)
 			{
@@ -1345,10 +1374,10 @@ bool AvHPlayer::ExecuteMessage(AvHMessageID inMessageID, bool inInstantaneous, b
 					theIssuedOrderIcon = TEAMMATE_ALIEN_ORDER_HEAL;
 					break;
 			}
-			// :tankefugl
+			// :
 		}
 
-		// tankefugl: 0000971 and 0000992
+		// : 0000971 and 0000992
 		if (theIssuedOrderIcon > -1)
 		{
 			int theOrderTarget = 0;
@@ -1433,7 +1462,7 @@ bool AvHPlayer::ExecuteMessage(AvHMessageID inMessageID, bool inInstantaneous, b
 
 bool AvHPlayer::GetIsAlienSightActive() const
 {
-    return this->mAlienSightActive;
+    return this->mAlienSightActive && this->IsAlive();
 }
 
 void AvHPlayer::SetDesiredNetName(string inDesiredNetName)
@@ -1487,233 +1516,233 @@ void AvHPlayer::GetAnimationForActivity(int inActivity, char outAnimation[64], b
 	
     //bool theIsBlinking = this->GetIsBlinking();
 
-    switch(inActivity)
-    {
-    case ACT_RELOAD:
-        if(!theIsAlien)
+	switch(inActivity)
+	{
+	case ACT_RELOAD:
+		if(!theIsAlien)
 		{
-            strcat(outAnimation, this->m_szAnimExtention);
+			strcat(outAnimation, this->m_szAnimExtention);
 			strcat(outAnimation, "_reload");
 	
 			theIsReloading = true;
-        };
-        break;
+		};
+		break;
 	// updated by Elven for TPRAs
-     case ACT_RELOAD_START: 
-        if(!theIsAlien)
-        {
+	case ACT_RELOAD_START: 
+		if(!theIsAlien)
+		{
 			strcat(outAnimation, this->m_szAnimExtention);
 			strcat(outAnimation, "_reload_start");
 			theIsReloading = true;
 		};
 		break;
 	case ACT_RELOAD_INSERT:
-        if(!theIsAlien)
-        {
-			 strcat(outAnimation, this->m_szAnimExtention);
+		if(!theIsAlien)
+		{
+			strcat(outAnimation, this->m_szAnimExtention);
 			strcat(outAnimation, "_reload_insert");
 			theIsReloading = true;
 		};
 		break;
 	case ACT_RELOAD_END:
-        if(!theIsAlien)
-        {
+		if(!theIsAlien)
+		{
 			strcat(outAnimation, this->m_szAnimExtention);
 			strcat(outAnimation, "_reload_end");
 			theIsReloading = true;
 		};
 		break;
-    case ACT_RANGE_PRIME:
-        if(theCanCrouch && theIsCrouched)
-        {
-            strcpy(outAnimation, "crouch_" );
-        }
-        strcat(outAnimation, this->m_szAnimExtention);
-        strcat(outAnimation, "_prime");
-        break;
+	case ACT_RANGE_PRIME:
+		if(theCanCrouch && theIsCrouched)
+		{
+			strcpy(outAnimation, "crouch_" );
+		}
+		strcat(outAnimation, this->m_szAnimExtention);
+		strcat(outAnimation, "_prime");
+		break;
 
-    case ACT_RANGE_ATTACK1:
-        if(theCanCrouch && theIsCrouched)
-        {
-            strcpy(outAnimation, "crouch_" );
-        }
-        strcat(outAnimation, this->m_szAnimExtention);
-        if(theIsAlien)
-        {
-            strcat(outAnimation, "_alien");
-        }
-        else
-        {
-            strcat(outAnimation, "_fire");
-        }
-        break;
+	case ACT_RANGE_ATTACK1:
+		if(theCanCrouch && theIsCrouched && !theIsAlien )
+		{
+			strcpy(outAnimation, "crouch_" );
+		}
+		strcat(outAnimation, this->m_szAnimExtention);
+		if(theIsAlien)
+		{
+			strcat(outAnimation, "_alien");
+		}
+		else
+		{
+			strcat(outAnimation, "_fire");
+		}
+		break;
 
-    case ACT_HOP:
-        strcat(outAnimation, "jump");
-        break;
+	case ACT_HOP:
+		strcat(outAnimation, "jump");
+		break;
 
-    case ACT_WALK:
-        if(inGaitSequence || !strcmp(this->m_szAnimExtention, ""))
-        {
-            strcat(outAnimation, "walk");
-        }
-        else
-        {
-            if(theCanCrouch && theIsCrouched)
-            {
-                strcpy(outAnimation, "crouch_" );
-            }
-            strcat(outAnimation, this->m_szAnimExtention);
-            if(theCanCrouch)
-            {
-                if(theIsReloading)
-                {
-                    strcat(outAnimation, "_reload");
-                }
-                else
-                {
-                    strcat(outAnimation, "_look");
-                }
-            }
-        }
-        break;
+	case ACT_WALK:
+		if(inGaitSequence || !strcmp(this->m_szAnimExtention, ""))
+		{
+			strcat(outAnimation, "walk");
+		}
+		else
+		{
+			if(theCanCrouch && theIsCrouched)
+			{
+				strcpy(outAnimation, "crouch_" );
+			}
+			strcat(outAnimation, this->m_szAnimExtention);
+			if(theCanCrouch)
+			{
+				if(theIsReloading)
+				{
+					strcat(outAnimation, "_reload");
+				}
+				else
+				{
+					strcat(outAnimation, "_look");
+				}
+			}
+		}
+		break;
 
-    case ACT_RUN:
-        if(inGaitSequence || !strcmp(this->m_szAnimExtention, ""))
-        {
-            strcat(outAnimation, "run");
-        }
-        else
-        {
-            if(theCanCrouch && theIsCrouched)
-            {
-                strcpy(outAnimation, "crouch_" );
-            }
-            strcat(outAnimation, this->m_szAnimExtention);
-            if(theCanCrouch)
-            {
-                //if(theIsReloading)
-                //{
-                //  strcat(outAnimation, "_reload");
-                //}
-                //else
-                //{
-                if(theIsReloading)
-                {
-                    strcpy(outAnimation, this->m_szAnimExtention);
-                    strcat(outAnimation, "_reload");
-                }
-                else
-                {
-                    strcat(outAnimation, "_look");
-                }
-                //}
-            }
-        }
-        break;
+	case ACT_RUN:
+		if(inGaitSequence || !strcmp(this->m_szAnimExtention, ""))
+		{
+			strcat(outAnimation, "run");
+		}
+		else
+		{
+			if(theCanCrouch && theIsCrouched)
+			{
+				strcpy(outAnimation, "crouch_" );
+			}
+			strcat(outAnimation, this->m_szAnimExtention);
+			if(theCanCrouch)
+			{
+				//if(theIsReloading)
+				//{
+				//  strcat(outAnimation, "_reload");
+				//}
+				//else
+				//{
+				if(theIsReloading)
+				{
+					strcpy(outAnimation, this->m_szAnimExtention);
+					strcat(outAnimation, "_reload");
+				}
+				else
+				{
+					strcat(outAnimation, "_look");
+				}
+				//}
+			}
+		}
+		break;
 
-    case ACT_CROUCHIDLE:
-        if(theCanCrouch)
-        {
-            if(inGaitSequence)
-            {
-                strcat(outAnimation, "crouch_idle");
-            }
-        }
-        break;
-    case ACT_CROUCH:
-        if(theCanCrouch)
-        {
-            if(inGaitSequence)
-            {
-                strcat(outAnimation, "crawl");
-            }
-            else
-            {
-            }
-        }
-        break;
-    case ACT_IDLE:
-        // Weird hack/fix for gyrating and ready room spazzing
-        //if(this->GetPlayMode() != PLAYMODE_READYROOM)
-        //{
-            if(inGaitSequence)
-            {
-                if(theIsReloading)
-                {
-                    strcat(outAnimation, "_reload");
-                }
-                else
-                {
-                    strcat(outAnimation, "idle1");
-                }
-            }
-            else
-            {
-                strcat(outAnimation, "look_idle");
-            }
-        //}
-        break;
+	case ACT_CROUCHIDLE:
+		if(theCanCrouch)
+		{
+			if(inGaitSequence)
+			{
+				strcat(outAnimation, "crouch_idle");
+			}
+		}
+		break;
+	case ACT_CROUCH:
+		if(theCanCrouch)
+		{
+			if(inGaitSequence)
+			{
+				strcat(outAnimation, "crawl");
+			}
+			else
+			{
+			}
+		}
+		break;
+	case ACT_IDLE:
+		// Weird hack/fix for gyrating and ready room spazzing
+		//if(this->GetPlayMode() != PLAYMODE_READYROOM)
+		//{
+			if(inGaitSequence)
+			{
+				if(theIsReloading)
+				{
+					strcat(outAnimation, "_reload");
+				}
+				else
+				{
+					strcat(outAnimation, "idle1");
+				}
+			}
+			else
+			{
+				strcat(outAnimation, "look_idle");
+			}
+		//}
+		break;
 
-    case ACT_DIESIMPLE:
-    case ACT_DIEVIOLENT:
-        if(this->pev->iuser3 == AVH_USER3_ALIEN_PLAYER3)
-        {
-            strcpy(outAnimation, "death1_die");
-        }
-        else
-        {
-            if(theIsCrouched)
-            {
-                strcpy(outAnimation, "crouch_die");
-            }
-            else
-            {
-                switch(RANDOM_LONG(0, 2))
-                {
-                case 0:
-                    strcpy(outAnimation, "death1_die");
-                    break;
-                case 1:
-                    strcpy(outAnimation, "death2_die");
-                    break;
-                case 2:
-                    strcpy(outAnimation, "death3_die");
-                    break;
-                }
-            }
-        }
-        theIsDeathAnim = true;
-        break;
-    case ACT_DIE_HEADSHOT:
-        strcpy(outAnimation, "head_die");
-        theIsDeathAnim = true;
-        break;
-    case ACT_DIE_GUTSHOT:
-        strcpy(outAnimation, "gut_die");
-        theIsDeathAnim = true;
-        break;
-    case ACT_DIEBACKWARD:
-        // Hack for skulk until artwork can be updated (it has no back_die)
-        if(this->pev->iuser3 != AVH_USER3_ALIEN_PLAYER1)
-        {
-            strcpy(outAnimation, "back_die");
-        }
-        else
-        {
-            strcpy(outAnimation, "gut_die");
-        }
-        theIsDeathAnim = true;
-        break;
-    case ACT_DIEFORWARD:
-        strcpy(outAnimation, "forward_die");
-        theIsDeathAnim = true;
-        break;
-    case ACT_SWIM:
-        // die
-        strcpy(outAnimation, "treadwater");
-        break;
-    }
+	case ACT_DIESIMPLE:
+	case ACT_DIEVIOLENT:
+		if(this->pev->iuser3 == AVH_USER3_ALIEN_PLAYER3)
+		{
+			strcpy(outAnimation, "death1_die");
+		}
+		else
+		{
+			if(theIsCrouched)
+			{
+				strcpy(outAnimation, "crouch_die");
+			}
+			else
+			{
+				switch(RANDOM_LONG(0, 2))
+				{
+				case 0:
+					strcpy(outAnimation, "death1_die");
+					break;
+				case 1:
+					strcpy(outAnimation, "death2_die");
+					break;
+				case 2:
+					strcpy(outAnimation, "death3_die");
+					break;
+				}
+			}
+		}
+		theIsDeathAnim = true;
+		break;
+	case ACT_DIE_HEADSHOT:
+		strcpy(outAnimation, "head_die");
+		theIsDeathAnim = true;
+		break;
+	case ACT_DIE_GUTSHOT:
+		strcpy(outAnimation, "gut_die");
+		theIsDeathAnim = true;
+		break;
+	case ACT_DIEBACKWARD:
+		// Hack for skulk until artwork can be updated (it has no back_die)
+		if(this->pev->iuser3 != AVH_USER3_ALIEN_PLAYER1)
+		{
+			strcpy(outAnimation, "back_die");
+		}
+		else
+		{
+			strcpy(outAnimation, "gut_die");
+		}
+		theIsDeathAnim = true;
+		break;
+	case ACT_DIEFORWARD:
+		strcpy(outAnimation, "forward_die");
+		theIsDeathAnim = true;
+		break;
+	case ACT_SWIM:
+		// die
+		strcpy(outAnimation, "treadwater");
+		break;
+	}
 
     if(theIsGestating)
     {
@@ -1867,6 +1896,14 @@ bool AvHPlayer::GetCanReceiveResources() const
     }
 
     return theCanReceiveResources;
+}
+
+bool AvHPlayer::GetCanUseHive() const {
+	return (gpGlobals->time > this->mTimeOfLastHiveUse + 0.4f );
+}
+
+void AvHPlayer::SetTimeOfLastHiveUse(float time) {
+	this->mTimeOfLastHiveUse=time;
 }
 
 int AvHPlayer::GetEffectivePlayerClass()
@@ -2263,10 +2300,12 @@ void AvHPlayer::PlayerTouch(CBaseEntity* inOther)
 			entvars_t* theInflictor = this->m_pActiveItem->pev;
 			            
             float theScalar = 1.0f;
-            if((this->mTimeLeapEnd != -1) && (gpGlobals->time < this->mTimeLeapEnd))
+			if((this->mTimeLeapEnd != -1) && (gpGlobals->time < this->mTimeLeapEnd) && inOther->pev->iuser3 != AVH_USER3_HIVE )
             {
+				if ( this->m_rgpPlayerItems[3] )
+					theInflictor = this->m_rgpPlayerItems[3]->pev;
                 // Do damage to entity
-                if(GetGameRules()->CanEntityDoDamageTo(this, inOther, &theScalar))
+                if(GetGameRules()->CanEntityDoDamageTo(this, inOther, &theScalar) && (inOther->pev->team != this->pev->team))
                 {
                     float theDamage = BALANCE_VAR(kLeapDamage)*theScalar*theTouchDamageInterval;
                     inOther->TakeDamage(theInflictor, theAttacker, theDamage, NS_DMG_NORMAL);
@@ -2275,9 +2314,12 @@ void AvHPlayer::PlayerTouch(CBaseEntity* inOther)
                 }
             }
             
-            // Are we charging?
-            if(GetHasUpgrade(this->pev->iuser4, MASK_ALIEN_MOVEMENT) /*&& !this->GetIsBlinking()*/)
+			// Are we charging?
+/*			else if(GetHasUpgrade(this->pev->iuser4, MASK_ALIEN_MOVEMENT) && this->pev->iuser3 == AVH_USER3_ALIEN_PLAYER5)
             {
+				if ( this->m_rgpPlayerItems[4] )
+					theInflictor = this->m_rgpPlayerItems[4]->pev;
+				// Don't do friendly fire
                 if(GetGameRules()->CanEntityDoDamageTo(this, inOther, &theScalar))
                 {
                     float theDamage = BALANCE_VAR(kChargeDamage)*theScalar*theTouchDamageInterval;
@@ -2292,6 +2334,7 @@ void AvHPlayer::PlayerTouch(CBaseEntity* inOther)
                     this->mTimeOfLastTouchDamage = gpGlobals->time;
                 }
             }
+			*/
         }
     }
 }
@@ -3056,11 +3099,11 @@ void AvHPlayer::GetSpeeds(int& outBaseSpeed, int& outUnemcumberedSpeed) const
                 //theAlienBaseSpeed = this->mMaxGallopSpeed;
                 theAlienBaseSpeed = BALANCE_VAR(kOnosBaseSpeed);
 
-                if(GetHasUpgrade(this->pev->iuser4, MASK_ALIEN_MOVEMENT))
-                {
-                    theAlienBaseSpeed *= kChargingFactor;
-                    theSpeedUpgradeAmount *= kChargingFactor;
-                }
+//                if(GetHasUpgrade(this->pev->iuser4, MASK_ALIEN_MOVEMENT))
+//                {
+//                    theAlienBaseSpeed *= kChargingFactor;
+//                    theSpeedUpgradeAmount *= kChargingFactor;
+//                }
                 break;
         }
 
@@ -3293,7 +3336,8 @@ void AvHPlayer::ItemPostFrame(void)
     // Check if player tried to do something while we were in the ready room.  If so, display tutorial message.
     if(this->GetPlayMode() == PLAYMODE_READYROOM)
     {
-        if((this->pev->button & IN_ATTACK) || (this->pev->button & IN_ATTACK2) || (this->pev->button & IN_RELOAD))
+		// +movement: Removed case for +attack2
+        if((this->pev->button & IN_ATTACK) /* || (this->pev->button & IN_ATTACK2) */ || (this->pev->button & IN_RELOAD))
         {
             this->SendMessageOnce(kReadyRoomMessage, TOOLTIP);
         }
@@ -3317,10 +3361,11 @@ void AvHPlayer::Init()
 
     mServerVariableList.clear();
 	mLastUpdateTime = -1;
-    for (i = 0; i < theGameRules->GetNumServerVariables(); ++i)
+    for (i = 0; i < theGameRules->GetNumServerVariables(); i++)
     {
         mServerVariableList.push_back(ServerVariable());
-        mServerVariableList.back().mName = theGameRules->GetServerVariable(i);
+        mServerVariableList.back().mCvar = theGameRules->GetServerVariable(i);
+		mServerVariableList.back().mForceResend = true;
     }
     
     // Reset to default team
@@ -3386,12 +3431,15 @@ void AvHPlayer::Init()
     this->mTimeLastSeenOverwatchTarget = 0;
     this->mOverwatchFiredThisThink = false;
 
-	// tankefugl: 0000953 
+	// : 0000953 
 	this->mTimeLastJoinTeam = -1;
-	// tankefugl
+	// 
 
+	this->mTimeOfLastHiveUse = -1;
     // alien upgrades
+
     this->mTimeOfLastRegeneration = -1;
+	this->mTimeOfLastDCRegeneration = -1;
     this->mTimeOfLastPheromone = -1;
     this->mMaxGallopSpeed = 0;
 
@@ -3434,7 +3482,7 @@ void AvHPlayer::Init()
     this->mClientSpecialPASOrigin.x = this->mClientSpecialPASOrigin.y = this->mClientSpecialPASOrigin.z = 0.0f;
     this->mTimeOfLastPASUpdate = -1;
 
-	// puzl: 984
+	// : 984
 	// record the last time the player attempted to go to the readyroom
 	this->mTimeOfLastF4 = -1.0f;
 
@@ -3493,6 +3541,7 @@ void AvHPlayer::Init()
     // Don't set this, must propagate
     //this->mClientProgressBarEntityIndex = -1;
     this->mProgressBarParam = -1;
+	this->mProgressBarCompleted = -1;
     this->mTimeProgressBarTriggered = -1;
     this->mTimeOfLastFogTrigger = -1;
     this->mFogExpireTime = -1;
@@ -3558,20 +3607,26 @@ void AvHPlayer::Init()
     this->mCombatNodes.Clear();
     this->mPurchasedCombatUpgrades.clear();
     this->mGiveCombatUpgrades.clear();
+	this->mMarineHUDUpgrades=0;
+	this->mNumSensory=0;
+	this->mNumMovement=0;
+	this->mNumDefense=0;
+
+	this->mTimeOfLastMovementSound = -1.0f;
 }
 
 void AvHPlayer::InitializeFromTeam(float inHealthPercentage, float inArmorPercentage)
 {
     // Set base health and armor
     int theMaxHealth = AvHPlayerUpgrade::GetMaxHealth(this->pev->iuser4, (AvHUser3)this->pev->iuser3, this->GetExperienceLevel());
-    this->pev->health = this->pev->max_health = max(theMaxHealth*inHealthPercentage,1.0f);//voogru: prevent bug with players evolving down from higher lifeform from getting negative health but still "alive"
+    this->pev->health = this->pev->max_health = max(theMaxHealth*inHealthPercentage,1.0f);//: prevent bug with players evolving down from higher lifeform from getting negative health but still "alive"
 
     this->pev->armorvalue = AvHPlayerUpgrade::GetMaxArmorLevel(this->pev->iuser4, (AvHUser3)this->pev->iuser3)*inArmorPercentage;
     
     AvHTeam* theTeam = this->GetTeamPointer();
     if(theTeam)
     {
-        ASSERT(theTeam);
+        ASSERT(theTeam); 
         
         // If he's already on the team, this does nothing (his rank keeps over death)
         if(theTeam->AddPlayer(this->entindex()))
@@ -3782,11 +3837,11 @@ void AvHPlayer::ValidateClientMoveEvents()
         case SAYING_7:
         case SAYING_8:
         case SAYING_9:
-// tankefugl: 0000008
+// : 0000008
 // preventing spamming of request and ack
 		case ORDER_REQUEST:
         case ORDER_ACK:
-// :tankefugl
+// :
 			if(GetGameRules()->GetCheatsEnabled() || (gpGlobals->time > (this->mTimeOfLastSaying + kMinSayingInterval)))
             {
                 theIsValid = true;
@@ -3820,11 +3875,11 @@ void AvHPlayer::ValidateClientMoveEvents()
                     switch(theMessageID)
                     {
                     // Validate orders
-					// tankefugl: 0000008
+					// : 0000008
 					// preventing spamming of request and ack
                     //case ORDER_REQUEST:
                     //case ORDER_ACK:
-					// :tankefugl
+					// :
                         
                     // Validate weapon switches
                     case WEAPON_NEXT:
@@ -4008,6 +4063,11 @@ bool AvHPlayer::GetHasActiveAlienWeaponWithImpulse(AvHMessageID inMessageID) con
     return theHasWeapon;
 }
 
+bool AvHPlayer::GetHasSeenATeam()
+{
+	return (this->mHasSeenTeamA || this->mHasSeenTeamB);
+}
+
 bool AvHPlayer::GetHasSeenTeam(AvHTeamNumber inNumber) const
 {
     bool theHasBeenOnTeam = false;
@@ -4051,13 +4111,17 @@ void AvHPlayer::HandleTopDownInput()
 {
     // From CBasePlayer::PreThink():
     bool theAttackOneDown = FBitSet(this->mCurrentCommand.buttons, IN_ATTACK);
-    bool theAttackTwoDown = FBitSet(this->mCurrentCommand.buttons, IN_ATTACK2);
+    // +movement: Removed case for +attack2
+	bool theAttackTwoDown = false; //FBitSet(this->mCurrentCommand.buttons, IN_ATTACK2);
     bool theJumpHit = FBitSet(this->mCurrentCommand.buttons, IN_JUMP);
     bool theCrouchDown = FBitSet(this->mCurrentCommand.buttons, IN_DUCK);
     
     // If we are a commander
     if(this->pev->iuser3 == AVH_USER3_COMMANDER_PLAYER)
     {
+		// Ensure that orders are given through attack2, even though used as +movement
+		theAttackTwoDown = FBitSet(this->mCurrentCommand.buttons, IN_ATTACK2);
+
         this->mLastTimeInCommandStation = gpGlobals->time;
 
         // Fetch world x and world y from move.
@@ -4261,7 +4325,7 @@ void AvHPlayer::HandleTopDownInput()
 
                 if(GetGameRules()->GetGameStarted())
                 {
-					// 551 puzl
+					// 551 
 					// Hack to stop free scans.  This should be reworked as a generic solution for energy based build events.
 					bool theCanBuild=true;
 					if(this->mSelected.size() > 0) 
@@ -4281,11 +4345,11 @@ void AvHPlayer::HandleTopDownInput()
 					}
 
 					if ( theCanBuild ) {
-						// puzl
+						// 
 						this->BuildTech(theMessageID, this->mAttackOnePressedWorldPos);
 						this->mTimeOfLastSignificantCommanderAction = gpGlobals->time;
 
-// tankefugl: 0001014	                    
+// : 0001014	                    
 //						// If player(s) selected when something built, give default order to it (assumes that players can't be selected along with other non-players)
 //						if(AvHSHUGetIsBuilding(theMessageID))
 //						{
@@ -4301,7 +4365,7 @@ void AvHPlayer::HandleTopDownInput()
 //								}
 //							}
 //						}
-// :tankefugl
+// :
 					}
                 }
             }
@@ -4547,7 +4611,7 @@ void AvHPlayer::Killed( entvars_t *pevAttacker, int iGib )
         this->mTimeToBeUnensnared = -1;
         this->mLastTimeEnsnared = -1;
         
-        this->mAlienSightActive = false;
+        //this->mAlienSightActive = false;
         this->mEvolution = MESSAGE_NULL;
 		this->SetUsedKilled(false);
         
@@ -4594,7 +4658,7 @@ void AvHPlayer::Killed( entvars_t *pevAttacker, int iGib )
         // (see ClientKill)
         CBasePlayer::Killed(pevAttacker, iGib);
 
-		//voogru: remove parasite flag if they are a marine.
+		//: remove parasite flag if they are a marine.
 		if(this->GetIsMarine())
 			SetUpgradeMask(&this->pev->iuser4, MASK_PARASITED, false); 
         
@@ -4810,6 +4874,8 @@ bool AvHPlayer::PlaySaying(AvHMessageID inMessageID)
         case SAYING_4:
         case SAYING_5:
         case SAYING_6:
+		case SAYING_8:
+			// : 0001088  added SAYING_8
             sprintf(theSoundList, kAlienSayingList, (inMessageID - SAYING_1 + 1));
             break;
         }
@@ -5015,7 +5081,7 @@ void AvHPlayer::RevertHealthArmorPercentages()
 {
     // Preserve armor and health percentages
     int theMaxHealth = AvHPlayerUpgrade::GetMaxHealth(this->pev->iuser4, (AvHUser3)this->pev->iuser3, this->GetExperienceLevel());
-    this->pev->health = max(this->mHealthPercentBefore*theMaxHealth,1.0f);//voogru: prevent bug with players evolving down from higher lifeform from getting negative health but still "alive"
+    this->pev->health = max(this->mHealthPercentBefore*theMaxHealth,1.0f);//: prevent bug with players evolving down from higher lifeform from getting negative health but still "alive"
 
     int theMaxArmor = AvHPlayerUpgrade::GetMaxArmorLevel(this->pev->iuser4, (AvHUser3)this->pev->iuser3);
     this->pev->armorvalue = max(this->mArmorPercentBefore*theMaxArmor, 0.0f);
@@ -5170,7 +5236,7 @@ void AvHPlayer::LogPlayerAttackedPlayer(CBasePlayer* inAttackingPlayer, const ch
         edict_t* theReceiver = this->edict();
 
         bool theLogAttack = false;
-        int theLogDetail = CVAR_GET_FLOAT(kvLogDetail);
+        int theLogDetail = ns_cvar_float(&avh_logdetail);
 
         if((theLogDetail > 0) && (theAttacker->v.team != theReceiver->v.team))
         {
@@ -5210,7 +5276,7 @@ void AvHPlayer::LogPlayerKilledPlayer(CBasePlayer* inAttackingPlayer, const char
         edict_t* theReceiver = this->edict();
         
         bool theLogAttack = false;
-        int theLogDetail = CVAR_GET_FLOAT(kvLogDetail);
+        int theLogDetail = ns_cvar_float(&avh_logdetail);
         
         if((theLogDetail > 0) && (theAttacker->v.team != theReceiver->v.team))
         {
@@ -5409,12 +5475,15 @@ void AvHPlayer::InternalDigestionThink()
             
             // Set status bar estimating how long before player will be digested (for both digestee and digester)
             theDigestee->TriggerProgressBar(theDigesteeIndex, 3);
-            this->TriggerProgressBar(theDigesteeIndex, 3);
             
             // Set fuser3 appropriately
             int theMaxHealth = AvHPlayerUpgrade::GetMaxHealth(theDigestee->pev->iuser4, theDigestee->GetUser3(), this->GetExperienceLevel());
             float theDigestingScalar = (((float)theMaxHealth - theDigestee->pev->health)/(float)theMaxHealth);
             /*this->pev->fuser3 =*/ theDigestee->pev->fuser3 = theDigestingScalar*kNormalizationNetworkFactor;
+
+			int thePercent=theDigestingScalar*100.0f	;
+			thePercent=min(100, max(0, thePercent));
+            this->TriggerProgressBar(theDigesteeIndex, 5, thePercent);
 
             // Set sound effects as player gets more and more digested
             int theDesiredRoomType = 26; // strange sounds right before you die
@@ -5444,6 +5513,7 @@ void AvHPlayer::InternalDigestionThink()
         // If digestee is dead and no longer relevant
         if(!theDigestee->IsAlive() || !theDigestee->GetIsRelevant() || (theDigestee->GetTeam() == this->GetTeam()))
         {
+			this->mProgressBarParam = -1;
             this->StopDigestion(thePlayerWasDigested);
         }
     }
@@ -5894,6 +5964,8 @@ float AvHPlayer::GetCloakTime() const
     {
         // If we have cloaking upgrade, we cloak faster
         int theCloakingLevel = AvHGetAlienUpgradeLevel(this->pev->iuser4, MASK_UPGRADE_7);
+		if ( GetHasUpgrade(this->pev->iuser4, MASK_SENSORY_NEARBY) )
+			theCloakingLevel=3;
         if(theCloakingLevel > 0)
         {
             theCloakTime = BALANCE_VAR(kCloakTime)/theCloakingLevel;
@@ -5905,7 +5977,7 @@ float AvHPlayer::GetCloakTime() const
 
 void AvHPlayer::InternalAlienUpgradesCloakingThink()
 {
-	// joev: 
+	// : 
 	// 0000342 - Cloaking no longer depends on speed. 
 
 	// For some reason the lerk moves faster when turning
@@ -5924,7 +5996,7 @@ void AvHPlayer::InternalAlienUpgradesCloakingThink()
 		//Uncloak
         this->Uncloak();
     }
-	// :joev
+	// :
 	else
     { 
         // If we have cloaking upgrade
@@ -5932,7 +6004,7 @@ void AvHPlayer::InternalAlienUpgradesCloakingThink()
         if(theCloakingLevel > 0)
         {
 			// If time needed to cloak has passed
-			// puzl:  864
+			// :  864
 			float theMaxWalkSpeed=this->pev->maxspeed * ((this->pev->iuser3 == AVH_USER3_ALIEN_PLAYER3) ? .95f : .7f);
 			float theSpeed=AvHGetAlienUpgradeLevel(this->pev->iuser4, MASK_SENSORY_NEARBY) ? 0.0f : this->pev->velocity.Length();
 			this->SetSpeeds(theSpeed, this->pev->maxspeed*1.05, theMaxWalkSpeed);
@@ -5955,48 +6027,86 @@ bool AvHPlayer::Redeem()
     AvHTeam* theTeam = this->GetTeamPointer();
     if(theTeam && (theTeam->GetNumActiveHives() > 0))
     {
+		vector<int> theSafeHives;
+		vector<int> theAttackedHives;
         // Bring player back
         if(this->GetTeamPointer()->GetNumActiveHives() > 0)
         {
+
+			// Loop through the hives for this team, look for the farthest one (hives under attack take precedence)
+			FOR_ALL_ENTITIES(kesTeamHive, AvHHive*)
+				if(theEntity->pev->team == this->pev->team)
+				{
+					bool theHiveIsUnderAttack = GetGameRules()->GetIsEntityUnderAttack(theEntity->entindex());
+					// allow teleport to any built hive, or unbuilt hives under attack.
+					if(!theEntity->GetIsSpawning())
+					{
+						if ( theHiveIsUnderAttack ) 
+							theAttackedHives.push_back(theEntity->entindex());
+						else
+							theSafeHives.push_back(theEntity->entindex());
+
+					}
+				}
+			END_FOR_ALL_ENTITIES(kesTeamHive)
+		
+		}
+		vector<int> *tmpPtr=&theSafeHives;
+		if ( theSafeHives.size() == 0 )
+			tmpPtr=&theAttackedHives;
+
+		int teleportHiveIndex=-1;
+		if ( tmpPtr->size() > 0 ) {
+			int index=RANDOM_LONG(0, tmpPtr->size()-1);
+			teleportHiveIndex=(*tmpPtr)[index];
+		}
+
+		// If we have a valid hive index, jump the player to it
+		if(teleportHiveIndex != -1)
+		{
             // Play redeem effect where it happened so attackers know it happened
             PLAYBACK_EVENT_FULL(0, this->edict(), gStartCloakEventID, 0, this->pev->origin, (float *)&g_vecZero, this->GetAlienAdjustedEventVolume(), 0.0, /*theWeaponIndex*/ 0, 0, 0, 0 );
-            
-            edict_t* theNewSpawnPoint = GetGameRules()->SelectSpawnPoint(this);
-            if(!FNullEnt(theNewSpawnPoint))
-            {
-                //// Create building here to test getting stuck
-                //const int kOffset = 20;
-                //Vector theBaseOrigin = theNewSpawnPoint->v.origin;
-                //Vector theRandomOffset(theBaseOrigin.x + RANDOM_LONG(-kOffset, kOffset), theBaseOrigin.y + RANDOM_LONG(-kOffset, kOffset), theBaseOrigin.z + RANDOM_LONG(-kOffset, kOffset));
-                //AvHSUBuildTechForPlayer(ALIEN_BUILD_MOVEMENT_CHAMBER, theRandomOffset, this);
+		
+			// Move him to it!
+			AvHHive* theHive = NULL;
+			AvHSUGetEntityFromIndex(teleportHiveIndex, theHive);
+			if(theHive)
+			{
+				CBaseEntity* theSpawnEntity = GetGameRules()->GetRandomHiveSpawnPoint(this, theHive->pev->origin, theHive->GetMaxSpawnDistance());
+				if(theSpawnEntity)
+				{
+					Vector theMinSize;
+					Vector theMaxSize;
+					this->GetSize(theMinSize, theMaxSize);
 
-                theNewSpawnPoint = GetGameRules()->SelectSpawnPoint(this);
-                if(!FNullEnt(theNewSpawnPoint))
-                {
-                    if(this->GetIsDigesting())
-                    {
-                        this->StopDigestion(false);
-                    }
+					int theOffset = AvHMUGetOriginOffsetForUser3(AvHUser3(this->pev->iuser3));
+					Vector theOriginToSpawn = theSpawnEntity->pev->origin;
+					theOriginToSpawn.z += theOffset;
 
-                    mTimeOfLastRedeem = gpGlobals->time;
+					if(AvHSUGetIsEnoughRoomForHull(theOriginToSpawn, AvHMUGetHull(false, this->pev->iuser3), this->edict()))
+					{
+						this->SetPosition(theOriginToSpawn);
+						this->pev->velocity = Vector(0, 0, 0);
+	                    if(this->GetIsDigesting())
+		                {
+			                this->StopDigestion(false);
+				        }
 
-                    // Respawn player normally
-                    this->InitPlayerFromSpawn(theNewSpawnPoint);
-                    
-                    PLAYBACK_EVENT_FULL(0, this->edict(), gStartCloakEventID, 0, this->pev->origin, (float *)&g_vecZero, this->GetAlienAdjustedEventVolume(), 0.0, /*theWeaponIndex*/ 0, 0, 0, 0 );
-                }
+					    mTimeOfLastRedeem = gpGlobals->time;
+		                theSuccess = true;
 
-                theSuccess = true;
-            }
-        }
-    }
-
+						// Play teleport sound before and after
+						PLAYBACK_EVENT_FULL(0, this->edict(), gStartCloakEventID, 0, this->pev->origin, (float *)&g_vecZero, this->GetAlienAdjustedEventVolume(), 0.0, /*theWeaponIndex*/ 0, 0, 0, 0 );					}
+				}
+			}
+		}
+	}
     return theSuccess;
 }
 
 void AvHPlayer::InternalAlienUpgradesRegenerationThink()
 {
-	// puzl - 0000856  - Add innate regeneration for all alien players.
+	//  - 0000856  - Add innate regeneration for all alien players.
 	// Add a small and silent innate health and armor regeneration for
 	// all alien players, similar to the innate regeneration of all alien
 	// chambers. If a player chooses the regeneration upgrade, it replaces
@@ -6070,7 +6180,7 @@ void AvHPlayer::InternalAlienUpgradesRegenerationThink()
 
 void AvHPlayer::ProcessEntityBlip(CBaseEntity* inEntity)
 {
-   	// puzl: 982
+   	// : 982
 	// Make alien hivesight range a balance var
     const float kAlienFriendlyBlipRange = BALANCE_VAR(kHiveSightRange);
     
@@ -6118,8 +6228,7 @@ void AvHPlayer::ProcessEntityBlip(CBaseEntity* inEntity)
                 {
                     theBlipStatus = kVulnerableFriendlyBlipStatus;
                 }
-
-                if(theOtherPlayer->GetUser3() == AVH_USER3_ALIEN_PLAYER2)
+                else if(theOtherPlayer->GetUser3() == AVH_USER3_ALIEN_PLAYER2)
                 {
                     theBlipStatus = kGorgeBlipStatus;
                 }
@@ -6271,7 +6380,7 @@ void AvHPlayer::ProcessEntityBlip(CBaseEntity* inEntity)
              // If enemy, add it to enemy list if "detected" // Elven - we don't want motion blips on aliens visible to us.
 			// && !(inEntity->pev->iuser4 & MASK_VIS_SIGHTED) <- this won't work as if I see an alien, other marines won't see MT if they're in another room
 			bool visibleToThis = this->GetIsEntityInSight(inEntity);
-			if(!theIsFriendly && (inEntity->pev->iuser4 & MASK_VIS_DETECTED) && !visibleToThis && inEntity->IsAlive())//voogru: make sure there alive
+			if(!theIsFriendly && (inEntity->pev->iuser4 & MASK_VIS_DETECTED) && !visibleToThis && inEntity->IsAlive())//: make sure there alive
             {
                 this->mEnemyBlips.AddBlip(inEntity->pev->origin.x, inEntity->pev->origin.y, inEntity->pev->origin.z, kMarineEnemyBlipStatus);
             }
@@ -6373,7 +6482,7 @@ bool AvHPlayer::QueryEnemySighted(CBaseEntity* inEntity)
             if(inEntity->IsAlive() && this->GetIsEntityInSight(inEntity))
             {
                 AvHPlayer* thePlayer = dynamic_cast<AvHPlayer*>(inEntity);
-				//this->CompareToPlayer(inEntity); //voogru: WTF?
+				//this->CompareToPlayer(inEntity); //: WTF?
                 if(!thePlayer || (thePlayer->GetIsRelevant() && !thePlayer->GetIsCloaked()))
                 {
                     this->mEnemySighted = true;
@@ -6427,7 +6536,7 @@ void AvHPlayer::InternalAlienThink()
             }
         }
 
-		// Uncloak if we are charging
+		// Uncloak if we are charging, leaping or blinking
 		if(GetHasUpgrade(this->pev->iuser4, MASK_ALIEN_MOVEMENT))
 		{
 			this->TriggerUncloak();
@@ -6516,13 +6625,20 @@ void AvHPlayer::InternalCommonThink()
     int theMaxArmor = AvHPlayerUpgrade::GetMaxArmorLevel(this->pev->iuser4, (AvHUser3)this->pev->iuser3);
     int theCurrentArmor = max(0.0f, this->pev->armorvalue);
 
-    // Draw ring to take into account health and armor for aliens, just health for marines (so gorge and comm know when to heal)
-    float theScalar = (float)theCurrentHealth/theMaxHealth;
-    if(this->GetIsAlien())
+    // Draw ring to take into account health and armor for aliens, 
+	// Send armor and health for marines
+    if(this->GetIsMarine())
     {
-        theScalar = (theCurrentHealth + theCurrentArmor)/(float)(theMaxHealth + theMaxArmor);
+		// : 991 use a composite for marine armour and health
+		int theCurrentArmorPercent=(theCurrentArmor*100)/theMaxArmor;
+		int theCurrentHealthPercent=(theCurrentHealth*100)/theMaxHealth;
+		this->pev->fuser2= (float)( ((theCurrentArmorPercent&0x7F) << 7 ) + (theCurrentHealthPercent & 0x7F));
     }
-    this->pev->fuser2 = theScalar*kNormalizationNetworkFactor;
+	else 
+	{
+	    float theScalar = (float)(theCurrentHealth + theCurrentArmor)/(float)(theMaxHealth + theMaxArmor);
+		this->pev->fuser2 = theScalar*kNormalizationNetworkFactor;
+	}
     
     //float theRandomAngle = RANDOM_FLOAT(0, 50);
     //this->pev->v_angle.x = theRandomAngle;
@@ -6599,15 +6715,20 @@ void AvHPlayer::PropagateServerVariables()
 {
 	if ( gpGlobals->time > (mLastUpdateTime + 0.5f) )
 	{
-		for (int i = 0; i < (signed)mServerVariableList.size(); ++i)
+		for (int i = 0; i < (signed)mServerVariableList.size(); i++)
 		{
-			std::string theValue = CVAR_GET_STRING( mServerVariableList[i].mName.c_str() );
-	        
-			if ( mServerVariableList[i].mLastValueSent != theValue)
-			{
-				NetMsg_ServerVar( this->pev, mServerVariableList[i].mName, theValue );
-				mServerVariableList[i].mLastValueSent = theValue;
-				break; // Only send one message per tick to avoid overflow.
+			//std::string theValue = CVAR_GET_STRING( mServerVariableList[i].mName.c_str() );
+			if ( mServerVariableList[i].mCvar ) {
+				const cvar_t *theCvar=mServerVariableList[i].mCvar;
+				const bool forceResend=mServerVariableList[i].mForceResend;
+				mServerVariableList[i].mForceResend=false;
+				int theValue = theCvar->value;
+				if ( forceResend || ( mServerVariableList[i].mLastValueSent != theValue) )
+				{
+					NetMsg_ServerVar( this->pev, theCvar->name, theValue );
+					mServerVariableList[i].mLastValueSent = theValue;
+					break; // Only send one message per tick to avoid overflow.
+				}
 			}
 		}
 		mLastUpdateTime = gpGlobals->time;
@@ -6700,6 +6821,158 @@ void AvHPlayer::InternalPreThink()
     PROFILE_START()
     this->InternalHUDThink();
     PROFILE_END(kPlayerHUDThink)
+
+	this->InternalMovementThink();
+}
+
+// Charge pushback
+void AvHPlayer::InternalMovementThink()
+{
+	const char	*theSoundToPlay;
+	bool	thePlaySound = false;
+	float	theSoundDelay = 0.0f;
+
+	// SKULK
+	if(GetHasUpgrade(this->pev->iuser4, MASK_ALIEN_MOVEMENT) && (GetUser3() == AVH_USER3_ALIEN_PLAYER1))
+	{
+		thePlaySound = true;
+		theSoundDelay = kLeapROF;
+		theSoundToPlay = kLeapSound;
+
+		// Ensure that we do leap damage
+		this->StartLeap();
+	}
+
+	// FADE
+	if(GetHasUpgrade(this->pev->iuser4, MASK_ALIEN_MOVEMENT) && (GetUser3() == AVH_USER3_ALIEN_PLAYER4))
+	{
+		thePlaySound = true;
+		theSoundDelay = 2.0f;
+		theSoundToPlay = kBlinkSound;
+	}
+
+	// ONOS
+	if(GetHasUpgrade(this->pev->iuser4, MASK_ALIEN_MOVEMENT) && (GetUser3() == AVH_USER3_ALIEN_PLAYER5))
+	{
+		thePlaySound = true;
+		theSoundDelay = 2.0f;
+		theSoundToPlay = "weapons/charge2.wav";
+
+		// Push back players
+		CBaseEntity* theEntity = NULL;
+		float radius = (float)BALANCE_VAR(kChargePushbackRadius);
+		float maxpushbackspeedfactor = (float)BALANCE_VAR(kChargeMaxPushbackSpeedFactor);
+		float pushbackfactor = (float)BALANCE_VAR(kChargeMaxPushbackForce);
+
+		// Ensure that we don't push back players in the readyroom
+		if (this->GetPlayMode() == PLAYMODE_PLAYING)
+		{
+			// Find all entities around the onos
+			while((theEntity = UTIL_FindEntityInSphere(theEntity, this->pev->origin, radius)) != NULL)
+			{
+				if (theEntity->IsPlayer() && theEntity->IsAlive() && theEntity->entindex() != this->entindex())
+				{
+					float distance = VectorDistance(this->pev->origin, theEntity->pev->origin);
+					if (distance >= 0.0f && distance <=radius)
+					{
+						float factor = pushbackfactor / (radius / distance);
+
+						float weigthFactor=1.0f;
+						int veriticalLimit=110;
+						switch(theEntity->pev->iuser3) {
+							case AVH_USER3_ALIEN_PLAYER4:
+								weigthFactor=0.70f;
+								veriticalLimit=85;
+								break;
+							case AVH_USER3_ALIEN_PLAYER5:
+								weigthFactor=0.55f;
+								veriticalLimit=55;
+								break;
+							case AVH_USER3_MARINE_PLAYER:
+								if (GetHasUpgrade(this->pev->iuser4, MASK_UPGRADE_13)) {
+									weigthFactor=0.65f;
+									veriticalLimit=75;
+								}
+								break;
+							default:
+								break;
+						}
+						factor*=weigthFactor;
+
+						vec3_t direction, heading;
+						VectorSubtract(theEntity->pev->origin, this->pev->origin, direction);
+						VectorNormalize(direction);
+
+						VectorCopy(this->pev->velocity, heading);
+						VectorNormalize(heading);
+						
+						float dot = DotProduct(heading, direction);
+						dot=max(dot, 0.4f);
+						if (dot > 0.0f)
+						{
+							ALERT(at_console, "dot=%f direction = {%f, %f, %f}\n", dot, direction[0],direction[1],direction[2]);
+							VectorScale(direction, factor * dot, direction);
+							VectorAdd(theEntity->pev->velocity, direction, theEntity->pev->velocity);
+							if (Length(theEntity->pev->velocity) > theEntity->pev->maxspeed * maxpushbackspeedfactor)
+							{
+								VectorNormalize(theEntity->pev->velocity);
+								VectorScale(theEntity->pev->velocity, theEntity->pev->maxspeed * maxpushbackspeedfactor, theEntity->pev->velocity);
+							}
+							theEntity->pev->velocity[2] = max(veriticalLimit, theEntity->pev->velocity[2]);
+
+							// Don't do "touch" damage too quickly
+							float theTouchDamageInterval = BALANCE_VAR(kTouchDamageInterval);
+							if((this->mTimeOfLastTouchDamage == -1) || (gpGlobals->time > (this->mTimeOfLastTouchDamage + theTouchDamageInterval)))
+							{
+								entvars_t* theInflictor=this->pev;
+								if ( this->m_rgpPlayerItems[4] )
+									theInflictor = this->m_rgpPlayerItems[4]->pev;
+								float theScalar=0.0f;
+								if(GetGameRules()->CanEntityDoDamageTo(this, theEntity, &theScalar))
+								{
+									float theDamage = BALANCE_VAR(kChargeDamage)*theScalar*theTouchDamageInterval;
+									ALERT(at_console, "doing %f damage\n", theDamage);
+									theEntity->TakeDamage(theInflictor, this->pev, theDamage, NS_DMG_NORMAL);
+				            
+									if(theEntity->IsPlayer() && !theEntity->IsAlive())
+									{
+										EMIT_SOUND(ENT(this->pev), CHAN_WEAPON, kChargeKillSound, 1.0, ATTN_NORM);
+									}
+
+									this->mTimeOfLastTouchDamage = gpGlobals->time;
+								}
+							}
+						}
+
+						// ALERT(at_console, UTIL_VarArgs("direction %f %f %f heading %f %f %f endvel %f %f %f\n", direction[0], direction[1], direction[2], heading[0], heading[1], heading[2], theEntity->pev->velocity[0], theEntity->pev->velocity[1], theEntity->pev->velocity[2]));
+					}
+				}
+			}
+		}
+	}
+
+	if (thePlaySound && (mTimeOfLastMovementSound + theSoundDelay < gpGlobals->time))
+	{
+		float theVolumeScalar = this->GetAlienAdjustedEventVolume();
+		if (this->GetPlayMode() != PLAYMODE_PLAYING)
+			theVolumeScalar *= 0.2f;
+		float thePitch = 94.0f + (float)RANDOM_LONG(0, 16);
+
+		if (theSoundToPlay == kLeapSound ) {
+			for ( int i=0; i < MAX_ITEM_TYPES; i++ ) {
+				AvHLeap* theLeap = dynamic_cast<AvHLeap*>(this->m_rgpPlayerItems[i]);
+				if ( theLeap && theLeap->IsUseable() ) {
+					theLeap->PlaybackLeapEvent();
+					this->mTimeOfLastMovementSound = gpGlobals->time;
+					break;
+				}
+			}
+		}
+		else {
+			EMIT_SOUND_DYN(ENT(this->pev), CHAN_WEAPON, theSoundToPlay, theVolumeScalar, ATTN_NORM, 0, 100);
+			this->mTimeOfLastMovementSound = gpGlobals->time;
+		}
+	}
 }
 
 void AvHPlayer::InternalFogThink()
@@ -6827,6 +7100,7 @@ void AvHPlayer::InternalProgressBarThink()
             this->mTimeProgressBarTriggered = -1;
             this->mProgressBarEntityIndex = -1;
             this->mProgressBarParam = -1;
+			this->mProgressBarCompleted = -1;
         }
     }
 }
@@ -6975,6 +7249,10 @@ void AvHPlayer::ResetEntity(void)
     this->mNewMap = theSavedNewMap;
     this->mDesiredNetName = theSavedDesiredNetName;
     this->mClientInfoLocations = theSavedClientInfoLocations;
+	this->mMarineHUDUpgrades=0;
+	this->mNumSensory=0;
+	this->mNumMovement=0;
+	this->mNumDefense=0;
 }
 
 void AvHPlayer::ResetOverwatch()
@@ -7003,7 +7281,7 @@ void AvHPlayer::SetModelFromState()
 	{
 	case AVH_USER3_MARINE_PLAYER:
 	    theModelName = kMarineSoldierModel;
-	    if(this->GetHasHeavyArmor())
+	    if(GetHasUpgrade(this->pev->iuser4, MASK_UPGRADE_13))
 	    {
 	        theModelName = kHeavySoldierModel;
 	    }
@@ -7053,7 +7331,7 @@ void AvHPlayer::SetModelFromState()
 
 	// Set body group for marine armor
 	this->pev->body = 0;
-	if(this->GetHasJetpack())
+	if(this->pev->iuser3 == AVH_USER3_MARINE_PLAYER && GetHasUpgrade(this->pev->iuser4, MASK_UPGRADE_7))
 	{
 		this->pev->body = 1;
 	}
@@ -7939,6 +8217,8 @@ void AvHPlayer::SetResources(float inResources, bool inPlaySound)
             {
                 this->PlayHUDSound(HUD_SOUND_ALIEN_POINTS_RECEIVED);
             }
+			if ( this->mResources != inResources ) 
+				this->EffectivePlayerClassChanged();
 
             this->mResources = inResources;
         }
@@ -7958,7 +8238,7 @@ void AvHPlayer::SetResources(float inResources, bool inPlaySound)
 
 void AvHPlayer::Spawn( void )
 {
-    CBasePlayer::Spawn();
+	CBasePlayer::Spawn();
     //this->PrecacheAndSetPlayerModel();
     
     pev->classname = MAKE_STRING(kAvHPlayerClassName);
@@ -8374,41 +8654,47 @@ bool AvHPlayer::Energize(float inEnergyAmount)
     return theSuccess;
 }
 
-bool AvHPlayer::Heal(float inAmount, bool inPlaySound)
+bool AvHPlayer::Heal(float inAmount, bool inPlaySound, bool dcHealing)
 {
-    int theMaxHealth = AvHPlayerUpgrade::GetMaxHealth(this->pev->iuser4, (AvHUser3)this->pev->iuser3, this->GetExperienceLevel());
-    int theMaxArmor = AvHPlayerUpgrade::GetMaxArmorLevel(this->pev->iuser4, (AvHUser3)this->pev->iuser3);
     bool theDidHeal = false;
-	float theAmount = inAmount;
-    
-    // If we aren't at full health, heal health
-	if(this->pev->health < theMaxHealth)
-	{
-		int theAmountToGive = theAmount;
-		theAmount -= (theMaxHealth - this->pev->health); //store relative amount compared to that necessary for complete heal
-		this->pev->health = min((float)theMaxHealth, this->pev->health + theAmountToGive);
-		theDidHeal = true;
-	}
-	else if(this->pev->armorvalue < theMaxArmor)
-    {
-        this->pev->armorvalue = min((float)theMaxArmor, this->pev->armorvalue + theAmount);
-        theDidHeal = true;
-    }
-    
-    // Play regen event
-    if(theDidHeal)
-    {
-        if(inPlaySound)
-        {
-            // Play regeneration event
-            PLAYBACK_EVENT_FULL(0, this->edict(), gRegenerationEventID, 0, this->pev->origin, (float *)&g_vecZero, this->GetAlienAdjustedEventVolume(), 0.0, /*theWeaponIndex*/ 0, 0, 0, 0 );
-        }
-    }
-    
+	if ( gpGlobals->time > this->mTimeOfLastDCRegeneration + BALANCE_VAR(kDefenseChamberThinkInterval) - 0.05f || (dcHealing == false) ) {
+		if ( dcHealing ) {
+			this->mTimeOfLastDCRegeneration = gpGlobals->time;
+		}
+
+		int theMaxHealth = AvHPlayerUpgrade::GetMaxHealth(this->pev->iuser4, (AvHUser3)this->pev->iuser3, this->GetExperienceLevel());
+		int theMaxArmor = AvHPlayerUpgrade::GetMaxArmorLevel(this->pev->iuser4, (AvHUser3)this->pev->iuser3);
+
+		float theAmount = inAmount;
+	    
+		// If we aren't at full health, heal health
+		if(this->pev->health < theMaxHealth)
+		{
+			int theAmountToGive = theAmount;
+			theAmount -= (theMaxHealth - this->pev->health); //store relative amount compared to that necessary for complete heal
+			this->pev->health = min((float)theMaxHealth, this->pev->health + theAmountToGive);
+			theDidHeal = true;
+		}
+		else if(this->pev->armorvalue < theMaxArmor)
+		{
+			this->pev->armorvalue = min((float)theMaxArmor, this->pev->armorvalue + theAmount);
+			theDidHeal = true;
+		}
+	    
+		// Play regen event
+		if(theDidHeal)
+		{
+			if(inPlaySound)
+			{
+				// Play regeneration event
+				PLAYBACK_EVENT_FULL(0, this->edict(), gRegenerationEventID, 0, this->pev->origin, (float *)&g_vecZero, this->GetAlienAdjustedEventVolume(), 0.0, /*theWeaponIndex*/ 0, 0, 0, 0 );
+			}
+		}
+	}    
     return theDidHeal;
 }
 
-bool AvHPlayer::Regenerate(float inRegenerationAmount, bool inPlaySound)
+bool AvHPlayer::Regenerate(float inRegenerationAmount, bool inPlaySound, bool dcHealing)
 {
     bool theDidRegenerate = this->Heal(inRegenerationAmount, inPlaySound);
 
@@ -8460,7 +8746,7 @@ bool AvHPlayer::Resupply(bool inGiveHealth)
 
         if(inGiveHealth)
         {
-			// puzl: 1017 armoury gives 10 health per use
+			// : 1017 armoury gives 10 health per use
             if(AvHHealth::GiveHealth(this, BALANCE_VAR(kPointsPerArmouryHealth)))
             {
                 // Play event for each person helped
@@ -8565,13 +8851,15 @@ void AvHPlayer::TriggerFog(int inFogEntity, float inFogExpireTime)
     }
 }
 
-void AvHPlayer::TriggerProgressBar(int inEntityID, int inParam)
+void AvHPlayer::TriggerProgressBar(int inEntityID, int inParam, int inPercent)
 {
     ASSERT(inEntityID >= 0);
 
     this->mProgressBarEntityIndex = inEntityID;
     this->mProgressBarParam = inParam;
+	this->mProgressBarCompleted = inPercent;
     this->mTimeProgressBarTriggered = gpGlobals->time;
+	
 }
 
 float AvHPlayer::GetTimeOfLastTeleport() const
@@ -8829,7 +9117,7 @@ int AvHPlayer::TakeDamage( entvars_t* pevInflictor, entvars_t* pevAttacker, floa
                     }
                 }
             
-                bool theDrawDamage = (CVAR_GET_FLOAT(kvDrawDamage) > 0);
+                bool theDrawDamage = (ns_cvar_float(&avh_drawdamage) > 0);
                 
                 if(theDrawDamage)
                 {
@@ -8944,13 +9232,18 @@ void AvHPlayer::PrintWeaponListToClient(CBaseEntity *theAvHPlayer) {
 
         for(int i = 0; i < MAX_ITEM_TYPES; i++)
         {
+			int j=0;
             AvHBasePlayerWeapon* theActiveWeapon = dynamic_cast<AvHBasePlayerWeapon*>(this->m_rgpPlayerItems[i]);
             while(theActiveWeapon)
             {
+				char msg[1024];
+				sprintf(msg, "%d[%d] ", i, j);
+				ClientPrint(theAvHPlayer->pev, HUD_PRINTNOTIFY, msg);
                 theActiveWeapon->PrintWeaponToClient(theAvHPlayer);
 
                 // Next weapon
                 theActiveWeapon = dynamic_cast<AvHBasePlayerWeapon*>(theActiveWeapon->m_pNext);
+				j++;
             }
         }
 }
@@ -9145,7 +9438,73 @@ void AvHPlayer::UpdateAlienUI()
                 this->mClientHiveInfo = theTeamHiveInfo;
             }
         }
+
+		if ( theIsAlien ) {
+			int currentMask=0;
+			currentMask |= ( this->mNumSensory & 0x3 );
+			currentMask <<= 2;
+			currentMask |= ( this->mNumDefense & 0x3 );
+			currentMask <<= 2;
+			currentMask |= ( this->mNumMovement & 0x3 );
+			currentMask |= 0x80;
+
+			int teamMask=0;
+			AvHEntityHierarchy& theEntHier=GetGameRules()->GetEntityHierarchy(this->GetTeam());
+			teamMask |= ( theEntHier.GetNumSensory() & 0x3 );
+			teamMask <<= 2;
+			teamMask |= ( theEntHier.GetNumDefense() & 0x3 );
+			teamMask <<= 2;
+			teamMask |= ( theEntHier.GetNumMovement() & 0x3 );
+			teamMask |= 0x80;
+
+			if ( currentMask != teamMask ) {
+				this->mNumSensory=theEntHier.GetNumSensory();
+				this->mNumDefense=theEntHier.GetNumDefense();
+				this->mNumMovement=theEntHier.GetNumMovement();
+				NetMsg_HUDSetUpgrades(this->pev, teamMask);
+			}
+		}
     }
+}
+
+void AvHPlayer::UpdateMarineUI()
+{
+    AvHTeam* theTeamPointer = this->GetTeamPointer();
+    bool theIsMarine = false;
+    bool theIsAlien = false;
+
+    if(this->GetIsAlien())
+    {
+		return;
+    }
+
+	int tmpUpgrades=0;
+    for(int i = 0; i < MAX_ITEM_TYPES; i++)
+    {
+		AvHBasePlayerWeapon* theActiveWeapon = dynamic_cast<AvHBasePlayerWeapon*>(this->m_rgpPlayerItems[i]);
+        while(theActiveWeapon)
+        {
+			ItemInfo ii;
+			theActiveWeapon->GetItemInfo(&ii);
+			switch ( ii.iId ) {
+				case AVH_WEAPON_WELDER:
+					tmpUpgrades |= 0x1;
+					break;
+				case AVH_WEAPON_MINE:
+					tmpUpgrades |= 0x2;
+					break;
+				case AVH_WEAPON_GRENADE:
+					tmpUpgrades |= 0x4;
+					break;
+			}
+            // Next weapon
+            theActiveWeapon = dynamic_cast<AvHBasePlayerWeapon*>(theActiveWeapon->m_pNext);
+        }
+    }
+	if ( tmpUpgrades != this->mMarineHUDUpgrades ) {
+		NetMsg_HUDSetUpgrades(this->pev, tmpUpgrades&0x7);
+		this->mMarineHUDUpgrades=tmpUpgrades;
+	}
 }
 
 // TODO: Send only changed blips, send only the changes for each blip.
@@ -9193,7 +9552,9 @@ void AvHPlayer::UpdateClientData( void )
         this->UpdateGamma();
         this->UpdateBlips();
         this->UpdateAlienUI();
+        this->UpdateMarineUI();
         this->UpdateFog();
+	
         //this->UpdateDebugCSP();
     }
     //UTIL_LogPrintf("UpdateClientData done.\n");
@@ -9202,27 +9563,13 @@ void AvHPlayer::UpdateClientData( void )
 void AvHPlayer::UpdateEffectiveClassAndTeam()
 {
     // Don't send too many messages when these get updated really quickly.  Too many messages are being sent on a game reset, and it's not needed.  We only need the most recent message.
-    const float kClassAndTeamUpdateRate = .4f;
+    const float kClassAndTeamUpdateRate = .6f;
     if((this->mTimeOfLastClassAndTeamUpdate == -1) || (gpGlobals->time > (this->mTimeOfLastClassAndTeamUpdate + kClassAndTeamUpdateRate)))
     {
         if(this->mEffectivePlayerClassChanged)
         {
-            int theAuthMask = this->GetAuthenticationMask();
-            int theTotalScore = this->mScore + this->pev->frags /*- this->m_iDeaths*/;
-            if(GetGameRules()->GetIsCombatMode())
-            {
-                int theCurrentLevel = AvHPlayerUpgrade::GetPlayerLevel(this->GetExperience());
-                theTotalScore += max((theCurrentLevel - 1), 0);
-            }
-
 			ScoreInfo info;
-			info.player_index = ENTINDEX(this->edict());
-			info.score = theTotalScore;
-			info.frags = this->pev->frags;
-			info.deaths = this->m_iDeaths;
-			info.player_class = this->GetEffectivePlayerClass();
-			info.auth = this->GetAuthenticationMask();
-			info.team = GetGameRules()->GetTeamIndex(this->TeamID());
+			AvHSUFillScoreInfo(info, this);
 			NetMsg_ScoreInfo( info );
             this->mEffectivePlayerClassChanged = false;
         }
@@ -9365,7 +9712,7 @@ void AvHPlayer::UpdateParticleTemplates()
             {
 				AvHParticleTemplate* theTemplate = gParticleTemplateList.GetTemplateAtIndex(this->mNumParticleTemplatesSent);
 				ASSERT(theTemplate);
-				NetMsg_SetParticleTemplate( this->pev, *theTemplate );
+				NetMsg_SetParticleTemplate( this->pev, this->mNumParticleTemplatesSent, *theTemplate );
                 this->mNumParticleTemplatesSent++;
                 this->mTimeOfLastParticleTemplateSending = gpGlobals->time;
             }
@@ -9412,20 +9759,25 @@ void AvHPlayer::UpdateProgressBar()
     // Assumes that progress is normalized and stored in one of the fuser variables of the entity index sent down
     if(this->mClientProgressBarEntityIndex != this->mProgressBarEntityIndex)
     {
-		NetMsg_ProgressBar( this->pev, this->mProgressBarEntityIndex, this->mProgressBarParam );
+		NetMsg_ProgressBar( this->pev, this->mProgressBarEntityIndex, this->mProgressBarParam, this->mProgressBarCompleted );
         this->mClientProgressBarEntityIndex = this->mProgressBarEntityIndex;
     }
+	// onos digestion uses a parameter to the network message
+	else if ( this->mProgressBarParam == 5 ) {
+		NetMsg_ProgressBar( this->pev, this->mProgressBarEntityIndex, this->mProgressBarParam, this->mProgressBarCompleted );
+	}
 }
 
 void AvHPlayer::UpdateVUser4()
 {
     // Update client with resources (as int)
     int theResources = (short)(this->GetResources(true));
-    
-    if(CVAR_GET_FLOAT(kvTesting))
+#ifdef DEBUG    
+    if(ns_cvar_float(&avh_testing))
     {
         theResources = g_engfuncs.pfnNumberOfEntities();
     }
+#endif
 
     if(this->pev)
     {
@@ -9594,7 +9946,7 @@ void AvHPlayer::UpdateTechNodes()
                     theLifeform = ALIEN_LIFEFORM_FIVE;
                     break;
                 }
-				// tankefugl 0001075 : Reset techs to researchable before flagging them otherwise
+				//  0001075 : Reset techs to researchable before flagging them otherwise
                 theTechNodes.SetIsResearchable(ALIEN_LIFEFORM_ONE, true);
                 theTechNodes.SetIsResearchable(ALIEN_LIFEFORM_TWO, true);
                 theTechNodes.SetIsResearchable(ALIEN_LIFEFORM_THREE, true);
@@ -9602,7 +9954,7 @@ void AvHPlayer::UpdateTechNodes()
                 theTechNodes.SetIsResearchable(ALIEN_LIFEFORM_FIVE, true);
                 theTechNodes.SetIsResearchable(theLifeform, false);
 
-				// tankefugl 0001075 : Reset techs to researchable before flagging them otherwise
+				//  0001075 : Reset techs to researchable before flagging them otherwise
 				theTechNodes.SetIsResearchable(ALIEN_EVOLUTION_ONE, true);
                 theTechNodes.SetIsResearchable(ALIEN_EVOLUTION_TWO, true);
                 theTechNodes.SetIsResearchable(ALIEN_EVOLUTION_THREE, true);
@@ -9625,7 +9977,7 @@ void AvHPlayer::UpdateTechNodes()
                 }
                 else
                 {
-					// tankefugl 0001075 : Reset techs to researchable before flagging them otherwise
+					//  0001075 : Reset techs to researchable before flagging them otherwise
                     theTechNodes.SetIsResearchable(ALIEN_BUILD_HIVE, true);
                     theTechNodes.SetIsResearchable(ALIEN_BUILD_RESOURCES, true);
                     theTechNodes.SetIsResearchable(ALIEN_BUILD_OFFENSE_CHAMBER, true);
@@ -9799,15 +10151,18 @@ void AvHPlayer::UpdateEntityHierarchy()
     
     AvHTeam* theTeam = player->GetTeamPointer();
 
-    if(theTeam && GetGameRules()->GetGameStarted())
+	// Removed the check for gamestart. This ensures that the entity-hierarchy is propagated before
+	// game start.
+	//if((theTeam) && GetGameRules()->GetGameStarted())
+	if((theTeam)) // && GetGameRules()->GetGameStarted())
     {
-        if (theTeam->GetTeamType() == AVH_CLASS_TYPE_MARINE ||
-            theTeam->GetTeamType() == AVH_CLASS_TYPE_ALIEN)
+		if (theTeam->GetTeamType() == AVH_CLASS_TYPE_MARINE ||
+				 theTeam->GetTeamType() == AVH_CLASS_TYPE_ALIEN)
         {
             // Pass in previous version so it can optimize and only send diff
             AvHEntityHierarchy& theEntityList = GetGameRules()->GetEntityHierarchy(player->GetTeam());
 
-            if(theEntityList.SendToNetworkStream(this->mClientEntityHierarchy, this->pev))
+            if(theEntityList.SendToNetworkStream(this->mClientEntityHierarchy, this->pev, false))
             {
                 this->mClientEntityHierarchy = theEntityList;
             }
@@ -9865,7 +10220,7 @@ bool AvHPlayer::GetCanUseWeapon() const
     return GetIsAbleToAct() && pev->viewmodel;
 }
 
-// tankefugl: 0000953
+// : 0000953
 // allows a player to join team only once each inCoolDownTime seconds
 bool AvHPlayer::JoinTeamCooledDown(float inCoolDownTime) {
 //	UTIL_ClientPrintAll(HUD_PRINTTALK, UTIL_VarArgs("Enter: JoinTeamCooledDown(%f), gpGlobals->time = %f, this->mTimeLastJoinTeam = %f", inCoolDownTime, gpGlobals->time, this->mTimeLastJoinTeam));
@@ -9877,7 +10232,7 @@ bool AvHPlayer::JoinTeamCooledDown(float inCoolDownTime) {
 	else
 		return false;
 }
-// :tankefugl
+// :
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Nexus interface
@@ -9900,7 +10255,7 @@ bool AvHPlayer::GetIsAuthorized(AvHAuthAction inAction, int inParameter) const
 				// check it's an active team
 				if( theTeam == GetGameRules()->GetTeamA()->GetTeamNumber() || theTeam == GetGameRules()->GetTeamB()->GetTeamNumber() )
 				{
-					// tankefugl: 0001042 -- allow switching of teams -- placeholder before Nexus
+					// : 0001042 -- allow switching of teams -- placeholder before Nexus
 					// if( GetGameRules()->GetCheatsEnabled() ) { return true; }	// cheaters can switch
 					// if( !GetGameRules()->GetGameStarted() ) { return true; }	// can switch teams before start
 					// if( this->GetHasBeenSpectator() ) { return false; }			// spectators have seen everybody

@@ -26,6 +26,7 @@
 
 #include "ammohistory.h"
 #include "vgui_TeamFortressViewport.h"
+#include "mod/AvHClientVariables.h"
 #include "mod/AvHSharedUtil.h"
 #include "mod/AvHScrollHandler.h"
 #include "mod/AvHNetworkMessages.h"
@@ -41,9 +42,25 @@ WeaponsResource gWR;
 
 int g_weaponselect = 0;
 
+extern bool gCanMove;
+
+void IN_AttackDownForced(void);
+void IN_AttackUpForced(void);
+void IN_Attack2Down(void);
+void IN_Attack2Up(void);
+void IN_ReloadDown();
+void IN_ReloadUp();
+bool CheckInAttack(void);
+
 //Equivalent to DECLARE_COMMAND(lastinv,LastInv) except we use gWR instead of gHud
 void __CmdFunc_LastInv(void)
 { gWR.UserCmd_LastInv(); }
+
+// +movement
+void __CmdFunc_MovementOn(void)
+{ gWR.UserCmd_MovementOn(); }
+void __CmdFunc_MovementOff(void)
+{ gWR.UserCmd_MovementOff(); }
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -56,7 +73,10 @@ void WeaponsResource::Init( void )
 {
 	memset( rgWeapons, 0, sizeof(WEAPON)*MAX_WEAPONS );
 	Reset();
-	HOOK_COMMAND("lastinv",LastInv);
+	HOOK_COMMAND("lastinv", LastInv);
+	// +movement
+	HOOK_COMMAND("+movement", MovementOn);
+	HOOK_COMMAND("-movement", MovementOff);
 }
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -73,10 +93,11 @@ void WeaponsResource::Reset( void )
 
 void WeaponsResource :: LoadAllWeaponSprites( void )
 {
+	int customCrosshairs=CVAR_GET_FLOAT(kvCustomCrosshair);
 	for (int i = 0; i < MAX_WEAPONS; i++)
 	{
 		if ( rgWeapons[i].iId )
-			LoadWeaponSprites( &rgWeapons[i] );
+			LoadWeaponSprites( &rgWeapons[i], customCrosshairs );
 	}
 }
 
@@ -100,24 +121,38 @@ inline void LoadWeaponSprite( client_sprite_t* ptr, HSPRITE& sprite, wrect_t& bo
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-void WeaponsResource :: LoadWeaponSprites( WEAPON *pWeapon )
+void WeaponsResource :: LoadWeaponSprites( WEAPON *pWeapon, int custom )
 {
-	int i, iRes;
+	if ( custom < 0 || custom > 4 ) 
+		custom=1;
 
-	if (ScreenWidth() < 640)
-		iRes = 320;
-	else
-		iRes = 640;
+	int resolutions[6] = { 320, 640, 800, 1024, 1280, 1600};
+	const int numRes=6;
+	int i=0, j=0, iRes=320;
+	int screenWidth=ScreenWidth();
+
+	for ( j=0; j < numRes; j++ ) {
+		if ( screenWidth == resolutions[j] ) {
+			iRes=resolutions[j];
+			break;
+		}
+		if ( j > 0 && screenWidth > resolutions[j-1] && screenWidth < resolutions[j] ) {
+			iRes=resolutions[j-1];
+			break;
+		}
+	}
 
 	char sz[128];
 
 	if ( !pWeapon )
 		return;
 
+	memset( &pWeapon->rcCrosshair, 0, sizeof(wrect_t) );
 	memset( &pWeapon->rcActive, 0, sizeof(wrect_t) );
 	memset( &pWeapon->rcInactive, 0, sizeof(wrect_t) );
 	memset( &pWeapon->rcAmmo, 0, sizeof(wrect_t) );
 	memset( &pWeapon->rcAmmo2, 0, sizeof(wrect_t) );
+	pWeapon->hCrosshair =0;
 	pWeapon->hInactive = 0;
 	pWeapon->hActive = 0;
 	pWeapon->hAmmo = 0;
@@ -132,33 +167,30 @@ void WeaponsResource :: LoadWeaponSprites( WEAPON *pWeapon )
 		return;
 	}
 
-	LoadWeaponSprite( GetSpriteList( pList, "crosshair", iRes, i ), pWeapon->hCrosshair, pWeapon->rcCrosshair );
-	LoadWeaponSprite( GetSpriteList( pList, "autoaim", iRes, i ), pWeapon->hAutoaim, pWeapon->rcAutoaim );
-	LoadWeaponSprite( GetSpriteList( pList, "zoom", iRes, i ), pWeapon->hZoomedCrosshair, pWeapon->rcZoomedCrosshair );
-	LoadWeaponSprite( GetSpriteList( pList, "zoom_autoaim", iRes, i ), pWeapon->hZoomedAutoaim, pWeapon->rcZoomedAutoaim );
-	LoadWeaponSprite( GetSpriteList( pList, "weapon", iRes, i ), pWeapon->hInactive, pWeapon->rcInactive );
-	LoadWeaponSprite( GetSpriteList( pList, "weapon_s", iRes, i ), pWeapon->hActive, pWeapon->rcActive );
-	LoadWeaponSprite( GetSpriteList( pList, "ammo", iRes, i ), pWeapon->hAmmo, pWeapon->rcAmmo );
-	LoadWeaponSprite( GetSpriteList( pList, "ammo2", iRes, i ), pWeapon->hAmmo2, pWeapon->rcAmmo2 );
+	char crosshairName[32];
+	sprintf(crosshairName, "crosshair_%d", custom);
+	for ( j=numRes-1; j>=0; j-- ) {
+		if ( resolutions[j] <= iRes ) {
+			if( pWeapon->hCrosshair == NULL )
+				LoadWeaponSprite( GetSpriteList( pList, crosshairName, resolutions[j], i ), pWeapon->hCrosshair, pWeapon->rcCrosshair );
+			if( pWeapon->hCrosshair == NULL && custom != 0 )
+				LoadWeaponSprite( GetSpriteList( pList, "crosshair_0", resolutions[j], i ), pWeapon->hCrosshair, pWeapon->rcCrosshair );
+
+
+			if( pWeapon->hInactive == NULL )
+				LoadWeaponSprite( GetSpriteList( pList, "weapon", resolutions[j], i ), pWeapon->hInactive, pWeapon->rcInactive );
+
+			if( pWeapon->hActive == NULL )
+				LoadWeaponSprite( GetSpriteList( pList, "weapon_s", resolutions[j], i ), pWeapon->hActive, pWeapon->rcActive );
+
+			if( pWeapon->hAmmo == NULL )
+				LoadWeaponSprite( GetSpriteList( pList, "ammo", resolutions[j], i ), pWeapon->hAmmo, pWeapon->rcAmmo );
+
+			if( pWeapon->hAmmo2 == NULL )
+				LoadWeaponSprite( GetSpriteList( pList, "ammo2", resolutions[j], i ), pWeapon->hAmmo2, pWeapon->rcAmmo2 );
+		}
+	}
 	
-	if( pWeapon->hZoomedCrosshair == NULL ) //default to non-zoomed crosshair
-	{
-		pWeapon->hZoomedCrosshair = pWeapon->hCrosshair;
-		pWeapon->rcZoomedCrosshair = pWeapon->rcCrosshair;
-	}
-
-	if( pWeapon->hAutoaim == NULL ) //default to non-autoaim crosshair
-	{
-		pWeapon->hAutoaim = pWeapon->hCrosshair;
-		pWeapon->rcAutoaim = pWeapon->rcCrosshair;
-	}
-
-	if( pWeapon->hZoomedAutoaim == NULL ) //default to non-autoaim zoomed crosshair
-	{
-		pWeapon->hZoomedAutoaim = pWeapon->hZoomedCrosshair;
-		pWeapon->rcZoomedAutoaim = pWeapon->rcZoomedCrosshair;
-	}
-
 	if( pWeapon->hActive || pWeapon->hInactive || pWeapon->hAmmo || pWeapon->hAmmo2 )
 	{ gHR.iHistoryGap = max( gHR.iHistoryGap, pWeapon->rcActive.bottom - pWeapon->rcActive.top ); }
 }
@@ -291,8 +323,9 @@ HSPRITE* WeaponsResource::GetAmmoPicFromWeapon( int iAmmoId, wrect_t& rect )
 
 void WeaponsResource::AddWeapon( WEAPON *wp ) 
 { 
+	int customCrosshairs=CVAR_GET_FLOAT(kvCustomCrosshair);
 	rgWeapons[ wp->iId ] = *wp;	
-	LoadWeaponSprites( &rgWeapons[ wp->iId ] );
+	LoadWeaponSprites( &rgWeapons[ wp->iId ], customCrosshairs);
 }
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -329,9 +362,57 @@ void WeaponsResource::UserCmd_LastInv(void)
 	if(this->IsSelectable(this->lastWeapon))
 	{ 
 		this->SetCurrentWeapon(lastWeapon);
-		const char* theSound = AvHSHUGetCommonSoundName(gHUD.GetIsAlien(), WEAPON_SOUND_HUD_ON);
-		gHUD.PlayHUDSound(theSound, kHUDSoundVolume);
+		// : 764
+		//const char* theSound = AvHSHUGetCommonSoundName(gHUD.GetIsAlien(), WEAPON_SOUND_HUD_ON);
+		//gHUD.PlayHUDSound(theSound, kHUDSoundVolume);
 	}
+}
+
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+void WeaponsResource::UserCmd_MovementOn()
+{
+	// Find out which weapon we want to trigger
+	AvHUser3 theUser3 = gHUD.GetHUDUser3();
+	int wID = -1;
+	switch(theUser3)
+	{
+	case AVH_USER3_ALIEN_PLAYER1:
+		wID = AVH_ABILITY_LEAP;
+		break;
+	case AVH_USER3_ALIEN_PLAYER3:
+		// TODO: Add flap
+		break;
+	case AVH_USER3_ALIEN_PLAYER4:
+		wID = AVH_WEAPON_BLINK;
+		break;
+	case AVH_USER3_ALIEN_PLAYER5:
+		wID = AVH_ABILITY_CHARGE;
+		break;
+	default:
+		IN_ReloadDown();
+		return;
+	}	
+
+	if (wID > -1)
+	{
+		// Fetch the needed movement weapon
+		WEAPON *p = this->GetWeapon(wID);
+		if (p != NULL && this->IsSelectable(p))
+		{
+			// Send activation of ability asap
+			IN_Attack2Down();
+		}
+	}
+}
+
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+void WeaponsResource::UserCmd_MovementOff()
+{
+	// Ensure that we're not activating any weapons when selected
+	IN_Attack2Up();
+	IN_ReloadUp();
 }
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -370,7 +451,7 @@ void WeaponsResource::SetValidWeapon(void)
 void WeaponsResource::SetCurrentWeapon(WEAPON* newWeapon)
 {
 	WEAPON* currentWeapon = this->GetWeapon(gHUD.GetCurrentWeaponID());
-	// puzl: 497 - Because weapon state can get out of sync, we should allow this even if the weapons are the same 
+	// : 497 - Because weapon state can get out of sync, we should allow this even if the weapons are the same 
 	// && newWeapon != currentWeapon 
 	if( newWeapon != NULL )
 	{ 
@@ -532,6 +613,7 @@ void CHudAmmo::Reset(void)
 	gWR.Reset();
 	gHR.Reset();
 
+	m_customCrosshair=0;
 	//	VidInit();
 
 }
@@ -569,6 +651,7 @@ int CHudAmmo::VidInit(void)
 // Think:
 //  Used for selection of weapon menu item.
 //
+
 void CHudAmmo::Think(void)
 {
 	if ( gHUD.m_fPlayerDead )
@@ -591,6 +674,19 @@ void CHudAmmo::Think(void)
 					gWR.DropWeapon( p );
 			}
 		}
+	}
+	if ( (int)CVAR_GET_FLOAT(kvCustomCrosshair) != m_customCrosshair ) {
+		m_customCrosshair=(int)CVAR_GET_FLOAT(kvCustomCrosshair);
+		for ( int i=0; i < MAX_WEAPONS; i++ ) {
+			WEAPON *weapon = gWR.GetWeapon(i);
+			if ( weapon ) {
+				gWR.LoadWeaponSprites(weapon, m_customCrosshair);
+				if ( gHUD.GetHUDPlayMode() != PLAYMODE_READYROOM && gHUD.GetCurrentWeaponID() == weapon->iId ) {
+					gHUD.SetCurrentCrosshair(weapon->hCrosshair, weapon->rcCrosshair, 255, 255, 255);
+				}
+			}
+		}
+
 	}
 
 	if(gHUD.GetIsAlien()) //check for hive death causing loss of current weapon
@@ -733,6 +829,12 @@ int CHudAmmo::MsgFunc_CurWeapon(const char *pszName, int iSize, void *pbuf )
 	pWeapon->iEnabled = (iState & WEAPON_IS_ENABLED) != 0 ? TRUE : FALSE;
 	pWeapon->iClip = abs(iClip);
 
+	// Ensure that movement is enabled/disabled according to weapons
+	if (iId == 22 || iId == 11 || iId == 21)
+	{
+		gCanMove = pWeapon->iEnabled;
+	}
+
 	if( !bIsCurrent )
 	{ return 1; }
 
@@ -740,7 +842,9 @@ int CHudAmmo::MsgFunc_CurWeapon(const char *pszName, int iSize, void *pbuf )
 
 	if ( !(gHUD.m_iHideHUDDisplay & ( HIDEHUD_WEAPONS | HIDEHUD_ALL )) )
 	{
-		if ( gHUD.m_iFOV >= 90 )
+		gHUD.SetCurrentCrosshair(m_pWeapon->hCrosshair, m_pWeapon->rcCrosshair, 255, 255, 255);
+
+/*		if ( gHUD.m_iFOV >= 90 )
 		{ // normal crosshairs
 			if (bOnTarget && m_pWeapon->hAutoaim)
 				gHUD.SetCurrentCrosshair(m_pWeapon->hAutoaim, m_pWeapon->rcAutoaim, 255, 255, 255);
@@ -753,7 +857,7 @@ int CHudAmmo::MsgFunc_CurWeapon(const char *pszName, int iSize, void *pbuf )
 				gHUD.SetCurrentCrosshair(m_pWeapon->hZoomedAutoaim, m_pWeapon->rcZoomedAutoaim, 255, 255, 255);
 			else
 				gHUD.SetCurrentCrosshair(m_pWeapon->hZoomedCrosshair, m_pWeapon->rcZoomedCrosshair, 255, 255, 255);
-		}
+		}*/
 	}
 
 	m_fFade = 200.0f; //!!!
@@ -783,7 +887,7 @@ int CHudAmmo::MsgFunc_WeaponList(const char *pszName, int iSize, void *pbuf )
 	Weapon.iId = weapon_data.bit_index;
 	Weapon.iFlags = weapon_data.flags;
 	Weapon.iClip = 0;
-	// puzl: 497 - default value for enable state
+	// : 497 - default value for enable state
 	Weapon.iEnabled = 0;
 
 	gWR.AddWeapon( &Weapon );

@@ -200,8 +200,9 @@
 #include "util/MathUtil.h"
 #include "mod/AvHNetworkMessages.h"
 #include "mod/AvHNexusServer.h"
+#include "mod/AvHParticleTemplateClient.h"
 
-// puzl: 0001073
+// : 0001073
 #ifdef USE_OLDAUTH
 AuthMaskListType						gAuthMaskList;
 extern const char* kSteamIDPending;
@@ -227,6 +228,7 @@ extern cvar_t							avh_uplink;
 extern cvar_t							avh_gametime;
 extern cvar_t							avh_ironman;
 extern cvar_t                           avh_mapvoteratio;
+extern cvar_t							avh_structurelimit;
 
 BOOL IsSpawnPointValid( CBaseEntity *pPlayer, CBaseEntity *pSpot );
 inline int FNullEnt( CBaseEntity *ent ) { return (ent == NULL) || FNullEnt( ent->edict() ); }
@@ -263,11 +265,6 @@ int kProfileRunConfig = 0xFFFFFFFF;
 #endif
 
 std::string GetLogStringForPlayer( edict_t *pEntity );
-
-// SCRIPTENGINE:
-#include "scriptengine/AvHLUA.h"
-extern AvHLUA *gLUA;
-// :SCRIPTENGINE
 
 const AvHMapExtents& GetMapExtents()
 {
@@ -310,6 +307,7 @@ void SetGameRules(AvHGamerules* inGameRules)
 static float gSvCheatsLastUpdateTime;
 AvHGamerules::AvHGamerules() : mTeamA(TEAM_ONE), mTeamB(TEAM_TWO)
 {
+	this->mLastJoinMessage = 0.0f;
 	this->mGameStarted = false;
 	this->mPreserveTeams = false;
 
@@ -329,19 +327,22 @@ AvHGamerules::AvHGamerules() : mTeamA(TEAM_ONE), mTeamB(TEAM_TWO)
 	this->mCheats.clear();
 	this->mSpawnEntity = NULL;
 
-    RegisterServerVariable(kvBlockScripts);
-	RegisterServerVariable(kvTournamentMode);
-    RegisterServerVariable(kvTeam1DamagePercent);
-    RegisterServerVariable(kvTeam2DamagePercent);
-    RegisterServerVariable(kvTeam3DamagePercent);
-    RegisterServerVariable(kvTeam4DamagePercent);
-    RegisterServerVariable("sv_cheats");
+    RegisterServerVariable(&avh_blockscripts);
+	RegisterServerVariable(&avh_tournamentmode);
+    RegisterServerVariable(&avh_team1damagepercent);
+    RegisterServerVariable(&avh_team2damagepercent);
+    RegisterServerVariable(&avh_team3damagepercent);
+    RegisterServerVariable(&avh_team4damagepercent);
+    RegisterServerVariable(avh_cheats);
+    RegisterServerVariable(&avh_structurelimit);
 
 	g_VoiceGameMgr.Init(&gVoiceHelper, gpGlobals->maxClients);
 
 	#ifdef DEBUG
 	avh_drawinvisible.value = 1;
 	#endif
+
+	this->mGameInReset = false;
 
 	this->ResetGame();
 }
@@ -362,7 +363,7 @@ int	AvHGamerules::WeaponShouldRespawn(CBasePlayerItem *pWeapon)
 	return GR_WEAPON_RESPAWN_NO;
 }
 
-// puzl: 0001073
+// : 0001073
 #ifdef USE_OLDAUTH //players are authorized by UPP now.
 const AuthIDListType& AvHGamerules::GetServerOpList() const
 {
@@ -407,7 +408,7 @@ bool AvHGamerules::AttemptToJoinTeam(AvHPlayer* inPlayer, AvHTeamNumber inTeamTo
 		AvHNexus::handleUnauthorizedJoinTeamAttempt(inPlayer->edict(),inTeamToJoin);
 	}
 	else
-// puzl: 0001073
+// : 0001073
 #ifdef USE_OLDAUTH
 	if(this->PerformHardAuthorization(inPlayer))
 #endif
@@ -445,19 +446,19 @@ bool AvHGamerules::AttemptToJoinTeam(AvHPlayer* inPlayer, AvHTeamNumber inTeamTo
 		}
 		else
 		{
-			// joev: Bug 0000767
+			// : Bug 0000767
 			// Tell the other players that this player is joining a team.
-			if (!this->GetCheatsEnabled()) {
+			if (!this->GetCheatsEnabled() && this->mGameStarted == true && ( gpGlobals->time > this->mLastJoinMessage + 0.2f ) ) {
+
 				AvHTeam* theTeam = GetTeam(inTeamToJoin);
 				// ensure that the sound only plays if the game already has started
-				if (this->mGameStarted == true) {
-					theTeam->PlayHUDSoundForAlivePlayers(HUD_SOUND_PLAYERJOIN);
-				}
+				theTeam->PlayHUDSoundForAlivePlayers(HUD_SOUND_PLAYERJOIN);
 				char* theMessage = UTIL_VarArgs("%s has joined the %s\n",STRING(inPlayer->pev->netname),theTeam->GetTeamPrettyName());
 				UTIL_ClientPrintAll(HUD_PRINTTALK, theMessage);
 				UTIL_LogPrintf( "%s joined team \"%s\"\n", GetLogStringForPlayer( inPlayer->edict() ).c_str(), AvHSUGetTeamName(inPlayer->pev->team) );
+				this->mLastJoinMessage=gpGlobals->time;
 			}
-			// :joev
+			// :
 		}
 	}
 	return theSuccess;
@@ -669,7 +670,7 @@ void AvHGamerules::CalculateMapGamma()
 	this->mCalculatedMapGamma = true;
 }
 
-// puzl: 0001073
+// : 0001073
 #ifdef USE_OLDAUTH
 BOOL AvHGamerules::GetIsClientAuthorizedToPlay(edict_t* inEntity, bool inDisplayMessage, bool inForcePending) const
 {
@@ -704,7 +705,18 @@ BOOL AvHGamerules::GetIsClientAuthorizedToPlay(edict_t* inEntity, bool inDisplay
         theAuthMask = GetGameRules()->GetAuthenticationMask(theAuthID);
     }
 
-	if(theAuthMask & theSecurityMask)
+	if ( inEntity->v.flags & FL_PROXY ) 
+	{
+		if(inDisplayMessage)
+		{
+			char theAuthenticateString[512];
+			sprintf(theAuthenticateString, "Allowing HLTV proxy to join\n");
+			ALERT(at_logged, theAuthenticateString);
+		}
+
+		theIsAuthorized = true;
+	}
+	else if(theAuthMask & theSecurityMask)
 	{
 		if(inDisplayMessage)
 		{
@@ -725,7 +737,7 @@ BOOL AvHGamerules::GetIsClientAuthorizedToPlay(edict_t* inEntity, bool inDisplay
 		}
 	}
 	// Local players or bots are always allowed
-	else if((theAuthID == kSteamIDLocal) || (theAuthID == kSteamIDBot))
+	else if((theAuthID == kSteamIDLocal) || (theAuthID == kSteamIDBot) || strncmp(theAuthID.c_str(), "HLTV", 4) == 0 )
 	{
 		theIsAuthorized = true;
 	}
@@ -744,7 +756,7 @@ BOOL AvHGamerules::GetIsClientAuthorizedToPlay(edict_t* inEntity, bool inDisplay
 }
 #endif
 
-// puzl: 0001073
+// : 0001073
 #ifdef USE_OLDAUTH
 BOOL AvHGamerules::ClientConnected( edict_t *pEntity, const char *pszName, const char *pszAddress, char szRejectReason[ 128 ] )
 {
@@ -856,6 +868,10 @@ void AvHGamerules::DeathNotice(CBasePlayer* pVictim, entvars_t* pKiller, entvars
 
 void AvHGamerules::DeleteAndResetEntities()
 {
+	this->mGameInReset = true;
+
+	mHLTVEntityHierarchy.Clear();
+
 	// Print reset message at console
 	char theResetString[128];
 
@@ -931,10 +947,6 @@ void AvHGamerules::DeleteAndResetEntities()
 		if(GetHasUpgrade(theBaseEntity->pev->iuser4, MASK_BUILDABLE) && (!theBuildable || !theBuildable->GetIsPersistent()))
 		{
 			ASSERT(theBaseEntity->pev->iuser3 != AVH_USER3_HIVE);
-			if(theBaseEntity->pev->iuser3 == AVH_USER3_HIVE)
-			{
-				int a = 0;
-			}
 			UTIL_Remove(theBaseEntity);
 		}
 	END_FOR_ALL_BASEENTITIES();
@@ -958,6 +970,9 @@ void AvHGamerules::DeleteAndResetEntities()
 
 	sprintf(theResetString, "Game reset complete.\n");
 	ALERT(at_logged, theResetString);
+
+	this->mGameInReset = false;
+
 }
 
 BOOL AvHGamerules::FAllowMonsters( void )
@@ -991,6 +1006,7 @@ bool AvHGamerules::CanEntityDoDamageTo(const CBaseEntity* inAttacker, const CBas
         bool theIsFriendlyFireEnabled = friendlyfire.value;
 		bool theAttackerIsWorld = false;
 		bool theReceiverIsPlayer = false;
+		bool theReceiverIsWeb = false;
 		bool theAttackerIsReceiver = false;
 		float theScalar = 1.0f;
 		bool theReceiverIsWorld = false;
@@ -1009,6 +1025,11 @@ bool AvHGamerules::CanEntityDoDamageTo(const CBaseEntity* inAttacker, const CBas
 		if(!AvHSUGetIsExternalClassName(STRING(inReceiver->pev->classname)))
 		{
 			theReceiverIsWorld = (dynamic_cast<const CWorld*>(inReceiver) != NULL);
+		}
+
+		if(!AvHSUGetIsExternalClassName(STRING(inReceiver->pev->classname)))
+		{
+			theReceiverIsWeb = (dynamic_cast<const AvHWebStrand*>(inReceiver) != NULL);
 		}
 
 		if(!theReceiverIsWorld)
@@ -1035,6 +1056,16 @@ bool AvHGamerules::CanEntityDoDamageTo(const CBaseEntity* inAttacker, const CBas
 						theScalar = .5f;
 					}
 				}
+			}
+		}
+
+		// Webs are immune to friendly fire
+		if(theReceiverIsWeb)
+		{
+			// Check if teams are the same
+			if( inAttacker->pev->team == inReceiver->pev->team )
+			{
+				theCanDoDamage = false;
 			}
 		}
 
@@ -1122,7 +1153,7 @@ bool AvHGamerules::GetArePlayersAllowedToJoinImmediately(void) const
 	else
 	{
 		// if it's not tournament mode and it's within x seconds of game start
-		float theLateJoinSeconds = CVAR_GET_FLOAT(kvLateJoinTime)*60;
+		float theLateJoinSeconds = ns_cvar_float(&avh_latejointime)*60;
 
 		if(!this->GetIsTournamentMode() && (gpGlobals->time < (this->mTimeGameStarted + theLateJoinSeconds)))
 		{
@@ -1177,11 +1208,11 @@ bool AvHGamerules::GetCanJoinTeamInFuture(AvHPlayer* inPlayer, AvHTeamNumber inT
 				int theDiscrepancyAllowed = max(1.0f, avh_limitteams.value);
 				if(((theWouldBeNumPlayersOnTeam - theWouldBeNumPlayersOnOtherTeam) <= theDiscrepancyAllowed) || this->GetIsTournamentMode() || this->GetCheatsEnabled())
 				{
-					// tankefugl: 0000953
+					// : 0000953
 					if (!(this->GetCheatsEnabled()) && !(inPlayer->JoinTeamCooledDown(BALANCE_VAR(kJoinTeamCooldown))))
 						outString = kJoinTeamTooFast;
 					else
-					// :tankefugl
+					// :
 						theCanJoinTeam = true;
 				}
 				else
@@ -1202,10 +1233,10 @@ const AvHBaseInfoLocationListType& AvHGamerules::GetInfoLocations() const
 
 bool AvHGamerules::GetCheatsEnabled(void) const
 {
-	static float theCheatsEnabled = CVAR_GET_FLOAT( "sv_cheats" );
+	static float theCheatsEnabled = ns_cvar_float( avh_cheats );
 	if (gpGlobals->time > (gSvCheatsLastUpdateTime + 0.5f))
 	{
-		theCheatsEnabled = CVAR_GET_FLOAT( "sv_cheats" );
+		theCheatsEnabled = ns_cvar_float( avh_cheats );
 		gSvCheatsLastUpdateTime = gpGlobals->time;
 	}
 	return (theCheatsEnabled == 1.0f);
@@ -1320,12 +1351,16 @@ const AvHGameplay& AvHGamerules::GetGameplay() const
 
 bool AvHGamerules::GetIsTesting(void) const
 {
-	return CVAR_GET_FLOAT(kvTesting) > 0;
+#ifdef DEBUG
+	return ns_cvar_float(&avh_testing) > 0;
+#else
+	return false;
+#endif
 }
 
 bool AvHGamerules::GetIsTournamentMode(void) const
 {
-	return (CVAR_GET_FLOAT(kvTournamentMode) == 1.0f);
+	return (ns_cvar_float(&avh_tournamentmode) == 1.0f);
 }
 
 bool AvHGamerules::GetIsCombatMode(void) const
@@ -1343,24 +1378,23 @@ bool AvHGamerules::GetIsNSMode(void) const
     return (this->GetMapMode() == MAP_MODE_NS);
 }
 
-bool AvHGamerules::GetIsScriptedMode(void) const
-{
-    return (this->GetMapMode() == MAP_MODE_NSC);
-}
-
 bool AvHGamerules::GetIsHamboneMode() const
 {
-    return this->GetIsCombatMode() && (CVAR_GET_FLOAT(kvIronMan) == 2);
+    return this->GetIsCombatMode() && (ns_cvar_int(&avh_ironman) == 2);
 }
 
 bool AvHGamerules::GetIsIronMan(void) const
 {
-	return this->GetIsCombatMode() && (CVAR_GET_FLOAT(kvIronMan) == 1);
+	return this->GetIsCombatMode() && (ns_cvar_int(&avh_ironman) == 1);
 }
 
 bool AvHGamerules::GetIsTrainingMode(void) const
 {
-	return (CVAR_GET_FLOAT(kvTrainingMode) == 1.0f);
+#ifdef DEBUG
+	return (ns_cvar_float(&avh_trainingmode) == 1.0f);
+#else
+	return false;
+#endif
 }
 
 AvHMapMode AvHGamerules::GetMapMode(void) const
@@ -1384,6 +1418,9 @@ AvHEntityHierarchy& AvHGamerules::GetEntityHierarchy(AvHTeamNumber inTeam)
 	else if(inTeam == this->mTeamB.GetTeamNumber())
 	{
 		return this->mTeamBEntityHierarchy;
+	}
+	else if (inTeam == TEAM_SPECT) {
+		return this->mSpecEntityHierarchy;
 	}
 	else
 	{
@@ -1427,7 +1464,7 @@ const char*	AvHGamerules::GetSpawnEntityName(AvHPlayer* inPlayer) const
 
 	// If there is no no avh start points, try to start up as CS.  If that doesn't look
 	// right, always return DM spawns.
-	if((this->mMapMode == MAP_MODE_NS) || (this->mMapMode == MAP_MODE_CO) || (this->mMapMode == MAP_MODE_NSC))
+	if((this->mMapMode == MAP_MODE_NS) || (this->mMapMode == MAP_MODE_CO))
 	{
 		// The different cases:
 		// Player just connected to server and hasn't done anything yet OR
@@ -1489,11 +1526,11 @@ float AvHGamerules::GetTimeGameStarted() const
 
 int AvHGamerules::GetTimeLimit() const
 {
-	float theMinutes = CVAR_GET_FLOAT("mp_timelimit");
+	float theMinutes = ns_cvar_float(&timelimit);
 
 	if(this->GetIsCombatMode())
 	{
-		theMinutes = CVAR_GET_FLOAT(kvCombatTime);
+		theMinutes = ns_cvar_float(&avh_combattime);
 	}
 
 	int theTimeLimit = (int)(theMinutes*60);
@@ -1767,6 +1804,11 @@ void AvHGamerules::PlayerGotWeapon(CBasePlayer *pPlayer, CBasePlayerItem *pWeapo
 	}
 }
 
+int AvHGamerules::GetStructureLimit()
+{
+	return avh_structurelimit.value;
+}
+
 Vector AvHGamerules::GetSpawnAreaCenter(AvHTeamNumber inTeamNumber) const
 {
 	Vector theCenter(0, 0, 0);
@@ -1895,8 +1937,8 @@ void AvHGamerules::TallyVictoryStats() const
 		theLosingTeam = &this->mTeamA;
 	}
 
-	ALERT(at_logged, "Team \"%d\" scored \"%d\" with \"%d\" players\n", this->mTeamA.GetTeamNumber(), this->mTeamA.GetTotalResourcesGathered(), this->mTeamA.GetPlayerCount());
-	ALERT(at_logged, "Team \"%d\" scored \"%d\" with \"%d\" players\n", this->mTeamB.GetTeamNumber(), this->mTeamB.GetTotalResourcesGathered(), this->mTeamB.GetPlayerCount());
+	ALERT(at_logged, "Team \"%d\" scored \"%.2f\" with \"%d\" players\n", this->mTeamA.GetTeamNumber(), this->mTeamA.GetTotalResourcesGathered(), this->mTeamA.GetPlayerCount());
+	ALERT(at_logged, "Team \"%d\" scored \"%.2f\" with \"%d\" players\n", this->mTeamB.GetTeamNumber(), this->mTeamB.GetTotalResourcesGathered(), this->mTeamB.GetPlayerCount());
 
 	if(!this->mVictoryDraw)
 	{
@@ -2035,6 +2077,7 @@ void AvHGamerules::PostWorldPrecacheReset(bool inNewMap)
 
 	this->mTeamAEntityHierarchy.Clear();
 	this->mTeamBEntityHierarchy.Clear();
+	this->mSpecEntityHierarchy.Clear();
 
 	// Set up both sides
 	this->mTeamA.SetTeamType(this->mGameplay.GetTeamAType());
@@ -2171,11 +2214,6 @@ void AvHGamerules::PostWorldPrecacheReset(bool inNewMap)
 		this->mStartedCountdown = true;
 	}
 
-	// SCRIPTENGINE: Load map and execute OnLoad
-	gLUA->Init();
-	if (gLUA->LoadLUAForMap(STRING(gpGlobals->mapname)))
-		gLUA->OnLoad();
-
 	//gVoiceHelper.Reset();
 }
 
@@ -2215,12 +2253,6 @@ void AvHGamerules::JoinTeam(AvHPlayer* inPlayer, AvHTeamNumber inTeamToJoin, boo
 		if(theServerPlayerData)
 			theServerPlayerData->SetHasJoinedTeam(true);
 	}
-
-	// SCRIPTENGINE: Join team
-	if (this->GetIsScriptedMode())
-		if (thePrevTeam != inTeamToJoin)
-			gLUA->OnJointeam(inPlayer->entindex(), inTeamToJoin);
-	// :SCRIPTENGINE
 }
 
 // This is called before any entities are spawned, every time the map changes, including the first time
@@ -2455,7 +2487,7 @@ int AvHGamerules::GetVotesNeededForMapChange() const
     if(theMapVoteRatio > 0)
     {
         theMapVoteRatio = min(max(0.0f, theMapVoteRatio), 1.0f);
-        theNumVotes = max(theMapVoteRatio*this->GetNumberOfPlayers(), 1.0f);
+        theNumVotes = max(theMapVoteRatio*this->GetNumberOfPlayers(true), 1.0f);
     }
 
     return theNumVotes;
@@ -2504,6 +2536,8 @@ void AvHGamerules::ResetGame(bool inPreserveTeams)
 	this->mFirstUpdate = true;
 	this->mPreserveTeams = inPreserveTeams;
 	gSvCheatsLastUpdateTime = -1.0f;
+	this->mHasPlayersToReset = false;
+	this->mLastPlayerResetTime = -1.0f;
 }
 
 void AvHGamerules::RecalculateMapMode( void )
@@ -2530,10 +2564,6 @@ void AvHGamerules::RecalculateMapMode( void )
 			else if(!strnicmp(theCStrLevelName, "co_", 3))
 			{
 				this->mMapMode = MAP_MODE_CO;
-			}
-			else if(!strnicmp(theCStrLevelName, "nsc_", 4))
-			{
-				this->mMapMode = MAP_MODE_NSC;
 			}
 		}
 	}
@@ -2645,6 +2675,45 @@ void AvHGamerules::MarkDramaticEvent(int inPriority, short inPrimaryEntityIndex,
 	this->MarkDramaticEvent(inPriority, inPrimaryEntityIndex, secondaryEntityIndex);
 }
 
+// Resets players in chunks of 6 and 6
+void AvHGamerules::ResetPlayers()
+{
+	const int maxReset = 6;
+	int numReset = 0;
+
+	FOR_ALL_BASEENTITIES();
+
+	// Reset the players
+	// Reset only players that have made it to the readyroom and have been on either team
+	AvHPlayer* thePlayer = dynamic_cast<AvHPlayer*>(theBaseEntity);
+	if(thePlayer && (thePlayer->GetPlayMode() == PLAYMODE_READYROOM) && (thePlayer->GetHasSeenATeam()))
+	{
+		int theUser3 = thePlayer->pev->iuser3;
+		int theUser4 = thePlayer->pev->iuser4;
+		int thePlayMode = thePlayer->pev->playerclass;
+		int thePlayerTeam = thePlayer->pev->team;
+		int theSolidType = thePlayer->pev->solid;
+
+		thePlayer->ResetEntity();
+
+		thePlayer->pev->iuser3 = theUser3;
+		thePlayer->pev->iuser4 = theUser4;
+		thePlayer->pev->playerclass = thePlayMode;
+		thePlayer->pev->team = thePlayerTeam;
+		thePlayer->pev->solid = theSolidType;
+
+		if (numReset++ >= maxReset)
+		{
+			this->mHasPlayersToReset = true;
+			return;
+		}
+	}
+
+	END_FOR_ALL_BASEENTITIES();
+
+	this->mHasPlayersToReset = false;
+}
+
 void AvHGamerules::ResetEntities()
 {
 	// Now reset all the world entities and mark useable ones with AVH_USER3_USEABLE
@@ -2652,9 +2721,9 @@ void AvHGamerules::ResetEntities()
 
 	FOR_ALL_BASEENTITIES();
 
-	// Reset the entity.  Assumes that players in the ready room have already been reset recently.
+	// Reset non-player entities
 	AvHPlayer* thePlayer = dynamic_cast<AvHPlayer*>(theBaseEntity);
-	if(thePlayer && (thePlayer->GetPlayMode() == PLAYMODE_READYROOM))
+	if(thePlayer && (thePlayer->GetPlayMode() == PLAYMODE_READYROOM)) // && (thePlayer->GetHasSeenATeam()))
 	{
 		int theUser3 = thePlayer->pev->iuser3;
 		int theUser4 = thePlayer->pev->iuser4;
@@ -2701,6 +2770,8 @@ void AvHGamerules::ResetEntities()
 		}
 	}
 	END_FOR_ALL_BASEENTITIES();
+
+	this->mHasPlayersToReset = true;
 }
 
 void AvHGamerules::InternalResetGameRules()
@@ -2710,10 +2781,15 @@ void AvHGamerules::InternalResetGameRules()
 		AvHNexus::cancelGame();
 	}
 	this->mGameStarted = false;
+	this->mLastJoinMessage = 0.0f;
 	this->mTimeCountDownStarted = 0;
 	this->mTimeGameStarted = -1;
 	this->mTimeOfLastGameTimeUpdate = -1;
     this->mTimeOfLastHLTVProxyUpdate = -1;
+	this->mTimeOfForcedLastHLTVProxyUpdate = -1;
+	this->mTimeOfLastHLTVParticleTemplateSending = -1;
+	this->mHLTVNumParticleTemplatesSent=0;
+	this->mHLTVCurrentPlayer=1;
 	this->mTimeSentCountdown = 0;
 	this->mTimeLastWontStartMessageSent = 0;
 	this->mStartedCountdown = false;
@@ -2735,7 +2811,7 @@ void AvHGamerules::InternalResetGameRules()
 	this->mLastWorldEntityUpdate = -1;
 	this->mLastCloakableUpdate = -1;
 	this->mLastVictoryUpdate = -1;
-// puzl: 0001073
+// : 0001073
 #ifdef USE_OLDAUTH //under UPP, we don't want to reestablish a connection with each new game
 	this->mUpdatedUplink = false;
 #endif
@@ -2828,7 +2904,7 @@ bool AvHGamerules::CanPlayerBeacon(CBaseEntity *inPlayer)
 	return result;
 }
 
-// puzl: 0001073
+// : 0001073
 #ifdef USE_OLDAUTH
 unsigned int gTimeLastUpdatedUplink = 0;
 void AvHGamerules::UpdateUplink()
@@ -2952,28 +3028,94 @@ void AvHGamerules::UpdateHLTVProxy()
     // Update proxy if connected
     if(theHLTVProxyConnected)
     {
-        const float kHLTVProxyUpdateTime = 6.0f;
+
+
+		const float kParticleTemplateRate = 0.1f;
+		if(gParticleTemplateList.GetCreatedTemplates())
+		{
+			// Make sure client clears out all particle systems first
+			int theNumberTemplates = gParticleTemplateList.GetNumberTemplates();
+			if(theNumberTemplates > this->mHLTVNumParticleTemplatesSent)
+			{
+				if((this->mTimeOfLastHLTVParticleTemplateSending == -1) || (gpGlobals->time > this->mTimeOfLastHLTVParticleTemplateSending + kParticleTemplateRate))
+				{
+					AvHParticleTemplate* theTemplate = gParticleTemplateList.GetTemplateAtIndex(this->mHLTVNumParticleTemplatesSent);
+					ASSERT(theTemplate);
+					NetMsg_SetParticleTemplate( NULL, this->mHLTVNumParticleTemplatesSent, *theTemplate );
+					this->mHLTVNumParticleTemplatesSent++;
+					this->mTimeOfLastHLTVParticleTemplateSending = gpGlobals->time;
+				}
+			}
+		}
+
+		// Send out team for all players (needed for late joiners)
+		for (int i = this->mHLTVCurrentPlayer; i <= gpGlobals->maxClients; i++ )
+		{
+			this->mHLTVCurrentPlayer++;
+			CBasePlayer *plr = (CBasePlayer*)UTIL_PlayerByIndex( i );
+			if ( plr && GetGameRules()->IsValidTeam( plr->TeamID() ) )
+			{
+					NetMsgSpec_TeamInfo( plr->entindex(), plr->TeamID() );
+					ScoreInfo info;
+					memset(&info, 0, sizeof(info));
+					AvHSUFillScoreInfo(info, dynamic_cast<AvHPlayer *>(plr));
+					NetMsgSpec_ScoreInfo( info );
+					break;
+			}
+		}
+
+			
+		const float kHLTVProxyUpdateTime = 6.0f;
+		const float kForcedHLTVProxyUpdateTime = 30.0f;
 
         if((this->mTimeOfLastHLTVProxyUpdate == -1) || (gpGlobals->time > (this->mTimeOfLastHLTVProxyUpdate + kHLTVProxyUpdateTime)))
         {
-            //char theMessage[256];
-            //sprintf(theMessage, "AvHGamerules::UpdateHLTVProxy...\n");
-            //ALERT(at_console, theMessage);
+			if((this->mTimeOfForcedLastHLTVProxyUpdate == -1) || (gpGlobals->time > (this->mTimeOfForcedLastHLTVProxyUpdate + kForcedHLTVProxyUpdateTime))) {
 
-            // Every so often, send out team for all players (needed for late joiners)
-            for (int i = 1; i <= gpGlobals->maxClients; i++ )
-            {
-                CBasePlayer *plr = (CBasePlayer*)UTIL_PlayerByIndex( i );
-                if ( plr && GetGameRules()->IsValidTeam( plr->TeamID() ) )
-                {
-					NetMsgSpec_TeamInfo( plr->entindex(), plr->TeamID() );
-                }
-            }
+				if(gParticleTemplateList.GetCreatedTemplates())
+				{
+					int theNumberTemplates = gParticleTemplateList.GetNumberTemplates();
+					if(theNumberTemplates <= this->mHLTVNumParticleTemplatesSent) {
+						// restart the hltv particle templates
+						this->mHLTVNumParticleTemplatesSent=0;
+						this->mTimeOfLastHLTVParticleTemplateSending = -1;
+						// Make sure client clears out all particle systems first
+						//NetMsg_DelParts(NULL);
+					}
+				}
+				// restart the scoreboard hltv updates
+				if ( this->mHLTVCurrentPlayer > gpGlobals->maxClients ) this->mHLTVCurrentPlayer=1;
 
-            // Send messages to HLTV viewers
-			NetMsgSpec_SetGammaRamp( GetGameRules()->GetMapGamma() );
+				// restart the enthier hltv updates
+				mHLTVEntityHierarchy.Clear();
+				NetMsg_DelEntityHierarchy(NULL);
 
-            this->mTimeOfLastHLTVProxyUpdate = gpGlobals->time;
+				// Send down map extents so players can start computing it
+				// Cache this so it isn't computed every round, only the when a player connects or a new map starts?
+				const char* theCStrLevelName = STRING(gpGlobals->mapname);
+				const AvHMapExtents& theMapExtents = GetGameRules()->GetMapExtents();
+				float mins[3] = { theMapExtents.GetMinMapX(), theMapExtents.GetMinMapY(), theMapExtents.GetMinViewHeight() };
+				float maxs[3] = { theMapExtents.GetMaxMapX(), theMapExtents.GetMaxMapY(), theMapExtents.GetMaxViewHeight() };
+				NetMsg_SetupMap_Extents( NULL, string( theCStrLevelName ), mins, maxs, theMapExtents.GetDrawMapBG() );
+
+				this->mTimeOfForcedLastHLTVProxyUpdate=gpGlobals->time;
+			}
+			else {			
+				AvHEntityHierarchy& theEntityList = GetGameRules()->GetEntityHierarchy(TEAM_SPECT);
+				if ( theEntityList.SendToNetworkStream(mHLTVEntityHierarchy, NULL, true) ) 
+				{
+					mHLTVEntityHierarchy = theEntityList;
+				}
+
+				// Resend the gammaramp
+				NetMsgSpec_SetGammaRamp( GetGameRules()->GetMapGamma() );
+
+				HiveInfoListType theTeamHiveInfo = this->mTeamB.GetHiveInfoList();
+				const HiveInfoListType tmp;
+				NetMsg_AlienInfo_Hives( NULL, theTeamHiveInfo, tmp );
+
+				this->mTimeOfLastHLTVProxyUpdate = gpGlobals->time;
+			}
         }
     }
 }
@@ -3128,11 +3270,6 @@ void AvHGamerules::SetGameStarted(bool inGameStarted)
 
 	this->mTeamA.SetGameStarted(inGameStarted);
 	this->mTeamB.SetGameStarted(inGameStarted);
-
-   	// SCRIPTENGINE: OnStart
-	if (this->GetIsScriptedMode())
-		gLUA->OnStarted();
-	// :SCRIPTENGINE
 }
 
 void AvHGamerules::SendMOTDToClient( edict_t *client )
@@ -3153,19 +3290,20 @@ void AvHGamerules::SendMOTDToClient( edict_t *client )
 	FREE_FILE( aFileList );
 }
 
-int AvHGamerules::GetNumberOfPlayers() const
+int AvHGamerules::GetNumberOfPlayers(bool inPlayingGame) const
 {
 	int theNumberOfPlayers = 0;
 
 	FOR_ALL_ENTITIES(kAvHPlayerClassName, AvHPlayer*)
+
 	// GetIsRelevant()?
-	//if(!inPlayingGame || (inEntity->GetPlayMode() == PLAYMODE_PLAYING))
-	//{
-	if(UTIL_IsValidEntity(theEntity->edict()))
+	if(inPlayingGame && (theEntity->GetPlayMode() > 0))
 	{
-		theNumberOfPlayers++;
+		if(UTIL_IsValidEntity(theEntity->edict()))
+		{
+			theNumberOfPlayers++;
+		}
 	}
-	//}
 	END_FOR_ALL_ENTITIES(kAvHPlayerClassName);
 
 	return theNumberOfPlayers;
@@ -3194,12 +3332,16 @@ void AvHGamerules::Think(void)
 		// Tell all HUDs to reset
 		NetMsg_GameStatus_State( kGameStatusReset, this->mMapMode );
 
-   		// SCRIPTENGINE: Execute OnStart
-		if (this->GetIsScriptedMode())
-			gLUA->OnStart();
-
 		this->mFirstUpdate = false;
 	}
+
+// ResetPlayer throttling, commented out for now
+//	const float playerResetDelay = 0.3f;
+//	if(this->mHasPlayersToReset && (this->mLastPlayerResetTime + playerResetDelay < theTime) )
+//	{
+//		this->ResetPlayers();
+//		this->mLastPlayerResetTime = theTime;
+//	}
 
 	// Handle queued network messages
 	#ifdef USE_NETWORK_METERING
@@ -3221,7 +3363,7 @@ void AvHGamerules::Think(void)
 	PROFILE_START();
 	AvHNexus::processResponses();
 	this->RecalculateHandicap();
-// puzl: 0001073
+// : 0001073
 #ifdef USE_OLDAUTH
 	this->UpdateUplink();
 #endif
@@ -3292,10 +3434,6 @@ void AvHGamerules::Think(void)
 
 		kServerFrameRate = 0;
 		kNumReturn0 = kNumReturn1 = kNumCached = kNumComputed = 0;
-	}
-	else
-	{
-		int a = 0;
 	}
 
 	this->UpdateServerCommands();
@@ -3376,9 +3514,9 @@ void AvHGamerules::Think(void)
 
 }
 
-void AvHGamerules::RegisterServerVariable(const char* inName)
+void AvHGamerules::RegisterServerVariable(const cvar_t* inCvar)
 {
-    mServerVariableList.push_back(inName);
+    mServerVariableList.push_back(inCvar);
 }
 
 int AvHGamerules::GetNumServerVariables() const
@@ -3386,7 +3524,7 @@ int AvHGamerules::GetNumServerVariables() const
     return mServerVariableList.size();
 }
 
-const std::string& AvHGamerules::GetServerVariable(int i) const
+const cvar_t* AvHGamerules::GetServerVariable(int i) const
 {
     return mServerVariableList[i];
 }
@@ -3394,17 +3532,10 @@ const std::string& AvHGamerules::GetServerVariable(int i) const
 bool AvHGamerules::GetIsEntityUnderAttack(int inEntityIndex) const
 {
 	bool theEntityIsUnderAttack = false;
-
 	// If entity is in list, it's being attacked
-	for(EntityUnderAttackListType::const_iterator theIter = this->mEntitiesUnderAttack.begin(); theIter != this->mEntitiesUnderAttack.end(); theIter++)
-	{
-		if(inEntityIndex == theIter->first)
-		{
-			theEntityIsUnderAttack = true;
-			break;
-		}
+	if ( this->mEntitiesUnderAttack.find(inEntityIndex) !=  this->mEntitiesUnderAttack.end() ) {
+		theEntityIsUnderAttack=true;
 	}
-
 	return theEntityIsUnderAttack;
 }
 
@@ -3619,11 +3750,13 @@ void AvHGamerules::TriggerAlert(AvHTeamNumber inTeamNumber, AvHAlertType inAlert
 					{
 						theSound = HUD_SOUND_ALIEN_NEW_TRAIT;
 					}
+					else if(inAlertType == ALERT_HIVE_DEFEND)
+					{
+						theSound = HUD_SOUND_ALIEN_ENEMY_APPROACHES;
+					}
 
 					if(theSound != HUD_SOUND_INVALID)
 					{
-						int a = 0;
-
 						// For all players on this team, play the sound
 						FOR_ALL_ENTITIES(kAvHPlayerClassName, AvHPlayer*)
 							if((theEntity->pev->team == inTeamNumber) || this->GetIsTesting() || (theEntity->GetIsSpectatingTeam(inTeamNumber)))
@@ -3641,7 +3774,7 @@ void AvHGamerules::TriggerAlert(AvHTeamNumber inTeamNumber, AvHAlertType inAlert
 		}
 
 		// Add entity to our list of entities that are under attack
-		if(((inAlertType == ALERT_UNDER_ATTACK) || (inAlertType == ALERT_PLAYER_ENGAGE) || (inAlertType == ALERT_HIVE_DYING)) && (inEntIndex > 0))
+		if(((inAlertType == ALERT_UNDER_ATTACK) || (inAlertType == ALERT_PLAYER_ENGAGE) || (inAlertType == ALERT_HIVE_DYING)|| (inAlertType == ALERT_HIVE_DEFEND) ) && (inEntIndex > 0))
 		{
 			// This will update current time longer if continually attacked
 			const float kUnderAttackDuration = 5.0f;
@@ -3656,7 +3789,7 @@ bool AvHGamerules::GetIsCheatEnabled(const string& inCheatName) const
 
 	bool theAllowCheats = this->GetCheatsEnabled();
 
-	#ifdef AVH_PLAYTEST_BUILD
+	#ifdef DEBUG
 	theAllowCheats = true;
 	#endif
 
@@ -3722,13 +3855,6 @@ void AvHGamerules::UpdateCheats()
 
 void AvHGamerules::UpdateCountdown(float inTime)
 {
-	if (this->GetIsScriptedMode())
-	{
-		// this->SetGameStarted(true);
-		// TODO: SCRIPTENGINE START
-		return;
-	}
-
 	const float kTimeWontStartInterval = 8.0f;
 	int kSecondsToCountdown = 5;
 
@@ -3795,6 +3921,12 @@ void AvHGamerules::UpdateCountdown(float inTime)
 			}
 		}
 	}
+}
+
+void AvHGamerules::RemoveEntityUnderAttack(int entIndex) {
+	EntityUnderAttackListType::iterator theIter=this->mEntitiesUnderAttack.find(entIndex);
+	if ( theIter != mEntitiesUnderAttack.end() )
+		this->mEntitiesUnderAttack.erase(theIter);
 }
 
 void AvHGamerules::UpdateEntitiesUnderAttack()
@@ -3905,42 +4037,6 @@ void AvHGamerules::UpdateVictoryStatus(void)
 {
 	bool theCheckVictoryWithCheats = !this->GetCheatsEnabled() || this->GetIsCheatEnabled(kcEndGame1) || this->GetIsCheatEnabled(kcEndGame2);
 
-	// SCRIPTENGINE VICTORY
-	if (this->GetIsScriptedMode())
-	{
-		AvHObjectiveState teamAstate, teamBstate;
-		teamAstate = this->mTeamA.GetObjectiveManager()->GetObjectivesState();
-		teamBstate = this->mTeamB.GetObjectiveManager()->GetObjectivesState();
-		if (teamAstate != OBJECTIVE_INDETERMINED || teamBstate != OBJECTIVE_INDETERMINED)
-		{
-			// one team is victorious
-			this->mVictoryTime = gpGlobals->time;
-			if (teamAstate == teamBstate)
-			{
-				this->mVictoryTeam = TEAM_SPECT;
-				this->mVictoryDraw = true;
-			}
-			else if (teamAstate == OBJECTIVE_COMPLETED || teamBstate == OBJECTIVE_FAILED)
-				this->mVictoryTeam = this->mTeamA.GetTeamNumber();
-			else if (teamAstate == OBJECTIVE_FAILED || teamBstate == OBJECTIVE_COMPLETED)
-				this->mVictoryTeam = this->mTeamB.GetTeamNumber();
-		}
-		else
-		{
-			// Execute LUA callback OnVictoryCheck
-			AvHTeamNumber vicTeam = gLUA->OnVictoryCheck();
-			if (vicTeam != TEAM_IND)
-			{
-				this->mVictoryTime = gpGlobals->time;
-				this->mVictoryTeam = vicTeam;
-			}
-		}
-		// Execute LUA callback OnVictory
-		if (this->mVictoryTeam != TEAM_IND)
-			gLUA->OnVictory(this->mVictoryTeam);
-
-	} 
-	else
 	if((this->mVictoryTeam == TEAM_IND) && this->mGameStarted && theCheckVictoryWithCheats && !this->GetIsTrainingMode())
 	{
 		char* theVictoryMessage = NULL;
@@ -3958,7 +4054,7 @@ void AvHGamerules::UpdateVictoryStatus(void)
 		{
 			if(this->GetIsIronMan())
 			{
-				theTimeLimitSeconds = CVAR_GET_FLOAT(kvIronManTime)*60;
+				theTimeLimitSeconds = ns_cvar_float(&avh_ironmantime)*60;
 			}
 		}
 
@@ -4113,13 +4209,18 @@ void AvHGamerules::UpdateVictoryStatus(void)
 				// Final game time update to all clients have same winning time
 				this->SendGameTimeUpdate(true);
 
-				// Send final score to everyone if needed
-				this->mTeamA.SendResourcesGatheredScore(false);
-				this->mTeamB.SendResourcesGatheredScore(false);
 
 			END_FOR_ALL_ENTITIES(kAvHPlayerClassName)
+
+			// Send final score to everyone if needed
+			this->mTeamA.SendResourcesGatheredScore(false);
+			this->mTeamB.SendResourcesGatheredScore(false);
+
 			// Tell everyone that the game ended
 			NetMsg_GameStatus_State( kGameStatusEnded, this->mMapMode );
+
+			NetMsg_TeamScore(this->mTeamA.GetTeamName(), 0, 1 );
+			NetMsg_TeamScore(this->mTeamB.GetTeamName(), 0, 1 );
 		}
 	}
 }

@@ -253,7 +253,7 @@ void ClientDisconnect( edict_t *pEntity )
 	
 	g_pGameRules->ClientDisconnected( pEntity );
 
-	//voogru: If this isnt set, clients around this player will crash.
+	//: If this isnt set, clients around this player will crash.
 	pEntity->v.effects |= EF_NODRAW;
 }
 
@@ -494,26 +494,27 @@ void Host_Say( edict_t *pEntity, int teamonly )
 		bool theClientIsPlaying = ((client->GetPlayMode() == PLAYMODE_PLAYING) || (client->GetPlayMode() == PLAYMODE_AWAITINGREINFORCEMENT) || (client->GetPlayMode() == PLAYMODE_REINFORCING));
 		bool theTalkerIsObserver = theTalkingPlayer->IsObserver();
 		bool theClientIsObserver = client->IsObserver();
+		bool theClientIsHLTV = (client->pev->flags & FL_PROXY);
 
         bool theClientInReadyRoom = client->GetInReadyRoom();
 
-        if (theClientInReadyRoom != theTalkerInReadyRoom)
+        if (theClientInReadyRoom != theTalkerInReadyRoom && !theClientIsHLTV)
         {
             continue;
         }
 
-        if (!theClientIsObserver || theClientIsPlaying) // Non-playing Observers hear everything.
+        if (!theClientIsObserver || theClientIsPlaying ) // Non-playing Observers hear everything.
         {
 
 		    if ( theTalkingPlayerIsPlaying && teamonly && g_pGameRules->PlayerRelationship(client, CBaseEntity::Instance(pEntity)) != GR_TEAMMATE )
 			    continue;
 
 		    // chat can never go between play area and non-play area
-		    if(theTalkingPlayerIsPlaying != theClientIsPlaying)
+		    if(theTalkingPlayerIsPlaying != theClientIsPlaying && !theClientIsHLTV )
 			    continue;
 
 		    // chat of any kind doesn't go from ready room to play area in tournament mode
-		    if(theTalkerInReadyRoom && GetGameRules()->GetIsTournamentMode() && theClientIsPlaying)
+		    if(theTalkerInReadyRoom && GetGameRules()->GetIsTournamentMode() && theClientIsPlaying && !theClientIsHLTV)
 			    continue;
         
         }
@@ -655,14 +656,14 @@ void ClientCommand( edict_t *pEntity )
 		// max total length is 192 ...and we're adding a string below ("Unknown command: %s\n")
 		strncpy( command, pcmd, 127 );
 		command[127] = '\0';
-		// puzl: 1071
+		// : 1071
 		// Remove printf formatting
 		for ( int i=0; i < 127; i++ ) {
 			if ( command[i] == '%' ) {
 				command[i] = ' ';
 			}
 		}
-		// :puzl
+		// :
 		// tell the user they entered an unknown command
 		ClientPrint( &pEntity->v, HUD_PRINTCONSOLE, UTIL_VarArgs( "Unknown command: %s\n", command ) );
 	}
@@ -1144,6 +1145,50 @@ void ClientPrecache( void )
 	PRECACHE_UNMODIFIED_MODEL("sprites/umbra.spr"); 
 	PRECACHE_UNMODIFIED_MODEL("sprites/umbra2.spr"); 
 	PRECACHE_UNMODIFIED_MODEL("sprites/webstrand.spr"); 
+
+	PRECACHE_UNMODIFIED_GENERIC("ns.wad");
+	PRECACHE_UNMODIFIED_GENERIC("ns2.wad");
+	PRECACHE_UNMODIFIED_GENERIC("v_wad.wad");
+/*	PRECACHE_UNMODIFIED_GENERIC("maps/co_angst_detail.txt");
+	PRECACHE_UNMODIFIED_GENERIC("maps/co_core_detail.txt");
+	PRECACHE_UNMODIFIED_GENERIC("maps/co_daimos_detail.txt");
+	PRECACHE_UNMODIFIED_GENERIC("maps/co_ether_detail.txt");
+	PRECACHE_UNMODIFIED_GENERIC("maps/co_faceoff_detail.txt");
+	PRECACHE_UNMODIFIED_GENERIC("maps/co_kestrel_detail.txt");
+	PRECACHE_UNMODIFIED_GENERIC("maps/co_niveus_detail.txt");
+	PRECACHE_UNMODIFIED_GENERIC("maps/co_pulse_detail.txt");
+	PRECACHE_UNMODIFIED_GENERIC("maps/co_sava_detail.txt");
+	PRECACHE_UNMODIFIED_GENERIC("maps/co_ulysses_detail.txt");
+	PRECACHE_UNMODIFIED_GENERIC("maps/co_umbra_detail.txt");
+	PRECACHE_UNMODIFIED_GENERIC("maps/ns_altair_detail.txt");
+	PRECACHE_UNMODIFIED_GENERIC("maps/ns_ayumi_detail.txt");
+	PRECACHE_UNMODIFIED_GENERIC("maps/ns_bast_detail.txt");
+	PRECACHE_UNMODIFIED_GENERIC("maps/ns_caged_detail.txt");
+	PRECACHE_UNMODIFIED_GENERIC("maps/ns_eclipse_detail.txt");
+	PRECACHE_UNMODIFIED_GENERIC("maps/ns_eon_detail.txt");
+	PRECACHE_UNMODIFIED_GENERIC("maps/ns_hera_detail.txt");
+	PRECACHE_UNMODIFIED_GENERIC("maps/ns_lost_detail.txt");
+	PRECACHE_UNMODIFIED_GENERIC("maps/ns_lucid_detail.txt");
+	PRECACHE_UNMODIFIED_GENERIC("maps/ns_machina_detail.txt");
+	PRECACHE_UNMODIFIED_GENERIC("maps/ns_metal_detail.txt");
+	PRECACHE_UNMODIFIED_GENERIC("maps/ns_nancy_detail.txt");
+	PRECACHE_UNMODIFIED_GENERIC("maps/ns_nothing_detail.txt");
+	PRECACHE_UNMODIFIED_GENERIC("maps/ns_origin_detail.txt");
+	PRECACHE_UNMODIFIED_GENERIC("maps/ns_prometheus_detail.txt");
+	PRECACHE_UNMODIFIED_GENERIC("maps/ns_shiva_detail.txt");
+	PRECACHE_UNMODIFIED_GENERIC("maps/ns_tanith_detail.txt");
+	PRECACHE_UNMODIFIED_GENERIC("maps/ns_veil_detail.txt");
+
+	CStringList list;
+	string modDir=string(getModDirectory()) + "/";
+	if(BuildFileList(modDir, "maps/", "*_detail.txt", list))
+	{
+		for(CStringList::iterator it=list.begin(); it != list.end(); it++ ) {
+			int iString = ALLOC_STRING((char*)it);//: We cant do "(char*)theSoundToPrecache" directly cause it causes some wierd problems.
+			PRECACHE_UNMODIFIED_GENERIC((char*)STRING(iString));		
+		}
+	}
+	*/
 }
 
 /*
@@ -2233,11 +2278,34 @@ One of the ENGINE_FORCE_UNMODIFIED files failed the consistency check for the sp
  Return 0 to allow the client to continue, 1 to force immediate disconnection ( with an optional disconnect message of up to 256 characters )
 ================================
 */
+
+static char *ignoreInConsistencyCheck[] = {
+	"sound/vox/ssay82.wav",
+	"sound/vox/ssay83.wav",
+	0
+};
+
 int	InconsistentFile( const edict_t *player, const char *filename, char *disconnect_message )
 {
 	// Server doesn't care?
 	if ( CVAR_GET_FLOAT( "mp_consistency" ) != 1 )
 		return 0;
+
+	int i=0;
+	while ( ignoreInConsistencyCheck[i] != 0 ) {
+		if ( !strcmp(ignoreInConsistencyCheck[i], filename) ) 
+			return 0;
+		i++;
+	}
+
+	/*if ( strstr(filename, "_detail.txt") != NULL ) {
+		ALERT(at_console, "Checking consistency of %s\n", filename);
+		string detailFilename=string("maps/") + STRING(gpGlobals->mapname) + string("_detail.txt");
+		if ( strcmp(filename, detailFilename.c_str()) != 0 ) {
+			ALERT(at_console, "Skipping != %s\n", detailFilename.c_str());
+			return 0;
+		}
+	}*/
 
 	// Default behavior is to kick the player
 	sprintf( disconnect_message, "Server is enforcing file consistency for %s\n", filename );
@@ -2284,7 +2352,7 @@ inline bool AvHDetermineVisibility(struct entity_state_s *state, int e, edict_t 
 		// Reasoning:  if (v.effects & EF_NODRAW) and (ent!=host) were ever true, there would have been a return call in 
 		// AddToFullPack before this function was called. 
 		// Therefore, (ent->v.effects & EF_NODRAW) will always be false and !false will always be true.
-		// puzl - undid this change as it was causing problems in comm mode. Structures, players etc. were not visible to the comm.  
+		//  - undid this change as it was causing problems in comm mode. Structures, players etc. were not visible to the comm.  
 		if(!(ent->v.effects & EF_NODRAW) ||  theEntityIsAWeldable || theIsNoBuild || (ent->v.classname == MAKE_STRING(kesMP3Audio)))
 		{
 			// This is duplicated from the above line for possible efficiency
@@ -2797,7 +2865,7 @@ int AddToFullPack( struct entity_state_s *state, int e, edict_t *ent, edict_t *h
 			marineGlow = true;
 		}
 
-		if(( marineGlow || (ent->v.team == theReceivingPlayer->pev->team)) && (ent != theReceivingPlayer->edict()) && (ent->v.team != 0))
+		if(( marineGlow || (ent->v.team == theReceivingPlayer->pev->team)) && (ent != theReceivingPlayer->edict()) && (ent->v.team != TEAM_IND) && (ent->v.team != TEAM_SPECT ) && (ent->v.classname != MAKE_STRING(kesTeamWebStrand)) )
 		{
 			state->rendermode = kRenderTransAdd;
 			state->renderamt = 150;

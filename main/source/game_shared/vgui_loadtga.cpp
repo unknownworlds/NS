@@ -14,7 +14,7 @@
 
 //#include "ui/MemoryInputStream.h"
 
-// tankefugl: HACK
+// : HACK
 // Implemented old MemoryInputStream to work around bugs(?) in the other implementation or in
 // the vgui's handling of the other one
 class MemoryInputStream2 : public vgui::InputStream
@@ -63,14 +63,14 @@ public:
 	int			m_DataLen;
 	int			m_ReadPos;
 };
-// :tankefugl
+// :
 
 vgui::BitmapTGA* vgui_LoadTGANoInvertAlpha(char const *pFilename)
 { return vgui_LoadTGA(pFilename,false); }
 
 vgui::BitmapTGA* vgui_LoadTGA(char const *pFilename, bool bInvertAlpha)
 {
-	// tankefugl:
+	// :
 	MemoryInputStream2 stream;
 	
 	stream.m_pData = gEngfuncs.COM_LoadFile((char*)pFilename, 5, &stream.m_DataLen);
@@ -82,7 +82,7 @@ vgui::BitmapTGA* vgui_LoadTGA(char const *pFilename, bool bInvertAlpha)
 	gEngfuncs.COM_FreeFile(stream.m_pData);
 	
 	return pRet;
-	// :tankefugl
+	// :
 
 /*	// New implementation:
 	int nLength = 0;

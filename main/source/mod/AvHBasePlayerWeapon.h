@@ -72,6 +72,7 @@ const int kShootEmptyAnimation = 4;
 const int kDeployAnimation = 5;
 
 Vector UTIL_GetRandomSpreadDir(unsigned int inSeed, int inShotNumber, const Vector& inBaseDirection, const Vector& inRight, const Vector& inUp, const Vector& inSpread);
+Vector UTIL_GetRandomSpreadDirFrom(unsigned int inSeed, int inShotNumber, const Vector& inBaseDirection, const Vector& inRight, const Vector& inUp, const Vector& inSpread, const Vector& inFromSpread);
 
 class AvHBasePlayerWeapon : public CBasePlayerWeapon
 {

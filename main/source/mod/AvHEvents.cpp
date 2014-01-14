@@ -757,8 +757,13 @@ void EV_MachineGun(struct event_args_s* args)
 	// General x-punch axis
 	if ( EV_IsLocal( idx ) )
 	{
+		
 		// Multiply punch by upgrade level
-		float theHalfSpread = (kMGXPunch/4.0f)*(theUpgradeLevel+1);
+		//float theHalfSpread = (kMGXPunch/4.0f)*(theUpgradeLevel+1);
+
+		// Changed to ignore upgrade level
+		float theHalfSpread = (kMGXPunch/4.0f);
+		
 		if(theHalfSpread > 0.0f)
 		{
 			V_PunchAxis( 0, gEngfuncs.pfnRandomFloat( -theHalfSpread, theHalfSpread ) );
@@ -843,7 +848,11 @@ void EV_Pistol(struct event_args_s* args)
 	if ( EV_IsLocal( idx ) )
 	{
 		// Multiply punch by upgrade level
-		float theHalfSpread = (kHGXPunch/3.0f)*(theUpgradeLevel+1);
+		//float theHalfSpread = (kHGXPunch/3.0f)*(theUpgradeLevel+1);
+
+		// Changed to ignore upgrade level
+		float theHalfSpread = (kHGXPunch/3.0f);
+
 		if(theHalfSpread > 0.0f)
 		{
 			V_PunchAxis( 0, gEngfuncs.pfnRandomFloat( -theHalfSpread, theHalfSpread ) );
@@ -934,7 +943,12 @@ void EV_SonicGun(struct event_args_s* args)
 	// General x-punch axis
 	if ( EV_IsLocal( idx ) )
 	{
-		float theHalfSpread = (kSGXPunch/3.0f)*(theUpgradeLevel+1);
+		//float theHalfSpread = (kSGXPunch/3.0f)*(theUpgradeLevel+1);
+
+		// Changed to ignore upgrade level
+		float theHalfSpread = (kSGXPunch/3.0f);
+
+
 		if(theHalfSpread > 0.0f)
 		{
 			V_PunchAxis( 0, gEngfuncs.pfnRandomFloat( -theHalfSpread, theHalfSpread ) );
@@ -1033,7 +1047,11 @@ void EV_HeavyMachineGun(struct event_args_s* args)
 	// General x-punch axis
 	if ( EV_IsLocal( idx ) )
 	{
-		float theHalfSpread = (kHMGXPunch/4.0f)*(theUpgradeLevel+1);
+		//float theHalfSpread = (kHMGXPunch/4.0f)*(theUpgradeLevel+1);
+		
+		// Changed to ignore upgrade level
+		float theHalfSpread = (kHMGXPunch/4.0f);
+
 		if(theHalfSpread > 0.0f)
 		{
 			V_PunchAxis( 0, gEngfuncs.pfnRandomFloat( -theHalfSpread, theHalfSpread ) );
@@ -1112,7 +1130,11 @@ void EV_GrenadeGun(struct event_args_s* inArgs)
 	// General x-punch axis
 	if ( EV_IsLocal( idx ) )
 	{
-		float theHalfSpread = (kGGXPunch/2.0f)*(theUpgradeLevel+1);
+		//float theHalfSpread = (kGGXPunch/2.0f)*(theUpgradeLevel+1);
+		
+		// Changed to ignore upgrade level
+		float theHalfSpread = (kGGXPunch/2.0f);
+
 		if(theHalfSpread > 0.0f)
 		{
 			V_PunchAxis( 0, gEngfuncs.pfnRandomFloat( -theHalfSpread, theHalfSpread ) );
@@ -1465,7 +1487,7 @@ void EV_OffenseChamber(struct event_args_s* inArgs)
 		theTempEntity->hitcallback = SpikeHit;
 		theTempEntity->flags = (FTENT_COLLIDEALL | FTENT_PERSIST | FTENT_COLLIDEKILL);
 		theTempEntity->die += kSpikeLifetime;
-		theTempEntity->clientIndex = inArgs->entindex;	// Entity to ignore collisions with
+		theTempEntity->clientIndex = inArgs->iparam1;	// Entity to ignore collisions with
 
 		//theTempEntity->entity.curstate.framerate = 30;
 		//theTempEntity->frameMax = 4;//theModel->numframes;
@@ -1477,7 +1499,6 @@ void EV_OffenseChamber(struct event_args_s* inArgs)
 		// Set orientation
 		//VectorCopy(inArgs->angles, theTempEntity->entity.angles);
 	}
-	
 	
 //
 //
@@ -2409,17 +2430,17 @@ void EV_Welder(struct event_args_s* inArgs)
 			float thePercentage;
 			AvHSHUGetBuildResearchState(thePhysEnt->iuser3, thePhysEnt->iuser4, thePhysEnt->fuser1, theIsBuilding, theIsResearching, thePercentage);
 
-			if(thePhysEnt->iuser3 == AVH_USER3_WELD)
-			{
-				if((thePercentage < 1.0f) && (thePercentage != -1))
-				{
-					gHUD.SetProgressStatus(thePercentage);
-				}
-				else
-				{
-					gHUD.HideProgressStatus();
-				}
-			}
+//			if(thePhysEnt->iuser3 == AVH_USER3_WELD)
+//			{
+//				if((thePercentage < 1.0f) && (thePercentage != -1))
+//				{
+//					gHUD.SetProgressStatus(thePercentage);
+//				}
+//				else
+//				{
+//					gHUD.HideProgressStatus();
+//				}
+//			}
 		}
 	}
 	// Fire light smoke from muzzle
@@ -2994,11 +3015,14 @@ void EV_Leap(struct event_args_s* inArgs)
 {
 	char* theSoundToPlay = kLeapSound;
 	
-	gEngfuncs.pEventAPI->EV_PlaySound(inArgs->entindex, inArgs->origin, CHAN_WEAPON, theSoundToPlay, inArgs->fparam1, ATTN_NORM, 0, 94 + gEngfuncs.pfnRandomLong( 0, 0xf ));
 
-	if (EV_IsLocal(inArgs->entindex))
+	if (EV_IsSpec(inArgs->entindex))
 	{
 		gEngfuncs.pEventAPI->EV_WeaponAnimation(inArgs->iparam2, 2);
+		gEngfuncs.pEventAPI->EV_PlaySound(inArgs->entindex, inArgs->origin, CHAN_WEAPON, theSoundToPlay, inArgs->fparam1, ATTN_NORM, 0, 94 + gEngfuncs.pfnRandomLong( 0, 0xf ));
+	}
+	if (!EV_IsLocal(inArgs->entindex)) {
+		gEngfuncs.pEventAPI->EV_PlaySound(inArgs->entindex, inArgs->origin, CHAN_WEAPON, theSoundToPlay, inArgs->fparam1, ATTN_NORM, 0, 94 + gEngfuncs.pfnRandomLong( 0, 0xf ));
 	}
 }
 
@@ -3264,7 +3288,8 @@ void EV_MetabolizeSuccess(struct event_args_s* inArgs)
 
 void WebHit(struct tempent_s* ent, struct pmtrace_s* ptr)
 {
-	gEngfuncs.pEventAPI->EV_PlaySound(ent->entity.index, ptr->endpos, CHAN_AUTO, kWebSpinSound1, 1, ATTN_NORM, 0, 94 + gEngfuncs.pfnRandomLong( 0, 0xf ));
+	gEngfuncs.pEventAPI->EV_PlaySound(ent->entity.index, ptr->endpos, CHAN_AUTO, kWebStrandHitSound, 1, ATTN_NORM, 0, 94 + gEngfuncs.pfnRandomLong( 0, 0xf ));
+	//gEngfuncs.pEventAPI->EV_PlaySound(ent->entity.index, ptr->endpos, CHAN_AUTO, kWebSpinSound1, 1, ATTN_NORM, 0, 94 + gEngfuncs.pfnRandomLong( 0, 0xf ));
 	if(ptr && ent)
 	{
 		ent->die = gEngfuncs.GetClientTime();

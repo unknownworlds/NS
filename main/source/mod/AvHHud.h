@@ -262,7 +262,10 @@ public:
     virtual void	Init(void);
 	virtual void	PostUIInit(void);
 	virtual void	VidInit(void);
-	
+	virtual void	InitHUDData( void );
+	virtual void	InitExploitPrevention( void );
+	void			UpdateExploitPrevention();
+
 	bool			GetGameStarted() const;
 	int				GetGameTime() const;
 	int				GetGameTimeLimit() const;
@@ -300,9 +303,9 @@ public:
 	void			SetSelectingWeaponID(int inWeaponID, int inR = -1, int inG = -1, int inB = -1);
 	void			SetTechHelpText(const string& inTechHelpText);
 	void			DrawSelectionCircleOnGroundAtPoint(vec3_t inOrigin, int inRadius);
-	// tankefugl: 0000988 
+	// : 0000988 
 	void			DrawBuildHealthEffectsForEntity(int inEntityIndex, float inAlpha = 1.0f);
-	// :tankefugl
+	// :
 	void			DrawSelectionAndBuildEffects();
 	void			DrawHUDNumber(int inX, int inY, int inFlags, int inNumber);
 
@@ -321,7 +324,7 @@ public:
 	int				GetMaxAlienResources() const;
 	int				GetNumActiveHives() const;
 	void			HideProgressStatus();
-	void			SetProgressStatus(float inPercentage);
+	void			SetProgressStatus(float inPercentage, int inProgressbarType = 0);
 
 	AvHVisibleBlipList&	GetEnemyBlipList();
 	AvHVisibleBlipList&	GetFriendlyBlipList();
@@ -336,7 +339,6 @@ public:
 	bool			SwitchUIMode(UIMode inNewMode);
 	bool			GetIsCombatMode() const;
     bool			GetIsNSMode() const;
-    bool			GetIsScriptedMode() const;
 		
 	void			HideResearchProgressStatus();
 	void			SetResearchProgressStatus(float inPercentage);
@@ -352,7 +354,7 @@ public:
 	int				GetCurrentWeaponID(void);
 
 	void			DrawTopDownBG();
-	void			DrawTranslatedString(int inX, int inY, const char* inStringToTranslate, bool inCentered = false, bool inIgnoreUpgrades = false, bool inTrimExtraInfo = false);
+	void			DrawTranslatedString(int inX, int inY, const char* inStringToTranslate, bool inCentered = false, bool inIgnoreUpgrades = false, bool inTrimExtraInfo = false, float alpha = 1.0f);
 	void			HandleFog();
 	void			PostModelRender(char* inModelName);
 	void			PreRenderFrame();
@@ -364,6 +366,7 @@ public:
     void            RenderMarineUI();
     void            RenderCommanderUI();
     void            RenderAlienUI();
+	void			RenderProgressBar(char *spriteName);
     void            RenderMiniMap(int inX, int inY, int inWidth, int inHeight);
 
     void            RenderStructureRanges();
@@ -386,10 +389,13 @@ public:
 	int				Countdown(const char* pszName, int iSize, void* pbuf);
 	int				DebugCSP(const char* pszName, int iSize, void* pbuf);
 	int				EditPS(const char* pszName, int iSize, void* pbuf);
+	int				DelEntHier(const char *pszName, int iSize, void *pbuf);
 	int				EntHier(const char *pszName, int iSize, void *pbuf);
 	int				Fog(const char* pszName, int iSize, void* pbuf);
+	int				SetUpgrades(const char* pszName, int iSize, void* pbuf);
 	int				ListPS(const char* pszName, int iSize, void* pbuf);
-    int				Particles(const char *pszName, int iSize, void *pbuf);
+	int				DelParts(const char *pszName, int iSize, void *pbuf);
+	int				Particles(const char *pszName, int iSize, void *pbuf);
     int				SoundNames(const char *pszName, int iSize, void *pbuf);
 	int 			PlayHUDNot(const char* pszName, int iSize, void* pbuf);
 	
@@ -398,8 +404,9 @@ public:
 
 	int				GameStatus(const char* pszName, int iSize, void* pbuf);
 	int				MiniMap(const char* pszName, int iSize, void* pbuf);
+	// : 0000971 
 	int				IssueOrder(const char* pszName, int iSize, void* pbuf);
-	int				LUAmsg(const char* pszName, int iSize, void* pbuf);
+	// :
 	int				Progress(const char* pszName, int iSize, void* pbuf);
 	int				SetGmma(const char* pszName, int iSize, void* pbuf);
 	int				SetSelect(const char* pszName, int iSize, void* pbuf);
@@ -433,18 +440,18 @@ public:
 
     float           GetServerVariableFloat(const char* inName) const;
 
-	// tankefugl:
+	// :
 	void			SetCenterText(const char* inText);
 	void			DrawCenterText();
 	void			ClearCenterText();
-	// :tankefugl
+	// :
 
 private:
 
-	// tankefugl:
+	// :
 	std::string		mCenterText;
 	float			mCenterTextTime;
-	// :tankefugl
+	// :
 
     bool            GetCommanderLabelText(std::string& outCommanderName) const;
 
@@ -454,21 +461,21 @@ private:
 	void			DrawMouseCursor(int inBaseX, int inBaseY);
 	void			DrawOrders();
 	void			DrawHelpIcons();
-	// tankefugl: 0000971
+	// : 0000971
 	void			GetOrderDirection(vec3_t inTarget, int inOrderType);
 	void			DrawTeammateOrders();
-	// tankefugl: 0000992
+	// : 0000992
 	void			DrawDisplayOrder();
 	void			SetDisplayOrder(int inOrderType, int inOrderIndex, string inText1, string inText2, string inText3);
-	// :tankefugl
+	// :
 	void			DrawHUDStructureNotification();
 	void			DrawInfoLocationText();
 	void			DrawPlayerNames();
 	void			DrawReticleInfo();
 	void			DrawToolTips();
-	// tankefugl: 0000971 -- added inAlpha
+	// : 0000971 -- added inAlpha
 	void			DrawWorldSprite(int inSpriteHandle, int inRenderMode, vec3_t inWorldPosition, int inFrame, float inWorldSize, float inAlpha = 1.0f);
-	// :tankefugl
+	// :
 	void			DrawOrderIcon(const AvHOrder& inOrder);
 	void			DrawOrderText(const AvHOrder& inOrder);
 	int				GetFrameForOrderType(AvHOrderType inOrderType) const;
@@ -520,7 +527,6 @@ private:
 	void			UpdateAlienUI(float inCurrentTime);
 	void			UpdateCommonUI();
 	void			UpdateDataFromVuser4(float inCurrentTime);
-	void			UpdateExploitPrevention();
 	void			UpdateMarineUI(float inCurrentTime);
 	void			UpdateUpgradeCosts();
 	void			UpdateEnableState(PieMenu* inMenu);
@@ -607,9 +613,9 @@ private:
 	OrderListType			mOrders;
 	//AvHOrderType			mOrderMode;
 
-	// tankefugl: 0000971
+	// : 0000971
 	map< int, TeammateOrderType >	mTeammateOrder;
-	// tankefugl: 0000992
+	// : 0000992
 	float					mDisplayOrderTime;
 	int						mDisplayOrderType;
 	int						mDisplayOrderDirection;
@@ -620,7 +626,7 @@ private:
 	int						mCurrentOrderTarget;
 	int						mCurrentOrderType;
 	float					mCurrentOrderTime;
-	// :tankefugl
+	// :
 	AvHMessageID			mTechEvent;
 	AvHMessageID			mAlienAbility;
 	AvHMessageID			mGroupEvent;
@@ -640,6 +646,14 @@ private:
 	string					mPreviousHelpText;
 	float					mTimeLastHelpTextChanged;
 
+	int						mNumMovement;
+	int						mNumSensory;
+	int						mNumDefense;
+
+	bool					mHasGrenades;
+	bool					mHasWelder;
+	bool					mHasMines;
+
 	int						mSelectedNodeResourceCost;
 	float					mCurrentUseableEnergyLevel;
 	float					mVisualEnergyLevel;
@@ -648,6 +662,9 @@ private:
 	static void				PlayRandomSongHook();
 	static void				ShowMap();
 	static void				HideMap();
+
+	static void				ShowCommandMenu();
+	static void				HideCommandMenu();
 
 	float					mTimeLastOverwatchPulse;
 	bool					mInTopDownMode;
@@ -693,6 +710,7 @@ private:
 	HSPRITE					mMarineUIJetpackSprite;
 
 	HSPRITE					mAlienUIEnergySprite;
+	HSPRITE					mAlienUICloakSprite;
 
 	HSPRITE					mMembraneSprite;
 	HSPRITE					mDigestingSprite;
@@ -708,9 +726,9 @@ private:
 	HSPRITE					mMarineOrderIndicator;
 	HSPRITE					mMarineUpgradesSprite;
 
-	// tankefugl: 0000971
+	// : 0000971
 	HSPRITE					mTeammateOrderSprite;
-	// :tankefugl
+	// :
 	typedef map<int, int>			SpriteListType;
 	SpriteListType					mActionButtonSprites;
 	//SpriteListType					mHelpSprites;
@@ -751,11 +769,18 @@ private:
 
 	int						mProgressBarEntityIndex;
 	int						mProgressBarParam;
+	int						mProgressBarCompleted;
+	float					mProgressBarStatus;
+	float					mProgressBarLastDrawn;
+	int						mProgressBarDrawframe;
 
 	bool					mFogActive;
 	vec3_t					mFogColor;
 	float					mFogStart;
 	float					mFogEnd;
+
+	HSPRITE					mExperienceBarSprite;
+	HSPRITE					mProgressBarSprite;
 
 	AvHBaseInfoLocationListType		mInfoLocationList;
 	string							mLocationText;
@@ -834,7 +859,7 @@ private:
 
     bool                    mSteamUIActive;
 
-    typedef std::map<std::string, std::string> ServerVariableMapType;
+    typedef std::map<std::string, int> ServerVariableMapType;
     ServerVariableMapType   mServerVariableMap;
 
     static bool             sShowMap;

@@ -125,6 +125,8 @@ public:
 	float			GetMaxAlpha() const;
 	void			SetMaxAlpha(float inMaxAlpha);
 
+	virtual	bool	operator==(const AvHParticleTemplate& other) const;
+	virtual void	operator=(const AvHParticleTemplate& other);
 private:
 	string				mName;
 
@@ -195,7 +197,7 @@ public:
 
 protected:
 
-	typedef vector<AvHParticleTemplate>		ParticleTemplateListType;
+	typedef map<int, AvHParticleTemplate>	ParticleTemplateListType;
 	ParticleTemplateListType				mTemplateList;
 };
 

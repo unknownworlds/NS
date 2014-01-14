@@ -100,6 +100,7 @@ void CL_DLLEXPORT Demo_ReadBuffer( int size, unsigned char *buffer )
 	int type;
 	int i = 0;
 	bool theMouseVisibility = false;
+	int particleIndex=0;
 
 	type = *( int * )buffer;
 	i += sizeof( int );
@@ -176,7 +177,7 @@ void CL_DLLEXPORT Demo_ReadBuffer( int size, unsigned char *buffer )
 		break;
 
 	case TYPE_PARTICLES:
-		i += gParticleTemplateList.InitializeDemoPlayback(size, (unsigned char*)&buffer[i]);
+		i += gParticleTemplateList.InitializeDemoPlayback(size, (unsigned char*)&buffer[i], particleIndex++);
 		break;
 
 	case TYPE_BASESTATE2:

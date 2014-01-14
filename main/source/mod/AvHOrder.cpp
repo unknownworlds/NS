@@ -280,7 +280,7 @@ bool AvHOrder::GetOrderCancelled() const
 	return (this->mOrderStatus == kOrderStatusCancelled);
 }
 
-// puzl: 1050
+// : 1050
 // Need to sync the order status as it is only manipulated by the serverside state machine
 int AvHOrder::GetOrderStatus() const
 {
@@ -750,7 +750,7 @@ bool AvHToggleUseable(CBaseEntity* inUser, const vec3_t& inOrigin, const vec3_t&
 						}
 					}
 				}
-				else if(FClassnameIs(theEntity->edict(), "func_button") && theEntity->pev->target) ////voogru: Its probably a button!, classname check to prevent any possible exploits
+				else if(FClassnameIs(theEntity->edict(), "func_button") && theEntity->pev->target) ////: Its probably a button!, classname check to prevent any possible exploits
 				{
 					CBaseEntity* theTarget = NULL;
 					while((theTarget = UTIL_FindEntityByTargetname(theTarget, STRING(theEntity->pev->target))) != NULL)

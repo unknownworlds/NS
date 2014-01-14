@@ -83,6 +83,15 @@ ENGINE_FORCE_UNMODIFIED(force_exactfile, NULL, NULL, s);
 #endif
 
 #ifdef AVH_SERVER
+#define PRECACHE_UNMODIFIED_GENERIC(s)	\
+(*g_engfuncs.pfnPrecacheGeneric)(s); \
+ENGINE_FORCE_UNMODIFIED(force_exactfile, NULL, NULL, s);
+#else
+#define PRECACHE_UNMODIFIED_GENERIC(s)	\
+(*g_engfuncs.pfnPrecacheGeneric)(s);
+#endif
+
+#ifdef AVH_SERVER
 #define PRECACHE_UNMODIFIED_SOUND(s) \
 (*g_engfuncs.pfnPrecacheSound)(s); \
 ENGINE_FORCE_UNMODIFIED(force_exactfile, NULL, NULL, s);

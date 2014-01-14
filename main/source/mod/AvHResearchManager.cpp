@@ -291,7 +291,7 @@ bool AvHResearchManager::SetResearching(AvHMessageID inMessageID, int inEntityIn
 		bool theIsResearchable = false;
 		int theCost;
 		float theTime;
-		// joev: 0000199
+		// : 0000199
 		// Look up entity and check that research is valid for this entity.
 		CBaseEntity* theResearchEntity = AvHSUGetEntityFromIndex(inEntityIndex);
 		ASSERT(theResearchEntity);
@@ -299,7 +299,7 @@ bool AvHResearchManager::SetResearching(AvHMessageID inMessageID, int inEntityIn
 		if (!AvHSUGetIsResearchApplicable(theResearchEntity,inMessageID)) {
 			theCouldStart = false;
 		}
-		// :joev
+		// :
 
 		if(!this->GetResearchInfo(inMessageID, theIsResearchable, theCost, theTime) || !theIsResearchable)
 		{

@@ -144,7 +144,7 @@ void AvHBaseBuildable::Init()
 	this->mTimeOfLastDamageUpdate = -1;
 	this->mTimeRecycleStarted = -1;
 	this->mTimeRecycleDone = -1;
-
+	this->mTimeOfLastDCRegeneration = -1;
 	SetThink(NULL);
 }
 
@@ -187,6 +187,29 @@ void AvHBaseBuildable::BuildableTouch(CBaseEntity* inEntity)
     if(inEntity->pev->team != this->pev->team)
     {
         this->Uncloak();
+
+		// GHOSTBUILDING: Destroy and return res.
+		if (this->mGhost && inEntity->IsAlive() && inEntity->IsPlayer())
+		{
+			this->TakeDamage(inEntity->pev, this->pev, 80000, DMG_GENERIC);
+
+			AvHTeam* theTeam = GetGameRules()->GetTeam(AvHTeamNumber(this->pev->team));
+
+			if (theTeam)
+			{
+				float thePercentage = .8f;
+				float thePointsBack = GetGameRules()->GetCostForMessageID(this->mMessageID) * thePercentage;
+				theTeam->SetTeamResources(theTeam->GetTeamResources() + thePointsBack);
+
+				AvHSUPlayNumericEventAboveStructure(thePointsBack, this);
+			}
+
+			// Uncloak the player
+			AvHCloakable *theCloakable=dynamic_cast<AvHCloakable *>(inEntity);
+			if ( theCloakable ) {
+				theCloakable->Uncloak();
+			}
+		}
     }
 }
 
@@ -226,7 +249,7 @@ void AvHBaseBuildable::ConstructUse( CBaseEntity *pActivator, CBaseEntity *pCall
 				    // Ensure that buildings are never absolutely painful to create
 				    int theBuildTime = max(GetGameRules()->GetBuildTimeForMessageID(this->mMessageID), 1);
 	    
-				    if(GetGameRules()->GetIsTesting() || GetGameRules()->GetCheatsEnabled())
+				    if((GetGameRules()->GetIsTesting() || GetGameRules()->GetCheatsEnabled()) && !GetGameRules()->GetIsCheatEnabled(kcSlowResearch))
 				    {
 					    theBuildTime = 2;
 				    }
@@ -264,6 +287,13 @@ void AvHBaseBuildable::ConstructUse( CBaseEntity *pActivator, CBaseEntity *pCall
 				    this->SetNormalizedBuildPercentage(thePercentage);
 
 				    theSuccess = true;
+
+					// GHOSTBUILD: Manifest structure.
+					pev->renderamt = 255;
+					pev->rendermode = kRenderNormal;
+					pev->solid = SOLID_BBOX;
+					this->mGhost = false;
+
                 }
 			}
 		}
@@ -497,6 +527,15 @@ void AvHBaseBuildable::UpdateOnRecycle()
 	// empty, override to add events on recycle for buildings
 }
 
+Vector AvHBaseBuildable::EyePosition( ) {
+
+	if ( this->pev->iuser3 == AVH_USER3_HIVE )
+		return CBaseEntity::EyePosition();
+
+	vec3_t position=AvHSHUGetRealLocation(this->pev->origin, this->pev->mins, this->pev->maxs);
+	position[2]+=10;
+	return position;
+}
 void AvHBaseBuildable::StartRecycle()
 {
 	if(!GetHasUpgrade(this->pev->iuser4, MASK_RECYCLING))
@@ -654,31 +693,41 @@ int	AvHBaseBuildable::GetTakeDamageAnimation() const
 
 AvHTeamNumber AvHBaseBuildable::GetTeamNumber() const
 {
-	return (AvHTeamNumber)this->pev->team;
+	AvHTeamNumber ret=TEAM_IND;
+	if ( this->pev ) 
+		ret=(AvHTeamNumber)this->pev->team;
+	return ret;
 }
 
 void AvHBaseBuildable::Killed(entvars_t* pevAttacker, int iGib)
 {
+	bool theInReset = GetGameRules()->GetIsGameInReset();
+	
 	AvHBaseBuildable::SetHasBeenKilled();
+	GetGameRules()->RemoveEntityUnderAttack( this->entindex() );
 
 	this->mKilled = true;
     this->mInternalSetConstructionComplete = false;
+	this->mTimeOfLastAutoHeal = -1;
 
-	// puzl: 980
-	// Less smoke for recycled buildings
-	this->TriggerDeathAudioVisuals(iGib == GIB_RECYCLED);
-	
-	if(!this->GetIsOrganic())
+	if (!theInReset)
 	{
-		// More sparks for recycled buildings
-		int numSparks = ( iGib == GIB_RECYCLED ) ? 7 : 3;
-		for ( int i=0; i < numSparks; i++ ) {
-			Vector vecSrc = Vector( (float)RANDOM_FLOAT( pev->absmin.x, pev->absmax.x ), (float)RANDOM_FLOAT( pev->absmin.y, pev->absmax.y ), (float)0 );
-			vecSrc = vecSrc + Vector( (float)0, (float)0, (float)RANDOM_FLOAT( pev->origin.z, pev->absmax.z ) );
-			UTIL_Sparks(vecSrc);
+		// : 980
+		// Less smoke for recycled buildings
+		this->TriggerDeathAudioVisuals(iGib == GIB_RECYCLED);
+		
+		if(!this->GetIsOrganic())
+		{
+			// More sparks for recycled buildings
+			int numSparks = ( iGib == GIB_RECYCLED ) ? 7 : 3;
+			for ( int i=0; i < numSparks; i++ ) {
+				Vector vecSrc = Vector( (float)RANDOM_FLOAT( pev->absmin.x, pev->absmax.x ), (float)RANDOM_FLOAT( pev->absmin.y, pev->absmax.y ), (float)0 );
+				vecSrc = vecSrc + Vector( (float)0, (float)0, (float)RANDOM_FLOAT( pev->origin.z, pev->absmax.z ) );
+				UTIL_Sparks(vecSrc);
+			}
 		}
+		// :
 	}
-	// :puzl
 	this->TriggerRemoveTech();
 
 	AvHSURemoveEntityFromHotgroupsAndSelection(this->entindex());
@@ -715,7 +764,7 @@ void AvHBaseBuildable::SetInactive()
     this->pev->effects |= EF_NODRAW;
     this->pev->solid = SOLID_NOT;
     this->pev->takedamage = DAMAGE_NO;
-	SetUpgradeMask(&this->pev->iuser4, MASK_PARASITED, false);//voogru: remove parasite flag to prevent phantom parasites.
+	SetUpgradeMask(&this->pev->iuser4, MASK_PARASITED, false);//: remove parasite flag to prevent phantom parasites.
     //this->pev->deadflag = DEAD_DEAD;
     SetThink(NULL);
 }
@@ -778,10 +827,10 @@ void AvHBaseBuildable::RecycleComplete()
         // Play "+ resources" event
         AvHSUPlayNumericEventAboveStructure(thePointsBack, this);
 
-		// puzl: 980
+		// : 980
 		// Less smoke and more sparks  for recycled buildings
 		this->Killed(this->pev, GIB_RECYCLED);
-		// :puzl
+		// :
 	}
 }
 
@@ -791,37 +840,39 @@ void AvHBaseBuildable::SetSelectID(int inSelectID)
 	this->mSelectID = inSelectID;
 }
 
-bool AvHBaseBuildable::Regenerate(float inRegenerationAmount, bool inPlaySound)
+bool AvHBaseBuildable::Regenerate(float inRegenerationAmount, bool inPlaySound, bool dcHealing)
 {
 	bool theDidHeal = false;
-	
-	float theMaxHealth = this->mBaseHealth;
+	if ( gpGlobals->time > this->mTimeOfLastDCRegeneration + BALANCE_VAR(kDefenseChamberThinkInterval) - 0.05f || (dcHealing == false)) {
+		if ( dcHealing )
+			this->mTimeOfLastDCRegeneration = gpGlobals->time;
+		float theMaxHealth = this->mBaseHealth;
 
-	if(!this->GetIsBuilt())
-	{
-		float theNormalizedBuildPercentage = this->GetNormalizedBuildPercentage();
-
-		theMaxHealth = (kBaseHealthPercentage + theNormalizedBuildPercentage*(1.0f - kBaseHealthPercentage))*this->mBaseHealth;
-	}
-
-	// If we aren't at full health, heal health
-	if(this->pev->health < theMaxHealth)
-	{
-		this->pev->health = min(theMaxHealth, this->pev->health + inRegenerationAmount);
-		this->HealthChanged();
-		theDidHeal = true;
-	}
-	
-	// Play regen event
-	if(theDidHeal)
-	{
-		if(inPlaySound)
+		if(!this->GetIsBuilt())
 		{
-			// Play regeneration event
-			PLAYBACK_EVENT_FULL(0, this->edict(), gRegenerationEventID, 0, this->pev->origin, (float *)&g_vecZero, 1.0f, 0.0, /*theWeaponIndex*/ 0, 0, 0, 0 );
+			float theNormalizedBuildPercentage = this->GetNormalizedBuildPercentage();
+
+			theMaxHealth = (kBaseHealthPercentage + theNormalizedBuildPercentage*(1.0f - kBaseHealthPercentage))*this->mBaseHealth;
+		}
+
+		// If we aren't at full health, heal health
+		if(this->pev->health < theMaxHealth)
+		{
+			this->pev->health = min(theMaxHealth, this->pev->health + inRegenerationAmount);
+			this->HealthChanged();
+			theDidHeal = true;
+		}
+		
+		// Play regen event
+		if(theDidHeal)
+		{
+			if(inPlaySound)
+			{
+				// Play regeneration event
+				PLAYBACK_EVENT_FULL(0, this->edict(), gRegenerationEventID, 0, this->pev->origin, (float *)&g_vecZero, 1.0f, 0.0, /*theWeaponIndex*/ 0, 0, 0, 0 );
+			}
 		}
 	}
-
 	return theDidHeal;
 }
 
@@ -852,6 +903,10 @@ void AvHBaseBuildable::InternalSetConstructionComplete(bool inForce)
 		this->pev->rendermode = kRenderNormal;
 		this->pev->renderamt = 255;
 		
+		// GHOSTBUILD: Ensure that finished buildings aren't ghosted.
+		this->mGhost = false;
+		this->pev->solid = SOLID_BBOX;
+
 		this->SetHasBeenBuilt();
 
         this->SetActive();
@@ -932,6 +987,14 @@ void AvHBaseBuildable::Spawn()
 
 	if(this->pev->spawnflags & 1)
 		this->SetConstructionComplete(true);
+
+	// GHOSTBUILD: Mark as unmanifested if it's a marine structure.
+	if (!this->GetIsOrganic())
+	{
+		pev->renderamt = 170;
+		pev->rendermode = kRenderTransTexture;
+		this->mGhost = true;
+	}
 }
 
 
@@ -957,6 +1020,7 @@ int	AvHBaseBuildable::GetSequenceForBoundingBox() const
 void AvHBaseBuildable::Materialize()
 {
 	this->pev->solid = SOLID_BBOX;
+
 	this->pev->movetype = this->GetMoveType();
 	
 	this->pev->classname = MAKE_STRING(this->mClassName);
@@ -1059,7 +1123,7 @@ int	AvHBaseBuildable::TakeDamage(entvars_t* inInflictor, entvars_t* inAttacker, 
 		
 		theDamage = CBaseAnimating::TakeDamage(inInflictor, inAttacker, inDamage, inBitsDamageType);
 
-		bool theDrawDamage = (CVAR_GET_FLOAT(kvDrawDamage) > 0);
+		bool theDrawDamage = (ns_cvar_float(&avh_drawdamage) > 0);
 
 		if(theDrawDamage)
 		{
@@ -1253,7 +1317,7 @@ void AvHBaseBuildable::TriggerDeathAudioVisuals(bool isRecycled)
 		
 	case AVH_CLASS_TYPE_MARINE:
 		// lots of smoke
-		// puzl: 980
+		// : 980
 		// Less smoke for recycled buildings
 		int smokeScale = isRecycled ? 15 : 25;
 		MESSAGE_BEGIN( MSG_BROADCAST, SVC_TEMPENTITY );

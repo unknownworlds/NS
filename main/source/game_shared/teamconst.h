@@ -19,7 +19,7 @@
 #ifndef TEAM_CONST_H
 #define TEAM_CONST_H
 
-#define MAX_PLAYERS			32//voogru: Why was this 64?!
+#define MAX_PLAYERS			32//: Why was this 64?!
 
 #define MAX_PLAYERS_PER_TEAM	16
 

@@ -44,6 +44,10 @@ void AvHTeamHierarchy::paint()
     AvHSpriteEnableVGUI(true);
     AvHSpriteSetVGUIOffset(theDrawInfo.mX, theDrawInfo.mY);
 
+	AvHTeamHierarchy*		tmp;
+	if(gHUD.GetManager().GetVGUIComponentNamed(kHierarchy, tmp))
+		if ( tmp==this && gHUD.GetHUDUser3() == AVH_USER3_COMMANDER_PLAYER)
+			theDrawInfo.mCommander=true;
     gHUD.GetOverviewMap().Draw(theDrawInfo);
  
 	// Evil awful hack that must be done for mouse cursors to work :(
@@ -67,7 +71,8 @@ void AvHTeamHierarchy::GetDrawInfo(AvHOverviewMap::DrawInfo& outDrawInfo)
     theOverviewMap.GetMapExtents(theMapExtents);
 
     outDrawInfo.mFullScreen = mFullScreen;
-
+	outDrawInfo.mCommander=false;
+	outDrawInfo.mZoomScale = 1.0f;
     if (this->mFullScreen)
 	{
 

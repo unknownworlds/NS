@@ -8,11 +8,12 @@
 class DrawableEntity
 {
 public:
-	DrawableEntity() : mUser3(AVH_USER3_NONE), mIsAlive(true), mX(0), mY(0), mAngleRadians(0), mIsLocalPlayer(false), mEntityNumber(0), mTeam(TEAM_IND), mSquadNumber(0)
+	DrawableEntity() : mUser3(AVH_USER3_NONE), mIsAlive(true), mX(0), mY(0), mAngleRadians(0), mIsLocalPlayer(false), mEntityNumber(0), mTeam(TEAM_IND), mSquadNumber(0), mIsUnderAttack(0)
 	{}
 	
 	AvHUser3	    mUser3;
 	bool		    mIsAlive;
+	bool			mIsUnderAttack;
 	int			    mX;
 	int			    mY;
     AvHTeamNumber   mTeam;
@@ -39,8 +40,9 @@ public:
         float mViewWorldMaxX;
         float mViewWorldMaxY;
 
+		float mZoomScale;
         bool mFullScreen;
-   
+        bool mCommander;
     };
                                     AvHOverviewMap();
 
@@ -75,20 +77,23 @@ protected:
 
 	AvHUser3						mUser3;
     AvHTeamNumber                   mTeam;
-	// puzl: 1066 the name of the last minimap we loaded
-	string							mLastMinimapName;	
+	// : 1066 the name of the last minimap we loaded
+	int								mLastMinimap;	
 private:
 	
     void                            WorldToMiniMapCoords(const DrawInfo& inDrawInfo, float& x, float& y);
 
 	void							Init();
-    void                            GetSpriteForEntity(const DrawableEntity& entity, int& outSprite, int& outFrame, int& outRenderMode);
+    void                            GetSpriteForEntity(const DrawableEntity& entity, int& outSprite, int& outFrame, int& outRenderMode, bool commanderOverview);
     void                            GetColorForEntity(const DrawableEntity& entity, float& outR, float& outG, float& outB);
     
 	void							UpdateDrawData(float inCurrentTime);
 
 	float							mWorldPlayerX;
 	float							mWorldPlayerY;
+
+	float							mBlinkTime;
+	bool							mBlinkOn;
 
 	AvHMapExtents					mMapExtents;
 

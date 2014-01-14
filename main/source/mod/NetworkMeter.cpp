@@ -39,6 +39,7 @@
 // Revision 1.2  2002/05/01 02:34:41  Charlie
 //===============================================================================
 #include "mod/NetworkMeter.h"
+#include "mod/AvHServerVariables.h"
 
 ////////////////////
 // Hook functions //
@@ -46,7 +47,12 @@
 
 void NetworkMeterMessageBegin(int msg_dest, int msg_type, const float* pOrigin, edict_t* ed)
 {
-	if(CVAR_GET_FLOAT("mp_networkdebug") > 0) 
+	bool networkDebug=false;
+#ifdef USE_NETWORK_METERING
+	if(ns_cvar_float(&avh_networkdebug) > 0) 
+		networkDebug=true;
+#endif
+	if(networkDebug)
 	{
 		char theDebugString[512];
 		sprintf(theDebugString, "MessageBegin(%d, %d...)\n", msg_dest, msg_type);
@@ -323,7 +329,13 @@ void NetworkMessage::AddData(const NetworkData& inData)
 
 void NetworkMessage::Execute(int theNumMessagesQueued)
 {
-	if(CVAR_GET_FLOAT("mp_networkdebug") > 0) 
+	bool networkDebug=false;
+#ifdef USE_NETWORK_METERING
+	if(ns_cvar_float(&avh_networkdebug) > 0) 
+		networkDebug=true;
+#endif
+
+	if(networkDebug) 
 	{
 		string theMessageName = NetworkMeter::Instance()->LookupMessageID(this->mMessageType);
 		string theMessageDest = "-";

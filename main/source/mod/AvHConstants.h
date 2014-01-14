@@ -136,7 +136,7 @@ const	int								kMaxUpgradeLevel = 3;
 const	int								kFuncResourceMaxResources = 300;
 //const	float							kPlayerResourceScalar = 2.0f; // 1.5 might be better
 const	int								kVictoryIntermission = 12;
-const	int								kResetPlayersPerSecond = 8;
+const	int								kResetPlayersPerSecond = 5;
 const	float							kBuildingUseWarmupTime = 2.0f;
 const   float                           kRedeemInvulnerableTime = 1.0f;
 
@@ -189,8 +189,7 @@ typedef enum
 	MAP_MODE_NS = 1,
 	MAP_MODE_CS = 2,
 	MAP_MODE_DM = 3,
-	MAP_MODE_CO = 4,
-	MAP_MODE_NSC = 5
+	MAP_MODE_CO = 4
 }
 AvHMapMode;
 
@@ -253,7 +252,8 @@ typedef enum
 	ALERT_NEW_TRAIT = 13,
 	ALERT_ORDER_NEEDED = 14,
 	ALERT_ORDER_COMPLETE = 15,
-	ALERT_MAX_ALERTS = 16
+	ALERT_HIVE_DEFEND = 16,
+	ALERT_MAX_ALERTS = 17
 } AvHAlertType;
 
 typedef enum
@@ -277,7 +277,7 @@ typedef enum
 	PLAYERCLASS_REINFORCINGCOMPLETE
 } AvHPlayerClass;
 
-// puzl: 0001073
+// : 0001073
 #ifdef USE_OLDAUTH
 // This is a mask because players can have more then one of these
 typedef enum
@@ -371,9 +371,9 @@ typedef enum
 	HUD_SOUND_YOU_WIN,
 	HUD_SOUND_YOU_LOSE,
 	HUD_SOUND_TOOLTIP,
-	// joev: bug 0000767
+	// : bug 0000767
 	HUD_SOUND_PLAYERJOIN,
-	// :joev
+	// :
 	HUD_SOUND_MAX
 } AvHHUDSound;
 
@@ -893,9 +893,9 @@ const float kCommanderHierarchyScaleFactor = .0002f;
 #define kInvalidSound				"misc/invalid.wav"
 #define kLevelUpMarineSound			"misc/levelup.wav"
 #define kLevelUpAlienSound			"misc/a-levelup.wav"
-// joev: bug 0000767
+// : bug 0000767
 #define kPlayerJoinedSound			"player/jointeam.wav"
-// :joev
+// :
 
 // Events
 #define kJetpackEvent				"events/Jetpack.sc"

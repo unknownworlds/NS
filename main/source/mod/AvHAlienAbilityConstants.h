@@ -42,12 +42,12 @@ const float		kLeapPunch				= 2.5;
 #define			kLeapKillSound			"weapons/leapkill.wav"
 #define			kLeapEventName			"events/Leap.sc"
 #define			kLeapPModel				"models/null.mdl"
-const float		kLeapROF				= 1.5f;
 const float		kLeapDuration			= 1.0f;
 
 // Charge constants.
 const float		kChargePunch			= 2.5;
 #define			kChargeSound			"weapons/charge1.wav"
+#define			kChargeSound2			"weapons/charge2.wav"
 #define			kChargeKillSound		"weapons/chargekill.wav"
 #define			kChargeEventName		"events/Charge.sc"
 const float		kChargeROF				= 5.0f;
@@ -55,13 +55,17 @@ const float		kChargeROF				= 5.0f;
 #define			kAlienSightOnSound		"misc/aliensighton.wav"
 #define			kAlienSightOffSound		"misc/aliensightoff.wav"
 
+// Blink constants
+#define			kBlinkSound				"weapons/blinksuccess.wav"
+
 const int		kAlienCloakRenderMode			= kRenderTransTexture;
 const int		kAlienCloakAmount				= 25;
-// puzl: 1061   full cloaking
+// : 1061   full cloaking
 const int		kAlienStructureCloakAmount		= 0;
-// :puzl
+// :
 
 const int		kAlienSelfCloakingBaseOpacity	= 130;
+const int		kAlienSelfCloakingMinOpacity	= 186;
 
 const int		kAlienCloakViewModelRenderMode	= kRenderTransAdd;
 const int		kAlienCloakViewModelAmount		= 35;

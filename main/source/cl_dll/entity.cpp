@@ -297,7 +297,7 @@ void MoveModel( void )
 }
 
 #endif
-
+*/
 //#define TRACE_TEST
 #if defined( TRACE_TEST )
 
@@ -328,7 +328,7 @@ void TraceModel( void )
 }
 
 #endif
-*/
+
 
 /*
 void ParticleCallback( struct particle_s *particle, float frametime )
@@ -545,11 +545,11 @@ void CL_DLLEXPORT HUD_CreateEntities( void )
 #if defined( TEST_IT )
 	MoveModel();
 #endif
-
+*/
 #if defined( TRACE_TEST )
 	TraceModel();
 #endif
-*/
+
 /*
 	Particles();
 */

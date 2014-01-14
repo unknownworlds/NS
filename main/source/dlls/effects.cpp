@@ -22,6 +22,8 @@
 #include "decals.h"
 #include "func_break.h"
 #include "engine/shake.h"
+#include "mod/AvHServerVariables.h"
+extern cvar_t avh_killdelay;
 
 #define	SF_GIBSHOOTER_REPEATABLE	1 // allows a gibshooter to be refired
 
@@ -1454,7 +1456,7 @@ void CGibShooter::Spawn( void )
 
 CGib *CGibShooter :: CreateGib ( void )
 {
-	if ( CVAR_GET_FLOAT("violence_hgibs") == 0 )
+	if ( ns_cvar_float(violence_hgibs) == 0 )
 		return NULL;
 
 	CGib *pGib = GetClassPtr( (CGib *)NULL );

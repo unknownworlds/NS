@@ -62,33 +62,34 @@ void AvHCloakable::Update()
 
 	float theTimePassed = theCurrentTime - this->mTimeOfLastUpdate;
 
-	float theOldOpacity=this->mOpacity;
 	if((this->mTimeOfLastCloak != -1) || (this->mTimeOfLastUncloak != -1))
 	{
+		float newOpacity=this->mOpacity;
 		if( this->mTimeOfLastCloak > this->mTimeOfLastUncloak  )
 		{
 			// Cloaking
-			this->mOpacity -= theTimePassed/this->GetCloakTime();
-			if ( this->mOpacity < 0.45f && this->mCurrentSpeed > this->mMaxWalkSpeed ) 
-			{
-				float theExtraSpeed = max(0.0f, this->mCurrentSpeed - this->mMaxWalkSpeed);
-				float theSpeedRange = max(0.0f, this->mMaxSpeed - this->mMaxWalkSpeed);
-				float thePercent=theExtraSpeed/theSpeedRange;
-				this->mOpacity=0.30f * thePercent;
-				if ( this->mCurrentSpeed > this->mMaxSpeed  ) {
-					//ALERT(at_console, "exceeded the speed limit %f\n", this->mCurrentSpeed);
-					this->mOpacity=0.30f + 0.30f * ((this->mCurrentSpeed - this->mMaxSpeed) / this->mMaxSpeed / 2.0f );
+			newOpacity -= theTimePassed/this->GetCloakTime();
+			// Adjust for movement
+			if ( this->mOpacity < 0.45f && this->mCurrentSpeed > this->mMaxWalkSpeed ) {
+				newOpacity=this->mOpacity;
+				if ( this->mCurrentSpeed > this->mMaxSpeed ) {
+					newOpacity += theTimePassed / this->GetUncloakTime();
 				}
-				this->mOpacity = min(max(0.0f, this->mOpacity), 0.45f);
+				else {
+					newOpacity += theTimePassed/this->GetUncloakTime() / 2.0f;
+
+				}
+				newOpacity = min(max(0.0f, newOpacity), 0.45f);
 			}
 		}
 		else 
 		{
 			// Uncloaking
-			this->mOpacity += theTimePassed/this->GetUncloakTime();
+			newOpacity += theTimePassed/this->GetUncloakTime();
 		}
 
-		this->mOpacity = min(max(0.0f, this->mOpacity), 1.0f);
+
+		this->mOpacity = min(max(0.0f, newOpacity), 1.0f);
 	}
 	this->mTimeOfLastUpdate = theCurrentTime;
 }
@@ -107,7 +108,7 @@ void AvHCloakable::SetSpeeds(float inCurrentSpeed, float inMaxSpeed, float inMax
 
 void AvHCloakable::Cloak(bool inNoFade)
 {
-	// puzl: 864
+	// : 864
 	if ( (this->GetTime() > this->mTimeOfLastUncloak + BALANCE_VAR(kRecloakTime)) || inNoFade ) {
 		if(this->GetCanCloak())
 		{

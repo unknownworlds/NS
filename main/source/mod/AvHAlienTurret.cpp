@@ -305,7 +305,7 @@ void AvHAlienTurret::Shoot(const Vector &inOrigin, const Vector &inToEnemy, cons
 	Vector theNetworkDirToEnemy;
 	VectorScale(theDirToEnemy, 100.0f, theNetworkDirToEnemy);
 
-	PLAYBACK_EVENT_FULL(0, this->edict(), this->mEvent, 0, theOrigin, theNetworkDirToEnemy, 1.0f, 0.0, /*theWeaponIndex*/ 0, 0, 0, 0 );
+	PLAYBACK_EVENT_FULL(0, 0, this->mEvent, 0, theOrigin, theNetworkDirToEnemy, 1.0f, 0.0, /*theWeaponIndex*/ this->entindex(), 0, 0, 0 );
 
 	// Play attack anim
 	this->PlayAnimationAtIndex(6, true);

@@ -103,9 +103,7 @@ int AvHGrenade::GetDeployAnimation() const
 
 char* AvHGrenade::GetDeploySound() const
 {
-    //return kGRDeploySound;
-	return NULL;
-
+    return kGRDeploySound;
 }
 
 float AvHGrenade::GetDeployTime() const
@@ -301,7 +299,7 @@ void AvHGrenade::Precache(void)
     AvHMarineWeapon::Precache();
     
     PRECACHE_UNMODIFIED_SOUND(kGRFireSound1);
-    //PRECACHE_UNMODIFIED_SOUND(kGRDeploySound);
+    PRECACHE_UNMODIFIED_SOUND(kGRDeploySound);
     PRECACHE_UNMODIFIED_SOUND(kGRExplodeSound);
     PRECACHE_UNMODIFIED_SOUND(kGRHitSound);
     
@@ -380,7 +378,7 @@ void AvHGrenade::CreateProjectile()
 	}
 
 	// How to handle this?  Only generate entity on server, but we should do SOMETHING on the client, no?
-	CGrenade* theGrenade = AvHSUShootServerGrenade(this->m_pPlayer->pev, theStartPosition, theVelocity, BALANCE_VAR(kGrenDetonateTime), true);
+	CGrenade* theGrenade = AvHSUShootServerGrenade(this->m_pPlayer->pev, theStartPosition, theVelocity, BALANCE_VAR(kHandGrenDetonateTime), true);
 	ASSERT(theGrenade);
 
 	theGrenade->pev->dmg = this->mDamage;

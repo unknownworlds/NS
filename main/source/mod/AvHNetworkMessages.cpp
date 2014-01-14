@@ -21,10 +21,10 @@ int	g_msgAmmoPickup = 0, g_msgAmmoX, g_msgBattery, g_msgCurWeapon, g_msgDamage,	
 	g_msgTrain, g_msgWeaponList, g_msgWeapPickup, g_msgAlienInfo, g_msgBalanceVar,
 	g_msgBlipList, g_msgBuildMiniMap, g_msgClientScripts, g_msgDebugCSP, g_msgEditPS,
 	g_msgFog, g_msgGameStatus, g_msgListPS, g_msgPlayHUDNotification, g_msgProgressBar,
-	g_msgServerVar, g_msgSetGammaRamp, g_msgSetOrder, g_msgSetParticleTemplates,
+	g_msgServerVar, g_msgSetGammaRamp, g_msgSetOrder, g_msgSetParticleTemplates,g_msgDelParts,
 	g_msgSetSelect, g_msgSetRequest, g_msgSetSoundNames, g_msgSetTechNodes, g_msgSetTechSlots,
-	g_msgSetTopDown, g_msgSetupMap, g_msgUpdateCountdown, g_msgUpdateEntityHierarchy,
-	g_msgProfileInfo, g_msgNexusBytes, g_msgIssueOrder, g_msgLUAMessage;
+	g_msgSetTopDown, g_msgSetupMap, g_msgUpdateCountdown, g_msgUpdateEntityHierarchy, g_msgDelEntityHierarchy,
+	g_msgProfileInfo, g_msgNexusBytes, g_msgIssueOrder, g_msgHUDSetUpgrades;
 
 void Net_InitializeMessages(void)
 {
@@ -47,6 +47,7 @@ void Net_InitializeMessages(void)
 	g_msgMOTD = REG_USER_MSG( "MOTD", -1 );
 	g_msgResetHUD = REG_USER_MSG( "ResetHUD", 0 );
 	g_msgSayText = REG_USER_MSG( "SayText", -1 );
+	// : 0001073
 	g_msgScoreInfo = REG_USER_MSG( "ScoreInfo", -1 );
 	g_msgServerName = REG_USER_MSG( "ServerName", -1 );
 	g_msgSetFOV = REG_USER_MSG( "SetFOV", 1 );
@@ -73,11 +74,13 @@ void Net_InitializeMessages(void)
 	g_msgGameStatus = REG_USER_MSG( "GameStatus", -1 );
 	g_msgListPS = REG_USER_MSG( "ListPS", -1 );
 	g_msgPlayHUDNotification = REG_USER_MSG( "PlayHUDNot", 6 );
-	g_msgProgressBar = REG_USER_MSG( "Progress", 3 );
+	g_msgHUDSetUpgrades = REG_USER_MSG( "SetUpgrades", 1);
+	g_msgProgressBar = REG_USER_MSG( "Progress", -1 );
 	g_msgServerVar = REG_USER_MSG( "ServerVar", -1 );
-	g_msgSetGammaRamp = REG_USER_MSG( "SetGmma", 2 );
+	g_msgSetGammaRamp = REG_USER_MSG( "SetGmma", 1 );
 	g_msgSetOrder = REG_USER_MSG( "SetOrder", -1 );
 	g_msgSetParticleTemplates = REG_USER_MSG( "Particles", -1 );
+	g_msgDelParts = REG_USER_MSG( "DelParts", 0);
 	g_msgSetSelect = REG_USER_MSG( "SetSelect", -1 );
 	g_msgSetRequest = REG_USER_MSG( "SetRequest", 2 );
 	g_msgSetSoundNames = REG_USER_MSG( "SoundNames", -1 );
@@ -87,10 +90,12 @@ void Net_InitializeMessages(void)
 	g_msgSetupMap = REG_USER_MSG( "SetupMap", -1 );
 	g_msgUpdateCountdown = REG_USER_MSG( "Countdown", 1 );
 	g_msgUpdateEntityHierarchy = REG_USER_MSG( "EntHier", -1 );
+	g_msgDelEntityHierarchy = REG_USER_MSG( "DelEntHier", 0);
 	g_msgProfileInfo = REG_USER_MSG( "ProfileInfo", 8 );
 	g_msgNexusBytes = REG_USER_MSG( "NexusBytes", -1 );
+	// : 0000971
 	g_msgIssueOrder = REG_USER_MSG( "IssueOrder", 9);
-	g_msgLUAMessage = REG_USER_MSG( "LUAmsg", -1);
+	// :
 }
 #endif
 
@@ -474,7 +479,7 @@ void Net_InitializeMessages(void)
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-// puzl: 0001073
+// : 0001073
 #ifndef AVH_SERVER
 	void NetMsg_ScoreInfo( void* const buffer, const int size, ScoreInfo& info )
 	{
@@ -483,9 +488,11 @@ void Net_InitializeMessages(void)
 			info.score = READ_SHORT();
 			info.frags = READ_SHORT();
 			info.deaths = READ_SHORT();
+			info.extra = READ_SHORT();
 			info.player_class = READ_BYTE();
 			info.auth = READ_SHORT();
 			info.team = READ_SHORT();
+			info.health = READ_SHORT();
 			char* theString = READ_STRING();
 #ifdef USE_OLDAUTH
 			if(info.auth & PLAYERAUTH_CUSTOM)
@@ -511,9 +518,26 @@ void Net_InitializeMessages(void)
 			WRITE_SHORT( info.score );
 			WRITE_SHORT( info.frags );
 			WRITE_SHORT( info.deaths );
+			WRITE_SHORT( info.extra );
 			WRITE_BYTE( info.player_class );
 			WRITE_SHORT( info.auth );
             WRITE_SHORT( info.team );
+			WRITE_SHORT( info.health );
+			WRITE_STRING("0");
+		MESSAGE_END();
+	}
+	void NetMsgSpec_ScoreInfo( const ScoreInfo& info )
+	{
+		MESSAGE_BEGIN( MSG_SPEC, g_msgScoreInfo );
+			WRITE_BYTE( info.player_index );
+			WRITE_SHORT( info.score );
+			WRITE_SHORT( info.frags );
+			WRITE_SHORT( info.deaths );
+			WRITE_SHORT( info.extra );
+			WRITE_BYTE( info.player_class );
+			WRITE_SHORT( info.auth );
+            WRITE_SHORT( info.team );
+			WRITE_SHORT( info.health );
 			WRITE_STRING("0");
 		MESSAGE_END();
 	}
@@ -727,30 +751,30 @@ void Net_InitializeMessages(void)
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 #ifndef AVH_SERVER
-	void NetMsg_TeamScore( void* const buffer, const int size, string& team_name, int& score, int& deaths )
+	void NetMsg_TeamScore( void* const buffer, const int size, string& team_name, int& score, int& reset )
 	{
 		BEGIN_READ( buffer, size );
 			team_name = READ_STRING();
 			score = READ_SHORT();
-			deaths = READ_SHORT();
+			reset = READ_SHORT();
 		END_READ();
 	}
 #else
-	void NetMsg_TeamScore( entvars_t* const pev, const string& team_name, const int score, const int deaths )
+	void NetMsg_TeamScore( entvars_t* const pev, const string& team_name, const int score, const int reset )
 	{
 		MESSAGE_BEGIN( MSG_ONE, g_msgTeamScore, NULL, pev );
 			WRITE_STRING( team_name.c_str() );
 			WRITE_SHORT( score );
-			WRITE_SHORT( deaths );
+			WRITE_SHORT( reset );
 		MESSAGE_END();
 	}
 
-	void NetMsg_TeamScore( const string& team_name, const int score, const int deaths )
+	void NetMsg_TeamScore( const string& team_name, const int score, const int reset )
 	{
 		MESSAGE_BEGIN( MSG_ALL, g_msgTeamScore );
 			WRITE_STRING( team_name.c_str() );
 			WRITE_SHORT( score );
-			WRITE_SHORT( deaths );
+			WRITE_SHORT( reset );
 		MESSAGE_END();
 	}
 #endif
@@ -976,7 +1000,10 @@ enum AlienInfo_ChangeFlags
 
 	void NetMsg_AlienInfo_Hives( entvars_t* const pev, const HiveInfoListType& hives, const HiveInfoListType& client_hives )
 	{
-		MESSAGE_BEGIN( MSG_ONE, g_msgAlienInfo, NULL, pev );
+		if ( pev == NULL ) 
+			MESSAGE_BEGIN( MSG_SPEC, g_msgAlienInfo);
+		else
+			MESSAGE_BEGIN( MSG_ONE, g_msgAlienInfo, NULL, pev );
 			WRITE_BYTE( hives.size() );
 			HiveInfoListType::const_iterator current, end = hives.end();
 			int status, tech, index = 0;
@@ -1160,9 +1187,12 @@ union float_converter
 #else
 	void NetMsg_BlipList( entvars_t* const pev, const bool friendly_blips, const AvHVisibleBlipList& list )
 	{
+		int maxBlips = friendly_blips ? 20 : 25;
+		maxBlips =  min ( list.mNumBlips, maxBlips );
+
 		MESSAGE_BEGIN( MSG_ONE_UNRELIABLE, g_msgBlipList, NULL, pev );
 			//pack header - 7 bits for blip count (doesn't go over 40 in practice), 1 bit for Friend or Foe
-			unsigned char list_info = list.mNumBlips | (friendly_blips ? 0x80 : 0);
+			unsigned char list_info = maxBlips | (friendly_blips ? 0x80 : 0);
 			WRITE_BYTE( list_info );
 			//pack each blip - this could be optimized as follows once bit packer is implemented:
 			// convert X, Y to integer values ranging from 0 to 2047 (11 bits each) based on map extents
@@ -1174,7 +1204,7 @@ union float_converter
 			// blip precision would be equal to double large minimap precision, with worst case of 4 unit X,Y separation for MT.
 			// because maps are much smaller vertically than horizontally as a rule, the worst case of 16 unit Z separation
 			// will very rarely occur.
-			for( int counter = 0; counter < list.mNumBlips; counter++ )
+			for( int counter = 0; counter < maxBlips; counter++ )
 			{
 				WRITE_COORD( list.mBlipPositions[counter][0] );
 				WRITE_COORD( list.mBlipPositions[counter][1] );
@@ -1442,6 +1472,28 @@ union float_converter
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 #ifndef AVH_SERVER
+	void NetMsg_HUDSetUpgrades( void* const buffer, const int size, int& upgradeMask )
+	{
+		BEGIN_READ( buffer, size );
+			upgradeMask=READ_BYTE();
+		END_READ();
+	}
+#else
+	void NetMsg_HUDSetUpgrades( int upgradeMask )
+	{
+		MESSAGE_BEGIN( MSG_ALL, g_msgHUDSetUpgrades);
+			WRITE_BYTE( upgradeMask );
+		MESSAGE_END();
+	}
+	void NetMsg_HUDSetUpgrades( entvars_t* const pev, int upgradeMask )
+	{
+		MESSAGE_BEGIN( MSG_ONE, g_msgHUDSetUpgrades, NULL, pev );
+			WRITE_BYTE( upgradeMask  );
+		MESSAGE_END();
+	}
+#endif
+
+#ifndef AVH_SERVER
 	void NetMsg_PlayHUDNotification( void* const buffer, const int size, int& flags, int& sound, float& location_x, float& location_y )
 	{
 		BEGIN_READ( buffer, size );
@@ -1466,19 +1518,24 @@ union float_converter
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 #ifndef AVH_SERVER
-	void NetMsg_ProgressBar( void* const buffer, const int size, int& entity_number, int& progress )
+	void NetMsg_ProgressBar( void* const buffer, const int size, int& entity_number, int& progress, int& seconds)
 	{
 		BEGIN_READ( buffer, size );
 			entity_number = READ_SHORT();
 			progress = READ_BYTE();
+			if ( progress == 5 ) 
+				seconds=READ_BYTE();
+			
 		END_READ();
 	}
 #else
-	void NetMsg_ProgressBar( entvars_t* const pev, const int entity_number, const int progress )
+	void NetMsg_ProgressBar( entvars_t* const pev, const int entity_number, const int progress, int seconds )
 	{
 		MESSAGE_BEGIN( MSG_ONE_UNRELIABLE, g_msgProgressBar, NULL, pev );
 			WRITE_SHORT( entity_number );
 			WRITE_BYTE( progress );
+			if ( progress == 5 ) 
+				WRITE_BYTE( seconds );
 		MESSAGE_END();
 	}
 #endif
@@ -1486,19 +1543,19 @@ union float_converter
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 #ifndef AVH_SERVER
-	void NetMsg_ServerVar( void* const buffer, const int size, string& name, string& value )
+	void NetMsg_ServerVar( void* const buffer, const int size, string& name, int& value )
 	{
 		BEGIN_READ( buffer, size );
 			name = READ_STRING();
-			value = READ_STRING();
+			value = READ_SHORT();
 		END_READ();
 	}
 #else
-	void NetMsg_ServerVar( entvars_t* const pev, const string& name, const string& value )
+	void NetMsg_ServerVar( entvars_t* const pev, const string& name, const int& value )
 	{
 		MESSAGE_BEGIN( MSG_ONE, g_msgServerVar, NULL, pev );
 			WRITE_STRING( name.c_str() );
-			WRITE_STRING( value.c_str() );
+			WRITE_SHORT( value );
 		MESSAGE_END();
 	}
 #endif
@@ -1509,21 +1566,21 @@ union float_converter
 	void NetMsg_SetGammaRamp( void* const buffer, const int size, float& gamma )
 	{
 		BEGIN_READ( buffer, size );
-			gamma = READ_COORD();
+			gamma = READ_BYTE() / 128.0f;
 		END_READ();
 	}
 #else
 	void NetMsg_SetGammaRamp( entvars_t* const pev, const float gamma )
 	{
 		MESSAGE_BEGIN( MSG_ONE, g_msgSetGammaRamp, NULL, pev );
-			WRITE_COORD( gamma );
+			WRITE_BYTE( floor( min( max(gamma, 0.0f), 1.992f) * 128.0f) );
 		MESSAGE_END();
 	}
 
 	void NetMsgSpec_SetGammaRamp( const float gamma )
 	{
 		MESSAGE_BEGIN( MSG_SPEC, g_msgSetGammaRamp );
-			WRITE_COORD( gamma );
+			WRITE_BYTE( floor( min( max(gamma, 0.0f), 1.992f) * 128.0f) );
 		MESSAGE_END();
 	}
 #endif
@@ -1555,7 +1612,7 @@ union float_converter
 			}
 			order.SetUser3TargetType( (AvHUser3)READ_BYTE() );
 			order.SetOrderCompleted( READ_BYTE() );
-			// puzl: 1050
+			// : 1050
 			// Need to sync the order status as it is only manipulated by the serverside state machine
 			order.SetOrderStatus( READ_BYTE() );
 		END_READ();
@@ -1584,7 +1641,7 @@ union float_converter
 			}
 			WRITE_BYTE( order.GetTargetUser3Type() );
 			WRITE_BYTE( order.GetOrderCompleted() );
-			// puzl: 1050
+			// : 1050
 			// Need to sync the order status as it is only manipulated by the serverside state machine
 			WRITE_BYTE( order.GetOrderStatus() );			
 		MESSAGE_END();
@@ -1594,11 +1651,18 @@ union float_converter
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 #ifndef AVH_SERVER
-	void NetMsg_SetParticleTemplate( void* const buffer, const int size, AvHParticleTemplate& particle_template )
+	void NetMsg_DelParts( void* const buffer, const int size)
+	{
+		BEGIN_READ( buffer, size );
+		READ_BYTE();
+		END_READ();
+	}
+	void NetMsg_SetParticleTemplate( void* const buffer, const int size, int &index, AvHParticleTemplate& particle_template )
 	{
 		ParticleParams gen_params, vel_params;
 		PSVector gravity;
 		BEGIN_READ( buffer, size );
+			index=READ_SHORT();
 			particle_template.SetName( string( READ_STRING() ) );
 			particle_template.SetMaxParticles( READ_LONG() );
 			particle_template.SetParticleSize( READ_COORD() );
@@ -1626,35 +1690,47 @@ union float_converter
 		END_READ();
 	}
 #else
-	void NetMsg_SetParticleTemplate( entvars_t* const pev, const AvHParticleTemplate& particle_template )
+	void NetMsg_SetParticleTemplate( entvars_t* const pev, const int index, const AvHParticleTemplate& particle_template )
 	{
 		ParticleParams gen_params, vel_params;
 		PSVector gravity;
-		MESSAGE_BEGIN( MSG_ONE, g_msgSetParticleTemplates, NULL, pev );
-			WRITE_STRING( particle_template.GetName().c_str() );
-			WRITE_LONG( particle_template.GetMaxParticles() );
-			WRITE_COORD( particle_template.GetParticleSize() );
-			WRITE_STRING( particle_template.GetSprite().c_str() );
-			WRITE_COORD( particle_template.GetParticleSystemLifetime() );
-			WRITE_COORD( particle_template.GetParticleLifetime() );
-			WRITE_COORD( particle_template.GetAnimationSpeed() );
-			WRITE_BYTE( particle_template.GetNumSpriteFrames() );
-			WRITE_COORD( particle_template.GetParticleScaling() );
-			WRITE_BYTE( particle_template.GetRenderMode() );
-			WRITE_LONG( particle_template.GetGenerationRate() );
-			WRITE_BYTE( particle_template.GetGenerationShape() );
-			particle_template.GetGenerationParams( gen_params );
-			for( int counter = 0; counter < 8; counter++ ) { WRITE_LONG( gen_params[counter] ); }
-			WRITE_LONG( particle_template.GetGenerationEntityIndex() );
-			WRITE_COORD( particle_template.GetGenerationEntityParameter() );
-			WRITE_BYTE( particle_template.GetStartingVelocityShape() );
-			particle_template.GetStartingVelocityParams( vel_params );
-			for( int counter = 0; counter < 8; counter++ ) { WRITE_LONG( vel_params[counter] ); }
-			particle_template.GetGravity( gravity );
-			for( int counter = 0; counter < 3; counter++ ) { WRITE_COORD( gravity[counter] ); }
-			WRITE_COORD( particle_template.GetMaxAlpha() );
-			WRITE_LONG( particle_template.GetParticleSystemIndexToGenerate() );
-			WRITE_LONG( particle_template.GetFlags() );
+		if ( pev )
+			MESSAGE_BEGIN( MSG_ONE, g_msgSetParticleTemplates, NULL, pev );
+		else
+			MESSAGE_BEGIN( MSG_SPEC, g_msgSetParticleTemplates);
+				WRITE_SHORT(index);
+				WRITE_STRING( particle_template.GetName().c_str() );
+				WRITE_LONG( particle_template.GetMaxParticles() );
+				WRITE_COORD( particle_template.GetParticleSize() );
+				WRITE_STRING( particle_template.GetSprite().c_str() );
+				WRITE_COORD( particle_template.GetParticleSystemLifetime() );
+				WRITE_COORD( particle_template.GetParticleLifetime() );
+				WRITE_COORD( particle_template.GetAnimationSpeed() );
+				WRITE_BYTE( particle_template.GetNumSpriteFrames() );
+				WRITE_COORD( particle_template.GetParticleScaling() );
+				WRITE_BYTE( particle_template.GetRenderMode() );
+				WRITE_LONG( particle_template.GetGenerationRate() );
+				WRITE_BYTE( particle_template.GetGenerationShape() );
+				particle_template.GetGenerationParams( gen_params );
+				for( int counter = 0; counter < 8; counter++ ) { WRITE_LONG( gen_params[counter] ); }
+				WRITE_LONG( particle_template.GetGenerationEntityIndex() );
+				WRITE_COORD( particle_template.GetGenerationEntityParameter() );
+				WRITE_BYTE( particle_template.GetStartingVelocityShape() );
+				particle_template.GetStartingVelocityParams( vel_params );
+				for( int counter = 0; counter < 8; counter++ ) { WRITE_LONG( vel_params[counter] ); }
+				particle_template.GetGravity( gravity );
+				for( int counter = 0; counter < 3; counter++ ) { WRITE_COORD( gravity[counter] ); }
+				WRITE_COORD( particle_template.GetMaxAlpha() );
+				WRITE_LONG( particle_template.GetParticleSystemIndexToGenerate() );
+				WRITE_LONG( particle_template.GetFlags() );
+			MESSAGE_END();
+	}
+	void NetMsg_DelParts( entvars_t* const pev )
+	{
+		if ( pev )
+			MESSAGE_BEGIN( MSG_ONE, g_msgDelParts, NULL, pev );
+		else
+			MESSAGE_BEGIN( MSG_SPEC, g_msgDelParts);
 		MESSAGE_END();
 	}
 #endif
@@ -1886,17 +1962,20 @@ union float_converter
 #else
 	void NetMsg_SetupMap_Extents( entvars_t* const pev, const string& name, const float* const min_extents, const float* const max_extents, const bool draw_background )
 	{
-		MESSAGE_BEGIN( MSG_ONE, g_msgSetupMap, NULL, pev );
-			WRITE_BYTE( 0 );
-			WRITE_STRING( name.c_str() );
-			WRITE_COORD( min_extents[2] );
-			WRITE_COORD( max_extents[2] );
-			WRITE_COORD( min_extents[0] );
-			WRITE_COORD( min_extents[1] );
-			WRITE_COORD( max_extents[0] );
-			WRITE_COORD( max_extents[1] );
-			WRITE_BYTE( draw_background ? 1 : 0 );
-		MESSAGE_END();
+		if ( pev)
+			MESSAGE_BEGIN( MSG_ONE, g_msgSetupMap, NULL, pev );
+		else
+			MESSAGE_BEGIN( MSG_SPEC, g_msgSetupMap);
+				WRITE_BYTE( 0 );
+				WRITE_STRING( name.c_str() );
+				WRITE_COORD( min_extents[2] );
+				WRITE_COORD( max_extents[2] );
+				WRITE_COORD( min_extents[0] );
+				WRITE_COORD( min_extents[1] );
+				WRITE_COORD( max_extents[0] );
+				WRITE_COORD( max_extents[1] );
+				WRITE_BYTE( draw_background ? 1 : 0 );
+			MESSAGE_END();
 	}
 
 	void NetMsg_SetupMap_Location( entvars_t* const pev, const string& name, const float* const min_extents, const float* const max_extents )
@@ -1950,15 +2029,21 @@ const int	kNumPlayerIndexBits = 6;
 const int	kPlayerIndexMask = 0x3F;
 const int	kNumIndexBits = 14;
 const int	kIndexMask = 0x3FFF;
-const int	kNumFlagBits = 2;
-const int	kFlagMask = 0x03;
+const int	kNumFlagBits = 3;
+const int	kFlagMask = 0x07;
 const int	kEntHierFlagPlayer		= 0x01;
 const int	kEntHierFlagDeletion	= 0x02;
+const int	kEntHierFlagUnderAttack = 0x04;
+
 
 #ifndef AVH_SERVER
 	//TODO : replace OldItems with vector<int>
 	void ReadEntHier( MapEntityMap& NewItems, EntityListType& OldItems, int short_data, int long_data );
 	float UnpackageCoord( const int packaged_coord );
+	void NetMsg_DelEntityHierarchy(void* const buffer, const int size ) {
+		BEGIN_READ( buffer, size );
+		END_READ();
+	}
 	void NetMsg_UpdateEntityHierarchy( void* const buffer, const int size, MapEntityMap& NewItems, EntityListType& OldItems )
 	{
 		NewItems.clear();
@@ -1994,6 +2079,7 @@ const int	kEntHierFlagDeletion	= 0x02;
 		MapEntity ent;
 		int index = 0;
 
+		ent.mUnderAttack = ((flags & kEntHierFlagUnderAttack) == kEntHierFlagUnderAttack );
 		ent.mUser3 = (AvHUser3)(long_data & kStatusMask);
 		long_data >>= kNumStatusBits;
 		ent.mTeam = (AvHTeamNumber)(long_data & kTeamMask);
@@ -2013,6 +2099,7 @@ const int	kEntHierFlagDeletion	= 0x02;
 		else															// Other item added/changed
 		{
 			index = short_data & kIndexMask;
+			short_data >>= kNumIndexBits;
 			ent.mSquadNumber = 0;
 			ent.mAngle = 0;
 		}
@@ -2031,7 +2118,18 @@ const int	kEntHierFlagDeletion	= 0x02;
 #else
 	void WriteEntHier( const int index, const MapEntity& ent, bool delete_flag, int& short_data, int& long_data );
 	int PackageCoord( const float coord );
-	void NetMsg_UpdateEntityHierarchy( entvars_t* const pev, const MapEntityMap& NewItems, const EntityListType& OldItems )
+	void NetMsg_DelEntityHierarchy( entvars_t* const pev )
+	{
+		if ( pev == NULL )  {
+			MESSAGE_BEGIN( MSG_SPEC, g_msgDelEntityHierarchy);
+		}
+		else {
+			MESSAGE_BEGIN( MSG_ONE, g_msgDelEntityHierarchy, NULL, pev );
+		}
+		MESSAGE_END();
+	}
+
+	void NetMsg_UpdateEntityHierarchy( entvars_t* const pev, const MapEntityMap& NewItems, const EntityListType& OldItems, bool specMsg )
 	{
 		const int kMaxUpdatesPerPacket = 30;
 		if( NewItems.empty() && OldItems.empty() ) { return; } //nothing to send!
@@ -2040,28 +2138,41 @@ const int	kEntHierFlagDeletion	= 0x02;
 		MapEntity temp;
 		EntityListType::const_iterator old_current, old_end = OldItems.end();
 		int short_data, long_data, count = 1;
-		MESSAGE_BEGIN( MSG_ONE, g_msgUpdateEntityHierarchy, NULL, pev );
-			for( new_current = NewItems.begin(); new_current != new_end; ++new_current, ++count )
+		if ( specMsg )  {
+			MESSAGE_BEGIN( MSG_SPEC, g_msgUpdateEntityHierarchy);
+		}
+		else {
+			MESSAGE_BEGIN( MSG_ONE, g_msgUpdateEntityHierarchy, NULL, pev );
+		}
+		for( new_current = NewItems.begin(); new_current != new_end; ++new_current, ++count )
+		{
+			if( count % kMaxUpdatesPerPacket == 0 )
 			{
-				if( count % kMaxUpdatesPerPacket == 0 )
-				{
-					MESSAGE_END();
-					MESSAGE_BEGIN( MSG_ONE, g_msgUpdateEntityHierarchy, NULL, pev );
+				MESSAGE_END();
+				if ( specMsg ) {
+					MESSAGE_BEGIN( MSG_SPEC, g_msgUpdateEntityHierarchy);
 				}
-				WriteEntHier( new_current->first, new_current->second, false, short_data, long_data );
-				WRITE_SHORT(short_data);
-				WRITE_LONG(long_data);
+				else
+					MESSAGE_BEGIN( MSG_ONE, g_msgUpdateEntityHierarchy, NULL, pev );
 			}
-			for( old_current = OldItems.begin(); old_current != old_end; ++old_current, ++count )
+			WriteEntHier( new_current->first, new_current->second, false, short_data, long_data );
+			WRITE_SHORT(short_data);
+			WRITE_LONG(long_data);
+		}
+		for( old_current = OldItems.begin(); old_current != old_end; ++old_current, ++count )
+		{
+			if( count % kMaxUpdatesPerPacket == 0 )
 			{
-				if( count % kMaxUpdatesPerPacket == 0 )
-				{
-					MESSAGE_END();
-					MESSAGE_BEGIN( MSG_ONE, g_msgUpdateEntityHierarchy, NULL, pev );
+				MESSAGE_END();
+				if ( specMsg ) {
+					MESSAGE_BEGIN( MSG_SPEC, g_msgUpdateEntityHierarchy);
 				}
-				WriteEntHier( *old_current, temp, true, short_data, long_data );
-				WRITE_SHORT(short_data);
+				else
+					MESSAGE_BEGIN( MSG_ONE, g_msgUpdateEntityHierarchy, NULL, pev );
 			}
+			WriteEntHier( *old_current, temp, true, short_data, long_data );
+			WRITE_SHORT(short_data);
+		}
 		MESSAGE_END();
 	}
 
@@ -2090,6 +2201,7 @@ const int	kEntHierFlagDeletion	= 0x02;
 			ASSERT((ent.mUser3 & ~kStatusMask) == 0);
 		long_data |= ent.mUser3 & kStatusMask;
 
+
 		switch( ent.mUser3 )
 		{
 		case AVH_USER3_MARINE_PLAYER: case AVH_USER3_COMMANDER_PLAYER:
@@ -2113,12 +2225,17 @@ const int	kEntHierFlagDeletion	= 0x02;
 			short_data <<= kNumFlagBits;
 				ASSERT( ( short_data & kFlagMask ) == 0 );
 			short_data |= kEntHierFlagPlayer;
+			if ( ent.mUnderAttack ) short_data |= kEntHierFlagUnderAttack;
 			break;
 		}
 		default:
 				ASSERT( ( index & ~kIndexMask ) == 0 );
 			short_data = index & kIndexMask;
 			short_data <<= kNumFlagBits;
+				ASSERT( (short_data & kFlagMask) == 0 );
+			if ( ent.mUnderAttack ) {
+				short_data |= kEntHierFlagUnderAttack;
+			}
 		}
 	}
 
@@ -2137,7 +2254,7 @@ const int	kEntHierFlagDeletion	= 0x02;
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-// tankefugl: 0000971
+// : 0000971
 #ifndef AVH_SERVER
 	void NetMsg_IssueOrder( void* const buffer, const int size, int& ordertype, int& ordersource, int& ordertarget )
 	{
@@ -2157,85 +2274,4 @@ const int	kEntHierFlagDeletion	= 0x02;
 		MESSAGE_END();
 	}
 #endif
-// :tankefugl
-
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-#ifndef AVH_SERVER
-	void NetMsg_LUAMessage( void* const buffer, const int size, lua_State *L, int &arguments)
-	{
-		BEGIN_READ( buffer, size );
-			arguments = READ_BYTE();
-			for (int i = arguments; i > 0; i--)
-			{
-				if (i == arguments)
-				{	
-					std::string temp = READ_STRING();
-					lua_getglobal(L, temp.c_str());
-					continue;
-				}
-
-				int theLuaType = READ_BYTE();
-				switch (theLuaType)
-				{
-					case LUA_TBOOLEAN:
-						lua_pushboolean(L, READ_BYTE());
-						break;
-					case LUA_TNUMBER:
-						lua_pushnumber(L, (float)(READ_LONG()));
-						break;
-					case LUA_TSTRING:
-						lua_pushstring(L, READ_STRING());
-						break;
-					default:
-						ASSERT(false);
-						break;
-				}
-			}
-		END_READ();
-		arguments--;
-	}
-#else
-	void NetMsg_LUAMessage(entvars_t* const pev, lua_State *L)
-	{
-		luaL_checktype(L, 2, LUA_TSTRING);
-		int arguments = lua_gettop(L);
-		for (int i = 3; i <= arguments; i++)
-		{
-			int theLuaType = lua_type(L, i);
-			if (!(theLuaType == LUA_TBOOLEAN || 
-					theLuaType == LUA_TNUMBER || 
-					theLuaType == LUA_TSTRING))
-				luaL_typerror(L, i, "boolean|number|string");
-		}
-		
-		MESSAGE_BEGIN( MSG_ONE, g_msgLUAMessage, NULL, pev );
-			WRITE_BYTE(arguments - 1);
-			WRITE_STRING(lua_tostring(L, 2));
-			int top = lua_gettop(L);
-			int current = 3;
-			while (current <= top)
-			{
-				int theLuaType = lua_type(L, current);
-				WRITE_BYTE(theLuaType);
-				switch (theLuaType)
-				{
-					case LUA_TBOOLEAN:
-						WRITE_BYTE(lua_toboolean(L, current));
-						break;
-					case LUA_TNUMBER:
-						WRITE_LONG((float)(lua_tonumber(L, current)));
-						break;
-					case LUA_TSTRING:
-						WRITE_STRING(lua_tostring(L, current));
-						break;
-					default:
-						ASSERT(false);
-						break;
-				}
-				current++;
-			}
-		MESSAGE_END();
-		
-	}
-#endif
+// :

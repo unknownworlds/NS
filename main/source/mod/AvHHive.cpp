@@ -77,17 +77,22 @@
 // - Post-crash checkin.  Restored @Backup from around 4/16.  Contains changes for last four weeks of development.
 //
 //===============================================================================
+
 #include "mod/AvHHive.h"
 #include "mod/AvHGamerules.h"
 #include "mod/AvHServerUtil.h"
 #include "mod/AvHSharedUtil.h"
+#include "mod/AvHAlienAbilityConstants.h"
 #include "mod/AvHAlienEquipmentConstants.h"
 #include "mod/AvHHulls.h"
+#include "mod/AvHMovementUtil.h"
 #include "mod/AvHSoundListManager.h"
 #include "mod/AvHServerVariables.h"
 #include "mod/AvHParticleConstants.h"
 #include "mod/AvHSpecials.h"
 #include "mod/AvHPlayerUpgrade.h"
+#include "util/MathUtil.h"
+#include <vector>
 
 extern AvHSoundListManager				gSoundListManager;
 BOOL IsSpawnPointValid( CBaseEntity *pPlayer, CBaseEntity *pSpot );
@@ -108,6 +113,10 @@ AvHHive::AvHHive() : AvHBaseBuildable(TECH_HIVE, ALIEN_BUILD_HIVE, kesTeamHive, 
 	this->mTimeLastWoundSound = -1;
 	this->mTechnology = MESSAGE_NULL;	
 	this->mEnergy = 0.0f;
+	this->mLastTimeScannedHives=-1.0f;
+	this->mTimeEmergencyUseEnabled=-1.0f;
+	this->mTeleportHiveIndex=-1;
+
 }
 
 bool AvHHive::CanBecomeActive() const
@@ -343,7 +352,7 @@ void AvHHive::KeyValue(KeyValueData* pkvd)
 	}
 }
 
-void AvHHive::TriggerDeathAudioVisuals()
+void AvHHive::TriggerDeathAudioVisuals(bool isRecycled)
 {
     AvHSUPlayParticleEvent(kpsHiveDeath, this->edict(), this->pev->origin);
     
@@ -423,8 +432,6 @@ void AvHHive::ResetEntity(void)
 {
 	AvHReinforceable::ResetEntity();
 	AvHBaseBuildable::ResetEntity();
-
-	SetUse(&AvHHive::ConstructUse);
 
 	this->ResetCloaking();
 
@@ -541,6 +548,7 @@ bool AvHHive::StartSpawningForTeam(AvHTeamNumber inTeam, bool inForce)
 
 		this->pev->nextthink = gpGlobals->time + kHiveAliveThinkInterval;
 		SetThink(&AvHHive::HiveAliveThink);
+		SetUse(&AvHHive::TeleportUse);
 
 		theSuccess = true;
 	}
@@ -574,7 +582,6 @@ void AvHHive::Spawn()
 
 	this->ResetEntity();
 
-	SetUse(&AvHHive::ConstructUse);
 }
 
 void AvHHive::SetActive()
@@ -619,6 +626,7 @@ void AvHHive::SetInactive()
 	this->mSpawning = false;
 	this->mSolid = false;
 	this->mTimeLastContributed = -1;
+	this->mTimeEmergencyUseEnabled=-1.0f;
 	this->mTechnology = MESSAGE_NULL;
 
 	this->pev->health = 0;
@@ -639,7 +647,7 @@ void AvHHive::SetInactive()
 	// No longer built at all
 	this->pev->fuser1 = 0.0f;
 	SetThink(NULL);
-
+	SetUse(NULL);
 	// Stop looping
 	UTIL_EmitAmbientSound(ENT(this->pev), this->pev->origin, kHiveAmbientSound, 1.0f, .5, SND_STOP, 100);
 
@@ -670,7 +678,8 @@ int	AvHHive::TakeDamage( entvars_t *pevInflictor, entvars_t *pevAttacker, float 
 				}
 				else
 				{
-					GetGameRules()->TriggerAlert((AvHTeamNumber)this->pev->team, ALERT_UNDER_ATTACK, this->entindex());
+					if ( pevAttacker->team != this->pev->team ) 
+						GetGameRules()->TriggerAlert((AvHTeamNumber)this->pev->team, ALERT_UNDER_ATTACK, this->entindex());
 				}
 
 				if((this->mTimeLastWoundSound == -1) || ((this->mTimeLastWoundSound + kWoundSoundInterval) < gpGlobals->time))
@@ -834,7 +843,7 @@ float AvHHive::GetReinforceTime() const
 
 	float theRespawnTime = (kMaxRespawnTime - kMaxRespawnTime*this->mEnergy);
 
-	// puzl 0000854 
+	//  0000854 
 	//  Decrease respawn wait time for aliens (NS: Classic)
 	//	With one hive, for every player above six on the alien team, 
 	//  reduce the per-player respawn wait time by two-thirds of a second. 
@@ -896,4 +905,108 @@ void AvHHive::HiveTouch(CBaseEntity* inOther)
 	}
 
     AvHBaseBuildable::BuildableTouch(inOther);
+}
+
+void AvHHive::SetEmergencyUse() {
+	if ( !this->GetEmergencyUse() ) {
+		GetGameRules()->TriggerAlert((AvHTeamNumber)this->pev->team, ALERT_HIVE_DEFEND, this->entindex());
+		this->mTimeEmergencyUseEnabled=gpGlobals->time;
+	}
+}
+
+bool AvHHive::GetEmergencyUse() const {
+	return ( this->mTimeEmergencyUseEnabled > gpGlobals->time - 5.0f ); //BALANCE_VAR(kHiveEmergencyInterval)
+}
+
+void AvHHive::TeleportUse(CBaseEntity* inActivator, CBaseEntity* inCaller, USE_TYPE inUseType, float inValue)
+{
+	if ( this->GetIsSpawning() ) {
+		this->SetEmergencyUse();
+		return;
+	}
+
+	const float kHiveScanInterval = 1.0f;
+
+	AvHPlayer* thePlayer = dynamic_cast<AvHPlayer*>(inActivator);
+
+
+	if(thePlayer && (thePlayer->pev->team == this->pev->team) && (thePlayer->GetUser3() != AVH_USER3_ALIEN_EMBRYO) && thePlayer->GetCanUseHive() )
+	{
+		vector<int> theHives;
+		vector<int> theHivesUnderAttack;
+		if((this->mLastTimeScannedHives == -1) || (gpGlobals->time > (this->mLastTimeScannedHives + kHiveScanInterval)))
+		{
+			this->mTeleportHiveIndex = -1;
+			float theFarthestDistance = 0.0f; //sqrt((kMaxMapDimension*2)*(kMaxMapDimension*2));
+			// Loop through the hives for this team, look for the farthest one (hives under attack take precedence)
+			FOR_ALL_ENTITIES(kesTeamHive, AvHHive*)
+				if((theEntity->pev->team == this->pev->team) && theEntity != this )
+				{
+					bool theHiveIsUnderAttack = GetGameRules()->GetIsEntityUnderAttack(theEntity->entindex());
+					// allow teleport to any built hive, or unbuilt hives under attack.
+					if(!theEntity->GetIsSpawning() || ( theEntity->GetIsSpawning() && ( theHiveIsUnderAttack || theEntity->GetEmergencyUse()) ) )
+					{
+						theHives.push_back(theEntity->entindex());
+						if ( theHiveIsUnderAttack ) 
+							theHivesUnderAttack.push_back(theEntity->entindex());
+					}
+				}
+			END_FOR_ALL_ENTITIES(kesTeamHive)
+		
+			this->mLastTimeScannedHives = gpGlobals->time;
+		}
+
+		vector<int> *tmpPtr=&theHives;
+		if ( theHivesUnderAttack.size() > 0 )
+			tmpPtr=&theHivesUnderAttack;
+
+		if ( tmpPtr->size() > 0 ) {
+			int myIndex=this->entindex();
+			for ( int i=0; i < tmpPtr->size(); i++ ) {
+				int hiveIndex=(*tmpPtr)[i];
+				if ( hiveIndex > myIndex ) {
+					this->mTeleportHiveIndex=hiveIndex;
+					break;
+				}
+			}
+			if ( this->mTeleportHiveIndex == -1 ) {
+				this->mTeleportHiveIndex=(*tmpPtr)[0];
+			}
+		}
+
+		// If we have a valid hive index, jump the player to it
+		if(this->mTeleportHiveIndex != -1)
+		{
+			// Play sound at this entity
+			EMIT_SOUND(this->edict(), CHAN_AUTO, kAlienSightOnSound, 1.0f, ATTN_NORM);
+		
+			// Move him to it!
+			AvHHive* theHive = NULL;
+			AvHSUGetEntityFromIndex(this->mTeleportHiveIndex, theHive);
+			if(theHive)
+			{
+				CBaseEntity* theSpawnEntity = GetGameRules()->GetRandomHiveSpawnPoint(thePlayer, theHive->pev->origin, theHive->GetMaxSpawnDistance());
+				if(theSpawnEntity)
+				{
+					Vector theMinSize;
+					Vector theMaxSize;
+					thePlayer->GetSize(theMinSize, theMaxSize);
+
+					int theOffset = AvHMUGetOriginOffsetForUser3(AvHUser3(thePlayer->pev->iuser3));
+					Vector theOriginToSpawn = theSpawnEntity->pev->origin;
+					theOriginToSpawn.z += theOffset;
+
+					if(AvHSUGetIsEnoughRoomForHull(theOriginToSpawn, AvHMUGetHull(false, thePlayer->pev->iuser3), thePlayer->edict()))
+					{
+						thePlayer->SetTimeOfLastHiveUse(gpGlobals->time);
+						thePlayer->SetPosition(theOriginToSpawn);
+						thePlayer->pev->velocity = Vector(0, 0, 0);
+						thePlayer->TriggerUncloak();
+						// Play teleport sound before and after
+						EMIT_SOUND(inActivator->edict(), CHAN_AUTO, kAlienSightOffSound, 1.0f, ATTN_NORM);
+					}
+				}
+			}
+		}
+	}
 }

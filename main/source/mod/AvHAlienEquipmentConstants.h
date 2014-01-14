@@ -70,6 +70,9 @@ const float		kWebThinkInterval =		.1f;
 const int		kWebStrandWidth =		60;
 const int		kWebStrandLifetime =	50;
 #define			kWebStrandBreakSound	"misc/web_break.wav"
+#define			kWebStrandHardenSound	"misc/web_harden.wav"
+#define			kWebStrandFormSound		"misc/web_form.wav"
+#define			kWebStrandHitSound		"misc/web_hit.wav"
 
 #define			kAlienResourceTowerModel			"models/ba_resource.mdl"
 

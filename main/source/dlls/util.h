@@ -565,7 +565,7 @@ float UTIL_WeaponTimeBase( void );
 void UTIL_SayText( const char *pText, CBaseEntity *pEntity, int inEntIndex = -1);
 void UTIL_SayTextAll( const char *pText, CBaseEntity *pEntity, int inEntIndex = -1);
 
-//voogru: hope you dont mind me adding this, I use this in NSAdmin 
+//: hope you dont mind me adding this, I use this in NSAdmin 
 // Statements like:
 //		#pragma message(Reminder "Fix this problem!")
 // Which will cause messages like:

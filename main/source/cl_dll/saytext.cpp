@@ -247,7 +247,9 @@ void CHudSayText :: SayTextPrint( const char *pszBuf, int iBufSize, int clientIn
 		}
 	}
 
-	strncpy( g_szLineBuffer[i], pszBuf, min(iBufSize -1, MAX_CHARS_PER_LINE-1) );
+	// : 0001087 
+	// don't strip last character ( often resulted in no carriage returns in the log )
+	strncpy( g_szLineBuffer[i], pszBuf, min(iBufSize, MAX_CHARS_PER_LINE-1) );
 
 	// make sure the text fits in one line
 	EnsureTextFitsInOneLineAndWrapIfHaveTo( i );
@@ -277,7 +279,7 @@ void CHudSayText :: SayTextPrint( const char *pszBuf, int iBufSize, int clientIn
         gViewPort->GetChatPanel()->getPos(theX, theY);
         gViewPort->GetChatPanel()->getSize(theWidth, theHeight);
     
-        //Y_START = theY + theHeight + 5; //voogru: this is too high imo.
+        //Y_START = theY + theHeight + 5; //: this is too high imo.
 		//KGP: then move the viewport
         Y_START = theY + theHeight + 5;
     }

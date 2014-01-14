@@ -104,6 +104,15 @@ qboolean EV_IsLocal( int idx )
 		return gEngfuncs.pEventAPI->EV_IsLocal( idx - 1 ) ? true : false;
 }
 
+qboolean EV_IsSpec( int idx )
+{
+	// check if we are in some way in first person spec mode
+	if ( IS_FIRSTPERSON_SPEC  )
+		return (g_iUser2 == idx);
+	else
+		return false;
+}
+
 /*
 =================
 EV_GetGunPosition

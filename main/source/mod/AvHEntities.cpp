@@ -1658,7 +1658,7 @@ void AvHTriggerScript::Use(CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TY
 }
 
 
-AvHWebStrand::AvHWebStrand()
+AvHWebStrand::AvHWebStrand() : mSolid(false)
 {
 }
 
@@ -1666,6 +1666,7 @@ void AvHWebStrand::Break()
 {
 	EMIT_SOUND(ENT(this->pev), CHAN_AUTO, kWebStrandBreakSound, 1.0, ATTN_IDLE);
 	UTIL_Remove(this);
+	SetThink(NULL);
 
 	// Decrement number of strands
 	AvHTeam* theTeam = GetGameRules()->GetTeam((AvHTeamNumber)this->pev->team);
@@ -1685,20 +1686,24 @@ void AvHWebStrand::Precache(void)
 	// Precache web strand sprite
 	PRECACHE_UNMODIFIED_MODEL(kWebStrandSprite);
 	PRECACHE_UNMODIFIED_SOUND(kWebStrandBreakSound);
+	PRECACHE_UNMODIFIED_SOUND(kWebStrandHardenSound);
+	PRECACHE_UNMODIFIED_SOUND(kWebStrandFormSound);
 }
 
 void AvHWebStrand::Setup(const Vector& inPointOne, const Vector& inPointTwo)
 {
 	// Create a new entity with CBeam private data
-	this->BeamInit(kWebStrandSprite, kWebStrandWidth);
+	this->BeamInit(kWebStrandSprite, 40); //kWebStrandWidth);
 
 	this->PointsInit(inPointOne, inPointTwo);
 	this->SetColor( 255, 255, 255 );
 	this->SetScrollRate( 0 );
+	this->SetFrame(0);
 	//this->SetBrightness( 64 );
-	this->SetBrightness( 8 );
+	this->SetBrightness( 16 );
 
 	this->pev->classname = MAKE_STRING(kesTeamWebStrand);
+	this->pev->rendermode = kRenderNormal;
 }
 
 void AvHWebStrand::Spawn(void)
@@ -1713,15 +1718,28 @@ void AvHWebStrand::Spawn(void)
 	//this->pev->solid = SOLID_BBOX;
 	this->pev->health = kWebHitPoints;
 	this->pev->takedamage = DAMAGE_YES;
-
+	this->mSolid=false;
+	this->pev->nextthink = gpGlobals->time + BALANCE_VAR(kWebWarmupTime);
+	SetThink(&AvHWebStrand::StrandThink);
+	
 	//SetBits(this->pev->flags, FL_MONSTER);
 	
 	this->RelinkBeam();
 
+	EMIT_SOUND(ENT(this->pev), CHAN_AUTO, kWebStrandFormSound, 1.0, ATTN_IDLE);
 	//SetThink(StrandExpire);
 	//this->pev->nextthink = gpGlobals->time + kWebStrandLifetime;
 }
 
+void AvHWebStrand::StrandThink() 
+{
+	EMIT_SOUND(ENT(this->pev), CHAN_AUTO, kWebStrandHardenSound, 1.0, ATTN_IDLE);
+	this->SetBrightness( 32 );
+	this->SetColor( 255, 255, 255 );
+	this->SetFrame(1);
+	this->mSolid=true;
+	SetThink(NULL);
+}
 void AvHWebStrand::StrandExpire()
 {
 	this->Break();
@@ -1734,14 +1752,19 @@ void AvHWebStrand::StrandTouch( CBaseEntity *pOther )
 	//if(GetGameRules()->CanEntityDoDamageTo(this, pOther))
 	if(pOther->pev->team != this->pev->team)
 	{
-		AvHPlayer* thePlayer = dynamic_cast<AvHPlayer*>(pOther);
-		if(thePlayer && thePlayer->GetCanBeAffectedByEnemies())
-		{
-			// Break web and ensnare player if possible (players can't be too webbed)
-			if(thePlayer->SetEnsnareState(true))
+		if ( this->mSolid ) {
+			AvHPlayer* thePlayer = dynamic_cast<AvHPlayer*>(pOther);
+			if(thePlayer && thePlayer->GetCanBeAffectedByEnemies())
 			{
-				this->Break();
+				// Break web and ensnare player if possible (players can't be too webbed)
+				if(thePlayer->SetEnsnareState(true))
+				{
+					this->Break();
+				}
 			}
+		}
+		else {
+			this->Break();
 		}
 	}
 }

@@ -85,7 +85,6 @@
 #include "mod/AvHServerPlayerData.h"
 #include "mod/AvHTechSlotManager.h"
 #include "mod/AvHAlert.h"
-#include "mod/AvHObjective.h"
 
 class AvHPlayer;
 
@@ -197,9 +196,9 @@ public:
 	void			PlayFunHUDSoundOnce(AvHHUDSound inHUDSound);
 	void			PlayHUDSoundForAlivePlayers(AvHHUDSound inHUDSound) const;
 
-	// joev: Bug 0000767
+	// : Bug 0000767
 	void			PlayHUDSoundForAllPlayers(AvHHUDSound inHUDSound) const;
-	// :joev
+	// :
 
 	bool			PlayerVote(int inPlayerIndex, string& outPlayerMessage);
 
@@ -220,8 +219,6 @@ public:
 
 	EntityListType	GetSelectAllGroup();
 	void			SetSelectAllGroup(EntityListType& inGroup);
-
-	AvHObjectiveManager *GetObjectiveManager();
 
 private:
 	void			AddTechNode(AvHMessageID inMessageID, AvHTechID inTechID, AvHTechID inPrereq1 = TECH_NULL, AvHTechID inPrereq2 = TECH_NULL, bool inAllowMultiples = true, bool inResearched = false);
@@ -335,8 +332,6 @@ private:
 	EntityListType		mSelectAllGroup;
 
 	float				mTimeReinforcementWaveComplete;
-
-	AvHObjectiveManager mObjectiveManager;
 };
 
 #endif

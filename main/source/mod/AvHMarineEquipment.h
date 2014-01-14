@@ -126,7 +126,7 @@ private:
 class AvHHealth : public AvHPlayerEquipment
 {
 public:
-	// puzl: 1017 GiveHealth now takes the amount as a paramater.
+	// : 1017 GiveHealth now takes the amount as a paramater.
 	static BOOL GiveHealth(CBaseEntity* inOther, float points);
 
 	void Precache( void );
@@ -310,8 +310,8 @@ public:
 	virtual int	    GetIdle1Animation() const;
 	virtual int	    GetIdle2Animation() const;
 
-	virtual int		GetDeployAnimation() const;
-	virtual int		GetSpawnAnimation() const;
+	// virtual int		GetDeployAnimation() const;
+	// virtual int		GetSpawnAnimation() const;
 
 protected:
 

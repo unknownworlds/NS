@@ -19,6 +19,7 @@
 // Commands
 //#define kcBuyReinforcements			"buyreinforcements"
 #define kcReadyRoom					"readyroom"
+#define kcMenuReadyRoom					"menureadyroom"
 #define kcJoinTeamOne				"jointeamone"
 #define kcJoinTeamTwo				"jointeamtwo"
 #define kcJoinTeamThree				"jointeamthree"
@@ -82,6 +83,7 @@
 #define kcOrderSelf					"orderself"
 #define	kcParasite					"parasite"
 #define kcKillAll					"killall"
+#define kcAuth						"auth"
 #define kcStun						"stun"
 #define kcBoxes						"boxes"
 #define kcOverflow					"overflow"

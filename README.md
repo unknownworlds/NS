@@ -26,7 +26,7 @@ EXCLUDED CODE: The code described below and contained in the Natural Selection S
 EXCLUDED CODE AND LIBRARIES
 - Half Life 1 SDK LICENSE (Copyright(C) Valve Corp.)
 - FMOD 3.7.5
-- LUA 5.0 (http://lua.org)
+- Lua 5.0 (http://lua.org)
 - Particle system library by David McAllister (http://www.cs.unc.edu/techreports/00-007.pdf).
 
 Original code and design by Charlie Cleveland (charlie@unknownworlds.com, @flayra).

@@ -19,7 +19,7 @@ The mark Natural Selection was first represented in association with video-game 
 
 Natural Selection license
 =========================
-See COPYING.txt for the GNU GENERAL PUBLIC LICENSE
+See COPYING.html for the GNU GENERAL PUBLIC LICENSE
 
 EXCLUDED CODE: The code described below and contained in the Natural Selection Source Code release is not part of the Program covered by the GPL and is expressly excluded from its terms. You are solely responsible for obtaining from the copyright holder a license for such code and complying with the applicable license terms.
 
